@@ -1,38 +1,17 @@
-"""Unit tests for AudioFile technical information methods."""
+"""Unit tests for general AudioFile technical methods behavior."""
 
 import pytest
 from pathlib import Path
 import tempfile
 import os
+import time
 
 from audiometa import AudioFile
 from audiometa.exceptions import FileTypeNotSupportedError
 
 
-class TestAudioFileTechnicalMethods:
-
-    def test_get_sample_rate_mp3(self, sample_mp3_file: Path):
-        audio_file = AudioFile(sample_mp3_file)
-        sample_rate = audio_file.get_sample_rate()
-        
-        assert isinstance(sample_rate, int)
-        assert sample_rate > 0
-        # Common sample rates: 44100, 48000, 22050, etc.
-        assert sample_rate in [8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000]
-
-    def test_get_sample_rate_wav(self, sample_wav_file: Path):
-        audio_file = AudioFile(sample_wav_file)
-        sample_rate = audio_file.get_sample_rate()
-        
-        assert isinstance(sample_rate, int)
-        assert sample_rate > 0
-
-    def test_get_sample_rate_flac(self, sample_flac_file: Path):
-        audio_file = AudioFile(sample_flac_file)
-        sample_rate = audio_file.get_sample_rate()
-        
-        assert isinstance(sample_rate, int)
-        assert sample_rate > 0
+@pytest.mark.unit
+class TestAudioFileTechnicalGeneral:
 
     def test_get_sample_rate_unsupported_format(self):
         with tempfile.NamedTemporaryFile(suffix='.txt', delete=False) as temp_file:
@@ -45,40 +24,6 @@ class TestAudioFileTechnicalMethods:
         finally:
             os.unlink(temp_path)
 
-    def test_get_channels_mp3(self, sample_mp3_file: Path):
-        audio_file = AudioFile(sample_mp3_file)
-        channels = audio_file.get_channels()
-        
-        assert isinstance(channels, int)
-        assert channels > 0
-        # Common channel counts: 1 (mono), 2 (stereo)
-        assert channels in [1, 2, 4, 6, 8]
-
-    def test_get_channels_wav(self, sample_wav_file: Path):
-        audio_file = AudioFile(sample_wav_file)
-        channels = audio_file.get_channels()
-        
-        assert isinstance(channels, int)
-        assert channels > 0
-
-    def test_get_channels_flac(self, sample_flac_file: Path):
-        audio_file = AudioFile(sample_flac_file)
-        channels = audio_file.get_channels()
-        
-        assert isinstance(channels, int)
-        assert channels > 0
-
-    def test_get_file_size(self, sample_mp3_file: Path):
-        audio_file = AudioFile(sample_mp3_file)
-        file_size = audio_file.get_file_size()
-        
-        assert isinstance(file_size, int)
-        assert file_size > 0
-        
-        # Should match actual file size
-        actual_size = os.path.getsize(sample_mp3_file)
-        assert file_size == actual_size
-
     def test_get_file_size_nonexistent_file(self):
         with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as temp_file:
             temp_path = temp_file.name
@@ -89,24 +34,6 @@ class TestAudioFileTechnicalMethods:
         # Should handle gracefully
         with pytest.raises(FileNotFoundError):
             AudioFile(temp_path)
-
-    def test_get_format_name_mp3(self, sample_mp3_file: Path):
-        audio_file = AudioFile(sample_mp3_file)
-        format_name = audio_file.get_format_name()
-        
-        assert format_name == 'MP3'
-
-    def test_get_format_name_wav(self, sample_wav_file: Path):
-        audio_file = AudioFile(sample_wav_file)
-        format_name = audio_file.get_format_name()
-        
-        assert format_name == 'WAV'
-
-    def test_get_format_name_flac(self, sample_flac_file: Path):
-        audio_file = AudioFile(sample_flac_file)
-        format_name = audio_file.get_format_name()
-        
-        assert format_name == 'FLAC'
 
     def test_get_format_name_unsupported(self):
         with tempfile.NamedTemporaryFile(suffix='.unknown', delete=False) as temp_file:
@@ -166,8 +93,6 @@ class TestAudioFileTechnicalMethods:
             os.unlink(temp_path)
 
     def test_technical_methods_performance(self, sample_mp3_file: Path):
-        import time
-        
         audio_file = AudioFile(sample_mp3_file)
         
         # Time the methods
