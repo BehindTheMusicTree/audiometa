@@ -556,6 +556,11 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
     def update_metadata(self, unified_metadata: UnifiedMetadata):
         """Override to use custom save method with version control and ID3v1 preservation."""
+        # For FLAC files, use external tools instead of mutagen to avoid file corruption
+        if self.audio_file.file_extension == '.flac':
+            self._update_metadata_for_flac(unified_metadata)
+            return
+            
         if not self.metadata_keys_direct_map_write:
             raise MetadataFieldNotSupportedByMetadataFormatError('This format does not support metadata modification')
 
@@ -609,6 +614,74 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         
         # Save with ID3v1 preservation
         self._save_with_id3v1_preservation(file_path, id3v1_data)
+
+    def _update_metadata_for_flac(self, unified_metadata: UnifiedMetadata):
+        """Update ID3v2 metadata for FLAC files using external tools to avoid file corruption."""
+        if not self.metadata_keys_direct_map_write:
+            raise MetadataFieldNotSupportedByMetadataFormatError('This format does not support metadata modification')
+
+        file_path = self.audio_file.get_file_path_or_object()
+        
+        # Use external tools to write ID3v2 metadata to FLAC files
+        # This avoids the file corruption that occurs with mutagen's ID3 class
+        import subprocess
+        
+        # Determine the tool and version based on the configured ID3v2 version
+        if self.id3v2_version[1] == 3:
+            tool = "id3v2"
+            cmd = ["id3v2", "--id3v2-only"]
+        else:  # ID3v2.4
+            tool = "mid3v2"
+            cmd = ["mid3v2"]
+        
+        # Map unified metadata keys to external tool arguments
+        key_mapping = {
+            UnifiedMetadataKey.TITLE: '--song',
+            UnifiedMetadataKey.ARTISTS: '--artist',
+            UnifiedMetadataKey.ALBUM: '--album',
+            UnifiedMetadataKey.ALBUM_ARTISTS: '--TPE2',
+            UnifiedMetadataKey.GENRES_NAMES: '--genre',
+            UnifiedMetadataKey.COMMENT: '--comment',
+            UnifiedMetadataKey.TRACK_NUMBER: '--track',
+            UnifiedMetadataKey.BPM: '--TBPM',
+            UnifiedMetadataKey.COMPOSERS: '--TCOM',
+            UnifiedMetadataKey.COPYRIGHT: '--TCOP',
+            UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: '--USLT',
+            UnifiedMetadataKey.LANGUAGE: '--TLAN',
+            UnifiedMetadataKey.PUBLISHER: '--TPUB',
+        }
+        
+        # Build command with metadata
+        for unified_key, value in unified_metadata.items():
+            if unified_key in key_mapping and value is not None:
+                tool_arg = key_mapping[unified_key]
+                
+                if unified_key == UnifiedMetadataKey.ARTISTS and isinstance(value, list):
+                    # Handle multiple artists by joining with semicolon
+                    value = ';'.join(value)
+                elif unified_key == UnifiedMetadataKey.GENRES_NAMES and isinstance(value, list):
+                    # Handle multiple genres by joining with semicolon
+                    value = ';'.join(value)
+                elif unified_key == UnifiedMetadataKey.COMPOSERS and isinstance(value, list):
+                    # Handle multiple composers by joining with semicolon
+                    value = ';'.join(value)
+                elif unified_key == UnifiedMetadataKey.ALBUM_ARTISTS and isinstance(value, list):
+                    # Handle multiple album artists by joining with semicolon
+                    value = ';'.join(value)
+                
+                cmd.extend([tool_arg, str(value)])
+        
+        # Add file path and execute
+        cmd.append(str(file_path))
+        
+        try:
+            subprocess.run(cmd, check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            from ...exceptions import FileCorruptedError
+            raise FileCorruptedError(f"Failed to write ID3v2 metadata with {tool}: {e}")
+        except FileNotFoundError:
+            from ...exceptions import FileCorruptedError
+            raise FileCorruptedError(f"External tool {tool} not found. Please install it to write ID3v2 metadata to FLAC files.")
 
     def delete_metadata(self) -> bool:
         """Delete all ID3v2 metadata from the audio file.
