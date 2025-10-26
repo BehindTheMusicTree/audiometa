@@ -57,13 +57,13 @@ class TestRatingWorkflows:
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # 1. Add rating with 100 scale
             rating_metadata_100 = {
-                UnifiedMetadataKey.RATING: 75
+                UnifiedMetadataKey.RATING: 80
             }
             update_metadata(test_file.path, rating_metadata_100, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
             
             # 2. Verify rating was added
             metadata_with_rating = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            assert metadata_with_rating.get(UnifiedMetadataKey.RATING) == 75
+            assert metadata_with_rating.get(UnifiedMetadataKey.RATING) == 80
             
             # 3. Delete rating by setting to None
             rating_deletion = {
@@ -77,13 +77,13 @@ class TestRatingWorkflows:
             
             # 5. Add rating with 255 scale
             rating_metadata_255 = {
-                UnifiedMetadataKey.RATING: 191  # 75% of 255
+                UnifiedMetadataKey.RATING: 204  # 80% of 255
             }
             update_metadata(test_file.path, rating_metadata_255, normalized_rating_max_value=255, metadata_format=MetadataFormat.ID3V2)
             
             # 6. Verify rating was added with 255 scale
             metadata_with_rating_255 = get_unified_metadata(test_file, normalized_rating_max_value=255)
-            assert metadata_with_rating_255.get(UnifiedMetadataKey.RATING) == 191
+            assert metadata_with_rating_255.get(UnifiedMetadataKey.RATING) == 204
             
             # 7. Delete rating with 255 scale
             update_metadata(test_file.path, rating_deletion, normalized_rating_max_value=255, metadata_format=MetadataFormat.ID3V2)
