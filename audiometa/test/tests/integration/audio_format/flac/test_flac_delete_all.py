@@ -13,7 +13,7 @@ from audiometa.exceptions import MetadataFormatNotSupportedByAudioFormatError
 @pytest.mark.integration
 class TestDeleteAllMetadataFormatSpecificFLAC:
     
-    def test_delete_all_metadata_formats_flac(self):
+    def test_flac(self):
         with TempFileWithMetadata({}, "flac") as test_file:
             # Add ID3v1 metadata using external tools for proper test isolation
             ID3v1MetadataSetter.set_metadata(test_file.path, {"title": "ID3v1 Title", "artist": "ID3v1 Artist"})
