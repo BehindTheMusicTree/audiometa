@@ -93,3 +93,18 @@ class TechnicalInfoInspector:
             return None
         except Exception:
             return None
+
+    @staticmethod
+    def get_file_size(file_path: str | Path) -> Optional[int]:
+        """Get the file size of an audio file in bytes using mediainfo."""
+        try:
+            data = TechnicalInfoInspector._run_mediainfo(file_path, "JSON")
+            tracks = data.get("media", {}).get("track", [])
+            for track in tracks:
+                if track.get("@type") == "General":
+                    file_size_str = track.get("FileSize")
+                    if file_size_str:
+                        return int(file_size_str)
+            return None
+        except Exception:
+            return None

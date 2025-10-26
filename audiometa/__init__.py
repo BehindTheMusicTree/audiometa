@@ -692,6 +692,29 @@ def get_channels(file: FILE_TYPE) -> int:
     return file.get_channels()
 
 
+def get_file_size(file: FILE_TYPE) -> int:
+    """
+    Get the file size of an audio file in bytes.
+    
+    Args:
+        file: Audio file path or AudioFile object
+        
+    Returns:
+        File size in bytes
+        
+    Raises:
+        FileTypeNotSupportedError: If the file format is not supported
+        FileNotFoundError: If the file does not exist
+        
+    Examples:
+        size = get_file_size("song.mp3")
+        print(f"File size: {size} bytes")
+    """
+    if not isinstance(file, AudioFile):
+        file = AudioFile(file)
+    return file.get_file_size()
+
+
 def get_duration_in_sec(file: FILE_TYPE) -> float:
     """
     Get the duration of an audio file in seconds.
@@ -843,7 +866,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
                 'bitrate_kbps': file.get_bitrate(),
                 'sample_rate_hz': file.get_sample_rate(),
                 'channels': file.get_channels(),
-                'file_size_bytes': file.get_file_size(),
+                'file_size_bytes': get_file_size(file),
                 'file_extension': file.file_extension,
                 'format_name': file.get_format_name(),
                 'is_flac_md5_valid': file.is_flac_file_md5_valid() if file.file_extension == '.flac' else None
