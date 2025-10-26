@@ -121,14 +121,7 @@ class VorbisMetadataSetter:
         from pathlib import Path
         scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "data" / "scripts"
         run_script("set-vorbis-max-metadata.sh", file_path, scripts_dir)
-    
-    @staticmethod
-    def set_artists_one_two_three(file_path: Path) -> None:
-        from ..common.external_tool_runner import run_script
-        from pathlib import Path
-        scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "data" / "scripts"
-        run_script("set-artists-One-Two-Three-vorbis.sh", file_path, scripts_dir)
-    
+        
     @staticmethod
     def set_artists(file_path: Path, artists: List[str], removing_existing=True, key_lower_case=False, in_single_entry=False) -> None:
         """Set multiple Vorbis artists using mutagen."""
