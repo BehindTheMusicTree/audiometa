@@ -2,6 +2,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import get_unified_metadata_field, update_metadata
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError, InvalidRatingValueError
 
@@ -28,6 +29,14 @@ class TestRatingErrorHandling:
         
         with pytest.raises(FileNotFoundError):
             update_metadata(nonexistent_file, {UnifiedMetadataKey.RATING: 85})
+            
+
+    def test_write_fractional_values(self, temp_audio_file):
+        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
+        
+        with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
+            with pytest.raises(InvalidRatingValueError):
+                update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 25.5}, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
 
     def test_rating_invalid_values(self, sample_mp3_file: Path, temp_audio_file: Path):
         # Test with invalid rating values
