@@ -22,9 +22,9 @@ class ID3v2MetadataSetter:
             tool = "id3v2"
             cmd = ["id3v2", "--id3v2-only"]
         else:
-            # Default to 2.4 with mid3v2
-            tool = "mid3v2"
-            cmd = ["mid3v2"]
+            # Use id3v2 with --id3v2-only flag to prevent affecting ID3v1 tags
+            tool = "id3v2"
+            cmd = ["id3v2", "--id3v2-only"]
         
         # Map common metadata keys to tool arguments
         key_mapping = {
@@ -65,8 +65,8 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--song", title, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--song", title, str(file_path)]
-            run_external_tool(command, "mid3v2")
+            command = ["id3v2", "--id3v2-only", "--song", title, str(file_path)]
+            run_external_tool(command, "id3v2")
     
     @staticmethod
     def set_titles(file_path: Path, titles: List[str], in_separate_frames: bool = False, version: str = "2.4"):
@@ -89,8 +89,8 @@ class ID3v2MetadataSetter:
                 command = ["id3v2", "--id3v2-only", "--artist", artists, str(file_path)]
                 run_external_tool(command, "id3v2")
             else:
-                command = ["mid3v2", "--artist", artists, str(file_path)]
-                run_external_tool(command, "mid3v2")
+                command = ["id3v2", "--id3v2-only", "--artist", artists, str(file_path)]
+                run_external_tool(command, "id3v2")
         else:
             # For list input, use multiple values handling
             ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TPE1", artists, in_separate_frames=in_separate_frames, version=version)
@@ -101,8 +101,8 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--album", album, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--album", album, str(file_path)]
-            run_external_tool(command, "mid3v2")
+            command = ["id3v2", "--id3v2-only", "--album", album, str(file_path)]
+            run_external_tool(command, "id3v2")
     
     @staticmethod
     def set_genre(file_path: Path, genre: str, version: str = "2.4") -> None:
@@ -110,8 +110,8 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--genre", genre, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--genre", genre, str(file_path)]
-            run_external_tool(command, "mid3v2")
+            command = ["id3v2", "--id3v2-only", "--genre", genre, str(file_path)]
+            run_external_tool(command, "id3v2")
     
     @staticmethod
     def set_lyrics(file_path: Path, lyrics: str, version: str = "2.4") -> None:
@@ -119,8 +119,8 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--USLT", lyrics, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--USLT", lyrics, str(file_path)]
-            run_external_tool(command, "mid3v2")
+            command = ["id3v2", "--id3v2-only", "--USLT", lyrics, str(file_path)]
+            run_external_tool(command, "id3v2")
     
     @staticmethod
     def set_language(file_path: Path, language: str, version: str = "2.4") -> None:
@@ -128,8 +128,8 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--TLAN", language, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--TLAN", language, str(file_path)]
-            run_external_tool(command, "mid3v2")
+            command = ["id3v2", "--id3v2-only", "--TLAN", language, str(file_path)]
+            run_external_tool(command, "id3v2")
     
     @staticmethod
     def set_bpm(file_path: Path, bpm: int, version: str = "2.4") -> None:
@@ -137,8 +137,8 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--TBPM", str(bpm), str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--TBPM", str(bpm), str(file_path)]
-            run_external_tool(command, "mid3v2")
+            command = ["id3v2", "--id3v2-only", "--TBPM", str(bpm), str(file_path)]
+            run_external_tool(command, "id3v2")
 
     @staticmethod
     def set_release_date(file_path: Path, date_str: str, version: str = "2.4") -> None:
@@ -174,8 +174,8 @@ class ID3v2MetadataSetter:
                 run_external_tool(command, "id3v2")
         else:
             # ID3v2.4: Use TDRC with full date
-            command = ["mid3v2", "--TDRC", date_str, str(file_path)]
-            run_external_tool(command, "mid3v2")
+            command = ["id3v2", "--id3v2-only", "--TDRC", date_str, str(file_path)]
+            run_external_tool(command, "id3v2")
 
     @staticmethod
     def set_max_metadata(file_path: Path) -> None:
@@ -201,7 +201,7 @@ class ID3v2MetadataSetter:
             separator = ";" if version == "2.3" else "\x00"
         
         # Use appropriate method for all cases
-        ID3v2MetadataSetter._set_single_frame_with_mid3v2(file_path, frame_id, values, version, separator)
+        ID3v2MetadataSetter._set_single_frame_with_id3v2(file_path, frame_id, values, version, separator)
     
     @staticmethod
     def _set_multiple_metadata_values(file_path: Path, frame_id: str, values: List[str], in_separate_frames: bool = False, version: str = "2.4", separator: str = None) -> None:
@@ -281,15 +281,15 @@ class ID3v2MetadataSetter:
         ID3v2MetadataDeleter.delete_frame(file_path, "COMM")
         
         if in_separate_frames:
-            # Set each comment in a separate mid3v2 call to force multiple frames
+            # Set each comment in a separate id3v2 call to force multiple frames
             for comment in comments:
-                command = ["mid3v2", "--comment", comment, str(file_path)]
-                run_external_tool(command, "mid3v2")
+                command = ["id3v2", "--id3v2-only", "--comment", comment, str(file_path)]
+                run_external_tool(command, "id3v2")
         else:
             # Set only the first comment (ID3v2 comment fields are typically single-valued)
             if comments:
-                command = ["mid3v2", "--comment", comments[0], str(file_path)]
-                run_external_tool(command, "mid3v2")
+                command = ["id3v2", "--id3v2-only", "--comment", comments[0], str(file_path)]
+                run_external_tool(command, "id3v2")
     
     @staticmethod
     def _create_multiple_id3v2_frames(file_path: Path, frame_id: str, texts: List[str], version: str = "2.4") -> None:
@@ -326,11 +326,8 @@ class ID3v2MetadataSetter:
             creator._write_id3v2_tag(file_path, frames, version)
     
     @staticmethod
-    def _set_single_frame_with_mid3v2(file_path: Path, frame_id: str, alist: List[str], version: str, separator: str = None) -> None:
-        """Internal helper: Create a single ID3v2 frame using appropriate method based on version.
-        
-        For ID3v2.4, uses manual binary construction to handle null bytes in data.
-        For ID3v2.3, uses external id3v2 tool.
+    def _set_single_frame_with_id3v2(file_path: Path, frame_id: str, alist: List[str], version: str, separator: str = None) -> None:
+        """Internal helper: Create a single ID3v2 frame using id3v2 tool with --id3v2-only flag.
         
         Args:
             file_path: Path to the audio file
@@ -346,31 +343,24 @@ class ID3v2MetadataSetter:
         # Combine values with the appropriate separator
         combined_text = separator.join(alist) if len(alist) > 1 else alist[0] if alist else ""
         
-        if version == "2.4":
-            # Use manual binary construction to handle null bytes in data
-            from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
-            creator = ManualID3v2FrameCreator()
-            frame_data = creator._create_text_frame(frame_id, combined_text, version)
-            creator._write_id3v2_tag(file_path, [frame_data], version)
-        else:
-            # Use external tool for 2.3
-            # Map frame IDs to tool flags
-            flag_mapping = {
-                'TCON': '--genre',
-                'TIT2': '--song',
-                'TPE1': '--artist',
-                'TALB': '--album',
-                'TDRC': '--year',
-                'TRCK': '--track',
-                'COMM': '--comment'
-            }
-            
-            flag = flag_mapping.get(frame_id, f'--{frame_id.lower()}')
-            
-            command = ["id3v2", "--id3v2-only", flag, combined_text, str(file_path)]
-            tool = "id3v2"
-            
-            run_external_tool(command, tool)
+        # Use external tool for both versions
+        # Map frame IDs to tool flags
+        flag_mapping = {
+            'TCON': '--genre',
+            'TIT2': '--song',
+            'TPE1': '--artist',
+            'TALB': '--album',
+            'TDRC': '--year',
+            'TRCK': '--track',
+            'COMM': '--comment'
+        }
+        
+        flag = flag_mapping.get(frame_id, f'--{frame_id.lower()}')
+        
+        command = ["id3v2", "--id3v2-only", flag, combined_text, str(file_path)]
+        tool = "id3v2"
+        
+        run_external_tool(command, tool)
     
     @staticmethod
     def write_tpe1_with_encoding(file_path: Path, text: str, encoding: int) -> None:
