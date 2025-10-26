@@ -7,10 +7,15 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
 ### High Priority
 
 - [ ] **Test rating profile compatibility across different audio players**
+
   - Verify which rating values are actually readable and display correctly
   - Test Profile A (255 non-proportional) with Windows Media Player, MusicBee, Winamp, kid3
   - Test Profile B (100 proportional) with FLAC players and Vorbis-compatible software
   - Test Profile C (255 proportional) with Traktor Pro and Traktor DJ
+
+- [ ] **Support of non-supported fields**
+
+  - Add support for metadata fields that are currently not handled by the library
 
 ## Feature Enhancements
 
