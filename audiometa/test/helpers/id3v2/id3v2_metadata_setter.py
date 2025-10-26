@@ -48,7 +48,7 @@ class ID3v2MetadataSetter:
             }
         else:
             tool = "mid3v2"
-            cmd = ["mid3v2"]
+            cmd = ["mid3v2", "--no-id3v1"]
             # Map common metadata keys to mid3v2 tool arguments
             key_mapping = {
                 'title': '--song',
@@ -87,7 +87,7 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--song", title, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--song", title, str(file_path)]
+            command = ["mid3v2", "--no-id3v1", "--song", title, str(file_path)]
             run_external_tool(command, "mid3v2")
     
     @staticmethod
@@ -112,7 +112,7 @@ class ID3v2MetadataSetter:
                 run_external_tool(command, "id3v2")
             else:
                 # Use mid3v2 for ID3v2.4 as it automatically creates ID3v2.4 tags
-                command = ["mid3v2", "--artist", artists, str(file_path)]
+                command = ["mid3v2", "--no-id3v1", "--artist", artists, str(file_path)]
                 run_external_tool(command, "mid3v2")
         else:
             # For list input, use multiple values handling
@@ -124,7 +124,7 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--album", album, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--album", album, str(file_path)]
+            command = ["mid3v2", "--no-id3v1", "--album", album, str(file_path)]
             run_external_tool(command, "mid3v2")
     
     @staticmethod
@@ -142,7 +142,7 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--USLT", lyrics, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--USLT", lyrics, str(file_path)]
+            command = ["mid3v2", "--no-id3v1", "--USLT", lyrics, str(file_path)]
             run_external_tool(command, "mid3v2")
     
     @staticmethod
