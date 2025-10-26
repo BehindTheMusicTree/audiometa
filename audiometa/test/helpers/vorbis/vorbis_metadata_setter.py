@@ -43,7 +43,7 @@ class VorbisMetadataSetter:
             'date': 'DATE',
             'genre': 'GENRE',
             'comment': 'COMMENT',
-            'tracknumber': 'TRACKNUMBER',
+            'track_number': 'TRACKNUMBER',
             'bpm': 'BPM',
             'composer': 'COMPOSER',
             'copyright': 'COPYRIGHT',
