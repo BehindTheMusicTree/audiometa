@@ -30,15 +30,12 @@ class TestTrackNumberWriting:
                 update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
 
     def test_vorbis(self):
-        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
-        
         with TempFileWithMetadata({}, "flac") as test_file:
             test_track_number = 3
             test_metadata = {UnifiedMetadataKey.TRACK_NUMBER: test_track_number}
-        
-            # Vorbis format raises exception for unsupported metadata
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.TRACK_NUMBER metadata not supported by this format"):
-                update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
+            track_number = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TRACK_NUMBER)
+            assert track_number == test_track_number
 
     def test_id3v1(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
