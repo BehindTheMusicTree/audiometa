@@ -50,6 +50,11 @@ class ID3v1MetadataSetter:
     @staticmethod
     def set_metadata(file_path: Path, metadata: Dict[str, Any]) -> None:
         """Set ID3v1 metadata using id3v2 tool (id3v2 can also set ID3v1 tags)."""
+        # Ensure ID3v1.1 format when track is set
+        metadata = metadata.copy()
+        if 'track' in metadata and 'comment' not in metadata:
+            metadata['comment'] = ' ' * 28  # Set comment to 28 spaces to enable ID3v1.1
+        
         cmd = ["id3v2", "--id3v1-only"]
         
         # Map common metadata keys to id3v2 arguments for ID3v1

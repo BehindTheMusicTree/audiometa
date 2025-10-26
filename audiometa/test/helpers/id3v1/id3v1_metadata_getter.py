@@ -46,6 +46,13 @@ class ID3v1MetadataGetter:
             elif field == 'genre':
                 metadata[field] = raw_bytes[0] if raw_bytes else 0
         
+        # Handle ID3v1 track number stored in comment field (non-standard but common)
+        if 'track' not in metadata or metadata['track'] is None:
+            comment = metadata.get('comment', '')
+            if len(comment) == 30 and comment[-1] != '\x00':
+                metadata['track'] = ord(comment[-1])
+                metadata['comment'] = comment[:-1].rstrip('\x00')
+        
         return metadata
 
     @staticmethod
