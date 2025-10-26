@@ -28,18 +28,18 @@ class TestCleanupStrategy:
             update_metadata(test_file.path, {"title": "RIFF Title", "artist": "RIFF Artist", "album": "RIFF Album"}, metadata_strategy=MetadataWritingStrategy.CLEANUP, metadata_format=MetadataFormat.RIFF)
             
             # Verify ID3v2 was removed
-            id3v2_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
+            id3v2_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
             
             # Verify RIFF has new metadata
-            riff_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
+            riff_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.RIFF)
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
             
             # Merged metadata should only have RIFF (ID3v2 was cleaned up)
             merged = get_unified_metadata(test_file)
             assert merged.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
 
-    def test_id3v1_not_preserved_with_cleanup_strategy(self):
+    def test_cleanup_strategy_mp3_id3v1_not_preserved(self):
         # Create test file with ID3v1 metadata using external script
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Add ID3v1 metadata using TempFileWithMetadata
