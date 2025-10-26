@@ -178,6 +178,7 @@ class VorbisManager(RatingSupportingMetadataManager):
                         comments.setdefault(key, []).append(value)
                     break
         
+        return comments
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
             self, raw_mutagen_metadata: dict) -> RawMetadataDict:
