@@ -12,21 +12,21 @@ from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspect
 class TestBitrateFunctions:
 
     def test_get_bitrate_mp3(self, sample_mp3_file: Path):
-        external_tool_bitrate = TechnicalInfoInspector(sample_mp3_file).get_bitrate()
+        external_tool_bitrate = TechnicalInfoInspector.get_bitrate(sample_mp3_file)
         assert external_tool_bitrate == 132
         
         bitrate = get_bitrate(sample_mp3_file)
         assert bitrate == 132
 
     def test_get_bitrate_flac(self, sample_flac_file: Path):
-        external_tool_bitrate = TechnicalInfoInspector(sample_flac_file).get_bitrate()
+        external_tool_bitrate = TechnicalInfoInspector.get_bitrate(sample_flac_file)
         assert external_tool_bitrate == 1
 
         bitrate = get_bitrate(sample_flac_file)
         assert bitrate == 1
 
     def test_get_bitrate_wav(self, sample_wav_file: Path):
-        external_tool_bitrate = TechnicalInfoInspector(sample_wav_file).get_bitrate()
+        external_tool_bitrate = TechnicalInfoInspector.get_bitrate(sample_wav_file)
         assert external_tool_bitrate == 128
 
         bitrate = get_bitrate(sample_wav_file)          
@@ -35,7 +35,7 @@ class TestBitrateFunctions:
     def test_get_bitrate_with_audio_file_object(self, sample_mp3_file: Path):
         from audiometa import AudioFile
         audio_file = AudioFile(sample_mp3_file)
-        external_tool_bitrate = TechnicalInfoInspector(sample_mp3_file).get_bitrate()
+        external_tool_bitrate = TechnicalInfoInspector.get_bitrate(sample_mp3_file)
         assert external_tool_bitrate == 132
         
         bitrate = get_bitrate(audio_file)
