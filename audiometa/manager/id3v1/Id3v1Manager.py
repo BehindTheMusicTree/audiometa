@@ -196,8 +196,16 @@ class Id3v1Manager(MetadataManager):
         elif raw_metadata_key == Id3v1RawMetadataKey.YEAR:
             value = self._truncate_string(str(app_metadata_value), 4)
         elif raw_metadata_key == Id3v1RawMetadataKey.TRACK_NUMBER:
-            # Convert to int and validate range
-            track_num = int(app_metadata_value) if app_metadata_value is not None else 0
+            # Convert to int and validate range, parsing strings like "5/12"
+            if isinstance(app_metadata_value, str):
+                import re
+                if re.match(r'^\d+([-/]\d*)?$', app_metadata_value):
+                    track_match = re.match(r'(\d+)', app_metadata_value)
+                    track_num = int(track_match.group(1))
+                else:
+                    track_num = 0
+            else:
+                track_num = int(app_metadata_value) if app_metadata_value is not None else 0
             value = str(max(0, min(255, track_num)))
         elif raw_metadata_key == Id3v1RawMetadataKey.COMMENT:
             value = self._truncate_string(str(app_metadata_value), 28)  # 28 for ID3v1.1 with track number
@@ -275,7 +283,16 @@ class Id3v1Manager(MetadataManager):
         # Track number (bytes 125-126 for ID3v1.1)
         track_number = unified_metadata.get(UnifiedMetadataKey.TRACK_NUMBER)
         if track_number is not None:
-            track_num = max(0, min(255, int(track_number)))
+            if isinstance(track_number, str):
+                import re
+                if re.match(r'^\d+([-/]\d*)?$', track_number):
+                    track_match = re.match(r'(\d+)', track_number)
+                    track_num = int(track_match.group(1))
+                else:
+                    track_num = 0
+            else:
+                track_num = int(track_number)
+            track_num = max(0, min(255, track_num))
             if track_num > 0:
                 tag_data[125] = 0  # Null byte to indicate track number presence
                 tag_data[126] = track_num
