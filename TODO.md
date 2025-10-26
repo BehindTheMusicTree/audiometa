@@ -69,6 +69,14 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
   - Extend RIFF manager or create dedicated BWF manager
   - Add support for BWF-specific fields like time reference, originator, etc.
 
+- [ ] **Implement ID3v1.1 support**
+
+  - Add support for ID3v1.1 format, which extends ID3v1 with track number information stored in the comment field
+
+- [ ] **Take a look at ID3v2.0 and ID3v2.2 and test it**
+
+  - Review and test support for ID3v2.0 and ID3v2.2 frame handling and version-specific features
+
 ---
 
 ## Contributing
