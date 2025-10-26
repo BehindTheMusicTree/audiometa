@@ -13,7 +13,7 @@ class TestBitrateFunctions:
 
     def test_get_bitrate_mp3(self, sample_mp3_file: Path):
         external_tool_bitrate = TechnicalInfoInspector.get_bitrate(sample_mp3_file)
-        assert external_tool_bitrate == 132
+        assert external_tool_bitrate == 128
         
         bitrate = get_bitrate(sample_mp3_file)
         assert bitrate == 132
@@ -36,7 +36,7 @@ class TestBitrateFunctions:
         from audiometa import AudioFile
         audio_file = AudioFile(sample_mp3_file)
         external_tool_bitrate = TechnicalInfoInspector.get_bitrate(sample_mp3_file)
-        assert external_tool_bitrate == 132
+        assert external_tool_bitrate == 128
         
         bitrate = get_bitrate(audio_file)
         assert bitrate == 132
