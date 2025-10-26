@@ -108,7 +108,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `set-id3v2-max-metadata.sh`: Comprehensive ID3v2 metadata with extended frames and ratings
   - `set-vorbis-max-metadata.sh`: Complete Vorbis comment metadata for FLAC files
   - `set-riff-max-metadata.sh`: Full RIFF INFO metadata for WAV files
-  - `remove_id3.py` and `remove_riff.py`: Cleanup utilities for test isolation
 - **Test Data Strategy**: Hybrid approach combining 173 pre-created files with on-the-fly generation
 - **Helper Classes**: Format-specific metadata setters, getters, deleters, and verifiers
 - **CLI Testing**: Complete command-line interface validation with error handling
