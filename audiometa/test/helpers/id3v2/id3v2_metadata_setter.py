@@ -58,7 +58,7 @@ class ID3v2MetadataSetter:
                 'genre': '--genre',
                 'comment': '--comment',
                 'track': '--track',
-                'composer': '--composer',
+                'composer': '--tcom',
                 'copyright': '--copyright',
                 'lyrics': '--lyrics',
                 'language': '--language',
