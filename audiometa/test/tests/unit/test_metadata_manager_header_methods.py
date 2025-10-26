@@ -1,10 +1,8 @@
 """Unit tests for metadata manager header information methods."""
 
-import pytest
 from pathlib import Path
 
 from audiometa import AudioFile
-from audiometa.manager.MetadataManager import MetadataManager
 from audiometa.manager.rating_supporting.Id3v2Manager import Id3v2Manager
 from audiometa.manager.id3v1.Id3v1Manager import Id3v1Manager
 from audiometa.manager.rating_supporting.VorbisManager import VorbisManager
