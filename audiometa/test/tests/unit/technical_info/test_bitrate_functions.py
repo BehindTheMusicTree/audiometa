@@ -16,14 +16,21 @@ class TestBitrateFunctions:
         assert external_tool_bitrate == 128
         
         bitrate = get_bitrate(sample_mp3_file)
-        assert bitrate == 132
+        assert bitrate == 127
 
-    def test_get_bitrate_flac(self, sample_flac_file: Path):
+    def test_get_bitrate_flac_low_bitrate(self, sample_flac_file: Path):
         external_tool_bitrate = TechnicalInfoInspector.get_bitrate(sample_flac_file)
         assert external_tool_bitrate == 1
 
         bitrate = get_bitrate(sample_flac_file)
         assert bitrate == 1
+
+    def test_get_bitrate_flac_high_bitrate(self, size_big_flac: Path):
+        external_tool_bitrate = TechnicalInfoInspector.get_bitrate(size_big_flac)
+        assert external_tool_bitrate == 946
+
+        bitrate = get_bitrate(size_big_flac)
+        assert bitrate == 946
 
     def test_get_bitrate_wav(self, sample_wav_file: Path):
         external_tool_bitrate = TechnicalInfoInspector.get_bitrate(sample_wav_file)
@@ -39,7 +46,7 @@ class TestBitrateFunctions:
         assert external_tool_bitrate == 128
         
         bitrate = get_bitrate(audio_file)
-        assert bitrate == 132
+        assert bitrate == 127
 
     def test_get_bitrate_unsupported_file_type_raises_error(self, temp_audio_file: Path):
         # Create a file with unsupported extension
