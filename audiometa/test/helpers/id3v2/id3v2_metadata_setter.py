@@ -58,12 +58,20 @@ class ID3v2MetadataSetter:
                 'genre': '--genre',
                 'comment': '--comment',
                 'track': '--track',
-                'composer': '--tcom',
-                'copyright': '--copyright',
-                'lyrics': '--lyrics',
-                'language': '--language',
-                'album_artist': '--album-artist',
-                'publisher': '--publisher'
+                'track_number': '--track',
+                'composer': '--TCOM',
+                'copyright': '--TCOP',
+                'lyrics': '--USLT',
+                'language': '--TLAN',
+                'rating': '--POPM',
+                'album_artist': '--TPE2',
+                'encoder': '--TENC',
+                'url': '--WOAR',
+                'isrc': '--TSRC',
+                'mood': '--TMOO',
+                'key': '--TKEY',
+                'publisher': '--TPUB',
+                'bpm': '--TBPM'
             }
         
         for key, value in metadata.items():
@@ -134,8 +142,8 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--USLT", lyrics, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["id3v2", "--id3v2-only", "--USLT", lyrics, str(file_path)]
-            run_external_tool(command, "id3v2")
+            command = ["mid3v2", "--USLT", lyrics, str(file_path)]
+            run_external_tool(command, "mid3v2")
     
     @staticmethod
     def set_language(file_path: Path, language: str, version: str = "2.4") -> None:
@@ -152,8 +160,8 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--TBPM", str(bpm), str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["id3v2", "--id3v2-only", "--TBPM", str(bpm), str(file_path)]
-            run_external_tool(command, "id3v2")
+            command = ["mid3v2", "--TBPM", str(bpm), str(file_path)]
+            run_external_tool(command, "mid3v2")
 
     @staticmethod
     def set_release_date(file_path: Path, date_str: str, version: str = "2.4") -> None:
@@ -189,8 +197,8 @@ class ID3v2MetadataSetter:
                 run_external_tool(command, "id3v2")
         else:
             # ID3v2.4: Use TDRC with full date
-            command = ["id3v2", "--id3v2-only", "--TDRC", date_str, str(file_path)]
-            run_external_tool(command, "id3v2")
+            command = ["mid3v2", "--TDRC", date_str, str(file_path)]
+            run_external_tool(command, "mid3v2")
 
     @staticmethod
     def set_max_metadata(file_path: Path) -> None:
