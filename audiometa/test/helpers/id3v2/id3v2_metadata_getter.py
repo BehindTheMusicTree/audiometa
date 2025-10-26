@@ -107,7 +107,7 @@ class ID3v2MetadataGetter:
                                 pos += 1  # skip null
                                 lyrics_bytes = text_data_bytes[pos:].rstrip(b'\x00')
                                 lyrics = ID3v2MetadataGetter._decode_text(encoding, lyrics_bytes)
-                                text = f"{language}:{lyrics}"
+                                text = f"{language}\x00{lyrics}"
                             else:
                                 text = decoded_text
                         else:

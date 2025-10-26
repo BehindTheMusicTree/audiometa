@@ -17,7 +17,7 @@ class TestLyricsWriting:
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
-            assert [f"eng:{test_lyrics}"] == raw_metadata['USLT']
+            assert [f"eng\x00{test_lyrics}"] == raw_metadata['USLT']
 
     def test_id3v2_4_default_en(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
@@ -27,7 +27,7 @@ class TestLyricsWriting:
             
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
-            assert [f"eng:{test_lyrics}"] == raw_metadata['USLT']
+            assert [f"eng\x00{test_lyrics}"] == raw_metadata['USLT']
             
     def test_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
