@@ -363,7 +363,7 @@ def duration_1s_mp3(test_files_dir: Path) -> Path:
 @pytest.fixture
 def duration_182s_mp3(test_files_dir: Path) -> Path:
     """Return path to MP3 file with 182 seconds duration."""
-    return test_files_dir / "duration=182s.mp3"
+    return test_files_dir / "duration=182.mp3"
 
 
 @pytest.fixture
