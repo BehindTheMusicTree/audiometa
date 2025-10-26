@@ -10,7 +10,7 @@ from audiometa.test.helpers.id3v1.id3v1_metadata_getter import ID3v1MetadataGett
 
 @pytest.mark.integration
 class TestTrackNumberReading:
-    def test_id3v1(self):
+    def test_id3v1_1(self):
         with TempFileWithMetadata({"title": "Test Song", "track": "99"}, "id3v1") as test_file:
             raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
             assert raw_metadata.get("track") == 99
