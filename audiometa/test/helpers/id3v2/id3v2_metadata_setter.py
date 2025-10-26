@@ -21,36 +21,50 @@ class ID3v2MetadataSetter:
         if version == "2.3":
             tool = "id3v2"
             cmd = ["id3v2", "--id3v2-only"]
+            # Map common metadata keys to id3v2 tool arguments
+            key_mapping = {
+                'title': '--song',
+                'artist': '--artist', 
+                'album': '--album',
+                'year': '--year',
+                'genre': '--genre',
+                'comment': '--comment',
+                'track': '--track',
+                'track_number': '--TRCK',
+                'bpm': '--TBPM',
+                'composer': '--TCOM',
+                'copyright': '--TCOP',
+                'lyrics': '--USLT',
+                'language': '--TLAN',
+                'rating': '--POPM',
+                'album_artist': '--TPE2',
+                'genre': '--TCON',
+                'encoder': '--TENC',
+                'url': '--WOAR',
+                'isrc': '--TSRC',
+                'mood': '--TMOO',
+                'key': '--TKEY',
+                'publisher': '--TPUB'
+            }
         else:
-            # Use id3v2 with --id3v2-only flag to prevent affecting ID3v1 tags
-            tool = "id3v2"
-            cmd = ["id3v2", "--id3v2-only"]
-        
-        # Map common metadata keys to tool arguments
-        key_mapping = {
-            'title': '--song',
-            'artist': '--artist', 
-            'album': '--album',
-            'year': '--year',
-            'genre': '--genre',
-            'comment': '--comment',
-            'track': '--track',
-            'track_number': '--TRCK',
-            'bpm': '--TBPM',
-            'composer': '--TCOM',
-            'copyright': '--TCOP',
-            'lyrics': '--USLT',
-            'language': '--TLAN',
-            'rating': '--POPM',
-            'album_artist': '--TPE2',
-            'genre': '--TCON',
-            'encoder': '--TENC',
-            'url': '--WOAR',
-            'isrc': '--TSRC',
-            'mood': '--TMOO',
-            'key': '--TKEY',
-            'publisher': '--TPUB'
-        }
+            tool = "mid3v2"
+            cmd = ["mid3v2"]
+            # Map common metadata keys to mid3v2 tool arguments
+            key_mapping = {
+                'title': '--song',
+                'artist': '--artist', 
+                'album': '--album',
+                'year': '--year',
+                'genre': '--genre',
+                'comment': '--comment',
+                'track': '--track',
+                'composer': '--composer',
+                'copyright': '--copyright',
+                'lyrics': '--lyrics',
+                'language': '--language',
+                'album_artist': '--album-artist',
+                'publisher': '--publisher'
+            }
         
         for key, value in metadata.items():
             if key.lower() in key_mapping:
