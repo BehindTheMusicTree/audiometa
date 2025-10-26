@@ -555,7 +555,44 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             self._save_with_id3v1_preservation(file_path, id3v1_data)
 
     def update_metadata(self, unified_metadata: UnifiedMetadata):
-        """Override to use custom save method with version control and ID3v1 preservation."""
+        """
+        Update ID3v2 metadata using hybrid approach: mutagen for most formats, external tools for FLAC.
+        
+        This method automatically chooses the appropriate tool based on the audio file format
+        to ensure optimal performance and file integrity.
+        
+        Format-Specific Behavior:
+        - **MP3 and other formats**: Uses mutagen (Python library) for fast, reliable updates
+        - **FLAC files**: Uses external tools (id3v2/mid3v2) to prevent file corruption
+        
+        Why External Tools for FLAC?
+        - Mutagen's ID3 class corrupts FLAC file structure when writing ID3v2 tags
+        - External tools properly handle FLAC's metadata block structure
+        - Prevents "Not a valid FLAC file" errors and file corruption
+        
+        Tool Selection Logic:
+        - **ID3v2.3**: Uses 'id3v2' command-line tool
+        - **ID3v2.4**: Uses 'mid3v2' command-line tool
+        - **Other formats**: Uses mutagen for optimal performance
+        
+        Key Features:
+        - **Version Control**: Maintains specified ID3v2 version (2.3 or 2.4)
+        - **ID3v1 Preservation**: Preserves existing ID3v1 tags when present
+        - **File Integrity**: Prevents corruption across all supported formats
+        
+        External Tool Requirements (FLAC only):
+        - Requires 'id3v2' or 'mid3v2' command-line tools
+        - Falls back to FileCorruptedError if tools are not available
+        
+        Args:
+            unified_metadata: Dictionary of metadata to write/update
+                             Use None values to delete specific fields
+                             
+        Raises:
+            MetadataFieldNotSupportedByMetadataFormatError: If field not supported
+            FileCorruptedError: If external tools fail or are not found (FLAC only)
+            ConfigurationError: If rating configuration is invalid
+        """
         # For FLAC files, use external tools instead of mutagen to avoid file corruption
         if self.audio_file.file_extension == '.flac':
             self._update_metadata_for_flac(unified_metadata)
