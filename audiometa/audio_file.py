@@ -119,10 +119,9 @@ class AudioFile:
         path = self.file_path
         if self.file_extension == '.mp3':
             audio = MP3(path)
-            # Calculate MP3 bitrate from file size and duration
-            if audio.info.length > 0 and isinstance(path, str) and os.path.exists(path):
-                file_size = os.path.getsize(path)
-                return int((file_size * 8) / self.get_duration_in_sec() / 1000)
+            # Get MP3 bitrate directly from audio stream
+            if audio.info.bitrate:
+                return audio.info.bitrate // 1000  # Convert from bps to kbps
             return 0
         elif self.file_extension == '.wav':
             try:
