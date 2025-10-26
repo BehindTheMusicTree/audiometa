@@ -32,3 +32,5 @@ Thumbs.db
 
 # pyenv
 .python-version
+
+.DS_Store
