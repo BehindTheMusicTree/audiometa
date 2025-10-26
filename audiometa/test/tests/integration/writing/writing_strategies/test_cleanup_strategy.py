@@ -11,6 +11,7 @@ from audiometa import (
     update_metadata,
     get_unified_metadata,
 )
+from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -20,31 +21,11 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 @pytest.mark.integration
 class TestCleanupStrategy:
 
-    def test_cleanup_strategy_wav_with_id3v2(self, sample_wav_file: Path, temp_audio_file: Path):
-        # Create test file with basic metadata first
-        basic_metadata = {
-            "title": "Basic Title",
-            "artist": "Basic Artist",
-            "album": "Basic Album"
-        }
-        
-        with TempFileWithMetadata(basic_metadata, "wav") as test_file:
-            # First, add ID3v2 metadata using TempFileWithMetadata
-            test_file.set_id3v2_title("ID3v2 Title")
-            test_file.set_id3v2_artist("ID3v2 Artist")
-            test_file.set_id3v2_album("ID3v2 Album")
+    def test_cleanup_strategy_wav_with_id3v2(self):
+        with TempFileWithMetadata({"title": "Basic Title", "artist": "Basic Artist", "album": "Basic Album"}, "wav") as test_file:
+            ID3v2MetadataSetter.set_metadata(test_file.path, {"title": "ID3v2 Title", "artist": "ID3v2 Artist", "album": "ID3v2 Album"}, metadata_format=MetadataFormat.ID3V2)
             
-            # Verify ID3v2 metadata was written
-            id3v2_result = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
-            assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
-            
-            # Now write RIFF metadata with CLEANUP strategy
-            riff_metadata = {
-                UnifiedMetadataKey.TITLE: "RIFF Title",
-                UnifiedMetadataKey.ARTISTS: ["RIFF Artist"],
-                UnifiedMetadataKey.ALBUM: "RIFF Album"
-            }
-            update_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
+            update_metadata(test_file.path, {"title": "RIFF Title", "artist": "RIFF Artist", "album": "RIFF Album"}, metadata_strategy=MetadataWritingStrategy.CLEANUP, metadata_format=MetadataFormat.RIFF)
             
             # Verify ID3v2 was removed
             id3v2_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
