@@ -39,19 +39,15 @@ class VorbisManager(RatingSupportingMetadataManager):
     """
 
     class VorbisKey(RawMetadataKey):
+        # Standard
         TITLE = 'TITLE'
         ARTIST_NAME = 'ARTIST'
         ALBUM = 'ALBUM'
         ALBUM_ARTISTS = 'ALBUMARTIST'
         GENRES_NAMES = 'GENRE'
-        RATING = 'RATING'
-        RATING_TRAKTOR = 'RATING WMP'  # Traktor rating
-        LANGUAGE = 'LANGUAGE'
         DATE = 'DATE'  # Creation/Release date
         TRACK_NUMBER = 'TRACKNUMBER'
-        BPM = 'BPM'
         COMMENT = 'COMMENT'
-        COMPOSERS = 'COMPOSER'
         PERFORMER = 'PERFORMER'
         COPYRIGHT = 'COPYRIGHT'
         LICENSE = 'LICENSE'
@@ -60,7 +56,14 @@ class VorbisManager(RatingSupportingMetadataManager):
         LOCATION = 'LOCATION'  # Recording location
         CONTACT = 'CONTACT'  # Contact information
         ISRC = 'ISRC'  # International Standard Recording Code
+        
+        # Non-standard
+        LANGUAGE = 'LANGUAGE'
+        BPM = 'BPM'
+        COMPOSERS = 'COMPOSER'
         ENCODED_BY = 'ENCODEDBY'  # Encoder software
+        RATING = 'RATING'
+        RATING_TRAKTOR = 'RATING WMP'  # Traktor rating
         UNSYNCHRONIZED_LYRICS = 'LYRICS' # Not standard
         REPLAYGAIN = 'REPLAYGAIN'
         PUBLISHER = 'PUBLISHER'
