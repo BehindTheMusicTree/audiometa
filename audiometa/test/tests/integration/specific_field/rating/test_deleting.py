@@ -2,6 +2,7 @@ import pytest
 
 
 
+from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
@@ -23,13 +24,10 @@ class TestRatingDeleting:
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100) is None
 
     def test_delete_rating_id3v1(self):
-        with TempFileWithMetadata({}, "mp3") as test_file:
-        
-            update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 50}, metadata_format=MetadataFormat.ID3V1, normalized_rating_max_value=100)
-            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100) == 50
-        
-            update_metadata(test_file.path, {UnifiedMetadataKey.RATING: None}, metadata_format=MetadataFormat.ID3V1)
-            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100) is None
+        with TempFileWithMetadata({}, "id3v1") as test_file:
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
+                update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 50}, metadata_format=MetadataFormat.ID3V1, normalized_rating_max_value=100)
+            
 
     def test_delete_rating_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
