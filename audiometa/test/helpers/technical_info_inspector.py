@@ -30,12 +30,12 @@ class TechnicalInfoInspector:
             tracks = data.get("media", {}).get("track", [])
             for track in tracks:
                 if track.get("@type") == "Audio":
-                    bitrate_str = track.get("Bit_rate")
+                    bitrate_str = track.get("BitRate")
                     if bitrate_str:
                         # Handle formats like "128 kb/s" or "128000"
-                        if "kb/s" in bitrate_str:
-                            return int(bitrate_str.split()[0])
-                        elif bitrate_str.isdigit():
+                        if "kb/s" in str(bitrate_str):
+                            return int(str(bitrate_str).split()[0])
+                        elif str(bitrate_str).isdigit():
                             return int(bitrate_str) // 1000
             return None
         except Exception:
