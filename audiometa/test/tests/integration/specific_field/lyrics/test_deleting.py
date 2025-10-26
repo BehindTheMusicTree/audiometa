@@ -91,11 +91,11 @@ class TestLyricsDeleting:
             assert "LYRICS=" not in raw_metadata
             
     def test_delete_lyrics_empty_string(self):
-        with TempFileWithMetadata({}, "mp3") as test_file:
+        with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             ID3v2MetadataSetter.set_lyrics(test_file.path, " ")
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
             assert 'USLT' in raw_metadata  # Lyrics field exists
             
             update_metadata(test_file.path, {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: None}, metadata_format=MetadataFormat.ID3V2)
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
             assert raw_metadata is None or 'USLT' not in raw_metadata
