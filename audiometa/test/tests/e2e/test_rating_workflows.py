@@ -7,6 +7,7 @@ and normalization values across different audio formats.
 import pytest
 
 from audiometa import (
+    delete_all_metadata,
     get_unified_metadata,
     update_metadata
 )
@@ -102,7 +103,7 @@ class TestRatingWorkflows:
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # 1. Add comprehensive metadata including rating
             comprehensive_metadata = {
-                UnifiedMetadataKey.RATING: 85,
+                UnifiedMetadataKey.RATING: 90,
                 UnifiedMetadataKey.BPM: 130,
                 UnifiedMetadataKey.COMMENT: "Rating cleanup test"
             }
@@ -110,7 +111,7 @@ class TestRatingWorkflows:
             
             # 2. Verify all metadata exists
             full_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            assert full_metadata.get(UnifiedMetadataKey.RATING) == 85
+            assert full_metadata.get(UnifiedMetadataKey.RATING) == 90
             assert full_metadata.get(UnifiedMetadataKey.BPM) == 130
             assert full_metadata.get(UnifiedMetadataKey.COMMENT) == "Rating cleanup test"
             
