@@ -42,6 +42,11 @@ class TestMultipleMetadata:
             ID3v2MetadataSetter.set_artists(test_file.path, "ID3v2.4 Artist", version="2.4")
             ID3v2MetadataSetter.set_album(test_file.path, "ID3v2.4 Album", version="2.4")
             
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
+            assert raw_metadata['TIT2'] == ["ID3v2.4 Title"]
+            assert raw_metadata['TPE1'] == ["ID3v2.4 Artist"]
+            assert raw_metadata['TALB'] == ["ID3v2.4 Album"]
+            
             merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.4 Title"
             assert merged_metadata.get(UnifiedMetadataKey.ARTISTS) == ["ID3v2.4 Artist"]
