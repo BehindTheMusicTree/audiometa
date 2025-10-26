@@ -13,7 +13,7 @@ import warnings
 from mutagen.id3 import ID3
 
 from .audio_file import AudioFile
-from .exceptions import FileTypeNotSupportedError, MetadataFieldNotSupportedByMetadataFormatError, MetadataWritingConflictParametersError, InvalidMetadataFieldTypeError, MetadataFieldNotSupportedByLib, MetadataFormatNotSupportedByAudioFormatError
+from .exceptions import FileTypeNotSupportedError, MetadataFieldNotSupportedByMetadataFormatError, MetadataWritingConflictParametersError, InvalidMetadataFieldTypeError, MetadataFieldNotSupportedByLib, MetadataFormatNotSupportedByAudioFormatError, FileCorruptedError
 from .utils.types import UnifiedMetadata, AppMetadataValue
 from .utils.MetadataFormat import MetadataFormat
 from .utils.MetadataWritingStrategy import MetadataWritingStrategy
@@ -769,7 +769,10 @@ def is_flac_md5_valid(file: FILE_TYPE) -> bool:
     """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
-    return file.is_flac_file_md5_valid()
+    try:
+        return file.is_flac_file_md5_valid()
+    except FileCorruptedError:
+        return False
 
 
 def fix_md5_checking(file: FILE_TYPE) -> str:
