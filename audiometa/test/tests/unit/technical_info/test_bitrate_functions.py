@@ -13,24 +13,24 @@ class TestBitrateFunctions:
     def test_get_bitrate_mp3(self, sample_mp3_file: Path):
         bitrate = get_bitrate(sample_mp3_file)
         assert isinstance(bitrate, int)
-        assert bitrate > 0
+        assert bitrate == 132
 
     def test_get_bitrate_flac(self, sample_flac_file: Path):
         bitrate = get_bitrate(sample_flac_file)
         assert isinstance(bitrate, int)
-        assert bitrate > 0
+        assert bitrate == 1
 
     def test_get_bitrate_wav(self, sample_wav_file: Path):
         bitrate = get_bitrate(sample_wav_file)
         assert isinstance(bitrate, int)
-        assert bitrate > 0
+        assert bitrate == 128
 
     def test_get_bitrate_with_audio_file_object(self, sample_mp3_file: Path):
         from audiometa import AudioFile
         audio_file = AudioFile(sample_mp3_file)
         bitrate = get_bitrate(audio_file)
         assert isinstance(bitrate, int)
-        assert bitrate > 0
+        assert bitrate == 132
 
     def test_get_bitrate_unsupported_file_type_raises_error(self, temp_audio_file: Path):
         # Create a file with unsupported extension
