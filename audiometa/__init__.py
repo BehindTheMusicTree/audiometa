@@ -715,6 +715,29 @@ def get_file_size(file: FILE_TYPE) -> int:
     return file.get_file_size()
 
 
+def get_sample_rate(file: FILE_TYPE) -> int:
+    """
+    Get the sample rate of an audio file in Hz.
+    
+    Args:
+        file: Audio file path or AudioFile object
+        
+    Returns:
+        Sample rate in Hz
+        
+    Raises:
+        FileTypeNotSupportedError: If the file format is not supported
+        FileNotFoundError: If the file does not exist
+        
+    Examples:
+        sample_rate = get_sample_rate("song.mp3")
+        print(f"Sample rate: {sample_rate} Hz")
+    """
+    if not isinstance(file, AudioFile):
+        file = AudioFile(file)
+    return file.get_sample_rate()
+
+
 def get_duration_in_sec(file: FILE_TYPE) -> float:
     """
     Get the duration of an audio file in seconds.

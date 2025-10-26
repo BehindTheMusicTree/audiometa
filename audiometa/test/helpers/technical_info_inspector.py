@@ -68,7 +68,7 @@ class TechnicalInfoInspector:
             tracks = data.get("media", {}).get("track", [])
             for track in tracks:
                 if track.get("@type") == "Audio":
-                    sample_rate_str = track.get("Sampling_rate")
+                    sample_rate_str = track.get("SamplingRate")
                     if sample_rate_str:
                         # Handle formats like "44100 Hz"
                         if "Hz" in sample_rate_str:
