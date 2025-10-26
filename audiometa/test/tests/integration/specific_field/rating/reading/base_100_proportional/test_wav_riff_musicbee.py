@@ -8,45 +8,20 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestBase100ProportionalRiffWavRatingReading:
     
-    def test_base_100_proportional_1_star_wav_riff(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_riff_base 100_kid3=1 star.wav"
+    @pytest.mark.parametrize("star_rating,expected_normalized_rating", [
+        (1, 20),
+        (2, 40),
+        (3, 60),
+        (4, 80),
+        (5, 100),
+    ])
+    def test_base_100_proportional_star_wav_riff(self, test_files_dir: Path, star_rating, expected_normalized_rating):
+        file_path = test_files_dir / f"rating_riff_base 100_kid3={star_rating} star.wav"
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
-        assert rating == 20
-
-    def test_base_100_proportional_2_star_wav_riff(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_riff_base 100_kid3=2 star.wav"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 40
-
-    def test_base_100_proportional_3_star_wav_riff(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_riff_base 100_kid3=3 star.wav"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 60
-
-    def test_base_100_proportional_4_star_wav_riff(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_riff_base 100_kid3=4 star.wav"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 80
-
-    def test_base_100_proportional_5_star_wav_riff(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_riff_base 100_kid3=5 star.wav"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 100
+        assert rating == expected_normalized_rating
 
     def test_base_100_proportional_none_rating_wav_riff(self, test_files_dir: Path):
         file_path = test_files_dir / "rating_riff_kid3=none.wav"

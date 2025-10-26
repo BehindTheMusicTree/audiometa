@@ -8,90 +8,23 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestBase100ProportionalVorbisFlacRatingReading:
     
-    def test_base_100_proportional_0_star_flac_vorbis(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_vorbis=0 star.flac"
+    @pytest.mark.parametrize("star_rating,expected_normalized_rating", [
+        (0, 0),
+        (0.5, 10),
+        (1, 20),
+        (1.5, 30),
+        (2, 40),
+        (2.5, 50),
+        (3, 60),
+        (3.5, 70),
+        (4, 80),
+        (4.5, 90),
+        (5, 100),
+    ])
+    def test_base_100_proportional_star_flac_vorbis(self, test_files_dir: Path, star_rating, expected_normalized_rating):
+        file_path = test_files_dir / f"rating_vorbis={star_rating} star.flac"
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
-        assert rating == 0
-
-    def test_base_100_proportional_0_5_star_flac_vorbis(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_vorbis=0.5 star.flac"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 10
-
-    def test_base_100_proportional_1_star_flac_vorbis(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_vorbis=1 star.flac"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 20
-
-    def test_base_100_proportional_1_5_star_flac_vorbis(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_vorbis=1.5 star.flac"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 30
-
-    def test_base_100_proportional_2_star_flac_vorbis(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_vorbis=2 star.flac"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 40
-
-    def test_base_100_proportional_2_5_star_flac_vorbis(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_vorbis=2.5 star.flac"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 50
-
-    def test_base_100_proportional_3_star_flac_vorbis(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_vorbis=3 star.flac"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 60
-
-    def test_base_100_proportional_3_5_star_flac_vorbis(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_vorbis=3.5 star.flac"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 70
-
-    def test_base_100_proportional_4_star_flac_vorbis(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_vorbis=4 star.flac"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 80
-
-    def test_base_100_proportional_4_5_star_flac_vorbis(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_vorbis=4.5 star.flac"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 90
-
-    def test_base_100_proportional_5_star_flac_vorbis(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_vorbis=5 star.flac"
-        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
-        rating = metadata.get(UnifiedMetadataKey.RATING)
-        assert rating is not None
-        assert isinstance(rating, (int, float))
-        assert rating == 100
+        assert rating == expected_normalized_rating
