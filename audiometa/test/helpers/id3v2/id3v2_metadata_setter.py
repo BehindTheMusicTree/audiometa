@@ -48,6 +48,7 @@ class ID3v2MetadataSetter:
             'isrc': '--TSRC',
             'mood': '--TMOO',
             'key': '--TKEY',
+            'publisher': '--TPUB'
         }
         
         for key, value in metadata.items():
