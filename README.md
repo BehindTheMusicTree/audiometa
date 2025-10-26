@@ -1961,16 +1961,28 @@ ID3v1 does not natively support track numbers. The library supports storing trac
   - `"5"` → Track number: `5`
   - `"12"` → Track number: `12`
 
-#### Edge Case Handling
+#### Reading And Writing Track Number
 
-The library gracefully handles common edge cases:
+##### Reading Track Number
+
+The library handles common edge cases:
 
 - `"5/"` → Track number: `5` (trailing slash ignored)
 - `"/12"` → Track number: `None` (no track number before slash)
 - `"abc/def"` → Track number: `None` (non-numeric values)
 - `""` → Track number: `None` (empty string)
-- `"5/12/15"` → Track number: `5` (takes first part before first slash)
+- `"5/12/15"` → Track number: 'None' (multiple slashes, no track number)
 - `"5-12"` → Track number: `5` (different separator, no slash)
+
+##### Writing Track Number
+
+The library supports writing track numbers in the following formats:
+
+- `"5/12"` → Track number: `5`
+- `"99/99"` → Track number: `99`
+- `"1"` → Track number: `1` (simple format also supported)
+
+##### Writing Track Number
 
 ### Lyrics Support
 
