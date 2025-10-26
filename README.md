@@ -335,12 +335,18 @@ flac --version
 
 AudioMeta uses a combination of Python libraries and external command-line tools depending on the operation and audio format. This section provides a comprehensive overview of when external tools are required versus when pure Python libraries are used.
 
-| Format     | Read Metadata    | Write Metadata    | Technical Info (Duration/Bitrate/etc.) | Validation           |
-| ---------- | ---------------- | ----------------- | -------------------------------------- | -------------------- |
-| **ID3v1**  | Custom (Python)  | Custom (Python)   | mutagen (Python)                       | N/A                  |
-| **ID3v2**  | mutagen (Python) | mutagen (Python)  | mutagen (Python)                       | N/A                  |
-| **Vorbis** | Custom (Python)  | pytaglib (Python) | mutagen (Python)                       | flac (external tool) |
-| **RIFF**   | mutagen (Python) | Custom (Python)   | ffprobe (external tool)                | N/A                  |
+| Format     | Read Metadata    | Write Metadata                             | Technical Info (Duration/Bitrate/etc.) | Validation           |
+| ---------- | ---------------- | ------------------------------------------ | -------------------------------------- | -------------------- |
+| **ID3v1**  | Custom (Python)  | Custom (Python)                            | mutagen (Python)                       | N/A                  |
+| **ID3v2**  | mutagen (Python) | mutagen (Python) / id3v2/mid3v2 (external) | mutagen (Python)                       | N/A                  |
+| **Vorbis** | Custom (Python)  | metaflac (external)                        | mutagen (Python)                       | flac (external tool) |
+| **RIFF**   | mutagen (Python) | Custom (Python)                            | ffprobe (external tool)                | N/A                  |
+
+**Notes:**
+
+- **ID3v2**: Uses external tools (`id3v2` or `mid3v2`) for writing to FLAC files to prevent file corruption
+- **Vorbis**: Uses `metaflac` external tool for writing to preserve proper uppercase key casing and avoid file corruption
+- **External tools required**: `metaflac`, `id3v2`/`mid3v2` (for FLAC files), `ffprobe`, `flac`
 
 ## Getting Started
 
