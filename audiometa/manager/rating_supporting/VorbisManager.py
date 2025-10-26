@@ -235,29 +235,92 @@ class VorbisManager(RatingSupportingMetadataManager):
                         raw_mutagen_metadata=current_metadata, app_metadata_value=app_metadata_value,
                         unified_metadata_key=unified_metadata_key)
 
-        # Write metadata using TagLib
-        self._write_metadata_with_taglib(current_metadata)
+        # Write metadata using metaflac
+        self._write_metadata_with_metaflac(current_metadata)
 
-    def _write_metadata_with_taglib(self, metadata: dict):
-        """Write metadata to the FLAC file using TagLib."""
+    def _write_metadata_with_metaflac(self, metadata: dict):
+        """Write metadata to the FLAC file using metaflac external tool."""
         file_path = self.audio_file.get_file_path_or_object()
         
         try:
-            # Open file with TagLib
-            file_obj = taglib.File(file_path)
+            import subprocess
             
-            # Clear existing tags
-            file_obj.tags.clear()
+            # Map unified metadata keys to metaflac tag names (uppercase)
+            key_mapping = {
+                'TITLE': 'TITLE',
+                'ARTIST': 'ARTIST', 
+                'ALBUM': 'ALBUM',
+                'DATE': 'DATE',
+                'GENRE': 'GENRE',
+                'COMMENT': 'COMMENT',
+                'TRACKNUMBER': 'TRACKNUMBER',
+                'BPM': 'BPM',
+                'COMPOSER': 'COMPOSER',
+                'COPYRIGHT': 'COPYRIGHT',
+                'LYRICS': 'LYRICS',
+                'LANGUAGE': 'LANGUAGE',
+                'RATING': 'RATING',
+                'ALBUMARTIST': 'ALBUMARTIST',
+                'MOOD': 'MOOD',
+                'KEY': 'KEY',
+                'ENCODER': 'ENCODER',
+                'URL': 'URL',
+                'ISRC': 'ISRC',
+                'PUBLISHER': 'PUBLISHER',
+            }
             
-            # Set new tags - TagLib expects dict with string keys and list values
-            file_obj.tags.update(metadata)
+            # Get all possible tags that we might need to remove
+            # This includes both tags in the metadata dict and all possible tags
+            tags_to_remove = set()
             
-            # Save the file
-            file_obj.save()
-            file_obj.close()
+            # Add tags that are in the metadata dict (these are being updated/deleted)
+            for key in metadata.keys():
+                if key in key_mapping:
+                    tags_to_remove.add(key_mapping[key])
             
-        except Exception as e:
-            raise FileCorruptedError(f"Failed to write metadata with TagLib: {e}")
+            # Also remove all possible tags to ensure clean state
+            # This is necessary because we might be deleting tags that aren't in the metadata dict
+            for metaflac_key in key_mapping.values():
+                tags_to_remove.add(metaflac_key)
+            
+            # Remove all existing tags
+            if tags_to_remove:
+                remove_cmd = ["metaflac"]
+                for metaflac_key in tags_to_remove:
+                    remove_cmd.extend(["--remove-tag", metaflac_key])
+                
+                remove_cmd.append(str(file_path))
+                try:
+                    subprocess.run(remove_cmd, check=True, capture_output=True)
+                except subprocess.CalledProcessError:
+                    # Ignore errors when removing non-existent tags
+                    pass
+            
+            # Then, add new tags for non-None values
+            set_cmd = ["metaflac"]
+            for key, values in metadata.items():
+                if key in key_mapping and values is not None:
+                    metaflac_key = key_mapping[key]
+                    
+                    # Handle list values by creating separate tag entries
+                    if isinstance(values, list):
+                        for value in values:
+                            if value:  # Only add non-empty values
+                                set_cmd.extend(["--set-tag", f"{metaflac_key}={value}"])
+                    else:
+                        value = str(values)
+                        if value:  # Only add non-empty values
+                            set_cmd.extend(["--set-tag", f"{metaflac_key}={value}"])
+            
+            # Add file path and execute
+            if len(set_cmd) > 1:  # Only if we have tags to set
+                set_cmd.append(str(file_path))
+                subprocess.run(set_cmd, check=True, capture_output=True)
+            
+        except subprocess.CalledProcessError as e:
+            raise FileCorruptedError(f"Failed to write metadata with metaflac: {e}")
+        except FileNotFoundError:
+            raise FileCorruptedError("metaflac tool not found. Please install it to write Vorbis metadata to FLAC files.")
 
     def get_header_info(self) -> dict:
         try:
