@@ -177,7 +177,7 @@ class VorbisManager(RatingSupportingMetadataManager):
                         # Preserve original case
                         comments.setdefault(key, []).append(value)
                     break
-        return comments
+        
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
             self, raw_mutagen_metadata: dict) -> RawMetadataDict:
@@ -268,6 +268,10 @@ class VorbisManager(RatingSupportingMetadataManager):
 
         # Write metadata using metaflac
         self._write_metadata_with_metaflac(current_metadata)
+        
+        # Clear cached metadata to ensure subsequent reads reflect the changes
+        self.raw_clean_metadata = None
+        self.raw_clean_metadata_uppercase_keys = None
 
     def _write_metadata_with_metaflac(self, metadata: dict):
         """Write metadata to the FLAC file using metaflac external tool."""
@@ -316,16 +320,12 @@ class VorbisManager(RatingSupportingMetadataManager):
             
             # Remove all existing tags
             if tags_to_remove:
-                remove_cmd = ["metaflac"]
                 for metaflac_key in tags_to_remove:
-                    remove_cmd.extend(["--remove-tag", metaflac_key])
-                
-                remove_cmd.append(str(file_path))
-                try:
-                    subprocess.run(remove_cmd, check=True, capture_output=True)
-                except subprocess.CalledProcessError:
-                    # Ignore errors when removing non-existent tags
-                    pass
+                    try:
+                        subprocess.run(["metaflac", "--remove-tag=" + metaflac_key, str(file_path)], check=True, capture_output=True)
+                    except subprocess.CalledProcessError:
+                        # Ignore errors when removing non-existent tags
+                        pass
             
             # Then, add new tags for non-None values
             set_cmd = ["metaflac"]

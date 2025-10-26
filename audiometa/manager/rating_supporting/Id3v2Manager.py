@@ -689,10 +689,41 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         }
         
         # Build command with metadata
+        # First, remove frames for keys explicitly set to None
+        frames_to_remove = []
+        for unified_key, value in unified_metadata.items():
+            if unified_key in self.metadata_keys_direct_map_write:
+                raw_key = self.metadata_keys_direct_map_write[unified_key]
+                if raw_key and value is None:
+                    frames_to_remove.append(raw_key)
+
+        try:
+            if frames_to_remove:
+                if self.id3v2_version[1] == 3:
+                    # id3v2 supports removing a single frame at a time via -r
+                    for frame in frames_to_remove:
+                        try:
+                            subprocess.run(["id3v2", "-r", frame, str(file_path)], check=True, capture_output=True)
+                        except subprocess.CalledProcessError:
+                            # ignore failures to remove non-existent frames
+                            pass
+                else:
+                    # mid3v2 supports deleting multiple frames with --delete-frames
+                    frames_arg = ",".join(frames_to_remove)
+                    try:
+                        subprocess.run(["mid3v2", f"--delete-frames={frames_arg}", str(file_path)], check=True, capture_output=True)
+                    except subprocess.CalledProcessError:
+                        # ignore failures
+                        pass
+        except FileNotFoundError:
+            # If removal tool not found, proceed and hope save will remove frames
+            pass
+
+        # Build command with metadata (only non-None values)
         for unified_key, value in unified_metadata.items():
             if unified_key in key_mapping and value is not None:
                 tool_arg = key_mapping[unified_key]
-                
+
                 if unified_key == UnifiedMetadataKey.ARTISTS and isinstance(value, list):
                     # Handle multiple artists by joining with semicolon
                     value = ';'.join(value)
@@ -705,7 +736,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                 elif unified_key == UnifiedMetadataKey.ALBUM_ARTISTS and isinstance(value, list):
                     # Handle multiple album artists by joining with semicolon
                     value = ';'.join(value)
-                
+
                 cmd.extend([tool_arg, str(value)])
         
         # Add file path and execute
