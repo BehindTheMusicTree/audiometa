@@ -35,7 +35,7 @@ class ID3v2MetadataSetter:
             'genre': '--genre',
             'comment': '--comment',
             'track': '--track',
-            'track_number': '--tracknumber',
+            'track_number': '--TRCK',
             'bpm': '--TBPM',
             'composer': '--TCOM',
             'copyright': '--TCOP',
