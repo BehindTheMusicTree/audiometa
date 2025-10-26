@@ -107,7 +107,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.COMMENT: self.RiffTagKey.COMMENT,
             UnifiedMetadataKey.BPM: self.RiffTagKey.BPM,
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.RiffTagKey.UNSYNCHRONIZED_LYRICS,
-            # AppMetadataKey.TRACK_NUMBER: None,
+            UnifiedMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
@@ -123,7 +123,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.COMMENT: self.RiffTagKey.COMMENT,
             UnifiedMetadataKey.BPM: self.RiffTagKey.BPM,
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.RiffTagKey.UNSYNCHRONIZED_LYRICS,
-            # AppMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
+            UnifiedMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
         }
         super().__init__(audio_file=audio_file,
                          metadata_keys_direct_map_read=metadata_keys_direct_map_read,
