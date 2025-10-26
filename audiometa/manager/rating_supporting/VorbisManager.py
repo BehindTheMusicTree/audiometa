@@ -113,7 +113,10 @@ class VorbisManager(RatingSupportingMetadataManager):
 
     def _extract_mutagen_metadata(self) -> dict:
         """
-        Reads Vorbis comments from a FLAC file, preserving original key case.
+        Reads Vorbis comments from a FLAC file.
+        This is a custom implementation for extracting Vorbis comments because:
+            - Mutagen does not preserve original key case
+            - taglib merges duplicate keys with multiple values into a single value
         Returns a dict: {key: [values]}.
         """
         comments = {}
