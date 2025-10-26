@@ -9,126 +9,29 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 @pytest.mark.integration
 class TestVorbisRatingWriting:
     
-    def test_write_0_star(self, temp_audio_file):
+    @pytest.mark.parametrize("star_rating,expected_normalized_rating", [
+        (0, 0),
+        (0.5, 10),
+        (1, 20),
+        (1.5, 30),
+        (2, 40),
+        (2.5, 50),
+        (3, 60),
+        (3.5, 70),
+        (4, 80),
+        (4.5, 90),
+        (5, 100),
+    ])
+    def test_write_star_rating(self, temp_audio_file, star_rating, expected_normalized_rating):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "flac") as test_file:
-            test_metadata = {UnifiedMetadataKey.RATING: 0}
+            test_metadata = {UnifiedMetadataKey.RATING: expected_normalized_rating}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
             metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
-            assert rating == 0
-
-    def test_write_1_star(self, temp_audio_file):
-        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        
-        with TempFileWithMetadata(basic_metadata, "flac") as test_file:
-            test_metadata = {UnifiedMetadataKey.RATING: 20}
-            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            rating = metadata.get(UnifiedMetadataKey.RATING)
-            assert rating is not None
-            assert rating == 20
-
-    def test_write_2_star(self, temp_audio_file):
-        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        
-        with TempFileWithMetadata(basic_metadata, "flac") as test_file:
-            test_metadata = {UnifiedMetadataKey.RATING: 40}
-            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            rating = metadata.get(UnifiedMetadataKey.RATING)
-            assert rating is not None
-            assert rating == 40
-
-    def test_write_3_star(self, temp_audio_file):
-        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        
-        with TempFileWithMetadata(basic_metadata, "flac") as test_file:
-            test_metadata = {UnifiedMetadataKey.RATING: 60}
-            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            rating = metadata.get(UnifiedMetadataKey.RATING)
-            assert rating is not None
-            assert rating == 60
-
-    def test_write_4_star(self, temp_audio_file):
-        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        
-        with TempFileWithMetadata(basic_metadata, "flac") as test_file:
-            test_metadata = {UnifiedMetadataKey.RATING: 80}
-            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            rating = metadata.get(UnifiedMetadataKey.RATING)
-            assert rating is not None
-            assert rating == 80
-
-    def test_write_5_star(self, temp_audio_file):
-        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        
-        with TempFileWithMetadata(basic_metadata, "flac") as test_file:
-            test_metadata = {UnifiedMetadataKey.RATING: 100}
-            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            rating = metadata.get(UnifiedMetadataKey.RATING)
-            assert rating is not None
-            assert rating == 100
-
-    def test_write_0_5_star(self, temp_audio_file):
-        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        
-        with TempFileWithMetadata(basic_metadata, "flac") as test_file:
-            test_metadata = {UnifiedMetadataKey.RATING: 10}
-            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            rating = metadata.get(UnifiedMetadataKey.RATING)
-            assert rating is not None
-            assert rating == 10
-
-    def test_write_1_5_star(self, temp_audio_file):
-        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        
-        with TempFileWithMetadata(basic_metadata, "flac") as test_file:
-            test_metadata = {UnifiedMetadataKey.RATING: 30}
-            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            rating = metadata.get(UnifiedMetadataKey.RATING)
-            assert rating is not None
-            assert rating == 30
-
-    def test_write_2_5_star(self, temp_audio_file):
-        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        
-        with TempFileWithMetadata(basic_metadata, "flac") as test_file:
-            test_metadata = {UnifiedMetadataKey.RATING: 50}
-            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            rating = metadata.get(UnifiedMetadataKey.RATING)
-            assert rating is not None
-            assert rating == 50
-
-    def test_write_3_5_star(self, temp_audio_file):
-        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        
-        with TempFileWithMetadata(basic_metadata, "flac") as test_file:
-            test_metadata = {UnifiedMetadataKey.RATING: 70}
-            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            rating = metadata.get(UnifiedMetadataKey.RATING)
-            assert rating is not None
-            assert rating == 70
-
-    def test_write_4_5_star(self, temp_audio_file):
-        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        
-        with TempFileWithMetadata(basic_metadata, "flac") as test_file:
-            test_metadata = {UnifiedMetadataKey.RATING: 90}
-            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            rating = metadata.get(UnifiedMetadataKey.RATING)
-            assert rating is not None
-            assert rating == 90
+            assert rating == expected_normalized_rating
 
     def test_write_base_100_proportional_values(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
