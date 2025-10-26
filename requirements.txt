@@ -1,6 +1,5 @@
 mutagen>=1.45.0
 PyYAML>=6.0
 pytaglib>=0.3.0
-
-
+soundfile>=0.10.0
 
