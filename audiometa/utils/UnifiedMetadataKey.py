@@ -1,5 +1,6 @@
 
 from enum import Enum
+from typing import Union
 
 
 class UnifiedMetadataKey(str, Enum):
@@ -45,7 +46,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.RATING: int,
             UnifiedMetadataKey.LANGUAGE: str,
             UnifiedMetadataKey.RELEASE_DATE: str,
-            UnifiedMetadataKey.TRACK_NUMBER: str,
+            UnifiedMetadataKey.TRACK_NUMBER: Union[int, str],
             UnifiedMetadataKey.BPM: int,
             UnifiedMetadataKey.COMPOSERS: list[str],
             UnifiedMetadataKey.PUBLISHER: str,
