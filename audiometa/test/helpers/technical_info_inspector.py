@@ -78,3 +78,18 @@ class TechnicalInfoInspector:
             return None
         except Exception:
             return None
+
+    @staticmethod
+    def get_channels(file_path: str | Path) -> Optional[int]:
+        """Get the number of channels of an audio file using mediainfo."""
+        try:
+            data = TechnicalInfoInspector._run_mediainfo(file_path, "JSON")
+            tracks = data.get("media", {}).get("track", [])
+            for track in tracks:
+                if track.get("@type") == "Audio":
+                    channels_str = track.get("Channels")
+                    if channels_str:
+                        return int(channels_str)
+            return None
+        except Exception:
+            return None

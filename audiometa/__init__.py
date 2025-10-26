@@ -669,6 +669,29 @@ def get_bitrate(file: FILE_TYPE) -> int:
     return file.get_bitrate()
 
 
+def get_channels(file: FILE_TYPE) -> int:
+    """
+    Get the number of channels in an audio file.
+    
+    Args:
+        file: Audio file path or AudioFile object
+        
+    Returns:
+        Number of audio channels (e.g., 1 for mono, 2 for stereo)
+        
+    Raises:
+        FileTypeNotSupportedError: If the file format is not supported
+        FileNotFoundError: If the file does not exist
+        
+    Examples:
+        channels = get_channels("song.mp3")
+        print(f"Channels: {channels}")
+    """
+    if not isinstance(file, AudioFile):
+        file = AudioFile(file)
+    return file.get_channels()
+
+
 def get_duration_in_sec(file: FILE_TYPE) -> float:
     """
     Get the duration of an audio file in seconds.
