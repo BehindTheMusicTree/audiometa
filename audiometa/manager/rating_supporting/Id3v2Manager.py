@@ -347,13 +347,13 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             tyer_value = result.get(self.Id3TextFrame.YEAR)
             tdat_value = result.get(self.Id3TextFrame.DATE)
             if tyer_value and tdat_value:
-                # Parse TDAT (MMDD) and TYER to construct YYYY-MM-DD
+                # Parse TDAT (DDMM) and TYER to construct YYYY-MM-DD
                 try:
                     year = str(tyer_value[0]) if isinstance(tyer_value, list) else str(tyer_value)
                     date_str = str(tdat_value[0]) if isinstance(tdat_value, list) else str(tdat_value)
-                    if len(date_str) == 4:  # MMDD format
-                        month = date_str[:2]
-                        day = date_str[2:]
+                    if len(date_str) == 4:  # DDMM format
+                        day = date_str[:2]
+                        month = date_str[2:]
                         # Construct YYYY-MM-DD
                         release_date = f"{year}-{month}-{day}"
                         result[self.Id3TextFrame.RECORDING_TIME] = [release_date]
