@@ -213,6 +213,37 @@ class VorbisManager(RatingSupportingMetadataManager):
             del raw_mutagen_metadata[raw_metadata_key]
 
     def update_metadata(self, unified_metadata: UnifiedMetadata):
+        """
+        Update Vorbis metadata in FLAC files using external metaflac tool.
+        
+        This method uses the metaflac external command-line tool instead of Python libraries
+        to ensure proper Vorbis specification compliance and prevent file corruption.
+        
+        Key Features:
+        - **Uppercase Key Casing**: Preserves proper Vorbis key casing (TITLE, ARTIST, etc.) unlike mutagen which converts to lowercase
+        - **Multi-Value Support**: Creates separate tag entries for list values
+        - **File Integrity**: Prevents corruption that occurs with some Python libraries
+        - **Deletion Support**: Properly removes tags when None values are passed
+        
+        Multi-Value Behavior:
+        - List values create separate tag entries (Vorbis specification compliant)
+        - Example: ["Artist One", "Artist Two"] creates:
+          * ARTIST=Artist One
+          * ARTIST=Artist Two
+        - NOT: ARTIST=Artist One;Artist Two (semicolon-joined)
+        
+        External Tool Requirements:
+        - Requires 'metaflac' command-line tool to be installed
+        - Falls back to FileCorruptedError if metaflac is not available
+        
+        Args:
+            unified_metadata: Dictionary of metadata to write/update
+                             Use None values to delete specific fields
+                             
+        Raises:
+            MetadataFieldNotSupportedByMetadataFormatError: If field not supported
+            FileCorruptedError: If metaflac tool fails or is not found
+        """
         if not self.metadata_keys_direct_map_write:
             raise MetadataFieldNotSupportedByMetadataFormatError('This format does not support metadata modification')
 
