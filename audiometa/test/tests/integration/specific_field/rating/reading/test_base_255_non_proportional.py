@@ -6,7 +6,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.integration
-class TestBase255NonProportionalId3v2Mp3RatingReading:
+class TestBase255NonProportional:
     
     @pytest.mark.parametrize("star_rating,expected_normalized_rating", [
         (0, 0),
@@ -21,7 +21,7 @@ class TestBase255NonProportionalId3v2Mp3RatingReading:
         (4.5, 90),
         (5, 100),
     ])
-    def test_base_255_non_proportional_star_mp3(self, test_files_dir: Path, star_rating, expected_normalized_rating):
+    def test_id3v2_mp3(self, test_files_dir: Path, star_rating, expected_normalized_rating):
         file_path = test_files_dir / f"rating_id3v2={star_rating} star.mp3"
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
