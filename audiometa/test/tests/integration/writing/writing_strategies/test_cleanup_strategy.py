@@ -23,7 +23,7 @@ class TestCleanupStrategy:
 
     def test_cleanup_strategy_wav_with_id3v2(self):
         with TempFileWithMetadata({"title": "Basic Title", "artist": "Basic Artist", "album": "Basic Album"}, "wav") as test_file:
-            ID3v2MetadataSetter.set_metadata(test_file.path, {"title": "ID3v2 Title", "artist": "ID3v2 Artist", "album": "ID3v2 Album"}, metadata_format=MetadataFormat.ID3V2)
+            ID3v2MetadataSetter.set_metadata(test_file.path, {"title": "ID3v2 Title", "artist": "ID3v2 Artist", "album": "ID3v2 Album"}, version='2.3')
             
             update_metadata(test_file.path, {"title": "RIFF Title", "artist": "RIFF Artist", "album": "RIFF Album"}, metadata_strategy=MetadataWritingStrategy.CLEANUP, metadata_format=MetadataFormat.RIFF)
             
