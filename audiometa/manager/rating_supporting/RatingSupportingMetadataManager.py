@@ -73,7 +73,7 @@ class RatingSupportingMetadataManager(MetadataManager):
         return self.rating_write_profile[star_rating_base_10]
 
     def update_metadata(self, unified_metadata: UnifiedMetadata):
-        if UnifiedMetadataKey.RATING in list(unified_metadata.keys()):
+        if UnifiedMetadataKey.RATING in list[UnifiedMetadataKey](unified_metadata.keys()):
             # Check if rating is supported by this format first
             if (not self.metadata_keys_direct_map_write or 
                 UnifiedMetadataKey.RATING not in self.metadata_keys_direct_map_write):
