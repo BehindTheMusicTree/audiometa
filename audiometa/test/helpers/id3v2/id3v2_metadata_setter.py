@@ -47,8 +47,8 @@ class ID3v2MetadataSetter:
                 'publisher': '--TPUB'
             }
         else:
-            tool = "id3v2"
-            cmd = ["id3v2", "--id3v2-only"]
+            tool = "mid3v2"
+            cmd = ["mid3v2"]
             # Map common metadata keys to mid3v2 tool arguments
             key_mapping = {
                 'title': '--song',
@@ -111,9 +111,9 @@ class ID3v2MetadataSetter:
                 command = ["id3v2", "--id3v2-only", "--artist", artists, str(file_path)]
                 run_external_tool(command, "id3v2")
             else:
-                # Use id3v2 for ID3v2.4 as it preserves ID3v1 tags
-                command = ["id3v2", "--id3v2-only", "--artist", artists, str(file_path)]
-                run_external_tool(command, "id3v2")
+                # Use mid3v2 for ID3v2.4
+                command = ["mid3v2", "--artist", artists, str(file_path)]
+                run_external_tool(command, "mid3v2")
         else:
             # For list input, use multiple values handling
             ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TPE1", artists, in_separate_frames=in_separate_frames, version=version)
@@ -124,8 +124,8 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--album", album, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["id3v2", "--id3v2-only", "--album", album, str(file_path)]
-            run_external_tool(command, "id3v2")
+            command = ["mid3v2", "--album", album, str(file_path)]
+            run_external_tool(command, "mid3v2")
     
     @staticmethod
     def set_genre(file_path: Path, genre: str, version: str = "2.4") -> None:
@@ -142,8 +142,8 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--USLT", lyrics, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["id3v2", "--id3v2-only", "--USLT", lyrics, str(file_path)]
-            run_external_tool(command, "id3v2")
+            command = ["mid3v2", "--USLT", lyrics, str(file_path)]
+            run_external_tool(command, "mid3v2")
     
     @staticmethod
     def set_language(file_path: Path, language: str, version: str = "2.4") -> None:
@@ -197,8 +197,8 @@ class ID3v2MetadataSetter:
                 run_external_tool(command, "id3v2")
         else:
             # ID3v2.4: Use TDRC with full date
-            command = ["id3v2", "--id3v2-only", "--TDRC", date_str, str(file_path)]
-            run_external_tool(command, "id3v2")
+            command = ["mid3v2", "--TDRC", date_str, str(file_path)]
+            run_external_tool(command, "mid3v2")
 
     @staticmethod
     def set_max_metadata(file_path: Path) -> None:
@@ -390,11 +390,11 @@ class ID3v2MetadataSetter:
         if version == "2.3":
             # Use id3v2 for ID3v2.3
             command = ["id3v2", "--id3v2-only", flag, combined_text, str(file_path)]
-            tool = "id3v2"
-        else:
-            # Use id3v2 for ID3v2.4 (preserves ID3v1 tags)
-            command = ["id3v2", "--id3v2-only", flag, combined_text, str(file_path)]
             run_external_tool(command, "id3v2")
+        else:
+            # Use mid3v2 for ID3v2.4
+            command = ["mid3v2", flag, combined_text, str(file_path)]
+            run_external_tool(command, "mid3v2")
     
     @staticmethod
     def write_tpe1_with_encoding(file_path: Path, text: str, encoding: int) -> None:
