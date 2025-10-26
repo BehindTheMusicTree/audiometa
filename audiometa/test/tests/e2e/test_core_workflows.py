@@ -43,7 +43,7 @@ class TestCoreWorkflows:
                 UnifiedMetadataKey.TITLE: "New Title",
                 UnifiedMetadataKey.ARTISTS: ["New Artist"],
                 UnifiedMetadataKey.ALBUM: "New Album",
-                UnifiedMetadataKey.GENRES_NAMES: "Rock",
+                UnifiedMetadataKey.GENRES_NAMES: ["Rock"],
                 UnifiedMetadataKey.COMMENT: "Test comment"
             }
             
