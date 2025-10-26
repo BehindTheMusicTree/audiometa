@@ -1202,68 +1202,68 @@ This section covers AudioMeta's metadata field support across audio formats (ID3
 
 The library supports a comprehensive set of metadata fields across different audio formats. The table below shows which fields are supported by each format:
 
-| Field               | ID3v1        | ID3v2                      | Vorbis                         | RIFF            | AudioMeta Support     |
-| ------------------- | ------------ | -------------------------- | ------------------------------ | --------------- | --------------------- |
-| Text Encoding       | ASCII        | UTF-16/ISO (v2.3)          | UTF-8                          | ASCII/UTF-8     | UTF-8                 |
-|                     |              | + UTF-8 (v2.4)             |                                |                 |                       |
-| Max Text Length     | 30 chars     | ~8M chars                  | ~8M chars                      | ~1M chars       | Format limit          |
-| Date Time Formats   | YYYY         | YYYY+DDMM (v2.3)           | YYYY-MM-DD                     | YYYY-MM-DD      | ISO 8601              |
-|                     |              | YYYY-MM-DD (v2.4)          |                                |                 |                       |
-| Technical Info      |              |                            |                                |                 |                       |
-| - Duration          | ✓            | ✓                          | ✓                              | ✓               | ✓                     |
-| - Bitrate           | ✓            | ✓                          | ✓                              | ✓               | ✓                     |
-| - Sample Rate       | ✓            | ✓                          | ✓                              | ✓               | ✓                     |
-| - Channels          | ✓ (1-2)      | ✓ (1-255)                  | ✓ (1-255)                      | ✓ (1-2)         | ✓                     |
-| - File Size         | ✓            | ✓                          | ✓                              | ✓               | ✓                     |
-| - Format Info       | ✓            | ✓                          | ✓                              | ✓               | ✓                     |
-| - MD5 Checksum      |              |                            | ✓                              |                 | ✓ (Flac)              |
-| Title               | TITLE (30)   | TIT2                       | TITLE                          | INAM            | TITLE                 |
-| Artists             | ARTIST (30)  | TPE1                       | ARTIST                         | IART            | ARTISTS as list       |
-| Album               | ALBUM (30)   | TALB                       | ALBUM                          | IPRD            | ALBUM                 |
-| Album Artists       | ✗            | TPE2                       | ALBUMARTIST                    | IAAR\*          | ALBUM_ARTISTS as list |
-| Genres              | GENRE (1#)   | TCON                       | GENRE                          | IGNR            | GENRES_NAMES as list  |
-| Release Date        | YEAR (4)     | TYER (4) + TDAT (4) (v2.3) | DATE (10)                      | ICRD (10)       | RELEASE_DATE          |
-|                     |              | TDRC (10) (v2.4)           |                                |                 |                       |
-| Track Number        | TRACK (1#)   | TRCK (0-255#)              | TRACKNUMBER (Unlim#)           | IPRT (Unlim#)   | TRACK_NUMBER          |
-| Disc Number         | ✗            | TPOS (0-255#)              | DISCNUMBER (Unlim#)            | ✗               | Format limit          |
-| Rating              | ✗            | POPM (0-255#)              | RATING (0-100#)                | IRTD\* (0-100#) | RATING                |
-| BPM                 | ✗            | TBPM (0-65535#)            | BPM (0-65535#)                 | IBPM\*          | BPM                   |
-| Language            | ✗            | TLAN (3)                   | LANGUAGE (3)                   | ILNG\* (3)      | LANGUAGE              |
-| Composers           | ✗            | TCOM                       | COMPOSER                       | ICMP            | COMPOSERS as list     |
-| Publisher           | ✗            | TPUB                       | ORGANIZATION                   | ✗               | PUBLISHER             |
-| Copyright           | ✗            | TCOP                       | COPYRIGHT                      | ICOP            | COPYRIGHT             |
-| Lyrics              | ✗            | USLT                       | LYRICS\*                       | ✗               | UNSYNCHRONIZED_LYRICS |
-| Synchronized Lyrics | ✗            | SYLT                       | ✗                              | ✗               |                       |
-| Comment             | COMMENT (28) | COMM                       | COMMENT                        | ICMT            | COMMENT               |
-| Encoder             | ✗            | TENC                       | ENCODEDBY                      | ISFT            |                       |
-| URL                 | ✗            | WOAR                       | ✗                              | ✗               |                       |
-| ISRC                | ✗            | TSRC (12)                  | ISRC (12)                      | ✗               |                       |
-| Mood                | ✗            | TMOO                       | MOOD                           | ✗               |                       |
-| Key                 | ✗            | TKEY (3)                   | KEY (3)                        | ✗               |                       |
-| Original Date       | ✗            | TORY (10)                  | ORIGINALDATE (10)              | ✗               |                       |
-| Remixer             | ✗            | TPE4                       | REMIXER                        | ✗               |                       |
-| Conductors          | ✗            | TPE3                       | CONDUCTOR                      | ✗               |                       |
-| Cover Art           | ✗            | APIC (10MB#)               | METADATA_BLOCK_PICTURE (10MB#) | ✗               |                       |
-| Compilation         | ✗            | TCMP (1#)                  | COMPILATION (1#)               | ✗               |                       |
-| Media Type          | ✗            | TMED                       | MEDIA                          | ✗               |                       |
-| File Owner          | ✗            | TOWN                       | OWNER                          | ✗               |                       |
-| Recording Date      | ✗            | TDRC (10)                  | RECORDINGDATE (10)             | ✗               |                       |
-| File Size           | ✗            | TSIZ (16#)                 | FILESIZE                       | ✗               |                       |
-| Encoder Settings    | ✗            | TSSE                       | ENCODERSETTINGS                | ✗               |                       |
-| ReplayGain          | ✗            | TXXX (REPLAYGAIN)          | REPLAYGAIN                     | ✗               | REPLAYGAIN            |
-| MusicBrainz ID      | ✗            | TXXX (36)                  | MUSICBRAINZ\_\* (36)           | ✗               |                       |
-| Arranger            | ✗            | TPE2                       | ARRANGER                       | ✗               |                       |
-| Version             | ✗            | TIT3                       | VERSION                        | ✗               |                       |
-| Performance         | ✗            | TPE1                       | PERFORMER                      | ✗               |                       |
-| Archival Location   | ✗            | ✗                          | ✗                              | IARL\*          | ARCHIVAL_LOCATION     |
-| Keywords            | ✗            | ✗                          | ✗                              | IKEY\*          |                       |
-| Subject             | ✗            | ✗                          | ✗                              | ISBJ\*          |                       |
-| Original Artist     | ✗            | TOPE                       | ORIGINALARTIST                 | ✗               |                       |
-| Set Subtitle        | ✗            | TIT3                       | ALBUMARTIST                    | ✗               |                       |
-| Initial Key         | ✗            | TKEY (3)                   | KEY (3)                        | ✗               |                       |
-| Involved People     | ✗            | TIPL                       | INVOLVEDPEOPLE                 | ✗               |                       |
-| Musicians           | ✗            | TMCL                       | MUSICIAN                       | ✗               |                       |
-| Part of Set         | ✗            | TPOS                       | DISCNUMBER                     | ✗               |                       |
+| Field               | ID3v1             | ID3v2                      | Vorbis                         | RIFF            | AudioMeta Support     |
+| ------------------- | ----------------- | -------------------------- | ------------------------------ | --------------- | --------------------- |
+| Text Encoding       | ASCII             | UTF-16/ISO (v2.3)          | UTF-8                          | ASCII/UTF-8     | UTF-8                 |
+|                     |                   | + UTF-8 (v2.4)             |                                |                 |                       |
+| Max Text Length     | 30 chars          | ~8M chars                  | ~8M chars                      | ~1M chars       | Format limit          |
+| Date Time Formats   | YYYY              | YYYY+DDMM (v2.3)           | YYYY-MM-DD                     | YYYY-MM-DD      | ISO 8601              |
+|                     |                   | YYYY-MM-DD (v2.4)          |                                |                 |                       |
+| Technical Info      |                   |                            |                                |                 |                       |
+| - Duration          | ✓                 | ✓                          | ✓                              | ✓               | ✓                     |
+| - Bitrate           | ✓                 | ✓                          | ✓                              | ✓               | ✓                     |
+| - Sample Rate       | ✓                 | ✓                          | ✓                              | ✓               | ✓                     |
+| - Channels          | ✓ (1-2)           | ✓ (1-255)                  | ✓ (1-255)                      | ✓ (1-2)         | ✓                     |
+| - File Size         | ✓                 | ✓                          | ✓                              | ✓               | ✓                     |
+| - Format Info       | ✓                 | ✓                          | ✓                              | ✓               | ✓                     |
+| - MD5 Checksum      |                   |                            | ✓                              |                 | ✓ (Flac)              |
+| Title               | TITLE (30)        | TIT2                       | TITLE                          | INAM            | TITLE                 |
+| Artists             | ARTIST (30)       | TPE1                       | ARTIST                         | IART            | ARTISTS (list)        |
+| Album               | ALBUM (30)        | TALB                       | ALBUM                          | IPRD            | ALBUM                 |
+| Album Artists       | ✗                 | TPE2                       | ALBUMARTIST                    | IAAR\*          | ALBUM_ARTISTS (list)  |
+| Genres              | GENRE (1#)        | TCON                       | GENRE                          | IGNR            | GENRES_NAMES (list)   |
+| Release Date        | YEAR (4)          | TYER (4) + TDAT (4) (v2.3) | DATE (10)                      | ICRD (10)       | RELEASE_DATE          |
+|                     |                   | TDRC (10) (v2.4)           |                                |                 |                       |
+| Track Number        | TRACK (1#) (v1.1) | TRCK (0-255#)              | TRACKNUMBER (Unlim#)           | IPRT (Unlim#)   | TRACK_NUMBER          |
+| Disc Number         | ✗                 | TPOS (0-255#)              | DISCNUMBER (Unlim#)            | ✗               |                       |
+| Rating              | ✗                 | POPM (0-255#)              | RATING (0-100#)                | IRTD\* (0-100#) | RATING                |
+| BPM                 | ✗                 | TBPM (0-65535#)            | BPM (0-65535#)                 | IBPM\*          | BPM                   |
+| Language            | ✗                 | TLAN (3)                   | LANGUAGE (3)                   | ILNG\* (3)      | LANGUAGE              |
+| Composers           | ✗                 | TCOM                       | COMPOSER                       | ICMP            | COMPOSERS (list)      |
+| Publisher           | ✗                 | TPUB                       | ORGANIZATION                   | ✗               | PUBLISHER             |
+| Copyright           | ✗                 | TCOP                       | COPYRIGHT                      | ICOP            | COPYRIGHT             |
+| Lyrics              | ✗                 | USLT                       | LYRICS\*                       | ✗               | UNSYNCHRONIZED_LYRICS |
+| Synchronized Lyrics | ✗                 | SYLT                       | ✗                              | ✗               |                       |
+| Comment             | COMMENT (28)      | COMM                       | COMMENT                        | ICMT            | COMMENT               |
+| Encoder             | ✗                 | TENC                       | ENCODEDBY                      | ISFT            |                       |
+| URL                 | ✗                 | WOAR                       | ✗                              | ✗               |                       |
+| ISRC                | ✗                 | TSRC (12)                  | ISRC (12)                      | ✗               |                       |
+| Mood                | ✗                 | TMOO                       | MOOD                           | ✗               |                       |
+| Key                 | ✗                 | TKEY (3)                   | KEY (3)                        | ✗               |                       |
+| Original Date       | ✗                 | TORY (10)                  | ORIGINALDATE (10)              | ✗               |                       |
+| Remixer             | ✗                 | TPE4                       | REMIXER                        | ✗               |                       |
+| Conductors          | ✗                 | TPE3                       | CONDUCTOR                      | ✗               |                       |
+| Cover Art           | ✗                 | APIC (10MB#)               | METADATA_BLOCK_PICTURE (10MB#) | ✗               |                       |
+| Compilation         | ✗                 | TCMP (1#)                  | COMPILATION (1#)               | ✗               |                       |
+| Media Type          | ✗                 | TMED                       | MEDIA                          | ✗               |                       |
+| File Owner          | ✗                 | TOWN                       | OWNER                          | ✗               |                       |
+| Recording Date      | ✗                 | TDRC (10)                  | RECORDINGDATE (10)             | ✗               |                       |
+| File Size           | ✗                 | TSIZ (16#)                 | FILESIZE                       | ✗               |                       |
+| Encoder Settings    | ✗                 | TSSE                       | ENCODERSETTINGS                | ✗               |                       |
+| ReplayGain          | ✗                 | TXXX (REPLAYGAIN)          | REPLAYGAIN                     | ✗               | REPLAYGAIN            |
+| MusicBrainz ID      | ✗                 | TXXX (36)                  | MUSICBRAINZ\_\* (36)           | ✗               |                       |
+| Arranger            | ✗                 | TPE2                       | ARRANGER                       | ✗               |                       |
+| Version             | ✗                 | TIT3                       | VERSION                        | ✗               |                       |
+| Performance         | ✗                 | TPE1                       | PERFORMER                      | ✗               |                       |
+| Archival Location   | ✗                 | ✗                          | ✗                              | IARL\*          | ARCHIVAL_LOCATION     |
+| Keywords            | ✗                 | ✗                          | ✗                              | IKEY\*          |                       |
+| Subject             | ✗                 | ✗                          | ✗                              | ISBJ\*          |                       |
+| Original Artist     | ✗                 | TOPE                       | ORIGINALARTIST                 | ✗               |                       |
+| Set Subtitle        | ✗                 | TIT3                       | ALBUMARTIST                    | ✗               |                       |
+| Initial Key         | ✗                 | TKEY (3)                   | KEY (3)                        | ✗               |                       |
+| Involved People     | ✗                 | TIPL                       | INVOLVEDPEOPLE                 | ✗               |                       |
+| Musicians           | ✗                 | TMCL                       | MUSICIAN                       | ✗               |                       |
+| Part of Set         | ✗                 | TPOS                       | DISCNUMBER                     | ✗               |                       |
 
 ### Multiple Values
 
