@@ -101,11 +101,11 @@ class ID3v2MetadataGetter:
                             text_data_bytes = text_data
                             if len(text_data_bytes) > 3:
                                 language = text_data_bytes[:3].decode('ascii', errors='ignore')
-                                pos = 3  # after language
-                                while pos < len(text_data_bytes) and text_data_bytes[pos] != 0:
-                                    pos += 1
-                                pos += 1  # skip null
-                                lyrics_bytes = text_data_bytes[pos:].rstrip(b'\x00')
+                                uslt_pos = 3  # after language
+                                while uslt_pos < len(text_data_bytes) and text_data_bytes[uslt_pos] != 0:
+                                    uslt_pos += 1
+                                uslt_pos += 1  # skip null
+                                lyrics_bytes = text_data_bytes[uslt_pos:].rstrip(b'\x00')
                                 lyrics = ID3v2MetadataGetter._decode_text(encoding, lyrics_bytes)
                                 text = f"{language}\x00{lyrics}"
                             else:
