@@ -5,7 +5,7 @@ from pathlib import Path
 
 from audiometa import get_bitrate
 from audiometa.exceptions import FileTypeNotSupportedError
-from test.helpers.technical_info_inspector import TechnicalInfoInspector
+from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspector
 
 
 @pytest.mark.unit
