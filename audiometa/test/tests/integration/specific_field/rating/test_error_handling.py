@@ -4,7 +4,8 @@ from pathlib import Path
 from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.exceptions import FileTypeNotSupportedError, InvalidRatingValueError
+from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.exceptions import FileTypeNotSupportedError, InvalidRatingValueError, InvalidMetadataFieldTypeError
 
 
 @pytest.mark.integration
@@ -33,34 +34,29 @@ class TestRatingErrorHandling:
 
     def test_write_fractional_values(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
-            with pytest.raises(InvalidRatingValueError):
+            with pytest.raises(InvalidMetadataFieldTypeError):
                 update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 25.5}, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
 
-    def test_rating_invalid_values(self, sample_mp3_file: Path, temp_audio_file: Path):
-        # Test with invalid rating values
-        temp_audio_file.write_bytes(sample_mp3_file.read_bytes())
-        
-        # Test invalid string value - should raise InvalidRatingValueError
-        with pytest.raises(InvalidRatingValueError, match="Invalid rating value: invalid. Expected a numeric value."):
-            update_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: "invalid"}, normalized_rating_max_value=100)
-        
-        # Test out-of-range numeric values - should be clamped to valid range
-        # -1 should be clamped to 0 (0 stars)
-        temp_audio_file.write_bytes(sample_mp3_file.read_bytes())  # Fresh file
-        update_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: -1}, normalized_rating_max_value=100)
-        metadata = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
-        assert metadata == 0  # Should be clamped to 0
-        
-        # 101 should be clamped to 100 (5 stars)
-        temp_audio_file.write_bytes(sample_mp3_file.read_bytes())  # Fresh file
-        update_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: 101}, normalized_rating_max_value=100)
-        metadata = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
-        assert metadata == 100  # Should be clamped to 100
-        
-        # Test None value (should be handled gracefully by removing the rating)
-        temp_audio_file.write_bytes(sample_mp3_file.read_bytes())  # Fresh file
-        update_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: None}, normalized_rating_max_value=100)
-        metadata = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
-        assert metadata is None
+    def test_rating_invalid_string_value(self):
+        with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
+            with pytest.raises(InvalidMetadataFieldTypeError, match="Invalid type for metadata field 'rating': expected int, got str"):
+                update_metadata(test_file.path, {UnifiedMetadataKey.RATING: "invalid"}, normalized_rating_max_value=100)
+
+    def test_rating_negative_value_clamping(self):
+        with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
+            update_metadata(test_file.path, {UnifiedMetadataKey.RATING: -1}, normalized_rating_max_value=100)
+            metadata = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            assert metadata == 0  # Should be clamped to 0
+
+    def test_rating_over_max_value_clamping(self):
+        with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
+            update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 101}, normalized_rating_max_value=100)
+            metadata = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            assert metadata == 100  # Should be clamped to 100
+
+    def test_rating_none_value(self):
+        with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
+            update_metadata(test_file.path, {UnifiedMetadataKey.RATING: None}, normalized_rating_max_value=100)
+            metadata = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            assert metadata is None
