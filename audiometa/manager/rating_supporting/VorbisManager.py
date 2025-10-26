@@ -4,7 +4,7 @@ from typing import TypeVar
 import taglib
 
 from ...audio_file import AudioFile
-from ...exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError
+from ...exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError, ConfigurationError, InvalidRatingValueError
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import UnifiedMetadataKey
@@ -312,3 +312,29 @@ class VorbisManager(RatingSupportingMetadataManager):
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
+
+    def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
+            self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
+        raise MetadataFieldNotSupportedByMetadataFormatError(f'Metadata key not handled: {unified_metadata_key}')
+
+    def _update_undirectly_mapped_metadata(self, raw_mutagen_metadata: dict,
+                                           app_metadata_value: AppMetadataValue,
+                                           unified_metadata_key: UnifiedMetadataKey):
+        if unified_metadata_key == UnifiedMetadataKey.RATING:
+            if app_metadata_value is not None:
+                if self.normalized_rating_max_value is None:
+                    raise ConfigurationError("normalized_rating_max_value must be set.")
+                try:
+                    normalized_rating = int(float(app_metadata_value))
+                    file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating)
+                    raw_mutagen_metadata[self.VorbisKey.RATING] = [str(file_rating)]
+                except (TypeError, ValueError):
+                    raise InvalidRatingValueError(f"Invalid rating value: {app_metadata_value}. Expected a numeric value.")
+            else:
+                # Remove rating
+                if self.VorbisKey.RATING in raw_mutagen_metadata:
+                    del raw_mutagen_metadata[self.VorbisKey.RATING]
+                if self.VorbisKey.RATING_TRAKTOR in raw_mutagen_metadata:
+                    del raw_mutagen_metadata[self.VorbisKey.RATING_TRAKTOR]
+        else:
+            raise MetadataFieldNotSupportedByMetadataFormatError(f'Metadata key not handled: {unified_metadata_key}')
