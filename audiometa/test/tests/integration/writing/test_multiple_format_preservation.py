@@ -220,8 +220,9 @@ class TestMultipleFormatPreservation:
         with TempFileWithMetadata({"title": "Original Title", "artist": "Original Artist"}, "mp3") as test_file:
             ID3v1MetadataSetter.set_title(test_file.path, "ID3v1 Title")
             ID3v1MetadataSetter.set_artist(test_file.path, "ID3v1 Artist")
-            ID3v2MetadataSetter.set_metadata(test_file.path, {"title": "ID3v2 Title"})
-            ID3v2MetadataSetter.set_metadata(test_file.path, {"artist": "ID3v2 Artist"})
+            # Use ID3v2.3 instead of ID3v2.4 to preserve ID3v1 metadata
+            ID3v2MetadataSetter.set_metadata(test_file.path, {"title": "ID3v2 Title"}, version="2.3")
+            ID3v2MetadataSetter.set_metadata(test_file.path, {"artist": "ID3v2 Artist"}, version="2.3")
             
             # Verify initial state
             id3v1_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
