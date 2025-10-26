@@ -405,3 +405,12 @@ def test_title_reading(self, test_file):
 - Group imports logically
 - Use absolute imports when possible
 - Keep imports clean and minimal
+
+## Git and Version Control
+
+### Commit Behavior
+
+- **NEVER commit changes automatically**
+- Always ask the user before making any git commits
+- Let the user review changes before committing
+- Only suggest commit messages, don't execute commits without explicit user approval
