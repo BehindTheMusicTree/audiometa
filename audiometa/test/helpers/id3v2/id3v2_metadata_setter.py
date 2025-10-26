@@ -89,8 +89,9 @@ class ID3v2MetadataSetter:
                 command = ["id3v2", "--id3v2-only", "--artist", artists, str(file_path)]
                 run_external_tool(command, "id3v2")
             else:
-                command = ["id3v2", "--id3v2-only", "--artist", artists, str(file_path)]
-                run_external_tool(command, "id3v2")
+                # Use mid3v2 for ID3v2.4 as it automatically creates ID3v2.4 tags
+                command = ["mid3v2", "--artist", artists, str(file_path)]
+                run_external_tool(command, "mid3v2")
         else:
             # For list input, use multiple values handling
             ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TPE1", artists, in_separate_frames=in_separate_frames, version=version)
@@ -327,7 +328,7 @@ class ID3v2MetadataSetter:
     
     @staticmethod
     def _set_single_frame_with_id3v2(file_path: Path, frame_id: str, alist: List[str], version: str, separator: str = None) -> None:
-        """Internal helper: Create a single ID3v2 frame using id3v2 tool with --id3v2-only flag.
+        """Internal helper: Create a single ID3v2 frame using appropriate tool based on version.
         
         Args:
             file_path: Path to the audio file
@@ -343,7 +344,14 @@ class ID3v2MetadataSetter:
         # Combine values with the appropriate separator
         combined_text = separator.join(alist) if len(alist) > 1 else alist[0] if alist else ""
         
-        # Use external tool for both versions
+        # Check if we have null bytes - if so, use manual frame creator for ID3v2.4
+        if version == "2.4" and "\x00" in combined_text:
+            from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
+            creator = ManualID3v2FrameCreator()
+            frame_data = creator._create_text_frame(frame_id, combined_text, version)
+            creator._write_id3v2_tag(file_path, [frame_data], version)
+            return
+        
         # Map frame IDs to tool flags
         flag_mapping = {
             'TCON': '--genre',
@@ -357,8 +365,14 @@ class ID3v2MetadataSetter:
         
         flag = flag_mapping.get(frame_id, f'--{frame_id.lower()}')
         
-        command = ["id3v2", "--id3v2-only", flag, combined_text, str(file_path)]
-        tool = "id3v2"
+        if version == "2.3":
+            # Use id3v2 for ID3v2.3
+            command = ["id3v2", "--id3v2-only", flag, combined_text, str(file_path)]
+            tool = "id3v2"
+        else:
+            # Use mid3v2 for ID3v2.4 (handles null bytes better and creates ID3v2.4)
+            command = ["mid3v2", flag, combined_text, str(file_path)]
+            tool = "mid3v2"
         
         run_external_tool(command, tool)
     
