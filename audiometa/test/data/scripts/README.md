@@ -6,7 +6,6 @@ This directory contains test scripts for the audiometa-python library. Each scri
 
 | Script                       | Purpose                 | Format         |
 | ---------------------------- | ----------------------- | -------------- |
-| `commands.sh`                | Reference commands      | All            |
 | `set-id3v1-max-metadata.sh`  | Set max ID3v1 metadata  | MP3            |
 | `set-id3v2-max-metadata.sh`  | Set max ID3v2 metadata  | MP3, FLAC, WAV |
 | `set-riff-max-metadata.sh`   | Set max RIFF metadata   | WAV            |
