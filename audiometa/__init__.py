@@ -276,7 +276,7 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
     if not unified_metadata:
         return
 
-    from typing import get_origin, get_args
+    from typing import get_origin, get_args, Union
 
     for key, value in unified_metadata.items():
         # Check if key is a valid UnifiedMetadataKey enum first
@@ -303,9 +303,17 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
                 raise InvalidMetadataFieldTypeError(key.value, f'list[{getattr(item_type, "__name__", str(item_type))}]', value)
             if not all(isinstance(item, item_type) for item in value):
                 raise InvalidMetadataFieldTypeError(key.value, f'list[{getattr(item_type, "__name__", str(item_type))}]', value)
+        elif origin == Union:
+            # Handle Union types (e.g., Union[int, str])
+            arg_types = get_args(expected_type)
+            if not isinstance(value, arg_types):
+                raise InvalidMetadataFieldTypeError(key.value, f'Union[{", ".join(getattr(t, "__name__", str(t)) for t in arg_types)}]', value)
         else:
             # expected_type is a plain type like str or int
             if not isinstance(value, expected_type):
+                # Special case for TRACK_NUMBER: allow str in addition to int
+                if key == UnifiedMetadataKey.TRACK_NUMBER and isinstance(value, str):
+                    continue
                 raise InvalidMetadataFieldTypeError(key.value, getattr(expected_type, '__name__', str(expected_type)), value)
 
 
