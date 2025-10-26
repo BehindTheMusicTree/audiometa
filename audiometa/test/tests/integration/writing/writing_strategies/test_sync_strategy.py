@@ -152,3 +152,60 @@ class TestSyncStrategy:
             merged = get_unified_metadata(test_file.path)
             assert merged.get(UnifiedMetadataKey.TITLE) == long_title  # Full title from RIFF
             assert merged.get(UnifiedMetadataKey.ARTISTS) == ["Long Artist Name That Tests RIFF Handling"]
+
+    def test_sync_strategy_mp3(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            # Add ID3v1 metadata using external tools
+            ID3v1MetadataSetter.set_metadata(test_file.path, {"title": "ID3v1 Title", "artist": "ID3v1 Artist", "album": "ID3v1 Album"})
+            
+            # Verify ID3v1 metadata was written
+            id3v1_result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
+            assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
+            
+            # Now write ID3v2 metadata with SYNC strategy
+            id3v2_metadata = {
+                UnifiedMetadataKey.TITLE: "Synced Title",
+                UnifiedMetadataKey.ARTISTS: ["Synced Artist"],
+                UnifiedMetadataKey.ALBUM: "Synced Album"
+            }
+            update_metadata(test_file.path, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
+            
+            # Verify ID3v1 metadata behavior with different strategies
+            # When ID3v2 is written, it overwrites the ID3v1 tag
+            id3v1_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
+            assert id3v1_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"  # ID3v1 was overwritten
+            
+            # Verify ID3v2 metadata was written with synced values
+            id3v2_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"
+            
+    def test_sync_strategy_flac(self):
+        with TempFileWithMetadata({}, "flac") as test_file:
+            ID3v1MetadataSetter.set_metadata(test_file.path, {"title": "ID3v1 Title", "artist": "ID3v1 Artist", "album": "ID3v1 Album"})        
+            
+            # Verify ID3v1 metadata was written
+            id3v1_result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
+            assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
+            
+            ID3v2MetadataSetter.set_metadata(test_file.path, {"title": "ID3v2 Title", "artist": "ID3v2 Artist", "album": "ID3v2 Album"}, version='2.3')
+            id3v2_result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
+            
+            # Now write Vorbis metadata with SYNC strategy
+            vorbis_metadata = {
+                UnifiedMetadataKey.TITLE: "Synced Title",
+                UnifiedMetadataKey.ARTISTS: ["Synced Artist"],
+                UnifiedMetadataKey.ALBUM: "Synced Album"
+            }
+            update_metadata(test_file.path, vorbis_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
+            
+            # Verify ID3v1 metadata behavior with different strategies
+            # When Vorbis is written, it overwrites the ID3v1 tag
+            id3v1_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
+            assert id3v1_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"  # ID3v1 was overwritten
+            
+            id3v2_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"
+            
+            vorbis_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.VORBIS)
+            assert vorbis_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"
