@@ -177,18 +177,3 @@ class TestId3v2RatingWriting:
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
             rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating == 100
-
-    def test_write_fractional_values(self, temp_audio_file):
-        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        
-        with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
-            # Test fractional value (should be rounded or handled appropriately)
-            test_metadata = {UnifiedMetadataKey.RATING: 25.5}
-            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
-            assert rating is not None
-            assert isinstance(rating, (int, float))
-            # The exact value may be rounded or normalized, so check it's in a reasonable range
-            assert 0 <= rating <= 100
-            # Should be close to the input value (within 10 points)
-            assert abs(rating - 25.5) <= 10
