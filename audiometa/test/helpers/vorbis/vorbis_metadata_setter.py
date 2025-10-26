@@ -56,6 +56,7 @@ class VorbisMetadataSetter:
             'encoder': 'ENCODER',
             'url': 'URL',
             'isrc': 'ISRC',
+            'publisher': 'PUBLISHER',
         }
         
         for key, value in metadata.items():
