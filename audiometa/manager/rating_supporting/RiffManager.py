@@ -354,9 +354,28 @@ class RiffManager(RatingSupportingMetadataManager):
         # Process metadata updates
         info_chunk_size = int.from_bytes(bytes(riff_data[info_chunk_start+4:info_chunk_start+8]), 'little')
 
+        # Read existing metadata to preserve it
+        existing_metadata = self._extract_riff_metadata_directly(bytes(riff_data))
+        
+        # Convert existing metadata to unified format for merging
+        existing_unified_metadata = {}
+        for riff_key, values in existing_metadata.items():
+            # Find the corresponding unified metadata key
+            for unified_key, mapped_riff_key in self.metadata_keys_direct_map_write.items():
+                if mapped_riff_key and mapped_riff_key.value == riff_key:
+                    if len(values) == 1:
+                        existing_unified_metadata[unified_key] = values[0]
+                    else:
+                        existing_unified_metadata[unified_key] = values
+                    break
+        
+        # Merge existing metadata with new metadata (new metadata takes precedence)
+        merged_metadata = existing_unified_metadata.copy()
+        merged_metadata.update(unified_metadata)
+
         # Build new tags data
         new_tags_data = bytearray()
-        for app_key, value in unified_metadata.items():
+        for app_key, value in merged_metadata.items():
             if value is None or value == "":
                 continue
 
