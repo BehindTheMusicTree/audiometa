@@ -39,12 +39,13 @@ class TestPublisherDeleting:
                 update_metadata(test_file.path, {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}, metadata_format=MetadataFormat.RIFF)
 
     def test_delete_publisher_vorbis(self):
-        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
-        
         with TempFileWithMetadata({}, "flac") as test_file:
-            # Vorbis format raises exception for unsupported metadata
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by this format"):
-                update_metadata(test_file.path, {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}, metadata_format=MetadataFormat.VORBIS)
+        
+            update_metadata(test_file.path, {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}, metadata_format=MetadataFormat.VORBIS)
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.PUBLISHER) == "Test Publisher"
+        
+            update_metadata(test_file.path, {UnifiedMetadataKey.PUBLISHER: None}, metadata_format=MetadataFormat.VORBIS)
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.PUBLISHER) is None
 
     def test_delete_publisher_preserves_other_fields(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
