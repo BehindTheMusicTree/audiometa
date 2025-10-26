@@ -87,8 +87,8 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--song", title, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["id3v2", "--id3v2-only", "--song", title, str(file_path)]
-            run_external_tool(command, "id3v2")
+            command = ["mid3v2", "--song", title, str(file_path)]
+            run_external_tool(command, "mid3v2")
     
     @staticmethod
     def set_titles(file_path: Path, titles: List[str], in_separate_frames: bool = False, version: str = "2.4"):
@@ -124,8 +124,8 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--album", album, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["id3v2", "--id3v2-only", "--album", album, str(file_path)]
-            run_external_tool(command, "id3v2")
+            command = ["mid3v2", "--album", album, str(file_path)]
+            run_external_tool(command, "mid3v2")
     
     @staticmethod
     def set_genre(file_path: Path, genre: str, version: str = "2.4") -> None:
