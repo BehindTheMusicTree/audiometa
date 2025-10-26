@@ -119,7 +119,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [Advanced Rating Operations](#advanced-rating-operations)
       - [Normalized Rating Scale](#normalized-rating-scale)
       - [Format-Specific Rating Writing](#format-specific-rating-writing)
-  - [Track Number Formats](#track-number-formats)
+  - [Track Number](#track-number)
   - [Lyrics Support](#lyrics-support)
     - [Synchronized Lyrics](#synchronized-lyrics)
     - [Unsynchronized Lyrics](#unsynchronized-lyrics)
@@ -1916,11 +1916,21 @@ update_metadata("song.wav", {"rating": 6},
                     metadata_format=MetadataFormat.RIFF)   # Uses Profile A
 ```
 
-### Track Number Formats
+### Track Number
 
 The library handles different track number formats across audio metadata standards:
 
-#### ID3v2 Format
+#### ID3v1 Track Number Format
+
+ID3v1 does not natively support track numbers. The library supports storing track numbers in the comment field since ID3v1.1 format.
+
+- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
+- **Parsing**: Direct conversion to integer
+- **Examples**:
+  - `"5"` → Track number: `5`
+  - `"12"` → Track number: `12`
+
+#### ID3v2 Track Number Format
 
 - **Format**: `"track/total"` (e.g., `"5/12"`, `"99/99"`)
 - **Parsing**: Library extracts only the track number (first part before `/`)
@@ -1935,7 +1945,7 @@ The library handles different track number formats across audio metadata standar
   - `"99/99"` → Track number: `99`
   - `"1"` → Track number: `1` (simple format also supported)
 
-#### ID3v1 Format
+#### Vorbis Track Number Format
 
 - **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
 - **Parsing**: Direct conversion to integer
@@ -1943,15 +1953,7 @@ The library handles different track number formats across audio metadata standar
   - `"5"` → Track number: `5`
   - `"12"` → Track number: `12`
 
-#### Vorbis Format
-
-- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
-- **Parsing**: Direct conversion to integer
-- **Examples**:
-  - `"5"` → Track number: `5`
-  - `"12"` → Track number: `12`
-
-#### RIFF Format
+#### RIFF Track Number Format
 
 - **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
 - **Parsing**: Direct conversion to integer
@@ -1968,7 +1970,7 @@ The library gracefully handles common edge cases:
 - `"abc/def"` → Track number: `None` (non-numeric values)
 - `""` → Track number: `None` (empty string)
 - `"5/12/15"` → Track number: `5` (takes first part before first slash)
-- `"5-12"` → `ValueError` (different separator, no slash)
+- `"5-12"` → Track number: `5` (different separator, no slash)
 
 ### Lyrics Support
 
