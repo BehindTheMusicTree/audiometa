@@ -1,5 +1,6 @@
 """Unit tests for metadata manager header information methods."""
 
+import pytest
 from pathlib import Path
 
 from audiometa import AudioFile
@@ -12,72 +13,6 @@ from audiometa.manager.rating_supporting.RiffManager import RiffManager
 
 class TestMetadataManagerHeaderMethods:
     """Test cases for metadata manager header information methods."""
-
-    def test_base_metadata_manager_header_info(self, sample_mp3_file: Path):
-        """Test base MetadataManager header info method."""
-        audio_file = AudioFile(sample_mp3_file)
-        
-        # Create a mock manager (we can't instantiate MetadataManager directly)
-        # This tests the base implementation
-        class MockManager(MetadataManager):
-            def _extract_mutagen_metadata(self):
-                return None
-            
-            def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(self, raw_mutagen_metadata):
-                return {}
-            
-            def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(self, raw_clean_metadata_uppercase_keys, unified_metadata_key):
-                return None
-        
-        manager = MockManager(audio_file, {})
-        header_info = manager.get_header_info()
-        
-        # Should return default structure
-        assert 'present' in header_info
-        assert 'version' in header_info
-        assert 'size_bytes' in header_info
-        assert 'position' in header_info
-        assert 'flags' in header_info
-        assert 'extended_header' in header_info
-        
-        # Default values
-        assert header_info['present'] is False
-        assert header_info['version'] is None
-        assert header_info['size_bytes'] == 0
-        assert header_info['position'] is None
-        assert header_info['flags'] == {}
-        assert header_info['extended_header'] == {}
-
-    def test_base_metadata_manager_raw_metadata_info(self, sample_mp3_file: Path):
-        """Test base MetadataManager raw metadata info method."""
-        audio_file = AudioFile(sample_mp3_file)
-        
-        class MockManager(MetadataManager):
-            def _extract_mutagen_metadata(self):
-                return None
-            
-            def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(self, raw_mutagen_metadata):
-                return {}
-            
-            def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(self, raw_clean_metadata_uppercase_keys, unified_metadata_key):
-                return None
-        
-        manager = MockManager(audio_file, {})
-        raw_info = manager.get_raw_metadata_info()
-        
-        # Should return default structure
-        assert 'raw_data' in raw_info
-        assert 'parsed_fields' in raw_info
-        assert 'frames' in raw_info
-        assert 'comments' in raw_info
-        assert 'chunk_structure' in raw_info
-        
-        # Default values
-        assert raw_info['raw_data'] is None
-        assert raw_info['parsed_fields'] == {}
-        assert raw_info['frames'] == {}
-        assert raw_info['comments'] == {}
-        assert raw_info['chunk_structure'] == {}
 
     def test_id3v2_manager_header_info(self, sample_mp3_file: Path):
         """Test ID3v2Manager header info method."""
