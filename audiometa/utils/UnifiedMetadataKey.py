@@ -45,7 +45,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.RATING: int,
             UnifiedMetadataKey.LANGUAGE: str,
             UnifiedMetadataKey.RELEASE_DATE: str,
-            UnifiedMetadataKey.TRACK_NUMBER: int,
+            UnifiedMetadataKey.TRACK_NUMBER: str,
             UnifiedMetadataKey.BPM: int,
             UnifiedMetadataKey.COMPOSERS: list[str],
             UnifiedMetadataKey.PUBLISHER: str,
