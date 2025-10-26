@@ -426,15 +426,16 @@ class MetadataManager:
         if not value[0]:
             return None
         
+        # Special handling for TRACK_NUMBER parsing
+        if unified_metadata_key == UnifiedMetadataKey.TRACK_NUMBER:
+            track_str = str(value[0])
+            if re.match(r'^\d+([-/]\d*)?$', track_str):
+                track_match = re.match(r'(\d+)', track_str)
+                return int(track_match.group(1))
+            else:
+                return None
+        
         if unified_metadata_key_optional_type == int:
-            # Handle track number parsing - extract first sequence of digits if valid format
-            if unified_metadata_key == UnifiedMetadataKey.TRACK_NUMBER:
-                track_str = str(value[0])
-                if re.match(r'^\d+([-/]\d*)?$', track_str):
-                    track_match = re.match(r'(\d+)', track_str)
-                    return int(track_match.group(1))
-                else:
-                    return None
             return int(value[0]) if value else None
         if unified_metadata_key_optional_type == float:
             return float(value[0]) if value else None
