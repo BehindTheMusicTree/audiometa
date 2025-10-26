@@ -21,7 +21,8 @@ class TestLyricsDeleting:
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
             ID3v2MetadataSetter.set_lyrics(test_file.path, "Test lyrics", version='2.3')
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
-            assert raw_metadata['USLT'] == ["eng\x00Test lyrics"]
+            # 4 null bytes because of missing language
+            assert raw_metadata['USLT'] == ["\x00\x00\x00\x00Test lyrics"]
         
             update_metadata(test_file.path, {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: None}, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
