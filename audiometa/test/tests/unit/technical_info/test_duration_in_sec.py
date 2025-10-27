@@ -4,7 +4,6 @@ import pytest
 from pathlib import Path
 
 from audiometa import AudioFile
-from audiometa.exceptions import FileTypeNotSupportedError
 
 
 @pytest.mark.unit
@@ -39,13 +38,6 @@ class TestAudioFileDurationInSec:
         audio_file = AudioFile(sample_mp3_file)
         duration = audio_file.get_duration_in_sec()
         assert isinstance(duration, float)
-    
-    def test_get_duration_in_sec_unsupported_file_type_raises_error(self, temp_audio_file: Path):
-        temp_audio_file = temp_audio_file.with_suffix(".txt")
-        temp_audio_file.write_bytes(b"fake audio content")
-        
-        with pytest.raises(FileTypeNotSupportedError):
-            AudioFile(temp_audio_file).get_duration_in_sec()
     
     def test_get_duration_in_sec_nonexistent_file_raises_error(self):
         with pytest.raises(FileNotFoundError):

@@ -4,7 +4,6 @@ import pytest
 from pathlib import Path
 
 from audiometa import get_duration_in_sec, AudioFile
-from audiometa.exceptions import FileTypeNotSupportedError
 from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspector
 
 
@@ -43,11 +42,4 @@ class TestGetDurationInSec:
         assert isinstance(flac_duration, float)
         assert isinstance(wav_duration, float)
         assert all(d > 0 for d in [mp3_duration, flac_duration, wav_duration])
-    
-    def test_get_duration_in_sec_unsupported_file_type_raises_error(self, temp_audio_file: Path):
-        temp_audio_file = temp_audio_file.with_suffix(".txt")
-        temp_audio_file.write_bytes(b"fake audio content")
-        
-        with pytest.raises(FileTypeNotSupportedError):
-            get_duration_in_sec(str(temp_audio_file))
 

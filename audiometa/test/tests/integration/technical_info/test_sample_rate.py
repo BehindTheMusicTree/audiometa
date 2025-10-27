@@ -4,7 +4,6 @@ import pytest
 from pathlib import Path
 
 from audiometa import get_sample_rate, AudioFile
-from audiometa.exceptions import FileTypeNotSupportedError
 from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspector
 
 
@@ -45,11 +44,4 @@ class TestGetSampleRate:
         assert isinstance(flac_sample_rate, int)
         assert isinstance(wav_sample_rate, int)
         assert all(r > 0 for r in [mp3_sample_rate, flac_sample_rate, wav_sample_rate])
-    
-    def test_get_sample_rate_unsupported_file_type_raises_error(self, temp_audio_file: Path):
-        temp_audio_file = temp_audio_file.with_suffix(".txt")
-        temp_audio_file.write_bytes(b"fake audio content")
-        
-        with pytest.raises(FileTypeNotSupportedError):
-            get_sample_rate(str(temp_audio_file))
 

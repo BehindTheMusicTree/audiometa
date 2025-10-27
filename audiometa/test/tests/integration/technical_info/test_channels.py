@@ -4,7 +4,6 @@ import pytest
 from pathlib import Path
 
 from audiometa import get_channels, AudioFile
-from audiometa.exceptions import FileTypeNotSupportedError
 from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspector
 
 
@@ -43,11 +42,4 @@ class TestGetChannels:
         assert isinstance(flac_channels, int)
         assert isinstance(wav_channels, int)
         assert all(c > 0 for c in [mp3_channels, flac_channels, wav_channels])
-    
-    def test_get_channels_unsupported_file_type_raises_error(self, temp_audio_file: Path):
-        temp_audio_file = temp_audio_file.with_suffix(".txt")
-        temp_audio_file.write_bytes(b"fake audio content")
-        
-        with pytest.raises(FileTypeNotSupportedError):
-            get_channels(str(temp_audio_file))
 

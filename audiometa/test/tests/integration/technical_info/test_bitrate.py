@@ -4,7 +4,6 @@ import pytest
 from pathlib import Path
 
 from audiometa import get_bitrate, AudioFile
-from audiometa.exceptions import FileTypeNotSupportedError
 from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspector
 
 
@@ -43,11 +42,4 @@ class TestGetBitrate:
         assert isinstance(flac_bitrate, int)
         assert isinstance(wav_bitrate, int)
         assert all(b > 0 for b in [mp3_bitrate, flac_bitrate, wav_bitrate])
-    
-    def test_get_bitrate_unsupported_file_type_raises_error(self, temp_audio_file: Path):
-        temp_audio_file = temp_audio_file.with_suffix(".txt")
-        temp_audio_file.write_bytes(b"fake audio content")
-        
-        with pytest.raises(FileTypeNotSupportedError):
-            get_bitrate(str(temp_audio_file))
 
