@@ -120,7 +120,7 @@ class VorbisManager(RatingSupportingMetadataManager):
         Returns a dict: {key: [values]}.
         """
         comments = {}
-        with open(self.audio_file.get_file_path_or_object(), "rb") as f:
+        with open(self.audio_file.file_path, "rb") as f:
             # --- Step 1: Skip ID3v2 tags if present, then find FLAC header ---
             header = f.read(4)
             if header == b'ID3\x03' or header == b'ID3\x04':
@@ -276,7 +276,6 @@ class VorbisManager(RatingSupportingMetadataManager):
 
     def _write_metadata_with_metaflac(self, metadata: dict):
         """Write metadata to the FLAC file using metaflac external tool."""
-        file_path = self.audio_file.get_file_path_or_object()
         
         try:
             import subprocess
@@ -323,7 +322,7 @@ class VorbisManager(RatingSupportingMetadataManager):
             if tags_to_remove:
                 for metaflac_key in tags_to_remove:
                     try:
-                        subprocess.run(["metaflac", "--remove-tag=" + metaflac_key, str(file_path)], check=True, capture_output=True)
+                        subprocess.run(["metaflac", "--remove-tag=" + metaflac_key, self.audio_file.file_path], check=True, capture_output=True)
                     except subprocess.CalledProcessError:
                         # Ignore errors when removing non-existent tags
                         pass
@@ -346,7 +345,7 @@ class VorbisManager(RatingSupportingMetadataManager):
             
             # Add file path and execute
             if len(set_cmd) > 1:  # Only if we have tags to set
-                set_cmd.append(str(file_path))
+                set_cmd.append(self.audio_file.file_path)
                 subprocess.run(set_cmd, check=True, capture_output=True)
             
         except subprocess.CalledProcessError as e:
@@ -357,7 +356,7 @@ class VorbisManager(RatingSupportingMetadataManager):
     def get_header_info(self) -> dict:
         try:
             # Use TagLib to get file information
-            file_obj = taglib.File(self.audio_file.get_file_path_or_object())
+            file_obj = taglib.File(self.audio_file.file_path)
             
             # TagLib provides basic info
             info = {
@@ -380,7 +379,7 @@ class VorbisManager(RatingSupportingMetadataManager):
     def get_raw_metadata_info(self) -> dict:
         try:
             # Use TagLib to get metadata
-            file_obj = taglib.File(self.audio_file.get_file_path_or_object())
+            file_obj = taglib.File(self.audio_file.file_path)
             
             return {
                 'raw_data': None,  # TagLib handles this internally
@@ -401,12 +400,11 @@ class VorbisManager(RatingSupportingMetadataManager):
     def delete_metadata(self) -> bool:
         """Delete all metadata from the FLAC file by removing the VORBIS_COMMENT block."""
         import subprocess
-        file_path = self.audio_file.get_file_path_or_object()
         
         try:
             # Remove all VORBIS_COMMENT blocks from the FLAC file
             result = subprocess.run(
-                ['metaflac', '--remove', '--block-type=VORBIS_COMMENT', str(file_path)],
+                ['metaflac', '--remove', '--block-type=VORBIS_COMMENT', self.audio_file.file_path],
                 capture_output=True, text=True, check=True
             )
             return True

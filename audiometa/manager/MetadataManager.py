@@ -529,7 +529,7 @@ class MetadataManager:
                         self._update_undirectly_mapped_metadata(
                             raw_mutagen_metadata=self.raw_mutagen_metadata, app_metadata_value=app_metadata_value,
                             unified_metadata_key=unified_metadata_key)
-            self.raw_mutagen_metadata.save(self.audio_file.get_file_path_or_object())
+            self.raw_mutagen_metadata.save(self.audio_file.file_path)
 
     def delete_metadata(self) -> bool:
         if self.raw_mutagen_metadata is None:

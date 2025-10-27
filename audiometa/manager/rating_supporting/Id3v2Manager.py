@@ -267,7 +267,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
       
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         try:
-            id3 = ID3(self.audio_file.get_file_path_or_object(), load_v1=False, translate=False)  # type: ignore[return-value]
+            id3 = ID3(self.audio_file.file_path, load_v1=False, translate=False)  # type: ignore[return-value]
             
             # Upgrade to specified version if different
             if id3.version != self.id3v2_version:
@@ -276,7 +276,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             return id3
         except ID3NoHeaderError:
             try:
-                id3 = ID3(self.audio_file.get_file_path_or_object(), load_v1=True, translate=False)
+                id3 = ID3(self.audio_file.file_path, load_v1=True, translate=False)
                 id3.clear()  # Exclude ID3v1 tags
                 id3.version = self.id3v2_version
                 return id3  # type: ignore[return-value]
@@ -626,8 +626,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                             raise InvalidRatingValueError(f"Invalid rating value: {value}. Expected a numeric value.")
 
         # Preserve ID3v1 metadata before any modifications
-        file_path = self.audio_file.get_file_path_or_object()
-        id3v1_data = self._preserve_id3v1_metadata(file_path)
+        id3v1_data = self._preserve_id3v1_metadata(self.audio_file.file_path)
         
         # Update the raw mutagen metadata (without saving yet)
         if self.raw_mutagen_metadata is None:
@@ -650,14 +649,12 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                         unified_metadata_key=unified_metadata_key)
         
         # Save with ID3v1 preservation
-        self._save_with_id3v1_preservation(file_path, id3v1_data)
+        self._save_with_id3v1_preservation(self.audio_file.file_path, id3v1_data)
 
     def _update_metadata_for_flac(self, unified_metadata: UnifiedMetadata):
         """Update ID3v2 metadata for FLAC files using external tools to avoid file corruption."""
         if not self.metadata_keys_direct_map_write:
             raise MetadataFieldNotSupportedByMetadataFormatError('This format does not support metadata modification')
-
-        file_path = self.audio_file.get_file_path_or_object()
         
         # Use external tools to write ID3v2 metadata to FLAC files
         # This avoids the file corruption that occurs with mutagen's ID3 class
@@ -703,7 +700,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                     # id3v2 supports removing a single frame at a time via -r
                     for frame in frames_to_remove:
                         try:
-                            subprocess.run(["id3v2", "-r", frame, str(file_path)], check=True, capture_output=True)
+                            subprocess.run(["id3v2", "-r", frame, self.audio_file.file_path], check=True, capture_output=True)
                         except subprocess.CalledProcessError:
                             # ignore failures to remove non-existent frames
                             pass
@@ -711,7 +708,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                     # mid3v2 supports deleting multiple frames with --delete-frames
                     frames_arg = ",".join(frames_to_remove)
                     try:
-                        subprocess.run(["mid3v2", f"--delete-frames={frames_arg}", str(file_path)], check=True, capture_output=True)
+                        subprocess.run(["mid3v2", f"--delete-frames={frames_arg}", self.audio_file.file_path], check=True, capture_output=True)
                     except subprocess.CalledProcessError:
                         # ignore failures
                         pass
@@ -740,7 +737,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                 cmd.extend([tool_arg, str(value)])
         
         # Add file path and execute
-        cmd.append(str(file_path))
+        cmd.append(self.audio_file.file_path)
         
         try:
             subprocess.run(cmd, check=True, capture_output=True)

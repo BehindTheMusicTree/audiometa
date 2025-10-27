@@ -583,7 +583,7 @@ class RiffManager(RatingSupportingMetadataManager):
         # First, check if ID3v2 tags exist in the file
         # This allows coexistence even when not in a strategy context
         try:
-            with open(self.audio_file.get_file_path_or_object(), 'rb') as f:
+            with open(self.audio_file.file_path, 'rb') as f:
                 first_bytes = f.read(10)
                 if first_bytes.startswith(b'ID3'):
                     # ID3v2 tags exist, preserve them for coexistence
