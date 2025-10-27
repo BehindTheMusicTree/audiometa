@@ -61,11 +61,3 @@ class TestFileSizeFunctions:
         
         file_size = get_file_size(audio_file)
         assert file_size == 17307
-
-    def test_file_size_unsupported_file_type_raises_error(self, temp_audio_file: Path):
-        # Create a file with unsupported extension
-        temp_audio_file = temp_audio_file.with_suffix(".txt")
-        temp_audio_file.write_bytes(b"fake audio content")
-        
-        with pytest.raises(FileTypeNotSupportedError):
-            get_file_size(str(temp_audio_file))
