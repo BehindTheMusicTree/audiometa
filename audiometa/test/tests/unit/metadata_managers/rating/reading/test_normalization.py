@@ -65,12 +65,33 @@ class TestNormalization:
         (100, 10),
     ])
     def test_base_100_proportional(self, metadata_rating_read, expected_normalized_value):
-        manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=10)
-        normalized_rating = manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
+        # ID3v2
+        id3v2_manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=10)
+        id3v2_normalized_rating = id3v2_manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
             unified_metadata_key=UnifiedMetadataKey.RATING,
-            raw_clean_metadata_uppercase_keys={Id3v2Manager.Id3TextFrame.RATING: [manager.ID3_RATING_APP_EMAIL, metadata_rating_read]},
+            raw_clean_metadata_uppercase_keys={Id3v2Manager.Id3TextFrame.RATING: [id3v2_manager.ID3_RATING_APP_EMAIL, metadata_rating_read]},
         )
-        assert normalized_rating == expected_normalized_value
+        assert id3v2_normalized_rating == expected_normalized_value
+
+        # RIFF / WAV
+        wave_audio_file = MagicMock()
+        wave_audio_file.file_extension = '.wav'
+        riff_manager = RiffManager(audio_file=wave_audio_file, normalized_rating_max_value=10)
+        riff_normalized_rating = riff_manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
+            unified_metadata_key=UnifiedMetadataKey.RATING,
+            raw_clean_metadata_uppercase_keys={RiffManager.RiffTagKey.RATING: [str(metadata_rating_read)]},
+        )
+        assert riff_normalized_rating == expected_normalized_value
+
+        # VORBIS / FLAC
+        flac_audio_file = MagicMock()
+        flac_audio_file.file_extension = '.flac'
+        vorbis_manager = VorbisManager(audio_file=flac_audio_file, normalized_rating_max_value=10)
+        vorbis_normalized_rating = vorbis_manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
+            unified_metadata_key=UnifiedMetadataKey.RATING,
+            raw_clean_metadata_uppercase_keys={VorbisManager.VorbisKey.RATING: [metadata_rating_read]},
+        )
+        assert vorbis_normalized_rating == expected_normalized_value
         
     @pytest.mark.parametrize("metadata_rating_read, expected_normalized_value", [
         (51, 1),
@@ -80,12 +101,33 @@ class TestNormalization:
         (255, 5),
     ])
     def test_base_255_proportional(self, metadata_rating_read, expected_normalized_value):
-        manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=5)
-        normalized_rating = manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
+        # ID3v2
+        id3v2_manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=5)
+        id3v2_normalized_rating = id3v2_manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
             unified_metadata_key=UnifiedMetadataKey.RATING,
-            raw_clean_metadata_uppercase_keys={Id3v2Manager.Id3TextFrame.RATING: [manager.ID3_RATING_APP_EMAIL, metadata_rating_read]},
+            raw_clean_metadata_uppercase_keys={Id3v2Manager.Id3TextFrame.RATING: [id3v2_manager.ID3_RATING_APP_EMAIL, metadata_rating_read]},
         )
-        assert normalized_rating == expected_normalized_value
+        assert id3v2_normalized_rating == expected_normalized_value
+
+        # RIFF / WAV
+        wave_audio_file = MagicMock()
+        wave_audio_file.file_extension = '.wav'
+        riff_manager = RiffManager(audio_file=wave_audio_file, normalized_rating_max_value=5)
+        riff_normalized_rating = riff_manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
+            unified_metadata_key=UnifiedMetadataKey.RATING,
+            raw_clean_metadata_uppercase_keys={RiffManager.RiffTagKey.RATING: [str(metadata_rating_read)]},
+        )
+        assert riff_normalized_rating == expected_normalized_value
+
+        # VORBIS / FLAC
+        flac_audio_file = MagicMock()
+        flac_audio_file.file_extension = '.flac'
+        vorbis_manager = VorbisManager(audio_file=flac_audio_file, normalized_rating_max_value=5)
+        vorbis_normalized_rating = vorbis_manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
+            unified_metadata_key=UnifiedMetadataKey.RATING,
+            raw_clean_metadata_uppercase_keys={VorbisManager.VorbisKey.RATING: [metadata_rating_read]},
+        )
+        assert vorbis_normalized_rating == expected_normalized_value
         
     def test_invalid_value(self):
         manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=10)
