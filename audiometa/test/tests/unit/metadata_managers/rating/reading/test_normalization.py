@@ -38,7 +38,7 @@ class TestNormalization:
         riff_manager = RiffManager(audio_file=wave_audio_file, normalized_rating_max_value=10)
         riff_normalized_rating = riff_manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
             unified_metadata_key=UnifiedMetadataKey.RATING,
-            raw_clean_metadata_uppercase_keys={RiffManager.RiffTagKey.RATING: metadata_rating_read},
+            raw_clean_metadata_uppercase_keys={RiffManager.RiffTagKey.RATING: [str(metadata_rating_read)]},
         )
         assert riff_normalized_rating == expected_normalized_value
 
@@ -47,7 +47,7 @@ class TestNormalization:
         vorbis_manager = VorbisManager(audio_file=flac_audio_file, normalized_rating_max_value=10)
         vorbis_normalized_rating = vorbis_manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
             unified_metadata_key=UnifiedMetadataKey.RATING,
-            raw_clean_metadata_uppercase_keys={VorbisManager.VorbisKey.RATING: metadata_rating_read},
+            raw_clean_metadata_uppercase_keys={VorbisManager.VorbisKey.RATING: [metadata_rating_read]},
         )
         assert vorbis_normalized_rating == expected_normalized_value
         
