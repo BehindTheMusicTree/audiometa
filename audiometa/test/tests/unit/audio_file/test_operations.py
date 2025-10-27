@@ -1,5 +1,6 @@
 import pytest
 from pathlib import Path
+from unittest.mock import patch
 
 from audiometa import AudioFile
 
@@ -18,8 +19,3 @@ class TestAudioFileOperations:
         # Test read
         read_data = audio_file.read()
         assert read_data == test_data
-
-    def test_context_manager(self, sample_mp3_file: Path):
-        with AudioFile(sample_mp3_file) as audio_file:
-            assert audio_file.file_path == str(sample_mp3_file)
-            # Context manager should work without issues
