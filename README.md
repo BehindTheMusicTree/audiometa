@@ -1808,10 +1808,10 @@ rating = metadata.get('rating')  # Always returns 0-10 scale regardless of sourc
 ```python
 from audiometa import update_metadata
 
-# AudioMeta automatically uses the most compatible profile for each format
-update_metadata("song.mp3", {"rating": 6})   # Uses Profile A (128)
-update_metadata("song.flac", {"rating": 6})  # Uses Profile B (60)
-update_metadata("song.wav", {"rating": 6})   # Uses Profile A (128)
+# AudioMeta automatically uses the most compatible profile for each metadata format
+update_metadata("song.mp3", {"rating": 6})   # ID3v2 uses Profile A (128)
+update_metadata("song.flac", {"rating": 6})  # Vorbis uses Profile B (60)
+update_metadata("song.wav", {"rating": 6})   # RIFF uses Profile A (128)
 
 # Half-star ratings are also supported:
 update_metadata("song.mp3", {"rating": 7})   # 3.5 stars → Profile A (186)
