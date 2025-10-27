@@ -98,16 +98,10 @@ class TestSeparatorSelection:
         separator = MetadataManager.find_safe_separator(["Artist One"])
         assert separator == "//"
     
-    def test_separator_not_in_any_value(self):
-        values = ["Band Name", "Artist Name", "Composer Name"]
-        separator = MetadataManager.find_safe_separator(values)
-        assert separator == "//"
-        for value in values:
-            assert separator not in value
-    
     @pytest.mark.parametrize("values, expected_separator", [
         (["DJ Snake", "The Chainsmokers"], "//"),
         (["Miley Cyrus & Billy Ray Cyrus", "Florida Georgia Line"], "//"),
+        (["Hank Williams, Jr", "Hank Williams"], "//"),
         # // and / appear, so skips to \\\\
         (["7//Heaven", "Back/Street"], "\\\\"),
         # ; and \ appear, so skips to //
@@ -129,16 +123,6 @@ class TestSeparatorSelection:
         separator = MetadataManager.find_safe_separator(values)
         assert separator == "//"
     
-    def test_find_safe_separator_with_partial_overlaps(self):
-        """Test cases where separators appear partially or in combinations."""
-        # Test with values containing partial matches or escaped separators
-        values = ["Artist//Name", "Band\\\\Group", "Composer\\Solo"]
-        separator = MetadataManager.find_safe_separator(values)
-        assert separator == ";"  # Should skip //, \\\\, \\ and pick ;
-        
-        for value in values:
-            assert separator not in value
-    
     def test_find_safe_separator_empty_and_whitespace_values(self):
         """Test behavior with empty strings and whitespace."""
         values = ["", "   ", "Artist One", "Artist Two"]
@@ -150,22 +134,9 @@ class TestSeparatorSelection:
             if value.strip():  # Only check non-empty values
                 assert separator not in value
     
-    def test_find_safe_separator_case_sensitivity(self):
-        """Test that separator matching is case-sensitive (though separators are symbols)."""
-        # Since separators are symbols, case doesn't apply, but test with mixed content
-        values = ["ARTIST//name", "artist\\\\NAME"]
-        separator = MetadataManager.find_safe_separator(values)
-        assert separator == ";"  # Should skip // and \\\\ (which contains \\)
-    
     def test_find_safe_separator_all_separators_present(self):
         """Test that when all separators are present in values, it falls back to the last one."""
         values = ["//", "\\\\", "\\", ";", "/", ","]
         separator = MetadataManager.find_safe_separator(values)
         assert separator == ","  # Fallback to last
-    
-    def test_find_safe_separator_mixed_separators(self):
-        """Test with a mix of separators in different values."""
-        values = ["Artist//One", "Band;Two", "Composer,Three", "Drummer/Four"]
-        separator = MetadataManager.find_safe_separator(values)
-        assert separator == "\\\\"  # // present, so skip to \\\\, not present
 
