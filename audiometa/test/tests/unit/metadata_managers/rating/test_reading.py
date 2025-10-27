@@ -43,3 +43,39 @@ class TestRatingProfileValues:
             raw_clean_metadata_uppercase_keys={Id3v2Manager.Id3TextFrame.RATING: [manager.ID3_RATING_APP_EMAIL, metadata_rating_read]},
         )
         assert normalized_rating == expected_normalized_value
+        
+    @pytest.mark.parametrize("metadata_rating_read, expected_normalized_value", [
+        (0, 0),
+        (10, 1),
+        (20, 2),
+        (30, 3),
+        (40, 4),
+        (50, 5),
+        (60, 6),
+        (70, 7),
+        (80, 8),
+        (90, 9),
+        (100, 10),
+    ])
+    def test_base_100_proportional(self, metadata_rating_read, expected_normalized_value):
+        manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=10)
+        normalized_rating = manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
+            unified_metadata_key=UnifiedMetadataKey.RATING,
+            raw_clean_metadata_uppercase_keys={Id3v2Manager.Id3TextFrame.RATING: [manager.ID3_RATING_APP_EMAIL, metadata_rating_read]},
+        )
+        assert normalized_rating == expected_normalized_value
+        
+    @pytest.mark.parametrize("metadata_rating_read, expected_normalized_value", [
+        (51, 1),
+        (102, 2),
+        (153, 3),
+        (204, 4),
+        (255, 5),
+    ])
+    def test_base_255_proportional(self, metadata_rating_read, expected_normalized_value):
+        manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=5)
+        normalized_rating = manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
+            unified_metadata_key=UnifiedMetadataKey.RATING,
+            raw_clean_metadata_uppercase_keys={Id3v2Manager.Id3TextFrame.RATING: [manager.ID3_RATING_APP_EMAIL, metadata_rating_read]},
+        )
+        assert normalized_rating == expected_normalized_value
