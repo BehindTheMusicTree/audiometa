@@ -129,12 +129,6 @@ def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
     assert duration == external_duration
 # Don't verify exact values - that's for integration tests
 
-# ❌ Bad - Don't verify exact numeric values in unit tests
-def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
-    duration = AudioFile(sample_mp3_file).get_duration_in_sec()
-    assert duration == 1.0448979591836736  # Hardcoded value
-# Unit tests should verify behavior (types, bounds), not exact values
-
 # ❌ Bad - Don't test through wrappers in unit tests
 def test_get_duration_in_sec(self, sample_mp3_file: Path):
     duration = get_duration_in_sec(sample_mp3_file)  # Top-level function
@@ -142,24 +136,11 @@ def test_get_duration_in_sec(self, sample_mp3_file: Path):
 # Test AudioFile methods directly, not wrapper functions
 ```
 
-#### Why Don't Unit Tests Verify Exact Values?
-
-**Answer**: Use integration tests.
-
-- **Unit tests** verify behavior: return type, basic constraints, error handling
-- **Integration tests** verify accuracy: exact values via external tools
-
-This separation of concerns means:
-
-- Unit tests stay fast and focused on component behavior
-- Integration tests verify real-world accuracy with external verification
-- No duplication: behavior in unit tests, accuracy in integration tests
-
 **Unit Test Principles:**
 
 - Test individual classes and their methods
 - Fast execution (milliseconds)
-- No external dependencies
+- No external dependencies (dependencies should be mocked)
 - Focus on behavior, not implementation
 - Test error paths specific to the component
 
