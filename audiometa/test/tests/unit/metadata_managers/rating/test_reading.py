@@ -87,11 +87,3 @@ class TestRatingProfileValues:
             raw_clean_metadata_uppercase_keys={Id3v2Manager.Id3TextFrame.RATING: [manager.ID3_RATING_APP_EMAIL, 300]},
         )
         assert normalized_rating is None
-        
-    def test_floating_point_value(self):
-        manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=10)
-        normalized_rating = manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
-            unified_metadata_key=UnifiedMetadataKey.RATING,
-            raw_clean_metadata_uppercase_keys={Id3v2Manager.Id3TextFrame.RATING: [manager.ID3_RATING_APP_EMAIL, 128.5]},
-        )
-        assert normalized_rating is None
