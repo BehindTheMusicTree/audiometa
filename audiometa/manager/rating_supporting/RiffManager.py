@@ -282,9 +282,10 @@ class RiffManager(RatingSupportingMetadataManager):
             return None, False
 
         raw_rating = raw_ratings[0]
-        if not raw_rating:
+        if raw_rating is None:
             return None, False
 
+        # It is a Traktor rating if it's an integer
         if isinstance(raw_rating, str):
             return int(raw_rating), False
         return cast(int, raw_rating), True
