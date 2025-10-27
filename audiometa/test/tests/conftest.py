@@ -69,19 +69,6 @@ def temp_wav_file() -> Generator[Path, None, None]:
         temp_path.unlink()
 
 
-@pytest.fixture
-def temp_flac_file() -> Generator[Path, None, None]:
-    """Create a temporary FLAC file for testing."""
-    with tempfile.NamedTemporaryFile(suffix=".flac", delete=False) as tmp_file:
-        temp_path = Path(tmp_file.name)
-    
-    yield temp_path
-    
-    # Cleanup
-    if temp_path.exists():
-        temp_path.unlink()
-
-
 # Basic sample files
 @pytest.fixture
 def sample_mp3_file(test_files_dir: Path) -> Path:
