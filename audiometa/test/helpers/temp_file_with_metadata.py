@@ -136,7 +136,7 @@ class TempFileWithMetadata:
         AudioFileCreator.create_minimal_audio_file(file_path, format_type, test_files_dir)
     
     def _get_scripts_dir(self) -> Path:
-        return Path(__file__).parent.parent.parent / "test" / "data" / "scripts"
+        return Path(__file__).parent.parent.parent / "test" / "helpers" / "scripts"
     
     def _run_script(self, script_name: str) -> subprocess.CompletedProcess:
         """Run an external script with proper error handling."""
