@@ -19,7 +19,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
-@pytest.mark.integration
+@pytest.mark.e2e
 class TestCoreWorkflows:
     
     def test_complete_metadata_editing_workflow(self):

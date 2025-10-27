@@ -9,7 +9,7 @@ from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataG
 from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestGenreSmartReading:
     def test_single_entry_text_with_codes_and_separators_and_without_parentheses(self):
         """Test single genre entry with text with codes and separators without parentheses: '17/6' -> ['Rock', 'Grunge']"""

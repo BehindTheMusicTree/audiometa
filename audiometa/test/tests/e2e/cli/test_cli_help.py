@@ -1,7 +1,9 @@
 import subprocess
 import sys
+import pytest
 
 
+@pytest.mark.e2e
 class TestCLIHelp:
     
     def test_cli_help(self):

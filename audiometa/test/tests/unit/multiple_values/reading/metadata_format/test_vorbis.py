@@ -1,4 +1,6 @@
 
+import pytest
+
 from audiometa import get_unified_metadata_field
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
@@ -7,6 +9,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
+@pytest.mark.unit
 class TestVorbis:
     
     def test_null_value_separated_artists(self):

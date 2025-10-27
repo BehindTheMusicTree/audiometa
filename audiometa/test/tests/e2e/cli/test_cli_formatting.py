@@ -1,9 +1,10 @@
 import json
-
+import pytest
 
 from audiometa.cli import format_output, format_as_table
 
 
+@pytest.mark.e2e
 class TestCLIFormatting:
     
     def test_format_output_json(self):

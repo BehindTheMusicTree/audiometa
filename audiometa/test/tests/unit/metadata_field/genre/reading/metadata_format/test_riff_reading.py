@@ -7,7 +7,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.riff import RIFFMetadataSetter
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestRiffGenreParsing:
 
     def test_riff_genre_codes_only_semicolon(self):

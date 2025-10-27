@@ -1,7 +1,9 @@
 import subprocess
 import sys
+import pytest
 
 
+@pytest.mark.e2e
 class TestCLIErrorHandling:
     
     def test_cli_read_nonexistent_file(self, tmp_path):

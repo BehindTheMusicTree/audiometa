@@ -6,7 +6,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestVorbisRatingWriting:
     
     @pytest.mark.parametrize("star_rating,expected_normalized_rating", [

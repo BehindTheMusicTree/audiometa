@@ -1,5 +1,7 @@
 
 
+import pytest
+
 from audiometa import get_unified_metadata_field
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -9,6 +11,7 @@ from audiometa.test.helpers.id3v2 import ID3v2HeaderVerifier
 from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
 
 
+@pytest.mark.unit
 class TestId3v23:
     
     def test_semicolon_separated_artists(self):

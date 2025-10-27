@@ -1,4 +1,6 @@
 
+import pytest
+
 from audiometa import get_unified_metadata_field
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -6,6 +8,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter, ID3v2MetadataGetter, ID3v2HeaderVerifier
 
 
+@pytest.mark.unit
 class TestId3v2_4Mixed:
     
     def test_null_separated_artists(self):

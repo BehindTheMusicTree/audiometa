@@ -11,7 +11,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestComposerDeleting:
     def test_delete_composer_id3v1(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

@@ -11,7 +11,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestGenreWriting:
 
     def test_id3v1(self):

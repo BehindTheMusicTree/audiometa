@@ -7,6 +7,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 
 
+@pytest.mark.unit
 class TestPerformanceLargeData:
     def test_performance_with_many_entries(self):
         # Create temporary file with basic metadata

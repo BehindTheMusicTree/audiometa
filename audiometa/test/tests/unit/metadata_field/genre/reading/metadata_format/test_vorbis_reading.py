@@ -4,9 +4,8 @@ from audiometa import get_unified_metadata, get_unified_metadata_field
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.utils.MetadataFormat import MetadataFormat
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestVorbisGenreReading:
 
     def test_vorbis_single_genre(self):

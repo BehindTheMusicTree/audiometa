@@ -1,8 +1,10 @@
 import subprocess
 import sys
+import pytest
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
+@pytest.mark.e2e
 class TestCLIDelete:
     
     def test_cli_delete_metadata(self):

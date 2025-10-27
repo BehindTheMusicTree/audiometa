@@ -1,8 +1,11 @@
 import subprocess
 import sys
+import pytest
+
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
+@pytest.mark.e2e
 class TestCLIWrite:
     
     def test_cli_write_no_metadata(self, sample_mp3_file):

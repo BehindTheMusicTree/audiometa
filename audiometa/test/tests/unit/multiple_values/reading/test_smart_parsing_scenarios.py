@@ -1,4 +1,6 @@
 
+import pytest
+
 from audiometa import get_unified_metadata_field
 from audiometa.test.helpers.id3v1.id3v1_metadata_getter import ID3v1MetadataGetter
 from audiometa.test.helpers.id3v1.id3v1_metadata_setter import ID3v1MetadataSetter
@@ -13,6 +15,7 @@ from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataS
 from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
 
 
+@pytest.mark.unit
 class TestSmartParsingScenarios:
     """
     Test the smart parsing scenarios described in the README:

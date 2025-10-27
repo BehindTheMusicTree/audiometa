@@ -11,7 +11,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestTitleWriting:
     def test_id3v2(self):
         test_title = "Test Title ID3v2"

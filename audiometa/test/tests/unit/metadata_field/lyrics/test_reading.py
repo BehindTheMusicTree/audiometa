@@ -11,7 +11,7 @@ from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
 from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestLyricsReading:
     def test_id3v1(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v1") as test_file:

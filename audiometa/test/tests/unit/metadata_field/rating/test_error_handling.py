@@ -8,7 +8,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.exceptions import FileTypeNotSupportedError, InvalidRatingValueError, InvalidMetadataFieldTypeError
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestRatingErrorHandling:
 
     def test_rating_unsupported_file_type(self, temp_audio_file: Path):

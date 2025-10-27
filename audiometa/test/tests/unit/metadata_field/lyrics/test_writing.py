@@ -8,7 +8,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
 from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestLyricsWriting:
     def test_id3v2_3_default_en(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

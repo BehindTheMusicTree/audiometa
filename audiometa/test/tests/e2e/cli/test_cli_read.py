@@ -1,9 +1,11 @@
 import json
 import subprocess
 import sys
+import pytest
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
+@pytest.mark.e2e
 class TestCLIRead:
     
     def test_cli_read_nonexistent_file(self, tmp_path):

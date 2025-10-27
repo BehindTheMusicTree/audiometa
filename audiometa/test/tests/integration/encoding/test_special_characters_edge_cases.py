@@ -8,6 +8,7 @@ from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
 
 
+@pytest.mark.integration
 class TestSpecialCharactersEdgeCases:
     def test_read_unicode_characters(self):
         with TempFileWithMetadata({}, "flac") as test_file:

@@ -1,4 +1,6 @@
 
+import pytest
+
 from audiometa import get_unified_metadata_field
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -7,6 +9,7 @@ from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
 from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 
+@pytest.mark.unit
 class TestRiff:
     
     def test_semicolon_separated_artists(self):

@@ -12,7 +12,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestRatingDeleting:
     def test_delete_rating_id3v2(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

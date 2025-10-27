@@ -6,7 +6,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestTitleErrorHandling:
 
     def test_title_unsupported_file_type(self, temp_audio_file: Path):
