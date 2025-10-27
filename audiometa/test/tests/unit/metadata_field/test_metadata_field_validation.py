@@ -7,6 +7,7 @@ from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError,
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
+@pytest.mark.unit
 class TestMetadataFieldValidation:
     """Test that get_unified_metadata_field raises MetadataFieldNotSupportedByMetadataFormatError 
     when a field is not supported by the specified format."""

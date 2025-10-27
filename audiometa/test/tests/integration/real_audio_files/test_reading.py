@@ -4,8 +4,10 @@ from pathlib import Path
 
 from audiometa import get_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+import pytest
 
 
+@pytest.mark.integration
 class TestRealAudioFilesReading:
     """Test cases using real audio files for end-to-end validation."""
 

@@ -4,8 +4,10 @@ from pathlib import Path
 
 from audiometa import AudioFile
 from audiometa.manager.id3v1.Id3v1Manager import Id3v1Manager
+import pytest
 
 
+@pytest.mark.unit
 class TestId3v1HeaderMethods:
     """Test cases for ID3v1 metadata manager header information methods."""
 

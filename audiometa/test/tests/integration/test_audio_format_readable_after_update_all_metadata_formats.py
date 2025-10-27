@@ -11,7 +11,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
-@pytest.mark.e2e
+@pytest.mark.integration
 class TestAudioFormatReadableAfterUpdate:
 
     def test_mp3_playable_after_id3v1_and_id3v2_updates(self):

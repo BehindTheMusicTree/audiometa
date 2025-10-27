@@ -6,6 +6,7 @@ from pathlib import Path
 from audiometa import get_full_metadata, AudioFile
 
 
+@pytest.mark.integration
 class TestGetFullMetadata: 
 
     def test_get_full_metadata_mp3_with_metadata(self, sample_mp3_file: Path):

@@ -4,8 +4,10 @@ from pathlib import Path
 
 from audiometa import AudioFile
 from audiometa.manager.rating_supporting.VorbisManager import VorbisManager
+import pytest
 
 
+@pytest.mark.unit
 class TestVorbisHeaderMethods:
     """Test cases for Vorbis metadata manager header information methods."""
 

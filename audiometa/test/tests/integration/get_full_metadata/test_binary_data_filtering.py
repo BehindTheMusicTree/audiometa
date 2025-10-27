@@ -2,8 +2,10 @@
 
 from audiometa import get_full_metadata
 from audiometa.manager.rating_supporting.Id3v2Manager import Id3v2Manager
+import pytest
 
 
+@pytest.mark.integration
 class TestGetFullMetadataBinaryDataFiltering:
     """Test that get_full_metadata function properly filters binary data from raw metadata output."""
 

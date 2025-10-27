@@ -2,8 +2,10 @@ from pathlib import Path
 
 from audiometa import get_full_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+import pytest
 
 
+@pytest.mark.integration
 class TestParsedFieldsKeys:
 
     def test_id3v1_parsed_fields_use_unified_keys(self, sample_mp3_file: Path):

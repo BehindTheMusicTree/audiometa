@@ -9,6 +9,7 @@ from audiometa import get_full_metadata, AudioFile
 from audiometa.exceptions import FileTypeNotSupportedError
 
 
+@pytest.mark.integration
 class TestGetFullMetadataEdgeCases:
 
     def test_get_full_metadata_empty_file(self):

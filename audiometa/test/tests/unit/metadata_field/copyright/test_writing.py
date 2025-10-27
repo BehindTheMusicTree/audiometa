@@ -8,7 +8,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestCopyrightWriting:
     def test_id3v2(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

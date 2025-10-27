@@ -6,7 +6,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestComprehensiveRatingWriting:
     
     def test_write_read_with_different_max_values(self):

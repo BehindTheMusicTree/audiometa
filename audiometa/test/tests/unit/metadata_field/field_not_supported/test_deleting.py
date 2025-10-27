@@ -7,7 +7,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.exceptions import MetadataFieldNotSupportedByLib
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestFieldNotSupportedDeleting:
     def test_delete_field_not_supported_all_formats(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

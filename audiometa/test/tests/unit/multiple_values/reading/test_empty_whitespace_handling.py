@@ -1,12 +1,13 @@
+import pytest
 
 from audiometa import get_unified_metadata, get_unified_metadata_field
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.vorbis import VorbisMetadataSetter
-from audiometa.test.helpers.common.external_tool_runner import run_external_tool
 
 
+@pytest.mark.unit
 class TestEmptyWhitespaceHandling:
 
     def test_mixed_empty_and_valid_entries(self):
