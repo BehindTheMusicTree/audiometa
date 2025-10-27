@@ -1,9 +1,7 @@
 
 import pytest
 
-from audiometa import get_unified_metadata_field
 from audiometa.utils.rating_profiles import RatingReadProfile
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.manager.rating_supporting.RatingSupportingMetadataManager import RatingSupportingMetadataManager
 
 
@@ -22,7 +20,7 @@ class TestRatingProfileValues:
         assert profile == expected_values
         assert len(profile) == 11  # 0-5 stars (0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5)
 
-    @pytest.mark.parametrize("metadata_rating_read, star_value", [
+    @pytest.mark.parametrize("metadata_rating_read, expected_normalized_value", [
         (0, 0),
         (13, 1),
         (1, 2),
@@ -35,12 +33,12 @@ class TestRatingProfileValues:
         (242, 9),
         (255, 10),
     ])
-    def test_base_255_non_proportional(self, mocker, metadata_rating_read, star_value):
+    def test_base_255_non_proportional(self, mocker, metadata_rating_read, expected_normalized_value):
         mock_raw_metadata = mocker.MagicMock()
         mock_raw_metadata.tags = {'rating': metadata_rating_read}
         mocker.patch.object(RatingSupportingMetadataManager, '_extract_mutagen_metadata', return_value=mock_raw_metadata)
         manager = RatingSupportingMetadataManager(
             audio_file=mocker.MagicMock(),
             metadata_keys_direct_map_read={'rating': 'rating'},)
-        assert manager.get_unified_metadata_field('rating') == star_value
+        assert manager.get_unified_metadata_field('rating') == expected_normalized_value
             
