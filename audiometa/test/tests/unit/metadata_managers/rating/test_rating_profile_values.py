@@ -4,7 +4,7 @@ import pytest
 from audiometa.utils.rating_profiles import RatingReadProfile, RatingWriteProfile
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestRatingProfileValues:
     
     def test_base_255_non_proportional_profile_values(self):
