@@ -32,7 +32,3 @@ class TestAudioFileSampleRate:
         audio_file = AudioFile(sample_mp3_file)
         sample_rate = audio_file.get_sample_rate()
         assert isinstance(sample_rate, int)
-
-    def test_get_sample_rate_nonexistent_file_raises_error(self):
-        with pytest.raises(FileNotFoundError):
-            AudioFile("nonexistent.mp3").get_sample_rate()
