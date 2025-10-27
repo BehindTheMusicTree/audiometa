@@ -8,7 +8,7 @@ from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
 from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestAlbumArtistsDeleting:
     def test_delete_album_artists_id3v2(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

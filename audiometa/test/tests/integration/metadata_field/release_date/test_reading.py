@@ -14,7 +14,7 @@ from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataS
 from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestReleaseDateReading:
     def test_id3v1(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v1") as test_file:

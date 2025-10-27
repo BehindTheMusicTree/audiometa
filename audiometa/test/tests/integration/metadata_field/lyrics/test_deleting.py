@@ -10,7 +10,7 @@ from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataG
 from audiometa.utils.MetadataFormat import MetadataFormat
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestLyricsDeleting:
     def test_delete_lyrics_id3v1(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

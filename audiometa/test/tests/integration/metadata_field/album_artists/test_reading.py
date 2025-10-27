@@ -9,7 +9,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestAlbumArtistsReading:
     def test_id3v1(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v1") as test_file:

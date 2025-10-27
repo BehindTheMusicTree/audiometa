@@ -6,7 +6,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v1 import ID3v1MetadataSetter
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestId3v1GenreReading:
 
     def test_id3v1_genre_code_17_rock(self):

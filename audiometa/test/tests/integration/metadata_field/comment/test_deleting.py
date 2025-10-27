@@ -10,7 +10,7 @@ from audiometa.test.helpers.riff import RIFFMetadataSetter
 from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestCommentDeleting:
     def test_delete_comment_id3v2(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

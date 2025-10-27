@@ -4,7 +4,7 @@ import pytest
 from audiometa.utils.rating_profiles import RatingReadProfile, RatingWriteProfile
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestRatingProfileMapping:
     
     def test_star_rating_to_profile_value_mapping(self):

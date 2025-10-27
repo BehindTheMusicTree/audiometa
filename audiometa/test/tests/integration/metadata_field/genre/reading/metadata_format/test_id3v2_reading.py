@@ -6,7 +6,7 @@ from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestId3v2GenreReading:
 
     def test_id3v2_single_genre(self):

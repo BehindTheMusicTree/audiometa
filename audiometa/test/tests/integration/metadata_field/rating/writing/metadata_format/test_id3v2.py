@@ -6,7 +6,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestId3v2RatingWriting:
     
     @pytest.mark.parametrize("star_rating,expected_normalized_rating", [

@@ -9,7 +9,7 @@ from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestBpmDeleting:
     def test_delete_bpm_id3v2(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
