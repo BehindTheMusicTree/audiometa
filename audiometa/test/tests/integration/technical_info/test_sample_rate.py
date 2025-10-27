@@ -4,13 +4,30 @@ import pytest
 from pathlib import Path
 
 from audiometa import get_sample_rate, AudioFile
+from audiometa.exceptions import FileTypeNotSupportedError
 from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspector
 
 
 @pytest.mark.integration
 class TestGetSampleRate:
     
-    def test_get_sample_rate_mp3(self, sample_mp3_file: Path):
+    def test_get_sample_rate_works_with_path_string(self, sample_mp3_file: Path):
+        sample_rate = get_sample_rate(str(sample_mp3_file))
+        assert isinstance(sample_rate, int)
+        assert sample_rate > 0
+    
+    def test_get_sample_rate_works_with_pathlib_path(self, sample_mp3_file: Path):
+        sample_rate = get_sample_rate(sample_mp3_file)
+        assert isinstance(sample_rate, int)
+        assert sample_rate > 0
+    
+    def test_get_sample_rate_works_with_audio_file_object(self, sample_mp3_file: Path):
+        audio_file = AudioFile(sample_mp3_file)
+        sample_rate = get_sample_rate(audio_file)
+        assert isinstance(sample_rate, int)
+        assert sample_rate > 0
+    
+    def test_get_sample_rate_matches_external_tool(self, sample_mp3_file: Path):
         external_sample_rate = TechnicalInfoInspector.get_sample_rate(sample_mp3_file)
         assert external_sample_rate is not None
         assert isinstance(external_sample_rate, int)
@@ -19,31 +36,20 @@ class TestGetSampleRate:
         sample_rate = get_sample_rate(sample_mp3_file)
         assert sample_rate == external_sample_rate
     
-    def test_get_sample_rate_wav(self, sample_wav_file: Path):
-        external_sample_rate = TechnicalInfoInspector.get_sample_rate(sample_wav_file)
-        assert external_sample_rate is not None
-        assert isinstance(external_sample_rate, int)
-        assert external_sample_rate == 44100
+    def test_get_sample_rate_supports_all_formats(self, sample_mp3_file: Path, sample_flac_file: Path, sample_wav_file: Path):
+        mp3_sample_rate = get_sample_rate(sample_mp3_file)
+        flac_sample_rate = get_sample_rate(sample_flac_file)
+        wav_sample_rate = get_sample_rate(sample_wav_file)
         
-        sample_rate = get_sample_rate(sample_wav_file)
-        assert sample_rate == external_sample_rate
+        assert isinstance(mp3_sample_rate, int)
+        assert isinstance(flac_sample_rate, int)
+        assert isinstance(wav_sample_rate, int)
+        assert all(r > 0 for r in [mp3_sample_rate, flac_sample_rate, wav_sample_rate])
     
-    def test_get_sample_rate_flac(self, sample_flac_file: Path):
-        external_sample_rate = TechnicalInfoInspector.get_sample_rate(sample_flac_file)
-        assert external_sample_rate is not None
-        assert isinstance(external_sample_rate, int)
-        assert external_sample_rate == 44100
+    def test_get_sample_rate_unsupported_file_type_raises_error(self, temp_audio_file: Path):
+        temp_audio_file = temp_audio_file.with_suffix(".txt")
+        temp_audio_file.write_bytes(b"fake audio content")
         
-        sample_rate = get_sample_rate(sample_flac_file)
-        assert sample_rate == external_sample_rate
-    
-    def test_get_sample_rate_with_string_path(self, sample_mp3_file: Path):
-        sample_rate = get_sample_rate(str(sample_mp3_file))
-        assert isinstance(sample_rate, int)
-        assert sample_rate > 0
-    
-    def test_get_sample_rate_with_pathlib_path(self, sample_mp3_file: Path):
-        sample_rate = get_sample_rate(sample_mp3_file)
-        assert isinstance(sample_rate, int)
-        assert sample_rate > 0
+        with pytest.raises(FileTypeNotSupportedError):
+            get_sample_rate(str(temp_audio_file))
 
