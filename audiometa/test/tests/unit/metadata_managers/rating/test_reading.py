@@ -1,8 +1,11 @@
 
+
 import pytest
+from unittest.mock import MagicMock
 
 from audiometa.utils.rating_profiles import RatingReadProfile
-from audiometa.manager.rating_supporting.RatingSupportingMetadataManager import RatingSupportingMetadataManager
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.manager.rating_supporting.Id3v2Manager import Id3v2Manager
 
 
 @pytest.mark.unit
@@ -33,12 +36,10 @@ class TestRatingProfileValues:
         (242, 9),
         (255, 10),
     ])
-    def test_base_255_non_proportional(self, mocker, metadata_rating_read, expected_normalized_value):
-        mock_raw_metadata = mocker.MagicMock()
-        mock_raw_metadata.tags = {'rating': metadata_rating_read}
-        mocker.patch.object(RatingSupportingMetadataManager, '_extract_mutagen_metadata', return_value=mock_raw_metadata)
-        manager = RatingSupportingMetadataManager(
-            audio_file=mocker.MagicMock(),
-            metadata_keys_direct_map_read={'rating': 'rating'},)
-        assert manager.get_unified_metadata_field('rating') == expected_normalized_value
-            
+    def test_base_255_non_proportional(self, metadata_rating_read, expected_normalized_value):
+        manager = Id3v2Manager(audio_file=MagicMock())
+        normalized_rating = manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
+            unified_metadata_key=UnifiedMetadataKey.RATING,
+            raw_clean_metadata_uppercase_keys={'RATING': metadata_rating_read},
+        )
+        assert normalized_rating == expected_normalized_value
