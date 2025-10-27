@@ -48,8 +48,6 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
   - Consider thread pool or multiprocessing for CPU-intensive tasks
   - Provide both sequential and parallel processing options
 
-- [ ] **Remove audio file class and move capabilities directly into metadata manager**
-
 - [ ] **Check multi-value separators compatibility with standard metadata readers**
 
   - Current implementation uses prioritized separators: "//", "\\\\", "\\", ";", "/", "," for joining multi-value fields
