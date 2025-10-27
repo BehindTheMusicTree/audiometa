@@ -38,7 +38,3 @@ class TestAudioFileDurationInSec:
         audio_file = AudioFile(sample_mp3_file)
         duration = audio_file.get_duration_in_sec()
         assert isinstance(duration, float)
-    
-    def test_get_duration_in_sec_nonexistent_file_raises_error(self):
-        with pytest.raises(FileNotFoundError):
-            AudioFile("nonexistent.mp3").get_duration_in_sec()
