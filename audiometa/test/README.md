@@ -11,9 +11,16 @@ This directory contains the test suite for audiometa-python, organized using the
   - [Run tests by folder](#run-tests-by-folder)
   - [Combine markers](#combine-markers)
 - [Test Logic Principles](#test-logic-principles)
+  - [Unit Test Logic](#unit-test-logic)
+    - [What Unit Tests Should Do](#what-unit-tests-should-do)
+    - [What Unit Tests Should NOT Do](#what-unit-tests-should-not-do)
+    - [Why Don't Unit Tests Verify Exact Values?](#why-dont-unit-tests-verify-exact-values)
   - [Integration Test Logic](#integration-test-logic)
     - [When Integration Tests ARE Needed](#when-integration-tests-are-needed)
     - [When Integration Tests Are NOT Needed](#when-integration-tests-are-not-needed)
+  - [E2E Test Logic](#e2e-test-logic)
+    - [What E2E Tests Should Do](#what-e2e-tests-should-do)
+    - [What E2E Tests Should NOT Do](#what-e2e-tests-should-not-do)
 - [Test Data Strategy](#test-data-strategy)
   - [Pre-created Test Files](#pre-created-test-files)
   - [On-the-fly Generation (TempFileWithMetadata)](#on-the-fly-generation-tempfilewithmetadata)
@@ -92,6 +99,70 @@ pytest -m unit
 
 ## Test Logic Principles
 
+### Unit Test Logic
+
+Unit tests should test **individual components in isolation** with fast, focused tests that verify behavior without external dependencies.
+
+#### What Unit Tests Should Do
+
+```python
+# ✅ Good - Test AudioFile class methods directly
+def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
+    audio_file = AudioFile(sample_mp3_file)
+    duration = audio_file.get_duration_in_sec()
+    assert isinstance(duration, float)
+    assert duration > 0
+
+# ✅ Good - Test error handling for this component
+def test_get_duration_in_sec_nonexistent_file(self):
+    with pytest.raises(FileNotFoundError):
+        AudioFile("nonexistent.mp3").get_duration_in_sec()
+```
+
+#### What Unit Tests Should NOT Do
+
+```python
+# ❌ Bad - Don't use external tools in unit tests
+def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
+    external_duration = TechnicalInfoInspector.get_duration(sample_mp3_file)
+    duration = AudioFile(sample_mp3_file).get_duration_in_sec()
+    assert duration == external_duration
+# Don't verify exact values - that's for integration tests
+
+# ❌ Bad - Don't verify exact numeric values in unit tests
+def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
+    duration = AudioFile(sample_mp3_file).get_duration_in_sec()
+    assert duration == 1.0448979591836736  # Hardcoded value
+# Unit tests should verify behavior (types, bounds), not exact values
+
+# ❌ Bad - Don't test through wrappers in unit tests
+def test_get_duration_in_sec(self, sample_mp3_file: Path):
+    duration = get_duration_in_sec(sample_mp3_file)  # Top-level function
+    assert duration > 0
+# Test AudioFile methods directly, not wrapper functions
+```
+
+#### Why Don't Unit Tests Verify Exact Values?
+
+**Answer**: Use integration tests.
+
+- **Unit tests** verify behavior: return type, basic constraints, error handling
+- **Integration tests** verify accuracy: exact values via external tools
+
+This separation of concerns means:
+
+- Unit tests stay fast and focused on component behavior
+- Integration tests verify real-world accuracy with external verification
+- No duplication: behavior in unit tests, accuracy in integration tests
+
+**Unit Test Principles:**
+
+- Test individual classes and their methods
+- Fast execution (milliseconds)
+- No external dependencies
+- Focus on behavior, not implementation
+- Test error paths specific to the component
+
 ### Integration Test Logic
 
 Integration tests should verify **integration** (component interactions), not duplicate unit tests.
@@ -121,6 +192,76 @@ def test_get_duration_in_sec_unsupported_file_type_raises_error(self):
         get_duration_in_sec("file.txt")
 # This is already tested in unit tests for AudioFile
 ```
+
+**Integration Test Principles:**
+
+- Test component interactions
+- Verify wrapper functions work correctly
+- Use external tools for verification
+- Test different input types (str, Path, AudioFile)
+- Don't duplicate unit test coverage
+
+### E2E Test Logic
+
+End-to-end tests should verify **complete user workflows** from start to finish, simulating real-world usage scenarios.
+
+#### What E2E Tests Should Do
+
+```python
+# ✅ Good - Test complete user workflow
+def test_complete_metadata_editing_workflow(temp_audio_file: Path):
+    # User reads metadata
+    metadata = get_unified_metadata(temp_audio_file)
+    assert metadata.get(UnifiedMetadataKey.TITLE) is None
+
+    # User writes metadata
+    update_metadata(temp_audio_file, {
+        UnifiedMetadataKey.TITLE: "New Title",
+        UnifiedMetadataKey.ARTISTS: ["New Artist"]
+    })
+
+    # User reads back to verify
+    updated_metadata = get_unified_metadata(temp_audio_file)
+    assert updated_metadata.get(UnifiedMetadataKey.TITLE) == ["New Title"]
+    assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["New Artist"]
+
+# ✅ Good - Test CLI workflows
+def test_cli_read_and_write_workflow(temp_audio_file: Path):
+    result = run_cli(["read", str(temp_audio_file)])
+    assert result.exit_code == 0
+
+    result = run_cli(["write", str(temp_audio_file), "--title", "New Title"])
+    assert result.exit_code == 0
+
+    result = run_cli(["read", str(temp_audio_file)])
+    assert "New Title" in result.stdout
+```
+
+#### What E2E Tests Should NOT Do
+
+```python
+# ❌ Bad - Testing individual components
+def test_audio_file_class_in_e2e(temp_audio_file: Path):
+    audio_file = AudioFile(temp_audio_file)
+    duration = audio_file.get_duration_in_sec()
+    assert duration > 0
+# This is a unit test concern
+
+# ❌ Bad - Testing implementation details
+def test_internal_manager_logic(temp_audio_file: Path):
+    manager = MetadataManager(AudioFile(temp_audio_file))
+    # Test internal behavior
+# This should be in unit tests
+```
+
+**E2E Test Principles:**
+
+- Test complete user scenarios
+- Simulate real-world usage
+- Test the full stack (CLI, API, file operations)
+- Focus on workflows, not individual functions
+- May be slower but provide confidence in system behavior
+- Test happy paths and critical user journeys
 
 ## Test Data Strategy
 
