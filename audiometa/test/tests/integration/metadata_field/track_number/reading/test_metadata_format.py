@@ -8,7 +8,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v1.id3v1_metadata_getter import ID3v1MetadataGetter
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestTrackNumberReading:
     def test_id3v1_1(self):
         with TempFileWithMetadata({"title": "Test Song", "track": "99"}, "id3v1") as test_file:

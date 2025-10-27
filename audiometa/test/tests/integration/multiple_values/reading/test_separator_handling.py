@@ -8,7 +8,7 @@ from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSett
 from audiometa.utils.MetadataFormat import MetadataFormat
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestSeparatorHandling:
 
     # All tests follow the pattern: set a single value with all separators, check parsed list

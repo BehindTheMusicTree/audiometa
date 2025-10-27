@@ -7,7 +7,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestMultipleValuesBoundaryConditions:
     def test_write_large_number_of_multiple_values_per_field(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:

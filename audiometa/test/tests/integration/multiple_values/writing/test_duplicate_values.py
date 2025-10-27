@@ -8,7 +8,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestMultipleValuesDuplicateValues:
     def test_write_duplicate_values(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:

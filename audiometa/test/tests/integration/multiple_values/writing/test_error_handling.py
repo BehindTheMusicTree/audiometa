@@ -7,7 +7,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import InvalidMetadataFieldTypeError
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestMultipleValuesErrorHandling:
     def test_write_invalid_data_types_in_list(self, temp_audio_file: Path):
         # Test with invalid data types in multiple value lists

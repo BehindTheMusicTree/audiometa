@@ -8,7 +8,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestFieldNotSupportedReading:
     def test_field_not_supported_all_formats(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

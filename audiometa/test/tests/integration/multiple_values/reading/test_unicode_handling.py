@@ -7,7 +7,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestUnicodeHandling:
     def test_unicode_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:

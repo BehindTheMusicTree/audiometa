@@ -7,7 +7,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestEmptyWhitespaceHandling:
 
     def test_mixed_empty_and_valid_entries(self):

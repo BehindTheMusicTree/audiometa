@@ -9,7 +9,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestVorbis:
     
     def test_null_value_separated_artists(self):

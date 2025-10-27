@@ -9,7 +9,7 @@ from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestMultipleValuesRiff:
 	def test_artists_concatenation(self):
 		initial_metadata = {"title": "Test Song"}

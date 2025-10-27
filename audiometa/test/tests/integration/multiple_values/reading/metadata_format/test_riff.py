@@ -9,7 +9,7 @@ from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
 from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestRiff:
     
     def test_semicolon_separated_artists(self):

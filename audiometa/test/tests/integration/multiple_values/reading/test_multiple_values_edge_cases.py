@@ -6,7 +6,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestMultipleValuesEdgeCases:
     def test_numeric_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:

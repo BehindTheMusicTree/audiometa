@@ -6,7 +6,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestTrackNumberWriting:
     
     @pytest.mark.parametrize("input_value,expected", [

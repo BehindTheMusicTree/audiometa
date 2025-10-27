@@ -15,7 +15,7 @@ from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataS
 from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestSmartParsingScenarios:
     """
     Test the smart parsing scenarios described in the README:
