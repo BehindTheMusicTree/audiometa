@@ -8,7 +8,6 @@ from audiometa.utils.rating_profiles import RatingReadProfile, RatingWriteProfil
 class TestRatingProfileMapping:
     
     def test_star_rating_to_profile_value_mapping(self):
-        # Test description removed per workspace rules
         star_ratings = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
         
         base_255_non_prop = RatingReadProfile.BASE_255_NON_PROPORTIONAL.value
@@ -36,7 +35,6 @@ class TestRatingProfileMapping:
                 assert expected_value_255_prop is None
 
     def test_profile_value_to_star_rating_mapping(self):
-        # Test description removed per workspace rules
         # Test BASE_255_NON_PROPORTIONAL values
         base_255_non_prop = RatingReadProfile.BASE_255_NON_PROPORTIONAL.value
         for i, value in enumerate(base_255_non_prop):
@@ -67,7 +65,6 @@ class TestRatingProfileMapping:
                     assert value == expected_value
 
     def test_cross_profile_consistency(self):
-        # Test description removed per workspace rules
         # Test that all profiles produce the same star rating for equivalent values
         star_ratings = [0, 1, 2, 3, 4, 5]  # Only whole star ratings for cross-profile comparison
         
@@ -105,7 +102,6 @@ class TestRatingProfileMapping:
                 assert 0 <= value_255_prop <= 255
 
     def test_profile_value_uniqueness(self):
-        # Test description removed per workspace rules
         base_255_non_prop = RatingReadProfile.BASE_255_NON_PROPORTIONAL.value
         base_100_prop = RatingReadProfile.BASE_100_PROPORTIONAL.value
         base_255_prop = RatingReadProfile.BASE_255_PROPORTIONAL.value
@@ -121,7 +117,6 @@ class TestRatingProfileMapping:
         assert len(non_none_values) == len(set(non_none_values))
 
     def test_profile_value_monotonicity(self):
-        # Test description removed per workspace rules
         base_255_non_prop = RatingReadProfile.BASE_255_NON_PROPORTIONAL.value
         base_100_prop = RatingReadProfile.BASE_100_PROPORTIONAL.value
         base_255_prop = RatingReadProfile.BASE_255_PROPORTIONAL.value
@@ -142,7 +137,6 @@ class TestRatingProfileMapping:
             assert non_none_values[i] > non_none_values[i-1]
 
     def test_write_profile_consistency(self):
-        # Test description removed per workspace rules
         # BASE_255_NON_PROPORTIONAL should be identical
         assert RatingWriteProfile.BASE_255_NON_PROPORTIONAL.value == RatingReadProfile.BASE_255_NON_PROPORTIONAL.value
         

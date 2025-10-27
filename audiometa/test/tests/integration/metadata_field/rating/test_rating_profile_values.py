@@ -20,7 +20,6 @@ class TestRatingProfileValues:
             assert 0 <= value <= 255
 
     def test_base_100_proportional_profile_values(self):
-        # Test description removed per workspace rules
         profile = RatingReadProfile.BASE_100_PROPORTIONAL.value
         expected_values = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
         
@@ -33,7 +32,6 @@ class TestRatingProfileValues:
             assert 0 <= value <= 100
 
     def test_base_255_proportional_profile_values(self):
-        # Test description removed per workspace rules
         profile = RatingReadProfile.BASE_255_PROPORTIONAL.value
         expected_values = [None, None, 51, None, 102, None, 153, None, 204, None, 255]
         
@@ -47,13 +45,11 @@ class TestRatingProfileValues:
                 assert 0 <= value <= 255
 
     def test_write_profile_consistency(self):
-        # Test description removed per workspace rules
         assert RatingWriteProfile.BASE_255_NON_PROPORTIONAL.value == RatingReadProfile.BASE_255_NON_PROPORTIONAL.value
         assert RatingWriteProfile.BASE_100_PROPORTIONAL.value == RatingReadProfile.BASE_100_PROPORTIONAL.value
         # Note: BASE_255_PROPORTIONAL is only for reading, not writing
 
     def test_profile_star_mapping_consistency(self):
-        # Test description removed per workspace rules
         star_ratings = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
         
         base_255_non_prop = RatingReadProfile.BASE_255_NON_PROPORTIONAL.value
@@ -83,7 +79,6 @@ class TestRatingProfileValues:
                 assert base_255_prop[i] is None
 
     def test_profile_value_ranges(self):
-        # Test description removed per workspace rules
         base_255_non_prop = RatingReadProfile.BASE_255_NON_PROPORTIONAL.value
         base_100_prop = RatingReadProfile.BASE_100_PROPORTIONAL.value
         base_255_prop = RatingReadProfile.BASE_255_PROPORTIONAL.value
@@ -102,7 +97,6 @@ class TestRatingProfileValues:
                 assert 0 <= value <= 255
 
     def test_profile_value_progression(self):
-        # Test description removed per workspace rules
         base_255_non_prop = RatingReadProfile.BASE_255_NON_PROPORTIONAL.value
         base_100_prop = RatingReadProfile.BASE_100_PROPORTIONAL.value
         base_255_prop = RatingReadProfile.BASE_255_PROPORTIONAL.value
@@ -152,7 +146,6 @@ class TestRatingProfileValues:
         assert base_255_prop[10] == 255    # 5 stars (Traktor)
 
     def test_profile_enum_behavior(self):
-        # Test description removed per workspace rules
         # Test that we can access values
         assert hasattr(RatingReadProfile, 'BASE_255_NON_PROPORTIONAL')
         assert hasattr(RatingReadProfile, 'BASE_100_PROPORTIONAL')
