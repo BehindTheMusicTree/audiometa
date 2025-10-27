@@ -1847,64 +1847,7 @@ update_metadata("song.wav", {"rating": 9})   # 4.5 stars
 - ✅ **RIFF (WAV)**: Full half-star support
 - ❌ **Traktor**: Only whole stars (1, 2, 3, 4, 5)
 
-#### Cross-Player Compatibility
-
-AudioMeta ensures that ratings work across different players:
-
-```python
-# Read a file rated in Windows Media Player
-metadata = get_unified_metadata("windows_rated.mp3")
-print(f"Rating: {metadata[UnifiedMetadataKey.RATING]}")  # 6.0 (3 stars)
-
-# Write the same rating to a FLAC file
-update_metadata("new_song.flac", {"rating": 6})
-
-# The FLAC file will now show 3 stars in any FLAC-compatible player
-# The MP3 file will continue to show 3 stars in Windows Media Player
-```
-
-#### Traktor Special Handling
-
-Traktor uses special email tags to identify its ratings:
-
-```python
-# AudioMeta automatically detects Traktor ratings
-metadata = get_unified_metadata("traktor_rated.mp3")
-# If the file was rated in Traktor, AudioMeta handles it correctly
-# even though Traktor uses different numeric values
-```
-
-#### Rating Profile Examples
-
-**Reading from Different Sources**
-
-```python
-# All these files show 3 stars, but use different internal values
-files = [
-    "windows_rated.mp3",    # Internal value: 128
-    "flac_rated.flac",      # Internal value: 60
-    "traktor_rated.mp3"    # Internal value: 153
-]
-
-for file_path in files:
-    metadata = get_unified_metadata(file_path)
-    print(f"{file_path}: {metadata[UnifiedMetadataKey.RATING]}")  # All show 6.0
-```
-
-**Writing for Maximum Compatibility**
-
-```python
-# Write a 4-star rating (8.0) to different formats
-update_metadata("song.mp3", {"rating": 8})   # Writes 196 (Profile A)
-update_metadata("song.flac", {"rating": 8})   # Writes 80 (Profile B)
-update_metadata("song.wav", {"rating": 8})    # Writes 196 (Profile A)
-
-# All files will show 4 stars in their respective players
-```
-
-#### Advanced Rating Operations
-
-**Normalized Rating Scale**
+#### Normalized Rating Scale
 
 ```python
 # AudioMeta uses a 0-10 scale internally
@@ -1916,18 +1859,6 @@ update_metadata("song.wav", {"rating": 8})    # Writes 196 (Profile A)
 # 10 = 5 stars
 
 update_metadata("song.mp3", {"rating": 8})  # 4 stars
-```
-
-**Format-Specific Rating Writing**
-
-```python
-from audiometa.utils.MetadataFormat import MetadataFormat
-
-# Force a specific format (useful for compatibility testing)
-update_metadata("song.wav", {"rating": 6},
-                    metadata_format=MetadataFormat.ID3V2)  # Uses Profile A
-update_metadata("song.wav", {"rating": 6},
-                    metadata_format=MetadataFormat.RIFF)   # Uses Profile A
 ```
 
 ### Track Number
