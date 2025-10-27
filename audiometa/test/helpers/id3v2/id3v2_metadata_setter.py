@@ -80,6 +80,13 @@ class ID3v2MetadataSetter:
         
         cmd.append(str(file_path))
         run_external_tool(cmd, tool)
+
+    @staticmethod
+    def set_max_metadata(file_path: Path) -> None:
+        from ..common.external_tool_runner import run_script
+        from pathlib import Path
+        scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "data" / "scripts"
+        run_script("set-id3v2-max-metadata.sh", file_path, scripts_dir)
     
     @staticmethod
     def set_title(file_path: Path, title: str, version: str = "2.4") -> None:
@@ -199,13 +206,6 @@ class ID3v2MetadataSetter:
             # ID3v2.4: Use TDRC with full date
             command = ["mid3v2", "--TDRC", date_str, str(file_path)]
             run_external_tool(command, "mid3v2")
-
-    @staticmethod
-    def set_max_metadata(file_path: Path) -> None:
-        from ..common.external_tool_runner import run_script
-        from pathlib import Path
-        scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "data" / "scripts"
-        run_script("set-id3v2-max-metadata.sh", file_path, scripts_dir)
 
     @staticmethod
     def _set_multiple_values_single_frame(file_path: Path, frame_id: str, values: List[str], version: str = "2.4", separator: str = None) -> None:
