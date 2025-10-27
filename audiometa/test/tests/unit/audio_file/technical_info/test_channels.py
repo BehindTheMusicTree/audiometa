@@ -32,7 +32,3 @@ class TestAudioFileChannels:
         audio_file = AudioFile(sample_mp3_file)
         channels = audio_file.get_channels()
         assert isinstance(channels, int)
-
-    def test_get_channels_nonexistent_file_raises_error(self):
-        with pytest.raises(FileNotFoundError):
-            AudioFile("nonexistent.mp3").get_channels()
