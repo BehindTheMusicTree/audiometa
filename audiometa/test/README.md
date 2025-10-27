@@ -12,13 +12,16 @@ This directory contains the test suite for audiometa-python, organized using the
   - [Combine markers](#combine-markers)
 - [Test Logic Principles](#test-logic-principles)
   - [Unit Test Logic](#unit-test-logic)
+    - [Unit Test Principles](#unit-test-principles)
     - [What Unit Tests Should Do](#what-unit-tests-should-do)
     - [What Unit Tests Should NOT Do](#what-unit-tests-should-not-do)
     - [Why Don't Unit Tests Verify Exact Values?](#why-dont-unit-tests-verify-exact-values)
   - [Integration Test Logic](#integration-test-logic)
+    - [Integration Test Principles](#integration-test-principles)
     - [When Integration Tests ARE Needed](#when-integration-tests-are-needed)
     - [When Integration Tests Are NOT Needed](#when-integration-tests-are-not-needed)
   - [E2E Test Logic](#e2e-test-logic)
+    - [E2E Test Principles](#e2e-test-principles)
     - [What E2E Tests Should Do](#what-e2e-tests-should-do)
     - [What E2E Tests Should NOT Do](#what-e2e-tests-should-not-do)
 - [Test Data Strategy](#test-data-strategy)
@@ -103,6 +106,15 @@ pytest -m unit
 
 Unit tests should test **individual components in isolation** with fast, focused tests that verify behavior without external dependencies.
 
+#### Unit Test Principles
+
+- Test individual classes and their methods
+- Fast execution (milliseconds)
+- No external dependencies (dependencies should be mocked)
+- Focus on behavior, not implementation
+- Test error paths specific to the component
+- When mocking, exact values from mocks are acceptable for testing controlled scenarios
+
 #### What Unit Tests Should Do
 
 ```python
@@ -136,17 +148,17 @@ def test_get_duration_in_sec(self, sample_mp3_file: Path):
 # Test AudioFile methods directly, not wrapper functions
 ```
 
-**Unit Test Principles:**
-
-- Test individual classes and their methods
-- Fast execution (milliseconds)
-- No external dependencies (dependencies should be mocked)
-- Focus on behavior, not implementation
-- Test error paths specific to the component
-
 ### Integration Test Logic
 
 Integration tests should verify **integration** (component interactions), not duplicate unit tests.
+
+#### Integration Test Principles
+
+- Test component interactions
+- Verify non trivial wrapper functions work correctly
+- Use external tools for verification
+- Test different input types (str, Path, AudioFile)
+- Don't duplicate unit test coverage
 
 #### When Integration Tests ARE Needed
 
@@ -174,17 +186,18 @@ def test_get_duration_in_sec_unsupported_file_type_raises_error(self):
 # This is already tested in unit tests for AudioFile
 ```
 
-**Integration Test Principles:**
-
-- Test component interactions
-- Verify non trivial wrapper functions work correctly
-- Use external tools for verification
-- Test different input types (str, Path, AudioFile)
-- Don't duplicate unit test coverage
-
 ### E2E Test Logic
 
 End-to-end tests should verify **complete user workflows** from start to finish, simulating real-world usage scenarios.
+
+#### E2E Test Principles
+
+- Test complete user scenarios
+- Simulate real-world usage
+- Test the full stack (CLI, API, file operations)
+- Focus on workflows, not individual functions
+- May be slower but provide confidence in system behavior
+- Test happy paths and critical user journeys
 
 #### What E2E Tests Should Do
 
@@ -234,15 +247,6 @@ def test_internal_manager_logic(temp_audio_file: Path):
     # Test internal behavior
 # This should be in unit tests
 ```
-
-**E2E Test Principles:**
-
-- Test complete user scenarios
-- Simulate real-world usage
-- Test the full stack (CLI, API, file operations)
-- Focus on workflows, not individual functions
-- May be slower but provide confidence in system behavior
-- Test happy paths and critical user journeys
 
 ## Test Data Strategy
 
