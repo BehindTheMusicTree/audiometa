@@ -28,7 +28,6 @@ class ConfigurationError(Exception):
     This error indicates that the metadata manager was not properly configured
     or initialized with the required parameters.
     """
-    pass
 
 class MetadataFormatNotSupportedByAudioFormatError(Exception):
     """Raised when attempting to read metadata from a format not supported by the audio format of the file.
@@ -39,7 +38,6 @@ class MetadataFormatNotSupportedByAudioFormatError(Exception):
         - Trying to read metadata from RIFF format from an MP3 file
         - Trying to read metadata from Vorbis format from a WAV file
     """
-    pass
 
 
 class MetadataFieldNotSupportedByMetadataFormatError(Exception):
@@ -53,7 +51,6 @@ class MetadataFieldNotSupportedByMetadataFormatError(Exception):
         - Trying to read/write BPM to ID3v1
         - Trying to read/write album artist to ID3v1
     """
-    pass
 
 
 class MetadataFieldNotSupportedByLib(Exception):
@@ -66,7 +63,6 @@ class MetadataFieldNotSupportedByLib(Exception):
         - Trying to read/write a custom field that doesn't exist in UnifiedMetadataKey
         - Trying to read/write a field that is not implemented in any metadata manager
     """
-    pass
 
 class MetadataWritingConflictParametersError(Exception):
     """Raised when conflicting metadata writing parameters are specified.
@@ -78,7 +74,6 @@ class MetadataWritingConflictParametersError(Exception):
         - Specifying both metadata_strategy and metadata_format
         - Other mutually exclusive metadata writing parameters
     """
-    pass
 
 
 class InvalidMetadataFieldTypeError(TypeError):
@@ -114,4 +109,3 @@ class InvalidRatingValueError(Exception):
         - Values that cannot be converted to integers
         - None values when a rating is expected
     """
-    pass

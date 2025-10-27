@@ -520,7 +520,6 @@ def _handle_metadata_strategy(file: AudioFile, unified_metadata: UnifiedMetadata
             if isinstance(e, (InvalidRatingValueError, ConfigurationError)):
                 raise
             # Some managers might not support writing or might fail for other reasons
-            pass
         
         # Then sync all other available formats
         # Note: We need to be careful about the order to avoid conflicts

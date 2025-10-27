@@ -2,7 +2,6 @@
 
 import pytest
 from pathlib import Path
-import os
 
 from audiometa import get_file_size
 from audiometa.exceptions import FileTypeNotSupportedError

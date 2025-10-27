@@ -3,7 +3,7 @@ from typing import Type, cast
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.id3 import ID3
-from mutagen.id3._frames import COMM, POPM, TALB, TBPM, TCOM, TCON, TCOP, TDRC, TDRL, TDAT, TENC, TextFrame, TIT2, TKEY, TLAN, TMOO, TPE1, TPE2, TPUB, TRCK, TSRC, TYER, USLT, WOAR
+from mutagen.id3._frames import COMM, POPM, TALB, TBPM, TCOM, TCON, TCOP, TDRC, TDRL, TDAT, TENC, TIT2, TKEY, TLAN, TMOO, TPE1, TPE2, TPUB, TRCK, TSRC, TYER, USLT, WOAR
 from mutagen.id3._util import ID3NoHeaderError
 
 

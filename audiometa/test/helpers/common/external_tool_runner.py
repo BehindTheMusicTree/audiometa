@@ -7,7 +7,6 @@ from typing import List, Union, Optional
 
 class ExternalMetadataToolError(Exception):
     """Exception raised when external metadata tools fail."""
-    pass
 
 
 def run_external_tool(command: List[str], tool_name: str = "external tool", check: bool = True, input: Optional[Union[str, bytes]] = None) -> subprocess.CompletedProcess:

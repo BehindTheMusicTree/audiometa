@@ -5,7 +5,6 @@ and removes all non-native metadata formats.
 """
 
 import pytest
-from pathlib import Path
 
 from audiometa import (
     update_metadata,

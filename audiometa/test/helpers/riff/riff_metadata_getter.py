@@ -1,9 +1,7 @@
 """RIFF metadata inspection utilities for testing audio file metadata."""
 
 import subprocess
-import struct
 from pathlib import Path
-from typing import Dict, Any
 
 
 class RIFFMetadataGetter:

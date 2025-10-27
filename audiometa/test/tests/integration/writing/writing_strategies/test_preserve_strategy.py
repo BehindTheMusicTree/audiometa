@@ -5,7 +5,6 @@ and preserves existing metadata in other formats.
 """
 
 import pytest
-from pathlib import Path
 
 from audiometa import update_metadata, get_unified_metadata
 from audiometa.test.helpers.id3v1.id3v1_metadata_setter import ID3v1MetadataSetter

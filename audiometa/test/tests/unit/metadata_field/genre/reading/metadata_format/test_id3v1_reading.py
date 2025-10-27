@@ -1,8 +1,6 @@
 import pytest
-import subprocess
-from pathlib import Path
 
-from audiometa import get_unified_metadata, get_unified_metadata_field
+from audiometa import get_unified_metadata_field
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v1 import ID3v1MetadataSetter

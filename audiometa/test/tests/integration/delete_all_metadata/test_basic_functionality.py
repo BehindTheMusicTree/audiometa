@@ -1,5 +1,4 @@
 import pytest
-from pathlib import Path
 
 from audiometa import (
     delete_all_metadata,

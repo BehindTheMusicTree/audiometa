@@ -1,8 +1,7 @@
 """ID3v2 metadata deletion operations."""
 
 from pathlib import Path
-from typing import List
-from ..common.external_tool_runner import run_external_tool, ExternalMetadataToolError
+from ..common.external_tool_runner import run_external_tool
 
 
 class ID3v2MetadataDeleter:

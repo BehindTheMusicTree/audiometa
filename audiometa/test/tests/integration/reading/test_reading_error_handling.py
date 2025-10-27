@@ -5,7 +5,6 @@ from audiometa import (
     get_unified_metadata,
     get_unified_metadata_field
 )
-from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 

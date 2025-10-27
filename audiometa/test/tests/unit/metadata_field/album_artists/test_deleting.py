@@ -5,9 +5,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
-from audiometa.test.helpers.riff import RIFFMetadataSetter
 from audiometa.test.helpers.vorbis import VorbisMetadataSetter
-from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 
 @pytest.mark.unit

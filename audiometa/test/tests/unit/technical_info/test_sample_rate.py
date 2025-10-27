@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 
-from audiometa import AudioFile, get_sample_rate
+from audiometa import get_sample_rate
 from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspector
 
 @pytest.mark.unit

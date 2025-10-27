@@ -1,6 +1,5 @@
 import pytest
 
-from pathlib import Path
 
 from audiometa import update_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat

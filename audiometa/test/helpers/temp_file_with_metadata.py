@@ -14,7 +14,7 @@ from .id3v1 import ID3v1MetadataSetter
 from .vorbis import VorbisMetadataSetter
 from .riff import RIFFMetadataSetter
 from .common import AudioFileCreator
-from .common.external_tool_runner import run_external_tool, run_script
+from .common.external_tool_runner import run_script
 
 
 class TempFileWithMetadata:

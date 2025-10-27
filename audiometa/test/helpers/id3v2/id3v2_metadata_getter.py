@@ -3,7 +3,6 @@ id3v2_metadata_getter.py
 Helper for extracting ID3v2 metadata from audio files.
 """
 
-from audiometa.test.helpers.common.external_tool_runner import run_external_tool
 
 class ID3v2MetadataGetter:
     """Helper class to get ID3v2 metadata from audio files using manual parsing."""

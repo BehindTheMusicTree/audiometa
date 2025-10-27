@@ -4,7 +4,6 @@ import pytest
 
 from audiometa import get_unified_metadata_field
 from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
-from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
