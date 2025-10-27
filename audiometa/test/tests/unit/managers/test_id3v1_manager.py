@@ -15,6 +15,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 class TestId3v1Manager:
 
     def test_id3v1_manager_mp3(self, mocker, sample_mp3_file: Path):
+        # Mock the metadata extraction to avoid file I/O
         mock_raw_metadata = mocker.MagicMock()
         mock_raw_metadata.tags = {}  # Simulate no metadata present
         mocker.patch.object(Id3v1Manager, '_extract_mutagen_metadata', return_value=mock_raw_metadata)
@@ -26,6 +27,7 @@ class TestId3v1Manager:
         assert isinstance(metadata, dict)
 
     def test_id3v1_manager_flac(self, mocker, sample_flac_file: Path):
+        # Mock the metadata extraction to avoid file I/O
         mock_raw_metadata = mocker.MagicMock()
         mock_raw_metadata.tags = {}  # Simulate no metadata present
         mocker.patch.object(Id3v1Manager, '_extract_mutagen_metadata', return_value=mock_raw_metadata)
@@ -37,6 +39,7 @@ class TestId3v1Manager:
         assert isinstance(metadata, dict)
 
     def test_id3v1_manager_wav(self, mocker, sample_wav_file: Path):
+        # Mock the metadata extraction to avoid file I/O
         mock_raw_metadata = mocker.MagicMock()
         mock_raw_metadata.tags = {}  # Simulate no metadata present
         mocker.patch.object(Id3v1Manager, '_extract_mutagen_metadata', return_value=mock_raw_metadata)
@@ -48,6 +51,7 @@ class TestId3v1Manager:
         assert isinstance(metadata, dict)
 
     def test_id3v1_manager_get_specific_metadata(self, mocker, sample_mp3_file: Path):
+        # Mock the metadata extraction to avoid file I/O
         mock_raw_metadata = mocker.MagicMock()
         mock_raw_metadata.tags = {}  # Simulate no metadata present
         mocker.patch.object(Id3v1Manager, '_extract_mutagen_metadata', return_value=mock_raw_metadata)
@@ -59,8 +63,10 @@ class TestId3v1Manager:
         assert title is None or isinstance(title, str)
 
     def test_id3v1_manager_write_support(self, mocker):
+        # Mock AudioFile to avoid real file operations
         mock_audio_file = mocker.MagicMock()
         mocker.patch('audiometa.AudioFile', return_value=mock_audio_file)
+        mocker.patch('os.path.exists', return_value=True)
         
         # Mock the metadata extraction to return expected metadata after "write"
         mock_raw_metadata = mocker.MagicMock()
@@ -70,8 +76,9 @@ class TestId3v1Manager:
             Id3v1RawMetadataKey.ALBUM: ['ID3v1 Test Album']
         }
         mocker.patch.object(Id3v1Manager, '_extract_mutagen_metadata', return_value=mock_raw_metadata)
+        mocker.patch.object(Id3v1Manager, '_update_not_using_mutagen_metadata')
         
-        audio_file = AudioFile('dummy_path')
+        audio_file = AudioFile('dummy.mp3')
         manager = Id3v1Manager(audio_file)
         
         test_metadata = {
@@ -93,8 +100,9 @@ class TestId3v1Manager:
         # Mock AudioFile to avoid real file operations
         mock_audio_file = mocker.MagicMock()
         mocker.patch('audiometa.AudioFile', return_value=mock_audio_file)
+        mocker.patch('os.path.exists', return_value=True)
         
-        audio_file = AudioFile('dummy_path')
+        audio_file = AudioFile('dummy.mp3')
         manager = Id3v1Manager(audio_file)
         
         # Test unsupported fields that should raise MetadataFieldNotSupportedByMetadataFormatError
