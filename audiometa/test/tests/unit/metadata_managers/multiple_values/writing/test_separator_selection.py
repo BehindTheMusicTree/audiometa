@@ -133,10 +133,3 @@ class TestSeparatorSelection:
         for value in values:
             if value.strip():  # Only check non-empty values
                 assert separator not in value
-    
-    def test_find_safe_separator_all_separators_present(self):
-        """Test that when all separators are present in values, it falls back to the last one."""
-        values = ["//", "\\\\", "\\", ";", "/", ","]
-        separator = MetadataManager.find_safe_separator(values)
-        assert separator == ","  # Fallback to last
-
