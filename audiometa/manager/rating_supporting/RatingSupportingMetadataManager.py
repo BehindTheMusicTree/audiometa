@@ -57,7 +57,7 @@ class RatingSupportingMetadataManager(MetadataManager):
             if file_rating == 0 and is_rating_from_traktor:
                 return None
             for star_rating_base_10 in range(11):
-                if file_rating in [RatingReadProfile.BASE_255_PROPORTIONAL[star_rating_base_10],
+                if file_rating in [RatingReadProfile.BASE_255_PROPORTIONAL_TRAKTOR[star_rating_base_10],
                                    RatingReadProfile.BASE_255_NON_PROPORTIONAL[star_rating_base_10],
                                    RatingReadProfile.BASE_100_PROPORTIONAL[star_rating_base_10]]:
                     return int(star_rating_base_10 * self.normalized_rating_max_value / 10)
