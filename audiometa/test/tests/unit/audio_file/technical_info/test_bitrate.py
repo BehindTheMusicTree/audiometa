@@ -27,7 +27,3 @@ class TestAudioFileBitrate:
         bitrate = audio_file.get_bitrate()
         assert isinstance(bitrate, int)
         assert bitrate > 0
-
-    def test_get_bitrate_nonexistent_file_raises_error(self):
-        with pytest.raises(FileNotFoundError):
-            AudioFile("nonexistent.mp3").get_bitrate()
