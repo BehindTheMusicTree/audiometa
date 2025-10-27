@@ -248,9 +248,9 @@ def test_internal_manager_logic(temp_audio_file: Path):
 
 The test suite uses a **hybrid approach** for test data management, combining pre-created files with on-the-fly generation to optimize for both performance and flexibility.
 
-### Pre-created Test Files (`../data/audio_files/`)
+### Pre-created Test Files (`../assets/`)
 
-**173 pre-created audio files** covering specific scenarios and edge cases:
+**Various pre-created audio files** covering specific scenarios and edge cases:
 
 - **Edge cases**: Corrupted files, bad extensions, unusual filenames
 - **Metadata combinations**: Files with specific metadata formats and values
