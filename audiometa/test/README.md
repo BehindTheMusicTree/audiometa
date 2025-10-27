@@ -177,7 +177,7 @@ def test_get_duration_in_sec_unsupported_file_type_raises_error(self):
 **Integration Test Principles:**
 
 - Test component interactions
-- Verify wrapper functions work correctly
+- Verify non trivial wrapper functions work correctly
 - Use external tools for verification
 - Test different input types (str, Path, AudioFile)
 - Don't duplicate unit test coverage
