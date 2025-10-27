@@ -191,32 +191,7 @@ class AudioFile:
     def get_file_path_or_object(self) -> str:
         """Returns the path to the file on the filesystem."""
         return self.file_path
-
-    def get_file_name_original(self) -> str:
-        """
-        "Original" means the name of the file that was uploaded by the user.
-        The actual file name may be different if the file was renamed during the upload process.
-        """
-        if hasattr(self.file, 'name'):
-            return self.file.name
-        elif hasattr(self.file, 'path'):
-            # Handle objects with a path attribute (like TempFileWithMetadata)
-            return self.file.path.name
-        elif isinstance(self.file, str):
-            return os.path.basename(self.file)
-        elif isinstance(self.file, Path):
-            return self.file.name
-        else:
-            raise FileTypeNotSupportedError(f"Reading is not supported for file type: {type(self.file)}")
-
-    def get_file_name_system(self) -> str:
-        """
-        Returns the actual filename in the system, which may be different from the original name
-        if the file was renamed during upload or processing.
-        """
-        path = self.file_path
-        return os.path.basename(path)
-
+    
     def is_flac_file_md5_valid(self) -> bool:
         if not self.file_extension == '.flac':
             raise FileTypeNotSupportedError("The file is not a FLAC file")
