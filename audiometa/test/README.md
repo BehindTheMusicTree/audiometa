@@ -2,6 +2,28 @@
 
 This directory contains the test suite for audiometa-python, organized using the standard unit/integration/e2e testing pattern.
 
+## Table of Contents
+
+- [Test Structure](#test-structure)
+- [Running Tests](#running-tests)
+  - [Run all tests](#run-all-tests)
+  - [Run tests by category](#run-tests-by-category)
+  - [Run tests by folder](#run-tests-by-folder)
+  - [Combine markers](#combine-markers)
+- [Test Logic Principles](#test-logic-principles)
+  - [When to Test Error Cases](#when-to-test-error-cases)
+  - [Integration Test Logic](#integration-test-logic)
+  - [Current Test Structure](#current-test-structure)
+- [Test Data Strategy](#test-data-strategy)
+  - [Pre-created Test Files](#pre-created-test-files)
+  - [On-the-fly Generation (TempFileWithMetadata)](#on-the-fly-generation-tempfilewithmetadata)
+  - [Temporary Files (Fixtures)](#temporary-files-fixtures)
+  - [When to Use Each Approach](#when-to-use-each-approach)
+  - [Testing API Patterns](#testing-api-patterns)
+  - [Examples for Each Scenario](#examples-for-each-scenario)
+  - [File Organization](#file-organization)
+- [Fixtures](#fixtures)
+
 ## Test Structure
 
 ### Unit Tests (`unit/`)
@@ -10,20 +32,6 @@ Tests for individual components and classes in isolation. These are fast, focuse
 
 - **Marker**: `@pytest.mark.unit`
 - **Speed**: Very fast (milliseconds)
-- **Dependencies**: Mocked/stubbed
-- **Files**:
-  - `test_exceptions.py` - Exception class tests
-  - `managers/` - Individual metadata manager tests
-    - `test_id3v1_manager.py` - ID3v1 metadata manager tests
-    - `test_id3v2_manager.py` - ID3v2 metadata manager tests
-    - `test_vorbis_manager.py` - Vorbis metadata manager tests
-    - `test_riff_manager.py` - RIFF metadata manager tests
-  - `main_functions/` - Individual function tests
-    - `test_bitrate_functions.py`
-    - `test_duration_functions.py`
-    - `test_error_handling.py`
-    - `test_flac_md5_functions.py`
-    - `test_id3_metadata_functions.py`
 
 ### Integration Tests (`integration/`)
 
@@ -31,30 +39,6 @@ Tests that verify how multiple components work together with real dependencies. 
 
 - **Marker**: `@pytest.mark.integration`
 - **Speed**: Medium (seconds)
-- **Dependencies**: Real but limited scope
-- **Files**:
-  - `test_audio_file.py` - AudioFile class integration
-  - `test_api_consistency.py` - API consistency tests
-  - `test_reading_multiple_format_in_same_file.py` - Multiple format reading tests
-  - `per_metadata/` - Individual metadata field tests
-    - `album/`, `artists/`, `bpm/`, `comment/`, `composer/`
-    - `copyright/`, `genre/`, `language/`, `lyrics/`
-    - `publisher/`, `rating/`, `release_date/`, `title/`, `track_number/`
-    - Each with `reading/`, `writing/`, `deleting/` subdirectories
-  - `delete_all_metadata/` - Metadata deletion tests
-    - `test_audio_format_all.py`, `test_basic_functionality.py`
-    - `test_error_handling.py`, `test_format_specific.py`
-    - `header_deletion/` - Header-specific deletion tests
-  - `get_full_metadata/` - Full metadata retrieval tests
-    - `test_binary_data_filtering.py`, `test_get_full_metadata.py`
-    - `test_get_full_metadata_edge_cases.py`, `test_parsed_fields_keys.py`
-  - `metadata_format_specific/` - Format-specific metadata tests
-    - `id3v1/`, `id3v2/`, `riff/`, `vorbis/` - Each with reading/writing tests
-  - `multiple_values/` - Multiple values handling tests
-    - `reading/` - Multiple values reading tests
-    - `writing/` - Multiple values writing tests
-  - `reading/` - General reading tests
-  - `writing/` - General writing tests
 
 ### End-to-End Tests (`e2e/`)
 
@@ -62,23 +46,6 @@ Tests that verify complete user workflows from start to finish. These simulate r
 
 - **Marker**: `@pytest.mark.e2e`
 - **Speed**: Slow (minutes)
-- **Dependencies**: Full system with all real dependencies
-- **Files**:
-  - `test_complete_workflows.py` - Complete metadata editing workflows
-  - `test_core_workflows.py` - Core workflow tests
-  - `test_deletion_workflows.py` - Metadata deletion workflows
-  - `test_error_handling_workflows.py` - Error handling workflows
-  - `test_format_specific_workflows.py` - Format-specific workflows
-  - `test_rating_workflows.py` - Rating-specific workflows
-  - `test_user_scenarios.py` - Real-world user scenarios
-  - `cli/` - CLI-specific end-to-end tests
-    - `test_cli_delete.py` - CLI deletion tests
-    - `test_cli_error_handling.py` - CLI error handling tests
-    - `test_cli_formatting.py` - CLI formatting tests
-    - `test_cli_help.py` - CLI help tests
-    - `test_cli_read.py` - CLI reading tests
-    - `test_cli_unified.py` - CLI unified tests
-    - `test_cli_write.py` - CLI writing tests
 
 ## Running Tests
 
@@ -126,6 +93,109 @@ pytest -m "not e2e"
 # Run only fast tests
 pytest -m unit
 ```
+
+## Test Logic Principles
+
+### When to Test Error Cases
+
+**Critical Principle**: Test behavior, not trivial pass-through paths.
+
+#### ✅ DO Test Errors When They Matter
+
+1. **Test unique error paths**: Each component should test errors that are specific to its logic
+
+   ```python
+   # ✅ Good - Tests AudioFile-specific file type validation
+   def test_audio_file_unsupported_type(self, temp_audio_file: Path):
+       with pytest.raises(FileTypeNotSupportedError):
+           AudioFile(temp_audio_file)
+   ```
+
+2. **Test different error types**: FileNotFoundError is different from FileTypeNotSupportedError
+   ```python
+   # ✅ Good - Tests file existence, not type validation
+   def test_get_duration_in_sec_nonexistent_file(self):
+       with pytest.raises(FileNotFoundError):
+           AudioFile("nonexistent.mp3").get_duration_in_sec()
+   ```
+
+#### ❌ DON'T Test Redundant Errors
+
+1. **Don't test the same error in multiple places**: If error handling is centralized, test it once
+
+   ```python
+   # ❌ Bad - Redundant with AudioFile test
+   def test_get_duration_in_sec_unsupported_file_type_raises_error(self):
+       with pytest.raises(FileTypeNotSupportedError):
+           get_duration_in_sec("file.txt")
+
+   # The wrapper just calls AudioFile(file) which already tests this
+   ```
+
+2. **Don't test trivial pass-through**: If the wrapper just delegates to another component, don't re-test the delegate's behavior
+
+   ```python
+   # Wrapper implementation:
+   def get_duration_in_sec(file: FILE_TYPE) -> float:
+       if not isinstance(file, AudioFile):
+           file = AudioFile(file)  # Error happens here
+       return file.get_duration_in_sec()
+
+   # ❌ Bad - Testing AudioFile behavior through wrapper
+   # ✅ Good - Just test AudioFile directly, wrapper will propagate error
+   ```
+
+#### The Rule of Thumb
+
+Ask yourself: **"Does this error path add unique value?"**
+
+- **Unique value**: Component has specific error handling or transformation
+- **No unique value**: Component just passes the error through unchanged
+
+If it's just a pass-through, don't test it.
+
+### Integration Test Logic
+
+Integration tests should verify **integration** (component interactions), not duplicate unit tests.
+
+#### When Integration Tests ARE Needed
+
+```python
+# ✅ Good - Tests that wrapper correctly handles different input types
+def test_get_duration_in_sec_works_with_audio_file_object(self, sample_mp3_file: Path):
+    audio_file = AudioFile(sample_mp3_file)
+    duration = get_duration_in_sec(audio_file)  # Passing AudioFile directly
+    assert duration > 0
+
+# ✅ Good - Tests external tool verification
+def test_get_duration_in_sec_matches_external_tool(self, sample_mp3_file: Path):
+    external_duration = TechnicalInfoInspector.get_duration(sample_mp3_file)
+    duration = get_duration_in_sec(sample_mp3_file)
+    assert duration == pytest.approx(expected)
+```
+
+#### When Integration Tests Are NOT Needed
+
+```python
+# ❌ Bad - Just testing AudioFile again through wrapper
+def test_get_duration_in_sec_unsupported_file_type_raises_error(self):
+    with pytest.raises(FileTypeNotSupportedError):
+        get_duration_in_sec("file.txt")
+# This is already tested in unit tests for AudioFile
+```
+
+### Current Test Structure
+
+**File Type Validation**:
+
+- ✅ Unit test: `test_file_type_validation.py` - Tests AudioFile initialization
+- ❌ Integration test: Not needed (wrappers just create AudioFile)
+
+**Technical Info Functions**:
+
+- ✅ Unit tests: Test AudioFile methods directly with edge cases
+- ✅ Integration tests: Test wrapper with different input types (str, Path, AudioFile)
+- ❌ Don't test: FileTypeNotSupportedError in integration (already covered)
 
 ## Test Data Strategy
 
