@@ -2,11 +2,13 @@
 
 from pathlib import Path
 import shutil
+import pytest
 
 from audiometa import get_unified_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
+@pytest.mark.integration
 class TestRealAudioFilesWriting:
     """Test cases for writing metadata to real audio files."""
 

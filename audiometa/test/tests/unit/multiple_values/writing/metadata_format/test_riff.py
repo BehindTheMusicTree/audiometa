@@ -1,4 +1,6 @@
 
+import pytest
+
 from audiometa import update_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -7,6 +9,7 @@ from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
 
 
+@pytest.mark.unit
 class TestMultipleValuesRiff:
 	def test_artists_concatenation(self):
 		initial_metadata = {"title": "Test Song"}

@@ -1,4 +1,6 @@
 
+import pytest
+
 from audiometa import update_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
@@ -6,6 +8,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
+@pytest.mark.unit
 class TestMultipleValuesDuplicateValues:
     def test_write_duplicate_values(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:

@@ -1,4 +1,5 @@
 import time
+import pytest
 
 from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -7,6 +8,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 
 
+@pytest.mark.unit
 class TestMultipleValuesBoundaryConditions:
     def test_write_large_number_of_multiple_values_per_field(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:

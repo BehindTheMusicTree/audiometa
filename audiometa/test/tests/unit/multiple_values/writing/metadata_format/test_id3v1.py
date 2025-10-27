@@ -1,3 +1,5 @@
+import pytest
+
 from audiometa import update_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -6,6 +8,7 @@ from audiometa.test.helpers.id3v1.id3v1_metadata_getter import ID3v1MetadataGett
 from audiometa.test.helpers.id3v1.id3v1_metadata_setter import ID3v1MetadataSetter
 
 
+@pytest.mark.unit
 class TestMultipleValuesId3v1:
     def test_id3v1_artists_concatenation_default_comma(self):
         initial_metadata = {"title": "Test Song"}

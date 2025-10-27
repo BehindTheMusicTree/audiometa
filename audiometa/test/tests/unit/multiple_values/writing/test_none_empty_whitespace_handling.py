@@ -1,4 +1,6 @@
 
+import pytest
+
 from audiometa import update_metadata, get_unified_metadata, get_unified_metadata_field
 from audiometa.test.helpers.id3v1.id3v1_metadata_getter import ID3v1MetadataGetter
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -6,6 +8,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
+@pytest.mark.unit
 class TestNoneEmptyWhitespaceHandling:
     def test_none_removes_fields(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:

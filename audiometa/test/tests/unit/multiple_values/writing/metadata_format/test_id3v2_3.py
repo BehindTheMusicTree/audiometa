@@ -1,4 +1,6 @@
 
+import pytest
+
 from audiometa import update_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -7,6 +9,7 @@ from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGett
 from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
 
 
+@pytest.mark.unit
 class TestMultipleValuesId3v2_3:
         
     def test_artists_concatenation(self):

@@ -4,8 +4,10 @@ from pathlib import Path
 
 from audiometa import AudioFile
 from audiometa.manager.rating_supporting.RiffManager import RiffManager
+import pytest
 
 
+@pytest.mark.unit
 class TestRiffHeaderMethods:
     """Test cases for RIFF metadata manager header information methods."""
 
