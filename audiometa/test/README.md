@@ -18,7 +18,6 @@ This directory contains the test suite for audiometa-python, organized using the
   - [Integration Test Logic](#integration-test-logic)
     - [When Integration Tests ARE Needed](#when-integration-tests-are-needed)
     - [When Integration Tests Are NOT Needed](#when-integration-tests-are-not-needed)
-  - [Current Test Structure](#current-test-structure)
 - [Test Data Strategy](#test-data-strategy)
   - [Pre-created Test Files](#pre-created-test-files)
   - [On-the-fly Generation (TempFileWithMetadata)](#on-the-fly-generation-tempfilewithmetadata)
@@ -184,19 +183,6 @@ def test_get_duration_in_sec_unsupported_file_type_raises_error(self):
         get_duration_in_sec("file.txt")
 # This is already tested in unit tests for AudioFile
 ```
-
-### Current Test Structure
-
-**File Type Validation**:
-
-- ✅ Unit test: `test_file_type_validation.py` - Tests AudioFile initialization
-- ❌ Integration test: Not needed (wrappers just create AudioFile)
-
-**Technical Info Functions**:
-
-- ✅ Unit tests: Test AudioFile methods directly with edge cases
-- ✅ Integration tests: Test wrapper with different input types (str, Path, AudioFile)
-- ❌ Don't test: FileTypeNotSupportedError in integration (already covered)
 
 ## Test Data Strategy
 
