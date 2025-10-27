@@ -132,7 +132,7 @@ class TempFileWithMetadata:
         RIFFMetadataSetter.set_wav_metadata(file_path, metadata)
     
     def _create_minimal_audio_file(self, file_path: Path, format_type: str) -> None:
-        test_files_dir = Path(__file__).parent.parent.parent / "test" / "data" / "audio_files"
+        test_files_dir = Path(__file__).parent.parent.parent / "test" / "assets"
         AudioFileCreator.create_minimal_audio_file(file_path, format_type, test_files_dir)
     
     def _get_scripts_dir(self) -> Path:
