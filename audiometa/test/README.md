@@ -11,10 +11,6 @@ This directory contains the test suite for audiometa-python, organized using the
   - [Run tests by folder](#run-tests-by-folder)
   - [Combine markers](#combine-markers)
 - [Test Logic Principles](#test-logic-principles)
-  - [When to Test Error Cases](#when-to-test-error-cases)
-    - [DO Test Errors When They Matter](#do-test-errors-when-they-matter)
-    - [DON'T Test Redundant Errors](#dont-test-redundant-errors)
-    - [The Rule of Thumb](#the-rule-of-thumb)
   - [Integration Test Logic](#integration-test-logic)
     - [When Integration Tests ARE Needed](#when-integration-tests-are-needed)
     - [When Integration Tests Are NOT Needed](#when-integration-tests-are-not-needed)
@@ -95,64 +91,6 @@ pytest -m unit
 ```
 
 ## Test Logic Principles
-
-### When to Test Error Cases
-
-**Critical Principle**: Test behavior, not trivial pass-through paths.
-
-#### ✅ DO Test Errors When They Matter
-
-1. **Test unique error paths**: Each component should test errors that are specific to its logic
-
-   ```python
-   # ✅ Good - Tests AudioFile-specific file type validation
-   def test_audio_file_unsupported_type(self, temp_audio_file: Path):
-       with pytest.raises(FileTypeNotSupportedError):
-           AudioFile(temp_audio_file)
-   ```
-
-2. **Test different error types**: FileNotFoundError is different from FileTypeNotSupportedError
-   ```python
-   # ✅ Good - Tests file existence, not type validation
-   def test_get_duration_in_sec_nonexistent_file(self):
-       with pytest.raises(FileNotFoundError):
-           AudioFile("nonexistent.mp3").get_duration_in_sec()
-   ```
-
-#### ❌ DON'T Test Redundant Errors
-
-1. **Don't test the same error in multiple places**: If error handling is centralized, test it once
-
-   ```python
-   # ❌ Bad - Redundant with AudioFile test
-   def test_get_duration_in_sec_unsupported_file_type_raises_error(self):
-       with pytest.raises(FileTypeNotSupportedError):
-           get_duration_in_sec("file.txt")
-
-   # The wrapper just calls AudioFile(file) which already tests this
-   ```
-
-2. **Don't test trivial pass-through**: If the wrapper just delegates to another component, don't re-test the delegate's behavior
-
-   ```python
-   # Wrapper implementation:
-   def get_duration_in_sec(file: FILE_TYPE) -> float:
-       if not isinstance(file, AudioFile):
-           file = AudioFile(file)  # Error happens here
-       return file.get_duration_in_sec()
-
-   # ❌ Bad - Testing AudioFile behavior through wrapper
-   # ✅ Good - Just test AudioFile directly, wrapper will propagate error
-   ```
-
-#### The Rule of Thumb
-
-Ask yourself: **"Does this error path add unique value?"**
-
-- **Unique value**: Component has specific error handling or transformation
-- **No unique value**: Component just passes the error through unchanged
-
-If it's just a pass-through, don't test it.
 
 ### Integration Test Logic
 
