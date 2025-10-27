@@ -5,7 +5,6 @@ file management, external tool operations, and metadata verification
 in a single, clean API.
 """
 
-import subprocess
 import tempfile
 from pathlib import Path
 
@@ -14,7 +13,6 @@ from .id3v1 import ID3v1MetadataSetter
 from .vorbis import VorbisMetadataSetter
 from .riff import RIFFMetadataSetter
 from .common import AudioFileCreator
-from .common.external_tool_runner import run_script
 
 
 class TempFileWithMetadata:
@@ -103,59 +101,23 @@ class TempFileWithMetadata:
         with tempfile.NamedTemporaryFile(suffix=f'.{actual_extension}', delete=False) as tmp_file:
             target_file = Path(tmp_file.name)
         
-        self._create_minimal_audio_file(target_file, format_type)
+        test_files_dir = Path(__file__).parent.parent.parent / "test" / "assets"
+        AudioFileCreator.create_minimal_audio_file(target_file, format_type, test_files_dir)
         
         if format_type.lower() == 'mp3':
             ID3v2MetadataSetter.set_metadata(target_file, metadata)
         elif format_type.lower() == 'id3v1':
-            self._set_mp3_metadata_id3v1(target_file, metadata)
+            ID3v1MetadataSetter.set_metadata(target_file, metadata)
         elif format_type.lower() in ['id3v2.3', 'id3v2.4']:
             # Use version-specific ID3v2 metadata setting
             version = format_type.lower().replace('id3v2.', '2.')
             ID3v2MetadataSetter.set_metadata(target_file, metadata, version)
         elif format_type.lower() == 'flac':
-            self._set_flac_metadata_with_metaflac(target_file, metadata)
+            VorbisMetadataSetter.set_flac_metadata(target_file, metadata)
         elif format_type.lower() == 'wav':
-            self._set_wav_metadata_with_bwfmetaedit(target_file, metadata)
+            RIFFMetadataSetter.set_wav_metadata(target_file, metadata)
         else:
             raise ValueError(f"Unsupported format type: {format_type}")
         
         return target_file
     
-    def _set_mp3_metadata_id3v1(self, file_path: Path, metadata: dict) -> None:
-        ID3v1MetadataSetter.set_metadata(file_path, metadata)
-    
-    def _set_flac_metadata_with_metaflac(self, file_path: Path, metadata: dict) -> None:
-        VorbisMetadataSetter.set_flac_metadata(file_path, metadata)
-    
-    def _set_wav_metadata_with_bwfmetaedit(self, file_path: Path, metadata: dict) -> None:
-        RIFFMetadataSetter.set_wav_metadata(file_path, metadata)
-    
-    def _create_minimal_audio_file(self, file_path: Path, format_type: str) -> None:
-        test_files_dir = Path(__file__).parent.parent.parent / "test" / "assets"
-        AudioFileCreator.create_minimal_audio_file(file_path, format_type, test_files_dir)
-    
-    def _get_scripts_dir(self) -> Path:
-        return Path(__file__).parent.parent.parent / "test" / "helpers" / "scripts"
-    
-    def _run_script(self, script_name: str) -> subprocess.CompletedProcess:
-        """Run an external script with proper error handling."""
-        scripts_dir = self._get_scripts_dir()
-        # Use the unified run_script function for script execution
-        return run_script(script_name, self.test_file, scripts_dir)
-    
-    def _create_multiple_id3v2_frames(self, frame_id: str, texts: list[str]) -> None:
-        """Create multiple separate ID3v2 frames using manual binary construction.
-        
-        This uses the ManualID3v2FrameCreator to bypass standard tools that 
-        consolidate multiple frames of the same type, allowing creation of 
-        truly separate frames for testing purposes.
-        
-        Args:
-            frame_id: The ID3v2 frame identifier (e.g., 'TPE1', 'TPE2', 'TCON', 'TCOM')
-            texts: List of text values, one per frame
-        """
-        ID3v2MetadataSetter._create_multiple_id3v2_frames(self.test_file, frame_id, texts)
-    
-
-
