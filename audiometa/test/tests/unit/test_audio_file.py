@@ -32,6 +32,18 @@ class TestAudioFile:
         
         with pytest.raises(FileTypeNotSupportedError):
             AudioFile(str(temp_audio_file))
+    
+    def test_valid_file_extension_mp3_then_ok(self, sample_mp3_file: Path):
+        audio_file = AudioFile(sample_mp3_file)
+        assert audio_file.file_extension == ".mp3"
+    
+    def test_valid_file_extension_flac_then_ok(self, sample_flac_file: Path):
+        audio_file = AudioFile(sample_flac_file)
+        assert audio_file.file_extension == ".flac"
+    
+    def test_valid_file_extension_wav_then_ok(self, sample_wav_file: Path):
+        audio_file = AudioFile(sample_wav_file)
+        assert audio_file.file_extension == ".wav"
 
     def test_file_operations(self, temp_audio_file: Path):
         audio_file = AudioFile(temp_audio_file)
