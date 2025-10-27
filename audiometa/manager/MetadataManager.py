@@ -60,7 +60,7 @@ class MetadataManager:
         return METADATA_MULTI_VALUE_SEPARATORS_PRIORITIZED[-1]
 
     @staticmethod
-    def filter_valid_values(values: list[str]) -> list[str]:
+    def _filter_valid_values(values: list[str]) -> list[str]:
         """
         Filter out None and empty values from a list of strings.
         
@@ -512,7 +512,7 @@ class MetadataManager:
                 
                 # Filter out empty values for list-type metadata before processing
                 if isinstance(app_metadata_value, list):
-                    app_metadata_value = self.filter_valid_values(app_metadata_value)
+                    app_metadata_value = self._filter_valid_values(app_metadata_value)
                     # If all values were filtered out, set to None to remove the field
                     if not app_metadata_value:
                         app_metadata_value = None
