@@ -44,7 +44,7 @@ class ID3v1MetadataSetter:
         """Set maximum ID3v1 metadata using external script."""
         from ..common.external_tool_runner import run_script
         from pathlib import Path
-        scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "herlpers" / "scripts"
+        scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "helpers" / "scripts"
         run_script("set-id3v1-max-metadata.sh", file_path, scripts_dir)
     
     @staticmethod

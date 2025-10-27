@@ -119,7 +119,7 @@ class VorbisMetadataSetter:
     def set_max_metadata(file_path: Path) -> None:
         from ..common.external_tool_runner import run_script
         from pathlib import Path
-        scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "herlpers" / "scripts"
+        scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "helpers" / "scripts"
         run_script("set-vorbis-max-metadata.sh", file_path, scripts_dir)
         
     @staticmethod
