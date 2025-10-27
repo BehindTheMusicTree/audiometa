@@ -37,9 +37,9 @@ class TestRatingProfileValues:
         (255, 10),
     ])
     def test_base_255_non_proportional(self, metadata_rating_read, expected_normalized_value):
-        manager = Id3v2Manager(audio_file=MagicMock())
+        manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=10)
         normalized_rating = manager._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
             unified_metadata_key=UnifiedMetadataKey.RATING,
-            raw_clean_metadata_uppercase_keys={'RATING': metadata_rating_read},
+            raw_clean_metadata_uppercase_keys={Id3v2Manager.Id3TextFrame.RATING: [manager.ID3_RATING_APP_EMAIL, metadata_rating_read]},
         )
         assert normalized_rating == expected_normalized_value
