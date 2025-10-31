@@ -1,7 +1,6 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
-from audiometa import AudioFile
 from audiometa.manager.rating_supporting.Id3v2Manager import Id3v2Manager
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
