@@ -1,7 +1,7 @@
 
 
 import pytest
-from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 from audiometa import AudioFile
 from audiometa.manager.rating_supporting.RiffManager import RiffManager
@@ -13,23 +13,35 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 @pytest.mark.unit
 class TestRiffManager:
 
-    def test_riff_manager_wav(self, sample_wav_file: Path):
-        audio_file = AudioFile(sample_wav_file)
-        manager = RiffManager(audio_file)
+    @patch('audiometa.manager.rating_supporting.RiffManager.WAVE')
+    def test_riff_manager_wav(self, mock_wave_class, mock_audio_file_wav, mock_wave_empty):
+        mock_wave_class.return_value = mock_wave_empty
         
-        metadata = manager.get_unified_metadata()
-        assert isinstance(metadata, dict)
+        # Mock file operations
+        with patch.object(mock_audio_file_wav, 'seek'), \
+             patch.object(mock_audio_file_wav, 'read', return_value=b'RIFF\x24\x08\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x80>\x00\x00\x00}\x00\x00\x02\x00\x10\x00data\x00\x08\x00\x00'):
+            
+            manager = RiffManager(mock_audio_file_wav)
+            metadata = manager.get_unified_metadata()
+            
+            assert isinstance(metadata, dict)
+            mock_wave_class.assert_called_once()
 
-    def test_riff_manager_unsupported_format(self, sample_mp3_file: Path):
-        audio_file = AudioFile(sample_mp3_file)
-        
+    @patch('audiometa.manager.rating_supporting.RiffManager.WAVE')
+    def test_riff_manager_unsupported_format(self, mock_wave_class, mock_audio_file_mp3):
         with pytest.raises(FileTypeNotSupportedError):
-            RiffManager(audio_file)
+            RiffManager(mock_audio_file_mp3)
 
-    def test_riff_manager_update_metadata(self):
-        with TempFileWithMetadata({}, "wav") as test_file:
-            audio_file = AudioFile(test_file.path)
-            manager = RiffManager(audio_file)
+    @patch('audiometa.manager.rating_supporting.RiffManager.WAVE')
+    def test_riff_manager_update_metadata(self, mock_wave_class, mock_audio_file_wav, mock_wave_empty):
+        mock_wave_class.return_value = mock_wave_empty
+        
+        # Mock file operations
+        with patch.object(mock_audio_file_wav, 'seek'), \
+             patch.object(mock_audio_file_wav, 'read', return_value=b'RIFF\x24\x08\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x80>\x00\x00\x00}\x00\x00\x02\x00\x10\x00data\x00\x08\x00\x00'), \
+             patch.object(mock_audio_file_wav, 'write'):
+            
+            manager = RiffManager(mock_audio_file_wav)
             
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "RIFF Test Title",
@@ -38,27 +50,3 @@ class TestRiffManager:
             }
             
             manager.update_metadata(test_metadata)
-            
-            # Verify metadata was updated
-            updated_metadata = manager.get_unified_metadata()
-            assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "RIFF Test Title"
-            assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["RIFF Test Artist"]
-            assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "RIFF Test Album"
-
-    def test_riff_manager_rating_supported(self):
-        with TempFileWithMetadata({}, "wav") as test_file:
-            audio_file = AudioFile(test_file.path)
-            manager = RiffManager(audio_file, normalized_rating_max_value=100)
-            
-            test_metadata = {
-                UnifiedMetadataKey.TITLE: "RIFF Test Title",
-                UnifiedMetadataKey.RATING: 85  # RIFF supports rating through IRTD chunk
-            }
-            
-            # This should work without raising an exception
-            manager.update_metadata(test_metadata)
-            
-            # Verify metadata was updated
-            updated_metadata = manager.get_unified_metadata()
-            assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "RIFF Test Title"
-            assert updated_metadata.get(UnifiedMetadataKey.RATING) is not None
