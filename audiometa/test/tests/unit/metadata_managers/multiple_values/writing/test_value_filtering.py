@@ -58,4 +58,18 @@ class TestValueFiltering:
         values = [None, "Artist", "", "Another Artist", None]
         result = MetadataManager._filter_valid_values(values)
         assert result == ["Artist", "Another Artist"]
+    
+    def test_all_none_values_filtered_to_empty_list(self):
+        # Test that [None, None] filters to empty list
+        # This matches the integration test scenario where field is removed
+        values = [None, None]
+        result = MetadataManager._filter_valid_values(values)
+        assert result == []
+    
+    def test_mixed_none_and_valid_values_filtering(self):
+        # Test that None values are filtered but valid values remain
+        # This matches the integration test scenario
+        values = ["Artist One", None, "Artist Two", None, "Artist Three"]
+        result = MetadataManager._filter_valid_values(values)
+        assert result == ["Artist One", "Artist Two", "Artist Three"]
 
