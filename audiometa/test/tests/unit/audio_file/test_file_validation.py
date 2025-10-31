@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import AudioFile
-from audiometa.exceptions import FileTypeNotSupportedError
+from audiometa.exceptions import FileCorruptedError, FileTypeNotSupportedError
 
 
 @pytest.mark.unit
@@ -30,7 +30,7 @@ class TestAudioFileFileTypeValidation:
         temp_audio_file = temp_audio_file.with_suffix(".mp3")
         temp_audio_file.write_bytes(b"not a real audio file")
         
-        with pytest.raises(FileTypeNotSupportedError):
+        with pytest.raises(FileCorruptedError):
             AudioFile(str(temp_audio_file))
 
     def test_nonexistent_file_raises_error(self):
