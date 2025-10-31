@@ -71,7 +71,6 @@ class TestGeneralHeaderMethods:
         assert isinstance(wav_header, dict)
 
     def test_raw_metadata_info_with_different_file_types(self, sample_mp3_file: Path, sample_flac_file: Path, sample_wav_file: Path):
-        """Test raw metadata info methods with different file types."""
         # Test MP3
         mp3_audio_file = AudioFile(sample_mp3_file)
         mp3_manager = Id3v2Manager(mp3_audio_file)
