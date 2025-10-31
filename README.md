@@ -63,6 +63,8 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [Delete All Metadata From All Formats](#delete-all-metadata-from-all-formats)
     - [Delete All Metadata From A Specific Format](#delete-all-metadata-from-a-specific-format)
   - [AudioFile Class](#audiofile-class)
+    - [Get Technical Information](#get-technical-information)
+    - [AudioFile Validation](#audio-file-validation)
 - [Error Handling](#error-handling)
 - [Metadata Field Guide: Support and Handling](#metadata-field-guide-support-and-handling)
   - [Metadata Support by Format](#metadata-support-by-format)
@@ -1157,6 +1159,8 @@ except MetadataFormatNotSupportedByAudioFormatError as e:
 
 Object-oriented approach for working with audio files
 
+#### Get Technical Information
+
 ```python
 from audiometa import AudioFile
 
@@ -1180,7 +1184,55 @@ metadata = audio_file.get_unified_metadata()
 print(f"Title: {metadata.get(UnifiedMetadataKey.TITLE, 'Unknown')}")
 ```
 
-## Error Handling
+#### Audio File Validation
+
+The `AudioFile` class performs comprehensive validation during initialization to ensure file integrity and format compatibility.
+
+### File Extension Validation
+
+`AudioFile` first validates the file extension against supported audio formats:
+
+- **Supported Extensions**: `.mp3`, `.flac`, `.wav`
+- **Error**: Raises `FileTypeNotSupportedError` for unsupported extensions
+
+### Content Validation
+
+After extension validation, `AudioFile` performs content validation by attempting to parse the file using the appropriate audio library:
+
+- **MP3 files**: Uses Mutagen's MP3 parser
+- **FLAC files**: Uses Mutagen's FLAC parser
+- **WAV files**: Uses Mutagen's WAVE parser
+
+**Error**: Raises `FileCorruptedError` for files with invalid or corrupted audio content
+
+### Validation Examples
+
+```python
+from audiometa import AudioFile
+from audiometa.exceptions import FileTypeNotSupportedError, FileCorruptedError
+
+# Valid file - works fine
+audio_file = AudioFile("song.mp3")
+
+# Unsupported extension - raises FileTypeNotSupportedError
+try:
+    audio_file = AudioFile("document.txt")
+except FileTypeNotSupportedError as e:
+    print(f"Unsupported file type: {e}")
+
+# Corrupted content - raises FileCorruptedError
+try:
+    audio_file = AudioFile("corrupted.mp3")
+except FileCorruptedError as e:
+    print(f"File is corrupted: {e}")
+```
+
+### Validation Benefits
+
+- **Early Error Detection**: Catches invalid files before attempting metadata operations
+- **Data Integrity**: Ensures only valid audio files are processed
+- **Clear Error Messages**: Provides specific exceptions for different validation failures
+- **Performance**: Avoids unnecessary processing of invalid files
 
 The library provides specific exception types for different error conditions:
 
