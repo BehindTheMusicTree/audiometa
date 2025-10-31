@@ -106,3 +106,37 @@ def mock_id3_updatable():
     
     return mock_id3
 
+
+@pytest.fixture
+def mock_wave_empty():
+    mock_wave = MagicMock()
+    mock_wave.info = {}
+    return mock_wave
+
+
+@pytest.fixture
+def mock_wave_with_metadata():
+    mock_wave = MagicMock()
+    mock_wave.info = {
+        'INAM': ['Test Title'],
+        'IART': ['Test Artist'],
+        'IPRD': ['Test Album'],
+    }
+    return mock_wave
+
+
+@pytest.fixture
+def mock_vorbis_metadata_empty():
+    """Mock Vorbis metadata dict with no metadata."""
+    return {}
+
+
+@pytest.fixture
+def mock_vorbis_metadata_with_data():
+    """Mock Vorbis metadata dict with sample metadata."""
+    return {
+        'TITLE': ['Test Title'],
+        'ARTIST': ['Test Artist'],
+        'ALBUM': ['Test Album'],
+    }
+
