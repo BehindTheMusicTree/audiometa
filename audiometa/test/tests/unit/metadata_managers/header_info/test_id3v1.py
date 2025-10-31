@@ -12,7 +12,6 @@ class TestId3v1HeaderMethods:
     """Test cases for ID3v1 metadata manager header information methods."""
 
     def test_id3v1_manager_header_info(self, sample_mp3_file: Path):
-        """Test ID3v1Manager header info method."""
         audio_file = AudioFile(sample_mp3_file)
         manager = Id3v1Manager(audio_file)
         
@@ -33,7 +32,6 @@ class TestId3v1HeaderMethods:
         assert isinstance(header_info['has_track_number'], bool)
 
     def test_id3v1_manager_raw_metadata_info(self, sample_mp3_file: Path):
-        """Test ID3v1Manager raw metadata info method."""
         audio_file = AudioFile(sample_mp3_file)
         manager = Id3v1Manager(audio_file)
         
