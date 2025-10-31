@@ -301,7 +301,8 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
             # Value must be a list and all items must be of the expected inner type
             if not isinstance(value, list):
                 raise InvalidMetadataFieldTypeError(key.value, f'list[{getattr(item_type, "__name__", str(item_type))}]', value)
-            if not all(isinstance(item, item_type) for item in value):
+            # Allow None values in lists - they will be filtered out automatically during writing
+            if not all(item is None or isinstance(item, item_type) for item in value):
                 raise InvalidMetadataFieldTypeError(key.value, f'list[{getattr(item_type, "__name__", str(item_type))}]', value)
         elif origin == Union:
             # Handle Union types (e.g., Union[int, str])
