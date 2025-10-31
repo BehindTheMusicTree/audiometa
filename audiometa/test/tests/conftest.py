@@ -39,13 +39,11 @@ def pytest_collection_modifyitems(items):
 
 @pytest.fixture
 def test_files_dir() -> Path:
-    """Return the path to the test audio files directory."""
     return Path(__file__).parent.parent.parent / "test" / "assets"
 
 
 @pytest.fixture
 def temp_audio_file() -> Generator[Path, None, None]:
-    """Create a temporary audio file for testing."""
     with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp_file:
         temp_path = Path(tmp_file.name)
     
@@ -58,7 +56,6 @@ def temp_audio_file() -> Generator[Path, None, None]:
 
 @pytest.fixture
 def temp_wav_file() -> Generator[Path, None, None]:
-    """Create a temporary WAV file for testing."""
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
         temp_path = Path(tmp_file.name)
     
@@ -72,20 +69,21 @@ def temp_wav_file() -> Generator[Path, None, None]:
 # Basic sample files
 @pytest.fixture
 def sample_mp3_file(test_files_dir: Path) -> Path:
-    """Return path to a sample MP3 file."""
     return test_files_dir / "sample.mp3"
 
 
 @pytest.fixture
 def sample_flac_file(test_files_dir: Path) -> Path:
-    """Return path to a sample FLAC file."""
     return test_files_dir / "sample.flac"
 
 
 @pytest.fixture
 def sample_wav_file(test_files_dir: Path) -> Path:
-    """Return path to a sample WAV file."""
     return test_files_dir / "sample.wav"
+
+@pytest.fixture
+def sample_m4a_file(test_files_dir: Path) -> Path:
+    return test_files_dir / "sample.m4a"
 
 
 # Test tracks with no metadata
