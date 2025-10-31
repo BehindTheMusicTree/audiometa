@@ -55,6 +55,17 @@ class AudioFile:
         if file_extension not in supported_extensions:
             raise FileTypeNotSupportedError(f"File type {file_extension} is not supported. Supported types: {', '.join(supported_extensions)}")
 
+        # Validate that the file content is valid for the format
+        try:
+            if file_extension == '.mp3':
+                MP3(self.file_path)
+            elif file_extension == '.flac':
+                FLAC(self.file_path)
+            elif file_extension == '.wav':
+                WAVE(self.file_path)
+        except Exception as e:
+            raise FileCorruptedError(f"The file content is corrupted or not a valid {file_extension.upper()} file: {str(e)}")
+
     def get_duration_in_sec(self) -> float:
         path = self.file_path
 
