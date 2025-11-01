@@ -1,0 +1,134 @@
+# 🧭 Contributing Guidelines
+
+Thank you for your interest in contributing!  
+This project is currently maintained by a solo developer, but contributions, suggestions, and improvements are welcome.
+
+## Table of Contents
+
+- [🧱 Development Workflow](#-development-workflow)
+  - [Main Branch (`main`)](#main-branch-main)
+  - [Feature Branches (`feature/<name>`)](#feature-branches-featurename)
+  - [Hotfix Branches (`hotfix/<issue>`)](#hotfix-branches-hotfixissue)
+- [🧪 Testing](#-testing)
+  - [Run Local Tests](#run-local-tests)
+  - [Run Coverage](#run-coverage)
+  - [Lint Code for Style Consistency](#lint-code-for-style-consistency)
+- [🚀 Releasing](#-releasing)
+- [🧩 Commit Style](#-commit-style)
+- [💡 Contributing Code](#-contributing-code)
+- [📦 Environment Setup](#-environment-setup)
+- [🪪 License & Attribution](#-license--attribution)
+- [🌍 Contact & Discussions](#-contact--discussions)
+
+## 🧱 Development Workflow
+
+We follow a light GitFlow model adapted for small teams and open-source projects:
+
+### Main Branch (`main`)
+
+- The stable, always-deployable branch
+- All tests must pass before merging
+- Releases are tagged from `main`
+
+### Feature Branches (`feature/<name>`)
+
+- Create one for each new feature or bug fix
+- Example:
+  ```bash
+  git checkout -b feature/improve-genre-classification
+  ```
+- Merge into `main` via Pull Request when complete and tested
+
+### Hotfix Branches (`hotfix/<issue>`)
+
+- For urgent bug fixes on production versions
+
+## 🧪 Testing
+
+We use pytest for all automated testing.
+
+### Run Local Tests
+
+```bash
+pytest
+```
+
+### Run Coverage
+
+```bash
+pytest --cov
+```
+
+### Lint Code for Style Consistency
+
+```bash
+black . && flake8
+```
+
+CI will automatically test all pushes and PRs using GitHub Actions.
+
+## 🚀 Releasing
+
+Releases are created from the `main` branch.
+
+1. Bump your version (using bump2version or manually editing **version**)
+2. Tag the release:
+   ```bash
+   git tag v1.2.3
+   git push origin v1.2.3
+   ```
+3. CI/CD will:
+   - Run tests
+   - Build a package
+   - Upload to PyPI (if configured)
+
+## 🧩 Commit Style
+
+Follow conventional commits for clarity and automated versioning:
+
+- `feat:` → new feature
+- `fix:` → bug fix
+- `refactor:` → code refactoring
+- `docs:` → documentation updates
+- `chore:` → dependencies or CI updates
+
+Example:
+
+```
+feat(api): improve genre matching accuracy
+```
+
+## 💡 Contributing Code
+
+1. Fork the repository
+2. Create a `feature/` branch
+3. Run tests locally
+4. Open a Pull Request with a clear description
+
+## 📦 Environment Setup
+
+Ensure you're using:
+
+- Python 3.10+
+- Virtual environment with dependencies:
+
+  ```bash
+  python -m venv .venv
+  source .venv/bin/activate  # (Linux/macOS)
+  .venv\Scripts\activate     # (Windows)
+  pip install -e ".[dev]"
+  ```
+
+## 🪪 License & Attribution
+
+All contributions are made under the project's open-source license.  
+You retain authorship of your code; the project retains redistribution rights under the same license.
+
+## 🌍 Contact & Discussions
+
+You can open:
+
+- **Issues** → bug reports or new ideas
+- **Discussions** → suggestions, architecture, or music-genre topics
+
+Let's make this library grow together 🌱
