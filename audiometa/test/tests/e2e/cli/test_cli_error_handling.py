@@ -234,3 +234,225 @@ class TestCLIErrorHandling:
             assert result.returncode != 0
             stderr_output = result.stderr.lower()
             assert "error" in stderr_output or "permission" in stderr_output or "cannot" in stderr_output
+
+    def test_cli_invalid_format_argument(self):
+        result = subprocess.run([
+            sys.executable, "-m", "audiometa", "read", "nonexistent.mp3", "--format", "invalid"
+        ], capture_output=True, text=True)
+        
+        # Should fail due to invalid format choice
+        assert result.returncode != 0
+        # argparse should show error about invalid choice
+        stderr_output = result.stderr.lower()
+        assert "invalid choice" in stderr_output or "error" in stderr_output
+
+    def test_cli_invalid_rating_value_negative(self):
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "write",
+                str(temp_file.path), "--rating", "-5"
+            ], capture_output=True, text=True)
+            
+            # Should fail due to negative rating
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "error" in stderr_output
+
+    def test_cli_invalid_rating_value_too_high(self):
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "write",
+                str(temp_file.path), "--rating", "150"
+            ], capture_output=True, text=True)
+            
+            # Should fail due to rating > 100
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "error" in stderr_output
+
+    def test_cli_invalid_rating_value_non_numeric(self):
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "write",
+                str(temp_file.path), "--rating", "not-a-number"
+            ], capture_output=True, text=True)
+            
+            # Should fail due to non-numeric rating
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "invalid" in stderr_output.lower() or "error" in stderr_output
+
+    def test_cli_invalid_year_value_non_numeric(self):
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "write",
+                str(temp_file.path), "--year", "not-a-year"
+            ], capture_output=True, text=True)
+            
+            # Should fail due to non-numeric year
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "invalid" in stderr_output.lower() or "error" in stderr_output
+
+    def test_cli_invalid_year_value_negative(self):
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "write",
+                str(temp_file.path), "--year", "-2023"
+            ], capture_output=True, text=True)
+            
+            # Should fail due to negative year
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "error" in stderr_output
+
+    def test_cli_invalid_year_value_future(self):
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            future_year = str(2030 + 1)  # One year beyond current year
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "write",
+                str(temp_file.path), "--year", future_year
+            ], capture_output=True, text=True)
+            
+            # Should fail due to future year
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "error" in stderr_output
+
+    def test_cli_write_no_metadata_fields(self):
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "write",
+                str(temp_file.path)
+            ], capture_output=True, text=True)
+            
+            # Should fail due to no metadata fields
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "no metadata fields specified" in stderr_output
+
+    def test_cli_conflicting_format_options_read(self):
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "read",
+                str(temp_file.path), "--format", "table", "--no-headers", "--no-technical"
+            ], capture_output=True, text=True)
+            
+            # Should succeed - these options are compatible
+            assert result.returncode == 0
+            # Table format with no headers/technical should still work
+            assert len(result.stdout.strip()) > 0
+
+    def test_cli_invalid_output_path_empty_string(self):
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "read",
+                str(temp_file.path), "--output", ""
+            ], capture_output=True, text=True)
+            
+            # Should succeed - empty output path means stdout
+            assert result.returncode == 0
+            assert len(result.stdout.strip()) > 0
+
+    def test_cli_unified_with_no_headers_technical_flags(self):
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "unified",
+                str(temp_file.path), "--no-headers", "--no-technical"
+            ], capture_output=True, text=True)
+            
+            # Should fail - unified command doesn't accept these flags
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "unrecognized arguments" in stderr_output
+
+    def test_cli_write_empty_title_artist_album(self):
+        """Test CLI write with empty string values for metadata (should fail - no valid metadata)."""
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "write",
+                str(temp_file.path), "--title", "", "--artist", "", "--album", ""
+            ], capture_output=True, text=True)
+            
+            # Should fail - empty strings are not considered valid metadata
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "no metadata fields specified" in stderr_output
+
+    def test_cli_read_help_flag(self):
+        result = subprocess.run([
+            sys.executable, "-m", "audiometa", "read", "--help"
+        ], capture_output=True, text=True)
+        
+        # Should show read command help
+        assert result.returncode == 0
+        stdout_output = result.stdout.lower()
+        assert "read" in stdout_output and "files" in stdout_output
+
+    def test_cli_recursive_with_single_file(self):
+        """Test CLI recursive flag with single file (should work but be redundant)."""
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "read",
+                str(temp_file.path), "--recursive"
+            ], capture_output=True, text=True)
+            
+            # Should succeed - recursive with single file is valid
+            assert result.returncode == 0
+            assert len(result.stdout.strip()) > 0
+
+    def test_cli_unified_with_no_headers_technical_flags(self):
+        """Test CLI unified command with --no-headers and --no-technical (should fail - invalid args)."""
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "unified",
+                str(temp_file.path), "--no-headers", "--no-technical"
+            ], capture_output=True, text=True)
+            
+            # Should fail - unified command doesn't accept these flags
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "unrecognized arguments" in stderr_output
+
+    def test_cli_write_empty_title_artist_album(self):
+        """Test CLI write with empty string values for metadata (should fail - no valid metadata)."""
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "write",
+                str(temp_file.path), "--title", "", "--artist", "", "--album", ""
+            ], capture_output=True, text=True)
+            
+            # Should fail - empty strings are not considered valid metadata
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "no metadata fields specified" in stderr_output
+
+    def test_cli_invalid_command(self):
+        result = subprocess.run([
+            sys.executable, "-m", "audiometa", "invalidcommand"
+        ], capture_output=True, text=True)
+        
+        # Should fail due to invalid command
+        assert result.returncode != 0
+        stderr_output = result.stderr.lower()
+        assert "invalid choice" in stderr_output or "error" in stderr_output
+
+    def test_cli_no_command(self):
+        result = subprocess.run([
+            sys.executable, "-m", "audiometa"
+        ], capture_output=True, text=True)
+        
+        # Should show help and exit with code 1
+        assert result.returncode == 1
+        stdout_output = result.stdout.lower()
+        assert "usage" in stdout_output or "help" in stdout_output
+
+    def test_cli_help_flag(self):
+        result = subprocess.run([
+            sys.executable, "-m", "audiometa", "--help"
+        ], capture_output=True, text=True)
+        
+        # Should show help and exit successfully
+        assert result.returncode == 0
+        stdout_output = result.stdout.lower()
+        assert "usage" in stdout_output and "help" in stdout_output
