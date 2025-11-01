@@ -64,7 +64,6 @@ def temp_wav_file() -> Generator[Path, None, None]:
         temp_path.unlink()
 
 
-# Basic sample files
 @pytest.fixture
 def sample_mp3_file(test_files_dir: Path) -> Path:
     return test_files_dir / "sample.mp3"
@@ -127,7 +126,6 @@ def metadata_id3v2_big_mp3(test_files_dir: Path) -> Path:
 @pytest.fixture
 def metadata_id3v2_small_flac(test_files_dir: Path) -> Path:
     return test_files_dir / "metadata=long a_id3v2_small.flac"
-    return test_files_dir / "metadata=long a_id3v2_small.flac"
 
 
 @pytest.fixture
@@ -137,7 +135,6 @@ def metadata_id3v2_big_flac(test_files_dir: Path) -> Path:
 
 @pytest.fixture
 def metadata_id3v2_small_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v2_small.wav"
     return test_files_dir / "metadata=long a_id3v2_small.wav"
 
 
