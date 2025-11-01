@@ -1,7 +1,7 @@
 import pytest
 
 from audiometa import AudioFile, get_duration_in_sec
-from audiometa.exceptions import FileByteMismatchError, FileCorruptedError, FlacMd5CheckFailedError, InvalidChunkDecodeError, DurationNotFoundError
+from audiometa.exceptions import FileByteMismatchError, FileCorruptedError, FlacMd5CheckFailedError, InvalidChunkDecodeError, DurationNotFoundError, AudioFileMetadataParseError
 
 
 @pytest.mark.integration
@@ -98,4 +98,24 @@ class TestTechnicalInfoErrorHandling:
             audio_file.get_duration_in_sec()
             pytest.fail("Should have raised DurationNotFoundError")
         except DurationNotFoundError:
+            pass
+
+    def test_audio_file_metadata_parse_error_invalid_json(self, monkeypatch):
+        # Mock subprocess.run to return invalid JSON that will cause JSONDecodeError
+        def mock_subprocess_run(*args, **kwargs):
+            class MockResult:
+                returncode = 0
+                stdout = "invalid json response"
+            return MockResult()
+        
+        monkeypatch.setattr('subprocess.run', mock_subprocess_run)
+        
+        # Use a valid WAV file path
+        wav_file = "audiometa/test/assets/sample.wav"
+        
+        try:
+            audio_file = AudioFile(wav_file)
+            audio_file.get_duration_in_sec()
+            pytest.fail("Should have raised AudioFileMetadataParseError")
+        except AudioFileMetadataParseError:
             pass
