@@ -1,9 +1,9 @@
 import pytest
 from pathlib import Path
 
-from audiometa import get_unified_metadata_field, UnifiedMetadataKey
+from audiometa import get_unified_metadata_field, UnifiedMetadataKey, update_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
-from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError, MetadataFieldNotSupportedByLib
+from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError, MetadataFieldNotSupportedByLib, InvalidMetadataFieldTypeError
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
@@ -48,3 +48,26 @@ class TestMetadataFieldValidation:
         with TempFileWithMetadata({}, "wav") as test_file:
             with pytest.raises(MetadataFieldNotSupportedByLib, match="Test field not supported by library"):
                 get_unified_metadata_field(test_file.path, 'Test field not supported by library')
+
+    def test_invalid_metadata_field_type_error_wrong_type_for_list_field(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            with pytest.raises(InvalidMetadataFieldTypeError) as exc_info:
+                update_metadata(
+                    test_file.path,
+                    {UnifiedMetadataKey.ARTISTS: "should be list"}
+                )
+            error = exc_info.value
+            assert error.field == UnifiedMetadataKey.ARTISTS.value
+            assert "list" in error.expected_type.lower()
+            assert error.value == "should be list"
+
+    def test_invalid_metadata_field_type_error_wrong_type_for_string_field(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            with pytest.raises(InvalidMetadataFieldTypeError) as exc_info:
+                update_metadata(
+                    test_file.path,
+                    {UnifiedMetadataKey.TITLE: 12345}
+                )
+            error = exc_info.value
+            assert error.field == UnifiedMetadataKey.TITLE.value
+            assert error.value == 12345

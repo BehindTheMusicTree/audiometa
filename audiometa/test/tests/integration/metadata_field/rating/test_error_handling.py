@@ -5,7 +5,7 @@ from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
-from audiometa.exceptions import FileTypeNotSupportedError, InvalidMetadataFieldTypeError
+from audiometa.exceptions import FileTypeNotSupportedError, InvalidMetadataFieldTypeError, ConfigurationError, InvalidRatingValueError
 
 
 @pytest.mark.integration
@@ -60,3 +60,42 @@ class TestRatingErrorHandling:
             update_metadata(test_file.path, {UnifiedMetadataKey.RATING: None}, normalized_rating_max_value=100)
             metadata = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert metadata is None
+
+    def test_configuration_error_rating_without_max_value(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            with pytest.raises(ConfigurationError) as exc_info:
+                update_metadata(
+                    test_file.path,
+                    {UnifiedMetadataKey.RATING: 75}
+                )
+            assert "normalized_rating_max_value" in str(exc_info.value).lower() or "max value" in str(exc_info.value).lower()
+
+    def test_configuration_error_id3v2_without_normalized_rating(self):
+        with TempFileWithMetadata({}, "wav") as test_file:
+            with pytest.raises(ConfigurationError) as exc_info:
+                update_metadata(
+                    test_file.path,
+                    {UnifiedMetadataKey.RATING: 75},
+                    metadata_format=MetadataFormat.ID3V2
+                )
+            assert "normalized_rating_max_value" in str(exc_info.value).lower() or "max value" in str(exc_info.value).lower()
+
+    def test_invalid_rating_value_error_non_numeric_string(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            with pytest.raises(InvalidMetadataFieldTypeError) as exc_info:
+                update_metadata(
+                    test_file.path,
+                    {UnifiedMetadataKey.RATING: "invalid"},
+                    normalized_rating_max_value=100
+                )
+            assert "invalid type for metadata field 'rating'" in str(exc_info.value).lower()
+
+    def test_invalid_rating_value_error_non_numeric_type(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            with pytest.raises(InvalidMetadataFieldTypeError) as exc_info:
+                update_metadata(
+                    test_file.path,
+                    {UnifiedMetadataKey.RATING: {"not": "valid"}},
+                    normalized_rating_max_value=100
+                )
+            assert "invalid type for metadata field 'rating'" in str(exc_info.value).lower()
