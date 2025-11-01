@@ -290,7 +290,6 @@ def test_audio_file_class_in_e2e(temp_audio_file: Path):
 
 - Test function names should be descriptive enough that comments are unnecessary
 - Use `test_` prefix followed by what is being tested
-- Include the format being tested when relevant (e.g., `test_artists_metadata_mp3`)
 
 ### Test Structure
 
