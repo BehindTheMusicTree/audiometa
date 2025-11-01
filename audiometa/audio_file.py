@@ -10,7 +10,7 @@ from mutagen.flac import StreamInfo
 from mutagen.mp3 import MP3
 from mutagen.wave import WAVE
 
-from .exceptions import FileByteMismatchError, FileCorruptedError, FileTypeNotSupportedError
+from .exceptions import FileByteMismatchError, FileCorruptedError, FileTypeNotSupportedError, FlacMd5CheckFailedError, InvalidChunkDecodeError, DurationNotFoundError
 from .utils.MetadataFormat import MetadataFormat
 
 # Type alias for files that can be handled (must be disk-based)
@@ -105,7 +105,7 @@ class AudioFile:
                                        if s.get('duration')), 0))
 
                 if duration <= 0:
-                    raise RuntimeError("Could not determine audio duration")
+                    raise DurationNotFoundError("Could not determine audio duration")
                 return duration
 
             except json.JSONDecodeError:
@@ -122,6 +122,8 @@ class AudioFile:
                 error_str = str(exc)
                 if "file said" in error_str and "bytes, read" in error_str:
                     raise FileByteMismatchError(error_str.capitalize())
+                elif "FLAC" in error_str or "chunk" in error_str.lower():
+                    raise InvalidChunkDecodeError(f"Failed to decode FLAC chunks: {error_str}")
                 raise
         else:
             raise FileTypeNotSupportedError(f"Reading is not supported for file type: {self.file_extension}")
@@ -217,7 +219,7 @@ class AudioFile:
         if 'FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC' in output:
             return False
         else:
-            raise FileCorruptedError("The Flac file md5 check failed")
+            raise FlacMd5CheckFailedError("The Flac file md5 check failed")
 
     def get_file_with_corrected_md5(self, delete_original: bool = False) -> str:
         """
