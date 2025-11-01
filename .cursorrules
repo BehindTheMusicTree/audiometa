@@ -468,7 +468,7 @@ Use helper classes from `audiometa.test.helpers` for metadata setup:
 
 - **ID3v2**: `ID3v2MetadataSetter` - `set_title()`, `set_artists()`, `set_metadata()`, `set_comment()`, etc.
 - **ID3v1**: `ID3v1MetadataSetter` - `set_title()`, `set_artists()`, `set_comment()`, `set_metadata()`, etc.
-- **Vorbis**: `VorbisMetadataSetter` - `set_title()`, `set_artists()`, `set_comment()`, `set_flac_metadata()`, etc.
+- **Vorbis**: `VorbisMetadataSetter` - `set_title()`, `set_artists()`, `set_comment()`, `set_metadata()`, etc.
 - **RIFF**: `RIFFMetadataSetter` - `set_title()`, `set_comment()`, `set_metadata()`, etc.
 
 **Note**: Helper classes use external tools internally for proper test isolation.
