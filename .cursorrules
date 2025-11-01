@@ -338,10 +338,10 @@ def test_read_metadata_from_pre_created_file(sample_mp3_file: Path):
 - Clean state: Fresh files for each test run
 - Isolation: Prevents test setup from depending on the code being tested
 
-**When setting up metadata in tests, use TempFileWithMetadata methods:**
+**When setting up metadata in tests, use helper classes:**
 
-- All metadata setup operations in tests must use `TempFileWithMetadata` methods (not subprocess or external tools directly)
-- Always use context managers for temporary files
+- All metadata setup operations in tests must use helper classes from `audiometa.test.helpers` (e.g., `ID3v2MetadataSetter`, `RIFFMetadataSetter`) - not subprocess or external tools directly
+- Always use context managers (`TempFileWithMetadata`) for temporary files
 - Access file path via `test_file.path` property
 
 **Example:**
@@ -382,26 +382,19 @@ def test_metadata_writing(self):
         ], check=True)
 ```
 
-#### ✅ CORRECT - Use TempFileWithMetadata methods for metadata setup:
+#### ✅ CORRECT - Use helper classes for metadata setup:
 
 ```python
 def test_metadata_writing(self):
+    from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
+
     with TempFileWithMetadata({}, "mp3") as test_file:
-        # ✅ Use TempFileWithMetadata methods for metadata setup
-        test_file.set_id3v2_title("Test Title")
-        test_file.set_id3v2_artist("Test Artist")
+        # ✅ Use helper classes for metadata setup
+        ID3v2MetadataSetter.set_title(test_file.path, "Test Title")
+        ID3v2MetadataSetter.set_artists(test_file.path, "Test Artist")
 
         # Test reading...
 ```
-
-#### Available TempFileWithMetadata Methods
-
-- **ID3v2**: `set_id3v2_title()`, `set_id3v2_artist()`, `set_id3v2_album()`, `set_id3v2_lyrics()`, etc.
-- **ID3v1**: `set_id3v1_title()`, `set_id3v1_artist()`, `set_id3v1_album()`, etc.
-- **Vorbis**: `set_vorbis_title()`, `set_vorbis_artist()`, `set_vorbis_album()`, etc.
-- **RIFF**: `set_riff_title()`, `set_riff_artist()`, `set_riff_album()`, etc.
-- **Max metadata**: `set_id3v2_max_metadata()`, `set_id3v1_max_metadata()`, etc.
-- **Delete operations**: `delete_id3v2_lyrics()`, `delete_id3v2_title()`, etc.
 
 ### Test Isolation and Avoiding Circular Dependencies
 
@@ -437,18 +430,22 @@ def test_delete_lyrics_id3v2(self):
 
 ```python
 def test_id3v1_genre_reading(self):
+    from audiometa.test.helpers.id3v1 import ID3v1MetadataSetter
+
     with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-        # ✅ Use external tool to set metadata - proper test isolation
-        test_file.set_id3v1_max_metadata()
+        # ✅ Use helper class to set metadata - proper test isolation
+        ID3v1MetadataSetter.set_metadata(test_file.path, {"genre": "Blues"})
 
         # Now test reading with external verification
         metadata = get_unified_metadata(test_file.path)
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Blues"]
 
 def test_delete_lyrics_id3v2(self):
+    from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
+
     with TempFileWithMetadata({}, "mp3") as test_file:
-        # ✅ Use external tool to set initial data - proper test isolation
-        test_file.set_id3v2_lyrics("Test lyrics")
+        # ✅ Use helper class to set initial data - proper test isolation
+        ID3v2MetadataSetter.set_metadata(test_file.path, {"lyrics": "Test lyrics"})
 
         # Test deletion using our library
         update_metadata(test_file.path, {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: None})
@@ -465,19 +462,23 @@ def test_id3v1_genre_reading(self):
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
 ```
 
-#### Available TempFileWithMetadata Methods
+#### Available Helper Classes
 
-- **Max metadata methods**: `set_id3v1_max_metadata()`, `set_id3v2_max_metadata()`, `set_vorbis_max_metadata()`, `set_riff_max_metadata()`
-- **Specific field methods**: `set_id3v2_lyrics()`, `set_id3v2_title()`, `set_id3v2_artist()`, `set_id3v2_album()`, etc.
-- **Delete methods**: `delete_id3v2_lyrics()`, `delete_id3v2_title()`, `delete_id3v2_artist()`, etc.
-- **TempFileWithMetadata**: Uses external tools internally for proper test isolation
+Use helper classes from `audiometa.test.helpers` for metadata setup:
+
+- **ID3v2**: `ID3v2MetadataSetter` - `set_title()`, `set_artists()`, `set_metadata()`, `set_comment()`, etc.
+- **ID3v1**: `ID3v1MetadataSetter` - `set_title()`, `set_artists()`, `set_comment()`, `set_metadata()`, etc.
+- **Vorbis**: `VorbisMetadataSetter` - `set_title()`, `set_artists()`, `set_comment()`, `set_flac_metadata()`, etc.
+- **RIFF**: `RIFFMetadataSetter` - `set_title()`, `set_comment()`, `set_metadata()`, etc.
+
+**Note**: Helper classes use external tools internally for proper test isolation.
 
 #### When to Use Each Approach
 
-- **Reading tests**: Use `TempFileWithMetadata` methods for initial data setup
-- **Writing tests**: Use `TempFileWithMetadata` methods for initial data setup, then test `update_metadata()` functionality
-- **Deleting tests**: Use `TempFileWithMetadata` methods for initial data setup, then test deletion using library API (`update_metadata()` with `None` values)
-- **Integration tests**: Use `TempFileWithMetadata` methods consistently
+- **Reading tests**: Use helper classes (`ID3v2MetadataSetter`, etc.) for initial data setup
+- **Writing tests**: Use helper classes for initial data setup, then test `update_metadata()` functionality
+- **Deleting tests**: Use helper classes for initial data setup, then test deletion using library API (`update_metadata()` with `None` values)
+- **Integration tests**: Use helper classes consistently for metadata setup
 - **Unit tests**: Use mocks and direct object instantiation (file I/O is acceptable when testing file operations directly)
 
 ### Test Data Strategy
@@ -541,9 +542,11 @@ def test_write_metadata_using_temp_file():
 
 ```python
 def test_delete_comment_riff(self):
+    from audiometa.test.helpers.riff import RIFFMetadataSetter
+
     with TempFileWithMetadata({}, "wav") as test_file:
-        # ✅ Use helper method for setup - not testing setup functionality
-        test_file.set_riff_comment("Test comment")
+        # ✅ Use helper class for setup - not testing setup functionality
+        RIFFMetadataSetter.set_comment(test_file.path, "Test comment")
         assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
 
         # ✅ Test deletion using library API - this is what we're testing
@@ -555,9 +558,11 @@ def test_delete_comment_riff(self):
 
 ```python
 def test_read_comment_riff(self):
+    from audiometa.test.helpers.riff import RIFFMetadataSetter
+
     with TempFileWithMetadata({}, "wav") as test_file:
-        # ✅ Use helper method for setup - not testing setup functionality
-        test_file.set_riff_comment("Test comment")
+        # ✅ Use helper class for setup - not testing setup functionality
+        RIFFMetadataSetter.set_comment(test_file.path, "Test comment")
 
         # ✅ Test reading using library API - this is what we're testing
         comment = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMMENT)
