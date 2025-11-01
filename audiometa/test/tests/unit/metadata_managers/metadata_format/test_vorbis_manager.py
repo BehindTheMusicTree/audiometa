@@ -37,3 +37,47 @@ class TestVorbisManager:
         }
         
         manager.update_metadata(test_metadata)
+
+    def test_vorbis_manager_read_title(self):
+        from audiometa.test.helpers.vorbis import VorbisMetadataSetter
+        
+        with TempFileWithMetadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_title(test_file.path, "Test Title Vorbis")
+            
+            audio_file = AudioFile(test_file.path)
+            manager = VorbisManager(audio_file)
+            title = manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
+            
+            assert title == "Test Title Vorbis"
+
+    def test_vorbis_manager_read_artists(self):
+        from audiometa.test.helpers.vorbis import VorbisMetadataSetter
+        
+        with TempFileWithMetadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_metadata(test_file.path, {UnifiedMetadataKey.ARTISTS: ["Artist 1", "Artist 2"]})
+            
+            audio_file = AudioFile(test_file.path)
+            manager = VorbisManager(audio_file)
+            artists = manager.get_unified_metadata_field(UnifiedMetadataKey.ARTISTS)
+            
+            assert artists == ["Artist 1", "Artist 2"]
+
+    def test_vorbis_manager_write_title(self):
+        with TempFileWithMetadata({}, "flac") as test_file:
+            audio_file = AudioFile(test_file.path)
+            manager = VorbisManager(audio_file)
+            manager.update_metadata({UnifiedMetadataKey.TITLE: "Written Title"})
+            
+            new_manager = VorbisManager(AudioFile(test_file.path))
+            title = new_manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
+            assert title == "Written Title"
+
+    def test_vorbis_manager_write_artists(self):
+        with TempFileWithMetadata({}, "flac") as test_file:
+            audio_file = AudioFile(test_file.path)
+            manager = VorbisManager(audio_file)
+            manager.update_metadata({UnifiedMetadataKey.ARTISTS: ["Written Artist 1", "Written Artist 2"]})
+            
+            new_manager = VorbisManager(AudioFile(test_file.path))
+            artists = new_manager.get_unified_metadata_field(UnifiedMetadataKey.ARTISTS)
+            assert artists == ["Written Artist 1", "Written Artist 2"]

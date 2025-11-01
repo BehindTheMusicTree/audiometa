@@ -1,8 +1,12 @@
 import pytest
+from pathlib import Path
 from unittest.mock import patch
 
+from audiometa import AudioFile
 from audiometa.manager.rating_supporting.Id3v2Manager import Id3v2Manager
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
 
 
 @pytest.mark.unit
@@ -74,3 +78,43 @@ class TestId3v2Manager:
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "ID3v2 Test Album"
             assert updated_metadata.get(UnifiedMetadataKey.RATING) == 80
             assert updated_metadata.get(UnifiedMetadataKey.BPM) == 120
+
+    def test_id3v2_manager_read_title(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_title(test_file.path, "Test Title ID3v2")
+            
+            audio_file = AudioFile(test_file.path)
+            manager = Id3v2Manager(audio_file)
+            title = manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
+            
+            assert title == "Test Title ID3v2"
+
+    def test_id3v2_manager_read_artists(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_metadata(test_file.path, {UnifiedMetadataKey.ARTISTS: ["Artist 1", "Artist 2"]})
+            
+            audio_file = AudioFile(test_file.path)
+            manager = Id3v2Manager(audio_file)
+            artists = manager.get_unified_metadata_field(UnifiedMetadataKey.ARTISTS)
+            
+            assert artists == ["Artist 1", "Artist 2"]
+
+    def test_id3v2_manager_write_title(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            audio_file = AudioFile(test_file.path)
+            manager = Id3v2Manager(audio_file)
+            manager.update_metadata({UnifiedMetadataKey.TITLE: "Written Title"})
+            
+            new_manager = Id3v2Manager(AudioFile(test_file.path))
+            title = new_manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
+            assert title == "Written Title"
+
+    def test_id3v2_manager_write_artists(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            audio_file = AudioFile(test_file.path)
+            manager = Id3v2Manager(audio_file)
+            manager.update_metadata({UnifiedMetadataKey.ARTISTS: ["Written Artist 1", "Written Artist 2"]})
+            
+            new_manager = Id3v2Manager(AudioFile(test_file.path))
+            artists = new_manager.get_unified_metadata_field(UnifiedMetadataKey.ARTISTS)
+            assert artists == ["Written Artist 1", "Written Artist 2"]

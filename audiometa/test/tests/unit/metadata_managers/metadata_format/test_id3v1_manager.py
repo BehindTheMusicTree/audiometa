@@ -115,3 +115,47 @@ class TestId3v1Manager:
         # ID3v1 manager should raise error when trying to write unsupported fields
         with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
             manager.update_metadata(unsupported_metadata)
+
+    def test_id3v1_manager_read_title(self):
+        from audiometa.test.helpers.id3v1 import ID3v1MetadataSetter
+        
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            ID3v1MetadataSetter.set_title(test_file.path, "Test Title ID3v1")
+            
+            audio_file = AudioFile(test_file.path)
+            manager = Id3v1Manager(audio_file)
+            title = manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
+            
+            assert title == "Test Title ID3v1"
+
+    def test_id3v1_manager_read_artists(self):
+        from audiometa.test.helpers.id3v1 import ID3v1MetadataSetter
+        
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            ID3v1MetadataSetter.set_artists(test_file.path, "Artist 1")
+            
+            audio_file = AudioFile(test_file.path)
+            manager = Id3v1Manager(audio_file)
+            artists = manager.get_unified_metadata_field(UnifiedMetadataKey.ARTISTS)
+            
+            assert artists == "Artist 1"
+
+    def test_id3v1_manager_write_title(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            audio_file = AudioFile(test_file.path)
+            manager = Id3v1Manager(audio_file)
+            manager.update_metadata({UnifiedMetadataKey.TITLE: "Written Title"})
+            
+            new_manager = Id3v1Manager(AudioFile(test_file.path))
+            title = new_manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
+            assert title == "Written Title"
+
+    def test_id3v1_manager_write_artists(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            audio_file = AudioFile(test_file.path)
+            manager = Id3v1Manager(audio_file)
+            manager.update_metadata({UnifiedMetadataKey.ARTISTS: ["Written Artist"]})
+            
+            new_manager = Id3v1Manager(AudioFile(test_file.path))
+            artists = new_manager.get_unified_metadata_field(UnifiedMetadataKey.ARTISTS)
+            assert artists == "Written Artist"
