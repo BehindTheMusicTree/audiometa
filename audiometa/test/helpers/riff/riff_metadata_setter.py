@@ -9,7 +9,7 @@ class RIFFMetadataSetter:
     """Static utility class for RIFF metadata setting using external tools."""
     
     @staticmethod
-    def set_wav_metadata(file_path: Path, metadata: Dict[str, Any]) -> None:
+    def set_metadata(file_path: Path, metadata: Dict[str, Any]) -> None:
         """Set WAV metadata using bwfmetaedit tool."""
         cmd = ["bwfmetaedit"]
         

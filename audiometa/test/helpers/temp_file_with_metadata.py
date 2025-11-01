@@ -113,9 +113,9 @@ class TempFileWithMetadata:
             version = format_type.lower().replace('id3v2.', '2.')
             ID3v2MetadataSetter.set_metadata(target_file, metadata, version)
         elif format_type.lower() == 'flac':
-            VorbisMetadataSetter.set_flac_metadata(target_file, metadata)
+            VorbisMetadataSetter.set_metadata(target_file, metadata)
         elif format_type.lower() == 'wav':
-            RIFFMetadataSetter.set_wav_metadata(target_file, metadata)
+            RIFFMetadataSetter.set_metadata(target_file, metadata)
         else:
             raise ValueError(f"Unsupported format type: {format_type}")
         

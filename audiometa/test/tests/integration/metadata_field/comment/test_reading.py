@@ -33,6 +33,6 @@ class TestCommentReading:
 
     def test_riff(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            RIFFMetadataSetter.set_wav_metadata(test_file.path, {"comment": "Test Comment RIFF"})
+            RIFFMetadataSetter.set_metadata(test_file.path, {"comment": "Test Comment RIFF"})
             comment = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMMENT)
             assert comment == "Test Comment RIFF"

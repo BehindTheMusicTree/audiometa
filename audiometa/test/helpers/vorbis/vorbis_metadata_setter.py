@@ -31,7 +31,7 @@ class VorbisMetadataSetter:
             run_external_tool(command, "metaflac")
     
     @staticmethod
-    def set_flac_metadata(file_path: Path, metadata: Dict[str, Any]) -> None:
+    def set_metadata(file_path: Path, metadata: Dict[str, Any]) -> None:
         """Set FLAC metadata using metaflac tool."""
         cmd = ["metaflac"]
         
