@@ -1240,7 +1240,8 @@ The library provides specific exception types for different error conditions:
 from audiometa.exceptions import (
     FileCorruptedError,
     FileTypeNotSupportedError,
-    MetadataFieldNotSupportedByMetadataFormatError
+    MetadataFieldNotSupportedByMetadataFormatError,
+    AudioFileMetadataParseError
 )
 
 try:
@@ -1251,6 +1252,8 @@ except FileCorruptedError:
     print("File is corrupted")
 except MetadataFieldNotSupportedByMetadataFormatError:
     print("Metadata field not supported for this format")
+except AudioFileMetadataParseError:
+    print("Failed to parse audio file metadata")
 ```
 
 ## Metadata Field Guide: Support and Handling
