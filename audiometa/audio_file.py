@@ -110,6 +110,9 @@ class AudioFile:
 
             except json.JSONDecodeError:
                 raise RuntimeError("Failed to parse audio file metadata")
+            except DurationNotFoundError:
+                # Let DurationNotFoundError pass through
+                raise
             except Exception as exc:
                 if str(exc) == "Failed to probe audio file":
                     raise FileCorruptedError("ffprobe could not parse the audio file.")
