@@ -141,9 +141,9 @@ Tests are organized into three categories with clear markers:
 
 Unit tests should test **individual components in isolation** with fast, focused tests that verify behavior without external dependencies.
 
-#### Unit Test Guidelines:
+#### Unit Test Principles
 
-- Test individual classes and their methods directly
+- Test individual classes and their methods
 - Fast execution (milliseconds)
 - No external tools or services (external tools should be mocked or avoided)
 - Focus on behavior, not implementation
@@ -160,7 +160,7 @@ For audio file libraries, file I/O operations are often **part of the functional
 - ❌ **Mock or avoid** external tools (e.g., `ffmpeg`, `mid3v2`, `vorbiscomment`)
 - ❌ **Mock or avoid** network calls, databases, or other external services
 
-#### ✅ Good Unit Test Examples:
+#### What Unit Tests Should Do
 
 ```python
 # ✅ Test AudioFile class methods directly with real files
@@ -186,7 +186,7 @@ def test_get_duration_in_sec_nonexistent_file(self):
         AudioFile("nonexistent.mp3").get_duration_in_sec()
 ```
 
-#### ❌ Bad Unit Test Examples:
+#### What Unit Tests Should NOT Do
 
 ```python
 # ❌ Don't use external tools in unit tests
@@ -207,7 +207,7 @@ def test_get_duration_in_sec(self, sample_mp3_file: Path):
 
 Integration tests should verify **component interactions**, not duplicate unit tests.
 
-#### Integration Test Guidelines:
+#### Integration Test Principles
 
 - Test component interactions
 - Verify non-trivial wrapper functions work correctly
@@ -215,7 +215,7 @@ Integration tests should verify **component interactions**, not duplicate unit t
 - Test different input types (str, Path, AudioFile)
 - Don't duplicate unit test coverage
 
-#### ✅ Good Integration Test Examples:
+#### When Integration Tests ARE Needed
 
 ```python
 # ✅ Tests that wrapper correctly handles different input types
@@ -231,7 +231,7 @@ def test_get_duration_in_sec_matches_external_tool(self, sample_mp3_file: Path):
     assert duration == pytest.approx(external_duration)
 ```
 
-#### ❌ Bad Integration Test Examples:
+#### When Integration Tests Are NOT Needed
 
 ```python
 # ❌ Just testing AudioFile again through wrapper
@@ -245,7 +245,7 @@ def test_get_duration_in_sec_unsupported_file_type_raises_error(self):
 
 End-to-end tests should verify **complete user workflows** from start to finish, simulating real-world usage scenarios.
 
-#### E2E Test Guidelines:
+#### E2E Test Principles
 
 - Test complete user scenarios
 - Simulate real-world usage
@@ -254,7 +254,7 @@ End-to-end tests should verify **complete user workflows** from start to finish,
 - May be slower but provide confidence in system behavior
 - Test happy paths and critical user journeys
 
-#### ✅ Good E2E Test Examples:
+#### What E2E Tests Should Do
 
 ```python
 # ✅ Test complete user workflow
@@ -275,7 +275,7 @@ def test_complete_metadata_editing_workflow(temp_audio_file: Path):
     assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["New Artist"]
 ```
 
-#### ❌ Bad E2E Test Examples:
+#### What E2E Tests Should NOT Do
 
 ```python
 # ❌ Testing individual components
@@ -285,17 +285,6 @@ def test_audio_file_class_in_e2e(temp_audio_file: Path):
     assert duration > 0
 # This is a unit test concern
 ```
-
-### Test Naming
-
-- Test function names should be descriptive enough that comments are unnecessary
-- Use `test_` prefix followed by what is being tested
-
-### Test Structure
-
-- Group related tests in classes
-- Use descriptive class names that don't need docstrings
-- Focus on testing behavior, not implementation details
 
 ### Test Data Strategy
 
@@ -358,6 +347,53 @@ def test_write_metadata_using_temp_file():
         assert metadata.get(UnifiedMetadataKey.TITLE) == ["New Title"]
 ```
 
+#### Examples for Each Scenario
+
+**Reading existing metadata (Pre-created files):**
+
+```python
+def test_read_metadata_from_pre_created_file(sample_mp3_file: Path):
+    metadata = get_unified_metadata(sample_mp3_file)
+    assert metadata.get(UnifiedMetadataKey.TITLE) == ["Sample Title"]
+```
+
+**Testing writing functionality (TempFileWithMetadata):**
+
+```python
+def test_write_metadata_using_temp_file():
+    with TempFileWithMetadata(
+        {"title": "Original Title", "artist": "Original Artist"},
+        "mp3"
+    ) as test_file:
+        update_metadata(test_file.path, {
+            UnifiedMetadataKey.TITLE: "New Title"
+        })
+        metadata = get_unified_metadata(test_file.path)
+        assert metadata.get(UnifiedMetadataKey.TITLE) == ["New Title"]
+```
+
+### Test Isolation and Avoiding Circular Dependencies
+
+#### Use Helper Classes for Initial Data Setup (When Needed)
+
+For tests that verify **reading, writing, or deleting functionality** using temporary files (not pre-created assets or mocks), NEVER use the library's own `update_metadata()` function to set up initial test data. This ensures proper test isolation and prevents testing the library's own writing logic when testing other functionality.
+
+**When to use helper classes:**
+
+- ✅ **Integration/E2E tests** that need to set up metadata on temporary files for reading/deleting tests
+- ❌ **Unit tests with mocks** - use mocks directly
+- ❌ **Tests using pre-created assets** (fixtures like `sample_mp3_file`) - use the assets directly
+- ❌ **Writing tests** - test the `update_metadata()` function itself (that's what you're testing)
+
+**Use helper classes from `audiometa.test.helpers`:**
+
+- `ID3v2MetadataSetter` for ID3v2 metadata
+- `ID3v1MetadataSetter` for ID3v1 metadata
+- `VorbisMetadataSetter` for Vorbis/FLAC metadata
+- `RIFFMetadataSetter` for RIFF/WAV metadata
+
+**Note**: Helper classes use external tools internally for proper test isolation.
+
 #### ❌ Avoid using shutil for test files:
 
 ```python
@@ -381,27 +417,7 @@ def test_metadata_writing(self):
         ], check=True)
 ```
 
-#### ✅ CORRECT - Use helper classes for metadata setup:
-
-```python
-def test_metadata_writing(self):
-    from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
-
-    with TempFileWithMetadata({}, "mp3") as test_file:
-        # ✅ Use helper classes for metadata setup
-        ID3v2MetadataSetter.set_title(test_file.path, "Test Title")
-        ID3v2MetadataSetter.set_artists(test_file.path, "Test Artist")
-
-        # Test reading...
-```
-
-### Test Isolation and Avoiding Circular Dependencies
-
-#### All Tests Must Use External Tools for Initial Data Setup When Not Using Assets
-
-For tests that verify **reading, writing, or deleting functionality** not using assets, NEVER use the library's own `update_metadata()` function to set up initial test data. This ensures proper test isolation and prevents testing the library's own writing logic when testing other functionality.
-
-#### ❌ WRONG - Poor test isolation:
+#### ❌ WRONG - Poor test isolation (using library API for setup):
 
 ```python
 def test_id3v1_genre_reading(self):
@@ -414,18 +430,9 @@ def test_id3v1_genre_reading(self):
         # Testing reading - but we used our own writing logic!
         metadata = get_unified_metadata(test_file.path)
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
-
-def test_delete_lyrics_id3v2(self):
-    with TempFileWithMetadata({}, "mp3") as test_file:
-        # ❌ Using our own library to set initial data - poor test isolation
-        update_metadata(test_file.path, {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: "Test lyrics"})
-
-        # Testing deletion - but we used our own writing logic to set up!
-        update_metadata(test_file.path, {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: None})
-        assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS) is None
 ```
 
-#### ✅ CORRECT - Use external tools for proper test isolation:
+#### ✅ CORRECT - Use helper classes for proper test isolation:
 
 ```python
 def test_id3v1_genre_reading(self):
@@ -435,20 +442,9 @@ def test_id3v1_genre_reading(self):
         # ✅ Use helper class to set metadata - proper test isolation
         ID3v1MetadataSetter.set_metadata(test_file.path, {"genre": "Blues"})
 
-        # Now test reading with external verification
+        # Now test reading
         metadata = get_unified_metadata(test_file.path)
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Blues"]
-
-def test_delete_lyrics_id3v2(self):
-    from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
-
-    with TempFileWithMetadata({}, "mp3") as test_file:
-        # ✅ Use helper class to set initial data - proper test isolation
-        ID3v2MetadataSetter.set_metadata(test_file.path, {"lyrics": "Test lyrics"})
-
-        # Test deletion using our library
-        update_metadata(test_file.path, {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: None})
-        assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS) is None
 ```
 
 #### ✅ ALTERNATIVE - Use TempFileWithMetadata with specific format:
@@ -461,30 +457,11 @@ def test_id3v1_genre_reading(self):
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
 ```
 
-#### Available Helper Classes
+### Test Principle: Only Test the API Function Being Tested
 
-Use helper classes from `audiometa.test.helpers` for metadata setup:
+**The rule**: In any test, only use the API function that you're actually testing. Everything else should use helper classes.
 
-- **ID3v2**: `ID3v2MetadataSetter` - `set_title()`, `set_artists()`, `set_metadata()`, `set_comment()`, etc.
-- **ID3v1**: `ID3v1MetadataSetter` - `set_title()`, `set_artists()`, `set_comment()`, `set_metadata()`, etc.
-- **Vorbis**: `VorbisMetadataSetter` - `set_title()`, `set_artists()`, `set_comment()`, `set_metadata()`, etc.
-- **RIFF**: `RIFFMetadataSetter` - `set_title()`, `set_comment()`, `set_metadata()`, etc.
-
-**Note**: Helper classes use external tools internally for proper test isolation.
-
-#### When to Use Each Approach
-
-- **Reading tests**: Use helper classes (`ID3v2MetadataSetter`, etc.) for initial data setup
-- **Writing tests**: Use helper classes for initial data setup, then test `update_metadata()` functionality
-- **Deleting tests**: Use helper classes for initial data setup, then test deletion using library API (`update_metadata()` with `None` values)
-- **Integration tests**: Use helper classes consistently for metadata setup
-- **Unit tests**: Use mocks and direct object instantiation (file I/O is acceptable when testing file operations directly)
-
-#### Test Principle: Only Test the API Function Being Tested
-
-**The rule**: In any test, only use the API function that you're actually testing. Everything else should use helper methods.
-
-**✅ CORRECT - Deletion tests:**
+#### ✅ CORRECT - Deletion tests:
 
 ```python
 def test_delete_comment_riff(self):
@@ -500,7 +477,7 @@ def test_delete_comment_riff(self):
         assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMMENT) is None
 ```
 
-**✅ CORRECT - Reading tests:**
+#### ✅ CORRECT - Reading tests:
 
 ```python
 def test_read_comment_riff(self):
@@ -515,7 +492,7 @@ def test_read_comment_riff(self):
         assert comment == "Test comment"
 ```
 
-**✅ CORRECT - Writing tests:**
+#### ✅ CORRECT - Writing tests:
 
 ```python
 def test_write_comment_riff(self):
@@ -523,7 +500,7 @@ def test_write_comment_riff(self):
         # ✅ Test writing using library API - this is what we're testing
         update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: "Test comment"}, metadata_format=MetadataFormat.RIFF)
 
-        # ✅ Use helper method for verification - not testing reading functionality
+        # ✅ Use helper class for verification - not testing reading functionality
         comment = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMMENT)
         assert comment == "Test comment"
 ```
