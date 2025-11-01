@@ -1,11 +1,12 @@
 import pytest
+from pathlib import Path
 
-from audiometa import AudioFile, get_duration_in_sec
+from audiometa import AudioFile
 from audiometa.exceptions import FileByteMismatchError, FileCorruptedError, FlacMd5CheckFailedError, InvalidChunkDecodeError, DurationNotFoundError, AudioFileMetadataParseError
 
 
-@pytest.mark.integration
-class TestTechnicalInfoErrorHandling:
+@pytest.mark.unit
+class TestAudioFileTechnicalInfoErrorHandling:
 
     def test_file_byte_mismatch_error_corrupted_flac(self, tmp_path):
         corrupted_flac = tmp_path / "corrupted.flac"
@@ -18,18 +19,7 @@ class TestTechnicalInfoErrorHandling:
         except (FileByteMismatchError, FileCorruptedError):
             pass
 
-    def test_file_corrupted_error_invalid_wav(self, tmp_path):
-        invalid_wav = tmp_path / "invalid.wav"
-        invalid_wav.write_bytes(b"not a valid wav file")
-        
-        try:
-            get_duration_in_sec(invalid_wav)
-            pytest.fail("Should have raised FileCorruptedError")
-        except (FileCorruptedError, RuntimeError):
-            pass
-
     def test_flac_md5_check_failed_error_corrupted_flac(self, monkeypatch):
-        # Mock subprocess.run to return an unexpected error that triggers FlacMd5CheckFailedError
         def mock_subprocess_run(*args, **kwargs):
             class MockResult:
                 stderr = b"Some unexpected FLAC error message"
@@ -38,7 +28,6 @@ class TestTechnicalInfoErrorHandling:
         
         monkeypatch.setattr('subprocess.run', mock_subprocess_run)
         
-        # Use a valid FLAC file from test assets
         flac_file = "audiometa/test/assets/sample.flac"
         
         try:
@@ -49,13 +38,8 @@ class TestTechnicalInfoErrorHandling:
             pass
 
     def test_invalid_chunk_decode_error_corrupted_flac_chunks(self, monkeypatch):
-        # Mock the get_duration_in_sec method to simulate FLAC chunk decoding failure
-        original_get_duration = None
-        
         def mock_get_duration_in_sec(self):
-            # Simulate what happens when FLAC() raises an exception with "FLAC" in the message
             try:
-                # This will raise our mocked exception
                 raise Exception("FLAC chunk decoding failed")
             except Exception as exc:
                 error_str = str(exc)
@@ -65,12 +49,8 @@ class TestTechnicalInfoErrorHandling:
                     raise InvalidChunkDecodeError(f"Failed to decode FLAC chunks: {error_str}")
                 raise
         
-        # Store original method and patch it
-        from audiometa.audio_file import AudioFile
-        original_get_duration = AudioFile.get_duration_in_sec
         monkeypatch.setattr('audiometa.audio_file.AudioFile.get_duration_in_sec', mock_get_duration_in_sec)
         
-        # Use a valid FLAC file path
         flac_file = "audiometa/test/assets/sample.flac"
         
         try:
@@ -81,7 +61,6 @@ class TestTechnicalInfoErrorHandling:
             pass
 
     def test_duration_not_found_error_invalid_wav_duration(self, monkeypatch):
-        # Mock subprocess.run to return JSON with zero duration
         def mock_subprocess_run(*args, **kwargs):
             class MockResult:
                 returncode = 0
@@ -90,7 +69,6 @@ class TestTechnicalInfoErrorHandling:
         
         monkeypatch.setattr('subprocess.run', mock_subprocess_run)
         
-        # Use a valid WAV file path
         wav_file = "audiometa/test/assets/sample.wav"
         
         try:
@@ -101,7 +79,6 @@ class TestTechnicalInfoErrorHandling:
             pass
 
     def test_audio_file_metadata_parse_error_invalid_json(self, monkeypatch):
-        # Mock subprocess.run to return invalid JSON that will cause JSONDecodeError
         def mock_subprocess_run(*args, **kwargs):
             class MockResult:
                 returncode = 0
@@ -110,7 +87,6 @@ class TestTechnicalInfoErrorHandling:
         
         monkeypatch.setattr('subprocess.run', mock_subprocess_run)
         
-        # Use a valid WAV file path
         wav_file = "audiometa/test/assets/sample.wav"
         
         try:
@@ -118,4 +94,15 @@ class TestTechnicalInfoErrorHandling:
             audio_file.get_duration_in_sec()
             pytest.fail("Should have raised AudioFileMetadataParseError")
         except AudioFileMetadataParseError:
+            pass
+
+    def test_file_corrupted_error_invalid_wav(self, tmp_path):
+        invalid_wav = tmp_path / "invalid.wav"
+        invalid_wav.write_bytes(b"not a valid wav file")
+        
+        try:
+            audio_file = AudioFile(invalid_wav)
+            audio_file.get_duration_in_sec()
+            pytest.fail("Should have raised FileCorruptedError")
+        except (FileCorruptedError, RuntimeError):
             pass
