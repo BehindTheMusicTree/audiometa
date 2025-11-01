@@ -110,20 +110,40 @@ Unit tests should test **individual components in isolation** with fast, focused
 
 - Test individual classes and their methods
 - Fast execution (milliseconds)
-- No external dependencies (dependencies should be mocked)
+- No external tools or services (external tools should be mocked or avoided)
 - Focus on behavior, not implementation
 - Test error paths specific to the component
 - When mocking, exact values from mocks are acceptable for testing controlled scenarios
+- **File I/O operations are acceptable** when testing file operations directly (pragmatic approach)
+
+#### Pragmatic Approach to File I/O in Unit Tests
+
+For audio file libraries, file I/O operations are often **part of the functionality being tested**, not external dependencies. This codebase follows a pragmatic approach:
+
+- ✅ **Use real small files** when testing file operations directly (e.g., `read()`, `write()`, `get_duration_in_sec()`)
+- ✅ **Use real small files** when the operation inherently requires file access (e.g., metadata reading/writing)
+- ❌ **Mock or avoid** external tools (e.g., `ffmpeg`, `mid3v2`, `vorbiscomment`)
+- ❌ **Mock or avoid** network calls, databases, or other external services
 
 #### What Unit Tests Should Do
 
 ```python
-# ✅ Good - Test AudioFile class methods directly
+# ✅ Good - Test AudioFile class methods directly with real files
 def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
     audio_file = AudioFile(sample_mp3_file)
     duration = audio_file.get_duration_in_sec()
     assert isinstance(duration, float)
     assert duration > 0
+
+# ✅ Good - Test file I/O operations with real files (pragmatic approach)
+def test_file_operations(self):
+    with TempFileWithMetadata({}, "mp3") as test_file:
+        audio_file = AudioFile(test_file.path)
+        test_data = b"test audio data"
+        bytes_written = audio_file.write(test_data)
+        assert bytes_written == len(test_data)
+        read_data = audio_file.read()
+        assert read_data == test_data
 
 # ✅ Good - Test error handling for this component
 def test_get_duration_in_sec_nonexistent_file(self):
@@ -139,13 +159,20 @@ def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
     external_duration = TechnicalInfoInspector.get_duration(sample_mp3_file)
     duration = AudioFile(sample_mp3_file).get_duration_in_sec()
     assert duration == external_duration
-# Don't verify exact values - that's for integration tests
+# Don't verify exact values with external tools - that's for integration tests
 
 # ❌ Bad - Don't test through wrappers in unit tests
 def test_get_duration_in_sec(self, sample_mp3_file: Path):
     duration = get_duration_in_sec(sample_mp3_file)  # Top-level function
     assert duration > 0
 # Test AudioFile methods directly, not wrapper functions
+
+# ❌ Bad - Don't use subprocess or external tools directly
+def test_metadata_writing(self):
+    with TempFileWithMetadata({}, "mp3") as test_file:
+        import subprocess
+        subprocess.run(["mid3v2", "--song=Test Title", str(test_file.path)], check=True)
+        # Use TempFileWithMetadata methods instead
 ```
 
 ### Integration Test Logic
