@@ -397,9 +397,9 @@ def test_metadata_writing(self):
 
 ### Test Isolation and Avoiding Circular Dependencies
 
-#### All Tests Must Use External Tools for Initial Data Setup
+#### All Tests Must Use External Tools for Initial Data Setup When Not Using Assets
 
-For tests that verify **reading, writing, or deleting functionality**, NEVER use the library's own `update_metadata()` function to set up initial test data. This ensures proper test isolation and prevents testing the library's own writing logic when testing other functionality.
+For tests that verify **reading, writing, or deleting functionality** not using assets, NEVER use the library's own `update_metadata()` function to set up initial test data. This ensures proper test isolation and prevents testing the library's own writing logic when testing other functionality.
 
 #### ❌ WRONG - Poor test isolation:
 
@@ -479,59 +479,6 @@ Use helper classes from `audiometa.test.helpers` for metadata setup:
 - **Deleting tests**: Use helper classes for initial data setup, then test deletion using library API (`update_metadata()` with `None` values)
 - **Integration tests**: Use helper classes consistently for metadata setup
 - **Unit tests**: Use mocks and direct object instantiation (file I/O is acceptable when testing file operations directly)
-
-### Test Data Strategy
-
-The test suite uses a **hybrid approach** for test data management:
-
-#### Pre-created Test Files (`../assets/`)
-
-**Use pre-created files for:**
-
-- Edge cases: Corrupted files, bad extensions, unusual filenames
-- Metadata combinations: Files with specific metadata formats and values
-- Performance scenarios: Different bitrates, durations, and file sizes
-- Regression tests: Known problematic files that previously caused issues
-- Format validation: Files with multiple metadata formats in the same file
-
-**Benefits:**
-
-- ⚡ Fast: Instant access, no script execution overhead
-- 🎯 Reliable: Pre-tested and known to work correctly
-- 📊 Comprehensive: Covers complex scenarios that would be difficult to generate
-- 🔄 Stable: Consistent across test runs
-
-**Example:**
-
-```python
-def test_read_metadata_from_pre_created_file(sample_mp3_file: Path):
-    metadata = get_unified_metadata(sample_mp3_file)
-    assert metadata.get(UnifiedMetadataKey.TITLE) == ["Sample Title"]
-```
-
-#### On-the-fly Generation (TempFileWithMetadata)
-
-**Use TempFileWithMetadata for:**
-
-- Writing tests: When testing the application's metadata writing functionality
-- Dynamic scenarios: Specific metadata combinations not available in pre-created files
-- Clean state: Fresh files for each test run
-- Isolation: Prevents test setup from depending on the code being tested
-
-**Example:**
-
-```python
-def test_write_metadata_using_temp_file():
-    with TempFileWithMetadata(
-        {"title": "Original Title", "artist": "Original Artist"},
-        "mp3"
-    ) as test_file:
-        update_metadata(test_file.path, {
-            UnifiedMetadataKey.TITLE: "New Title"
-        })
-        metadata = get_unified_metadata(test_file.path)
-        assert metadata.get(UnifiedMetadataKey.TITLE) == ["New Title"]
-```
 
 #### Test Principle: Only Test the API Function Being Tested
 
