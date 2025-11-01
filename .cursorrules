@@ -298,15 +298,66 @@ def test_audio_file_class_in_e2e(temp_audio_file: Path):
 - Use descriptive class names that don't need docstrings
 - Focus on testing behavior, not implementation details
 
-### Test File Management and Data Setup
+### Test Data Strategy
 
-**All audio file data access and writing operations must use `TempFileWithMetadata` methods.** This ensures code clarity, maintainability, and proper separation of concerns.
+The test suite uses a **hybrid approach** for test data management, combining pre-created files with on-the-fly generation.
 
-#### General Guidelines
+#### Pre-created Test Files (`../assets/`)
 
-- Use `TempFileWithMetadata` for creating temporary test files instead of `shutil.copy2`
+**Use pre-created files for:**
+
+- Reading existing metadata from files with known metadata
+- Edge cases: Corrupted files, bad extensions, unusual filenames
+- Metadata combinations: Files with specific metadata formats and values
+- Performance scenarios: Different bitrates, durations, and file sizes
+- Regression tests: Known problematic files that previously caused issues
+- Format validation: Files with multiple metadata formats in the same file
+
+**Benefits:**
+
+- ⚡ Fast: Instant access, no script execution overhead
+- 🎯 Reliable: Pre-tested and known to work correctly
+- 📊 Comprehensive: Covers complex scenarios that would be difficult to generate
+- 🔄 Stable: Consistent across test runs
+
+**Example:**
+
+```python
+def test_read_metadata_from_pre_created_file(sample_mp3_file: Path):
+    metadata = get_unified_metadata(sample_mp3_file)
+    assert metadata.get(UnifiedMetadataKey.TITLE) == ["Sample Title"]
+```
+
+#### On-the-fly Generation (TempFileWithMetadata)
+
+**Use TempFileWithMetadata for:**
+
+- **Writing tests**: When testing the application's metadata writing functionality
+- **Setup for reading/deleting tests**: When you need initial metadata setup before testing reading or deletion
+- Dynamic scenarios: Specific metadata combinations not available in pre-created files
+- Clean state: Fresh files for each test run
+- Isolation: Prevents test setup from depending on the code being tested
+
+**When setting up metadata in tests, use TempFileWithMetadata methods:**
+
+- All metadata setup operations in tests must use `TempFileWithMetadata` methods (not subprocess or external tools directly)
 - Always use context managers for temporary files
 - Access file path via `test_file.path` property
+
+**Example:**
+
+```python
+def test_write_metadata_using_temp_file():
+    with TempFileWithMetadata(
+        {"title": "Original Title", "artist": "Original Artist"},
+        "mp3"
+    ) as test_file:
+        update_metadata(test_file.path, {
+            UnifiedMetadataKey.TITLE: "New Title"
+        })
+        metadata = get_unified_metadata(test_file.path)
+        assert metadata.get(UnifiedMetadataKey.TITLE) == ["New Title"]
+```
 
 #### ❌ Avoid using shutil for test files:
 
@@ -316,25 +367,12 @@ def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: 
     shutil.copy2(sample_wav_file, test_file)  # Don't do this
 ```
 
-#### ✅ CORRECT - Use TempFileWithMetadata:
-
-```python
-def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: Path):
-    with TempFileWithMetadata({"title": "Initial Title"}, "wav") as test_file:
-        # Set up metadata
-        update_metadata(test_file.path, metadata)
-
-        # Verify results
-        result = get_unified_metadata(test_file.path)
-        assert result.get(UnifiedMetadataKey.TITLE) == "Expected Title"
-```
-
-#### ❌ WRONG - Don't use subprocess or external tools directly:
+#### ❌ WRONG - Don't use subprocess or external tools directly for metadata setup:
 
 ```python
 def test_metadata_writing(self):
     with TempFileWithMetadata({}, "mp3") as test_file:
-        # ❌ NEVER use subprocess or external tools directly in tests
+        # ❌ NEVER use subprocess or external tools directly for metadata setup
         import subprocess
         subprocess.run([
             "mid3v2",
@@ -342,30 +380,21 @@ def test_metadata_writing(self):
             "--artist=Test Artist",
             str(test_file.path)
         ], check=True)
-
-        # Test reading...
 ```
 
-#### ✅ CORRECT - Use TempFileWithMetadata methods for all audio operations:
+#### ✅ CORRECT - Use TempFileWithMetadata methods for metadata setup:
 
 ```python
 def test_metadata_writing(self):
     with TempFileWithMetadata({}, "mp3") as test_file:
-        # ✅ Use TempFileWithMetadata methods for all audio file operations
+        # ✅ Use TempFileWithMetadata methods for metadata setup
         test_file.set_id3v2_title("Test Title")
         test_file.set_id3v2_artist("Test Artist")
 
         # Test reading...
 ```
 
-#### Why Use TempFileWithMetadata Methods
-
-- **Code Clarity**: All audio file operations are centralized in one place
-- **Maintainability**: Changes to audio file handling only need to be made in one location
-- **Consistency**: All tests use the same interface for audio file operations
-- **Reliability**: No dependency on external tools being available or configured correctly
-
-#### Available TempFileWithMetadata Methods for Audio Operations
+#### Available TempFileWithMetadata Methods
 
 - **ID3v2**: `set_id3v2_title()`, `set_id3v2_artist()`, `set_id3v2_album()`, `set_id3v2_lyrics()`, etc.
 - **ID3v1**: `set_id3v1_title()`, `set_id3v1_artist()`, `set_id3v1_album()`, etc.
@@ -373,19 +402,6 @@ def test_metadata_writing(self):
 - **RIFF**: `set_riff_title()`, `set_riff_artist()`, `set_riff_album()`, etc.
 - **Max metadata**: `set_id3v2_max_metadata()`, `set_id3v1_max_metadata()`, etc.
 - **Delete operations**: `delete_id3v2_lyrics()`, `delete_id3v2_title()`, etc.
-
-#### ✅ Good test file usage:
-
-```python
-def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: Path):
-    with TempFileWithMetadata({"title": "Initial Title"}, "wav") as test_file:
-        # Set up metadata
-        update_metadata(test_file.path, metadata)
-
-        # Verify results
-        result = get_unified_metadata(test_file.path)
-        assert result.get(UnifiedMetadataKey.TITLE) == "Expected Title"
-```
 
 ### Test Isolation and Avoiding Circular Dependencies
 
@@ -471,6 +487,7 @@ The test suite uses a **hybrid approach** for test data management:
 #### Pre-created Test Files (`../assets/`)
 
 **Use pre-created files for:**
+
 - Edge cases: Corrupted files, bad extensions, unusual filenames
 - Metadata combinations: Files with specific metadata formats and values
 - Performance scenarios: Different bitrates, durations, and file sizes
@@ -478,12 +495,14 @@ The test suite uses a **hybrid approach** for test data management:
 - Format validation: Files with multiple metadata formats in the same file
 
 **Benefits:**
+
 - ⚡ Fast: Instant access, no script execution overhead
 - 🎯 Reliable: Pre-tested and known to work correctly
 - 📊 Comprehensive: Covers complex scenarios that would be difficult to generate
 - 🔄 Stable: Consistent across test runs
 
 **Example:**
+
 ```python
 def test_read_metadata_from_pre_created_file(sample_mp3_file: Path):
     metadata = get_unified_metadata(sample_mp3_file)
@@ -493,12 +512,14 @@ def test_read_metadata_from_pre_created_file(sample_mp3_file: Path):
 #### On-the-fly Generation (TempFileWithMetadata)
 
 **Use TempFileWithMetadata for:**
+
 - Writing tests: When testing the application's metadata writing functionality
 - Dynamic scenarios: Specific metadata combinations not available in pre-created files
 - Clean state: Fresh files for each test run
 - Isolation: Prevents test setup from depending on the code being tested
 
 **Example:**
+
 ```python
 def test_write_metadata_using_temp_file():
     with TempFileWithMetadata(
