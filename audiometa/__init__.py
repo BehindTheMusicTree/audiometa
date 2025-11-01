@@ -13,7 +13,7 @@ import warnings
 from mutagen.id3 import ID3
 
 from .audio_file import AudioFile
-from .exceptions import FileTypeNotSupportedError, MetadataFieldNotSupportedByMetadataFormatError, MetadataWritingConflictParametersError, InvalidMetadataFieldTypeError, MetadataFieldNotSupportedByLib, MetadataFormatNotSupportedByAudioFormatError, FileCorruptedError
+from .exceptions import FileTypeNotSupportedError, MetadataFieldNotSupportedByMetadataFormatError, MetadataWritingConflictParametersError, InvalidMetadataFieldTypeError, MetadataFieldNotSupportedByLib, MetadataFormatNotSupportedByAudioFormatError, FileCorruptedError, AudioFileMetadataParseError
 from .utils.types import UnifiedMetadata, AppMetadataValue
 from .utils.MetadataFormat import MetadataFormat
 from .utils.MetadataWritingStrategy import MetadataWritingStrategy

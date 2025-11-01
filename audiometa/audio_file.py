@@ -10,7 +10,7 @@ from mutagen.flac import StreamInfo
 from mutagen.mp3 import MP3
 from mutagen.wave import WAVE
 
-from .exceptions import FileByteMismatchError, FileCorruptedError, FileTypeNotSupportedError, FlacMd5CheckFailedError, InvalidChunkDecodeError, DurationNotFoundError
+from .exceptions import FileByteMismatchError, FileCorruptedError, FileTypeNotSupportedError, FlacMd5CheckFailedError, InvalidChunkDecodeError, DurationNotFoundError, AudioFileMetadataParseError
 from .utils.MetadataFormat import MetadataFormat
 
 # Type alias for files that can be handled (must be disk-based)
@@ -109,7 +109,7 @@ class AudioFile:
                 return duration
 
             except json.JSONDecodeError:
-                raise RuntimeError("Failed to parse audio file metadata")
+                raise AudioFileMetadataParseError("Failed to parse audio file metadata from ffprobe output")
             except DurationNotFoundError:
                 # Let DurationNotFoundError pass through
                 raise
@@ -173,7 +173,7 @@ class AudioFile:
 
                 return (sample_rate * channels * bits_per_sample) // 1000
             except json.JSONDecodeError:
-                raise RuntimeError("Failed to parse audio file metadata")
+                raise AudioFileMetadataParseError("Failed to parse audio file metadata from ffprobe output")
             except Exception as exc:
                 raise RuntimeError(f"Failed to read WAV file bitrate: {str(exc)}")
         elif self.file_extension == '.flac':

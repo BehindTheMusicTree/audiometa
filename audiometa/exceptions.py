@@ -18,6 +18,18 @@ class DurationNotFoundError(FileCorruptedError):
     pass
 
 
+class AudioFileMetadataParseError(FileCorruptedError):
+    """Raised when audio file metadata cannot be parsed from external tools.
+    
+    This error indicates that the output from tools like ffprobe could not be
+    parsed as valid JSON or metadata format.
+    
+    Examples:
+        - ffprobe returns invalid JSON when probing audio files
+        - Metadata parsing fails due to unexpected output format
+    """
+
+
 class FileTypeNotSupportedError(Exception):
     pass
 
