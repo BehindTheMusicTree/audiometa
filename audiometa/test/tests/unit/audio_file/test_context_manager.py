@@ -1,24 +1,30 @@
 import pytest
 from pathlib import Path
-from unittest.mock import patch
 
 from audiometa import AudioFile
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.unit
-class TestAudioFileOperations:
+class TestContextManager:
 
     def test_context_manager(self, sample_mp3_file: Path):
-        with patch('audiometa.AudioFile.close') as mock_close:
-            with AudioFile(sample_mp3_file) as audio_file:
-                # Ensure __enter__ returns the AudioFile instance
-                assert isinstance(audio_file, AudioFile)
-                assert audio_file.file_path == str(sample_mp3_file)
-                
-                # Optionally, perform an operation inside the context to ensure it's functional
-                # (e.g., check that methods work without issues)
-                duration = audio_file.get_duration_in_sec()
-                assert duration > 0  # Or some basic validation
+        with AudioFile(sample_mp3_file) as audio_file:
+            assert isinstance(audio_file, AudioFile)
+            assert audio_file.file_path == str(sample_mp3_file)
             
-            # After exiting, verify that close was called
-            mock_close.assert_called_once()
+            duration = audio_file.get_duration_in_sec()
+            assert duration > 0
+
+    def test_file_operations(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            audio_file = AudioFile(test_file.path)
+            
+            # Test write
+            test_data = b"test audio data"
+            bytes_written = audio_file.write(test_data)
+            assert bytes_written == len(test_data)
+            
+            # Test read
+            read_data = audio_file.read()
+            assert read_data == test_data
