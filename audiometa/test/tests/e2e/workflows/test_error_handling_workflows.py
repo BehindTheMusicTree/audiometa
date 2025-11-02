@@ -15,6 +15,7 @@ from audiometa import (
     get_duration_in_sec
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.exceptions import InvalidMetadataFieldFormatError
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
@@ -126,3 +127,43 @@ class TestErrorHandlingWorkflows:
             # 5. Verify new metadata was added successfully
             new_metadata_result = get_unified_metadata(test_file)
             assert new_metadata_result.get(UnifiedMetadataKey.TITLE) == "New Title After Deletion"
+
+    def test_date_format_validation_workflow(self):
+        initial_metadata = {
+            "title": "Date Validation Test",
+            "artist": "Date Test Artist"
+        }
+        
+        with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
+            # 1. Verify initial metadata exists
+            initial_metadata_result = get_unified_metadata(test_file.path)
+            assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Date Validation Test"
+            
+            # 2. Test invalid date formats - should raise InvalidMetadataFieldFormatError
+            invalid_dates = [
+                "2024/01/01",
+                "2024-1-1",
+                "not-a-date",
+                "24",
+            ]
+            
+            for invalid_date in invalid_dates:
+                with pytest.raises(InvalidMetadataFieldFormatError) as exc_info:
+                    update_metadata(test_file.path, {
+                        UnifiedMetadataKey.RELEASE_DATE: invalid_date
+                    })
+                error = exc_info.value
+                assert error.field == UnifiedMetadataKey.RELEASE_DATE.value
+                assert error.value == invalid_date
+            
+            # 3. Verify file is still usable after validation errors (validation happens before file write)
+            metadata_after_errors = get_unified_metadata(test_file.path)
+            assert metadata_after_errors.get(UnifiedMetadataKey.TITLE) == "Date Validation Test"
+            
+            # 4. Test valid date format - should succeed  
+            # Update with valid YYYY-MM-DD format
+            update_metadata(test_file.path, {
+                UnifiedMetadataKey.RELEASE_DATE: "2024-01-01"
+            })
+            updated_metadata = get_unified_metadata(test_file.path)
+            assert updated_metadata.get(UnifiedMetadataKey.RELEASE_DATE) == "2024-01-01"

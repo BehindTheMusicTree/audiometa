@@ -121,3 +121,25 @@ class InvalidRatingValueError(Exception):
         - Values that cannot be converted to integers
         - None values when a rating is expected
     """
+
+
+class InvalidMetadataFieldFormatError(ValueError):
+    """Raised when a metadata field value has an invalid format.
+    
+    This error indicates that the value has the correct type but does not
+    match the required format pattern.
+    
+    Attributes:
+        field: str - the unified metadata field name (e.g. 'release_date')
+        expected_format: str - human-readable expected format (e.g. 'YYYY or YYYY-MM-DD')
+        value: object - the actual value passed
+    """
+    def __init__(self, field: str, expected_format: str, actual_value):
+        message = (
+            f"Invalid format for metadata field '{field}': expected {expected_format}, "
+            f"got {actual_value!r}"
+        )
+        super().__init__(message)
+        self.field = field
+        self.expected_format = expected_format
+        self.value = actual_value

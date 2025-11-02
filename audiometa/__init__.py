@@ -9,11 +9,12 @@ Note: OGG file support is planned but not yet implemented.
 For detailed metadata support information, see the README.md file.
 """
 
+import re
 import warnings
 from mutagen.id3 import ID3
 
 from .audio_file import AudioFile
-from .exceptions import FileTypeNotSupportedError, MetadataFieldNotSupportedByMetadataFormatError, MetadataWritingConflictParametersError, InvalidMetadataFieldTypeError, MetadataFieldNotSupportedByLib, MetadataFormatNotSupportedByAudioFormatError, FileCorruptedError, AudioFileMetadataParseError
+from .exceptions import FileTypeNotSupportedError, MetadataFieldNotSupportedByMetadataFormatError, MetadataWritingConflictParametersError, InvalidMetadataFieldTypeError, InvalidMetadataFieldFormatError, MetadataFieldNotSupportedByLib, MetadataFormatNotSupportedByAudioFormatError, FileCorruptedError, AudioFileMetadataParseError
 from .utils.types import UnifiedMetadata, AppMetadataValue
 from .utils.MetadataFormat import MetadataFormat
 from .utils.MetadataWritingStrategy import MetadataWritingStrategy
@@ -316,6 +317,16 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
                 if key == UnifiedMetadataKey.TRACK_NUMBER and isinstance(value, str):
                     continue
                 raise InvalidMetadataFieldTypeError(key.value, getattr(expected_type, '__name__', str(expected_type)), value)
+        
+        # Format validation for specific fields
+        if key == UnifiedMetadataKey.RELEASE_DATE and isinstance(value, str):
+            # Accept YYYY (4 digits) or YYYY-MM-DD (ISO-like format)
+            if not (re.match(r'^\d{4}$', value) or re.match(r'^\d{4}-\d{2}-\d{2}$', value)):
+                raise InvalidMetadataFieldFormatError(
+                    key.value,
+                    "YYYY (4 digits) or YYYY-MM-DD format",
+                    value
+                )
 
 
 def update_metadata(
