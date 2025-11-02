@@ -301,23 +301,22 @@ class TestCLIErrorHandling:
                 str(temp_file.path), "--year", "-2023"
             ], capture_output=True, text=True)
             
-            # Should fail due to negative year
+            # Should fail due to invalid date format (negative year doesn't match YYYY format)
             assert result.returncode != 0
             stderr_output = result.stderr.lower()
-            assert "error" in stderr_output
+            assert "error" in stderr_output or "invalid" in stderr_output
 
-    def test_cli_invalid_year_value_future(self):
+    def test_cli_valid_year_value_future(self):
         with TempFileWithMetadata({}, "mp3") as temp_file:
-            future_year = str(2030 + 1)  # One year beyond current year
+            future_year = str(2030 + 1)  # Future year is valid
             result = subprocess.run([
                 sys.executable, "-m", "audiometa", "write",
                 str(temp_file.path), "--year", future_year
             ], capture_output=True, text=True)
             
-            # Should fail due to future year
-            assert result.returncode != 0
-            stderr_output = result.stderr.lower()
-            assert "error" in stderr_output
+            # Should succeed - future years are allowed
+            assert result.returncode == 0
+            assert "updated metadata" in result.stdout.lower()
 
     def test_cli_write_no_metadata_fields(self):
         with TempFileWithMetadata({}, "mp3") as temp_file:

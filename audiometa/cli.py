@@ -117,10 +117,14 @@ def write_metadata(args) -> None:
     if args.album:
         metadata[UnifiedMetadataKey.ALBUM] = args.album
     if args.year:
-        metadata[UnifiedMetadataKey.YEAR] = args.year
+        metadata[UnifiedMetadataKey.RELEASE_DATE] = str(args.year)
     if args.genre:
         metadata[UnifiedMetadataKey.GENRE] = args.genre
     if args.rating is not None:
+        # Validate rating
+        if not (0 <= args.rating <= 100):
+            print(f"Error: Rating must be between 0 and 100, got {args.rating}", file=sys.stderr)
+            sys.exit(1)
         metadata[UnifiedMetadataKey.RATING] = args.rating
     if args.comment:
         metadata[UnifiedMetadataKey.COMMENT] = args.comment
@@ -254,7 +258,7 @@ Examples:
     write_parser.add_argument('--title', help='Song title')
     write_parser.add_argument('--artist', help='Artist name')
     write_parser.add_argument('--album', help='Album name')
-    write_parser.add_argument('--year', help='Release year')
+    write_parser.add_argument('--year', type=int, help='Release year')
     write_parser.add_argument('--genre', help='Genre')
     write_parser.add_argument('--rating', type=int, help='Rating (0-100)')
     write_parser.add_argument('--comment', help='Comment')
