@@ -896,12 +896,16 @@ metadata = {
 
 #### Validation
 
-The library validates metadata value types passed to `update_metadata` when keys are provided as `UnifiedMetadataKey` instances. Rules:
+The library validates metadata value types and formats passed to `update_metadata` when keys are provided as `UnifiedMetadataKey` instances. Rules:
 
 - `None` values are allowed and indicate field removal.
 - For fields whose expected type is `list[...]` (for example `ARTISTS` or `GENRES_NAMES`) the validator accepts only lists. Each list element is checked against the expected inner type (e.g., `str` for `ARTISTS`).
 - For plain types (`str`, `int`, etc.) the value must be an instance of that type.
 - On type mismatch the library raises `InvalidMetadataFieldTypeError`.
+- **Date Format Validation**: The `RELEASE_DATE` field accepts two formats:
+  - `YYYY` (4 digits) - for year-only dates (e.g., `"2024"`)
+  - `YYYY-MM-DD` (ISO-like format) - for full dates (e.g., `"2024-01-01"`)
+  - Invalid formats raise `InvalidMetadataFieldFormatError` (e.g., `"2024/01/01"`, `"2024-1-1"`, `"not-a-date"`)
 
 Note: the validator currently uses the `UnifiedMetadataKey` enum to determine expected types. Calls that use plain string keys (the older examples in this README) are accepted by the API but are not validated by this mechanism unless you pass `UnifiedMetadataKey` instances. You can continue using string keys, or prefer `UnifiedMetadataKey` for explicit validation and IDE-friendly code.
 
@@ -1241,6 +1245,8 @@ from audiometa.exceptions import (
     FileCorruptedError,
     FileTypeNotSupportedError,
     MetadataFieldNotSupportedByMetadataFormatError,
+    InvalidMetadataFieldTypeError,
+    InvalidMetadataFieldFormatError,
     AudioFileMetadataParseError
 )
 
@@ -1252,6 +1258,10 @@ except FileCorruptedError:
     print("File is corrupted")
 except MetadataFieldNotSupportedByMetadataFormatError:
     print("Metadata field not supported for this format")
+except InvalidMetadataFieldTypeError:
+    print("Invalid metadata field type")
+except InvalidMetadataFieldFormatError:
+    print("Invalid metadata field format (e.g., date format)")
 except AudioFileMetadataParseError:
     print("Failed to parse audio file metadata")
 ```
