@@ -76,20 +76,15 @@ class RatingSupportingMetadataManager(MetadataManager):
         """Validate rating value based on normalized_rating_max_value.
         
         Rules:
-        - When normalized_rating_max_value is None: rating must be in write profile values
+        - When normalized_rating_max_value is None: no validation (any integer value is allowed)
         - When normalized_rating_max_value is provided: value must be between 0 and normalized_rating_max_value
           and must be a tenth ratio of max (i.e., (value * 10) % normalized_rating_max_value == 0)
         
         Raises InvalidRatingValueError if validation fails.
         """
         if self.normalized_rating_max_value is None:
-            # Rating is written as-is - must correspond to a value in write profile
-            valid_values = [v for v in self.rating_write_profile.value if v is not None]
-            if rating_value not in valid_values:
-                raise InvalidRatingValueError(
-                    f"Rating value {rating_value} does not correspond to any value in the write profile. "
-                    f"Valid values are: {valid_values}"
-                )
+            # Rating is written as-is - no validation, allow any integer value
+            pass
         else:
             # Value is normalized - must be between 0 and max, and a tenth ratio of max
             if rating_value < 0 or rating_value > self.normalized_rating_max_value:
