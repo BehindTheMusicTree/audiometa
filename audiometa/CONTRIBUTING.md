@@ -12,6 +12,9 @@ This project is currently maintained by a solo developer, but contributions, sug
 - [🧪 Testing](#-testing)
   - [Run Local Tests](#run-local-tests)
   - [Run Coverage](#run-coverage)
+    - [Running Tests with Coverage](#running-tests-with-coverage)
+    - [Running Tests Without Coverage](#running-tests-without-coverage)
+    - [Viewing Coverage Reports](#viewing-coverage-reports)
   - [Lint Code for Style Consistency](#lint-code-for-style-consistency)
 - [🚀 Releasing](#-releasing)
 - [🧩 Commit Style](#-commit-style)
@@ -55,19 +58,33 @@ pytest
 
 ### Run Coverage
 
-Coverage is automatically measured when running pytest (configured in `pytest.ini`). The test suite requires a minimum of 85% coverage.
+#### Running Tests with Coverage
+
+To run tests with coverage (recommended before committing or in CI):
 
 ```bash
-pytest
+pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-under=85
 ```
 
 This will:
+
 - Measure coverage for the `audiometa` package
 - Display coverage summary in the terminal (including missing lines)
 - Generate an HTML report in `htmlcov/` directory
 - Fail if coverage is below 85%
 
+#### Running Tests Without Coverage
+
+For faster development cycles, run tests without coverage:
+
+```bash
+pytest  # Fast, no coverage overhead
+```
+
+#### Viewing Coverage Reports
+
 To view the HTML coverage report:
+
 ```bash
 open htmlcov/index.html  # macOS
 # or open htmlcov/index.html in your browser
