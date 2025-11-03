@@ -85,14 +85,12 @@ class TestRatingValidation:
             assert "not a valid tenth ratio" in str(exc_info.value)
 
     def test_validate_rating_in_unified_metadata_valid(self):
-        """Test validation of rating in unified metadata with valid values."""
         manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=100)
 
         # Valid metadata should not raise
         manager._validate_rating_in_unified_metadata({UnifiedMetadataKey.RATING: 50})
 
     def test_validate_rating_in_unified_metadata_invalid_type(self):
-        """Test validation of rating in unified metadata with invalid types."""
         manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=100)
 
         # String should raise InvalidRatingValueError
@@ -106,21 +104,18 @@ class TestRatingValidation:
         assert "Rating value must be numeric" in str(exc_info.value)
 
     def test_validate_rating_in_unified_metadata_float_converted(self):
-        """Test that float values are converted to int."""
         manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=100)
 
         # Float should be accepted (converted to int internally)
         manager._validate_rating_in_unified_metadata({UnifiedMetadataKey.RATING: 50.0})
 
     def test_validate_rating_in_unified_metadata_none_ignored(self):
-        """Test that None values are ignored in validation."""
         manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=100)
 
         # None should be ignored (no exception)
         manager._validate_rating_in_unified_metadata({UnifiedMetadataKey.RATING: None})
 
     def test_validate_rating_in_unified_metadata_missing_key(self):
-        """Test that missing rating key is ignored."""
         manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=100)
 
         # Missing key should be ignored
