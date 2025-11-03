@@ -11,8 +11,8 @@ import pytest
 class TestRealAudioFilesReading:
     """Test cases using real audio files for end-to-end validation."""
 
-    def test_recording_allumerlefeu_metadata(self, test_files_dir: Path):
-        file_path = test_files_dir / "recording=Allumerlefeu_2 matches one with more release groups.mp3"
+    def test_recording_allumerlefeu_metadata(self, assets_dir: Path):
+        file_path = assets_dir / "recording=Allumerlefeu_2 matches one with more release groups.mp3"
 
         metadata = get_unified_metadata(file_path)
         assert isinstance(metadata, dict)
@@ -27,8 +27,8 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.PUBLISHER] == ''
         assert metadata[UnifiedMetadataKey.COPYRIGHT] == '© 2018 Mercury Music Group'
 
-    def test_recording_celinekin_park_metadata(self, test_files_dir: Path):
-        file_path = test_files_dir / "recording=Celinekin Park - no musicbrainz recording duration.mp3"
+    def test_recording_celinekin_park_metadata(self, assets_dir: Path):
+        file_path = assets_dir / "recording=Celinekin Park - no musicbrainz recording duration.mp3"
 
         metadata = get_unified_metadata(file_path)
         assert isinstance(metadata, dict)
@@ -42,8 +42,8 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.PUBLISHER] == '[no label]'
         assert metadata[UnifiedMetadataKey.COMMENT] == 'BootieMashup.com'
 
-    def test_recording_dans_la_legende_metadata(self, test_files_dir: Path):
-        file_path = test_files_dir / "recording=Dans la legende.flac"
+    def test_recording_dans_la_legende_metadata(self, assets_dir: Path):
+        file_path = assets_dir / "recording=Dans la legende.flac"
 
         metadata = get_unified_metadata(file_path)
         assert isinstance(metadata, dict)
@@ -57,16 +57,16 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.RELEASE_DATE] == '2016'
         assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == 1
 
-    def test_recording_kemar_france_metadata(self, test_files_dir: Path):
-        file_path = test_files_dir / "recording=Kemar - France.mp3"
+    def test_recording_kemar_france_metadata(self, assets_dir: Path):
+        file_path = assets_dir / "recording=Kemar - France.mp3"
 
         metadata = get_unified_metadata(file_path)
         assert isinstance(metadata, dict)
         assert metadata[UnifiedMetadataKey.TITLE] == 'Kemar - France'
         assert metadata[UnifiedMetadataKey.BPM] == 140
 
-    def test_recording_tokyo_drift_metadata(self, test_files_dir: Path):
-        file_path = test_files_dir / "recording=Tokyo Drift_no mb recording.mp3"
+    def test_recording_tokyo_drift_metadata(self, assets_dir: Path):
+        file_path = assets_dir / "recording=Tokyo Drift_no mb recording.mp3"
 
         metadata = get_unified_metadata(file_path)
         assert isinstance(metadata, dict)
@@ -74,22 +74,22 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.RELEASE_DATE] == '2021'
         assert metadata[UnifiedMetadataKey.BPM] == 128
 
-    def test_recording_y_do_i_carmina_burana_mp3_metadata(self, test_files_dir: Path):
-        file_path = test_files_dir / "recording=Y do i - Carmina Burana Remix - 7m52.mp3"
+    def test_recording_y_do_i_carmina_burana_mp3_metadata(self, assets_dir: Path):
+        file_path = assets_dir / "recording=Y do i - Carmina Burana Remix - 7m52.mp3"
 
         metadata = get_unified_metadata(file_path)
         assert isinstance(metadata, dict)
         assert len(metadata) == 0  # No metadata
 
-    def test_recording_y_do_i_carmina_burana_wav_metadata(self, test_files_dir: Path):
-        file_path = test_files_dir / "recording=Y do i - Carmina Burana Remix - 7m52.wav"
+    def test_recording_y_do_i_carmina_burana_wav_metadata(self, assets_dir: Path):
+        file_path = assets_dir / "recording=Y do i - Carmina Burana Remix - 7m52.wav"
 
         metadata = get_unified_metadata(file_path)
         assert isinstance(metadata, dict)
         assert metadata[UnifiedMetadataKey.TITLE] == 'Y do i - Carmina Burana Remix (Techno of the Opera)'
 
-    def test_recording_california_gurls_metadata(self, test_files_dir: Path):
-        file_path = test_files_dir / "recording=california gurls_id3v2 tags.flac"
+    def test_recording_california_gurls_metadata(self, assets_dir: Path):
+        file_path = assets_dir / "recording=california gurls_id3v2 tags.flac"
 
         metadata = get_unified_metadata(file_path)
         assert isinstance(metadata, dict)
@@ -103,8 +103,8 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.BPM] == 125
         assert metadata[UnifiedMetadataKey.COPYRIGHT] == '© EMI Records Ltd. © Virgin Records Ltd. © Universal Music Operations Ltd.'
 
-    def test_recording_juan_hansen_drown_flac_metadata(self, test_files_dir: Path):
-        file_path = test_files_dir / "recording=juan hansen oostil - drown (massano remix) - 7m20.flac"
+    def test_recording_juan_hansen_drown_flac_metadata(self, assets_dir: Path):
+        file_path = assets_dir / "recording=juan hansen oostil - drown (massano remix) - 7m20.flac"
 
         metadata = get_unified_metadata(file_path)
         assert isinstance(metadata, dict)
@@ -117,8 +117,8 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == 2
         assert metadata[UnifiedMetadataKey.BPM] == 122
 
-    def test_recording_juan_hansen_drown_mp3_metadata(self, test_files_dir: Path):
-        file_path = test_files_dir / "recording=juan hansen oostil - drown (massano remix) - 7m21.mp3"
+    def test_recording_juan_hansen_drown_mp3_metadata(self, assets_dir: Path):
+        file_path = assets_dir / "recording=juan hansen oostil - drown (massano remix) - 7m21.mp3"
 
         metadata = get_unified_metadata(file_path)
         assert isinstance(metadata, dict)

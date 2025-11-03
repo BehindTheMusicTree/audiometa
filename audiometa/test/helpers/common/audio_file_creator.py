@@ -9,20 +9,20 @@ class AudioFileCreator:
     """Utilities for creating minimal audio files for testing."""
     
     @staticmethod
-    def create_minimal_audio_file(file_path: Path, format_type: str, test_files_dir: Path) -> None:
+    def create_minimal_audio_file(file_path: Path, format_type: str, assets_dir: Path) -> None:
         """Create a minimal audio file for testing.
         
         Args:
             file_path: Path where to create the file
             format_type: Audio format ('mp3', 'flac', 'wav')
-            test_files_dir: Directory containing template files
+            assets_dir: Directory containing template files
         """
         if format_type.lower() in ['mp3', 'id3v1', 'id3v2.3', 'id3v2.4']:
-            template_file = test_files_dir / "metadata=none.mp3"
+            template_file = assets_dir / "metadata=none.mp3"
         elif format_type.lower() == 'flac':
-            template_file = test_files_dir / "metadata=none.flac"
+            template_file = assets_dir / "metadata=none.flac"
         elif format_type.lower() == 'wav':
-            template_file = test_files_dir / "metadata=none.wav"
+            template_file = assets_dir / "metadata=none.wav"
         else:
             raise ValueError(f"Unsupported format type: {format_type}")
         
@@ -44,7 +44,7 @@ class AudioFileCreator:
                     search_format = 'mp3'
                 else:
                     search_format = format_type.lower()
-                sample_files = list(test_files_dir.glob(f"*.{search_format}"))
+                sample_files = list(assets_dir.glob(f"*.{search_format}"))
                 if sample_files:
                     shutil.copy2(sample_files[0], file_path)
                 else:

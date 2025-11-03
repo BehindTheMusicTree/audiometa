@@ -101,8 +101,8 @@ class TempFileWithMetadata:
         with tempfile.NamedTemporaryFile(suffix=f'.{actual_extension}', delete=False) as tmp_file:
             target_file = Path(tmp_file.name)
         
-        test_files_dir = Path(__file__).parent.parent.parent / "test" / "assets"
-        AudioFileCreator.create_minimal_audio_file(target_file, format_type, test_files_dir)
+        assets_dir = Path(__file__).parent.parent.parent / "test" / "assets"
+        AudioFileCreator.create_minimal_audio_file(target_file, format_type, assets_dir)
         
         if format_type.lower() == 'mp3':
             ID3v2MetadataSetter.set_metadata(target_file, metadata)

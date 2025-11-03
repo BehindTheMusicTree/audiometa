@@ -199,9 +199,9 @@ class ManualID3v2FrameCreator:
             f.write(audio_data)
 
 
-def test_manual_multiple_frames():
+def manual_multiple_frames_test():
     """Test the manual frame creation for both ID3v2.3 and ID3v2.4."""
-    def test_version(version: str):
+    def run_test_for_version(version: str):
         """Test a specific ID3v2 version."""
         print(f"\n{'='*50}")
         print(f"TESTING ID3v{version}")
@@ -286,8 +286,8 @@ def test_manual_multiple_frames():
                 tmp_path.unlink()
     
     # Test both versions
-    test_version("2.3")
-    test_version("2.4")
+    run_test_for_version("2.3")
+    run_test_for_version("2.4")
 
 
 def create_test_file_with_version(output_path: Path, version: str = "2.4", 
@@ -313,4 +313,4 @@ def create_test_file_with_version(output_path: Path, version: str = "2.4",
 
 
 if __name__ == "__main__":
-    test_manual_multiple_frames()
+    manual_multiple_frames_test()

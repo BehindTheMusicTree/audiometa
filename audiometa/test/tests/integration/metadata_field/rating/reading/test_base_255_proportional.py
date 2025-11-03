@@ -15,16 +15,16 @@ class TestBase255Proportional:
         (4, 80),
         (5, 100),
     ])
-    def test_vorbis_flac_traktor(self, test_files_dir: Path, star_rating, expected_normalized_rating):
-        file_path = test_files_dir / f"rating_vorbis_traktor={star_rating} star.flac"
+    def test_vorbis_flac_traktor(self, assets_dir: Path, star_rating, expected_normalized_rating):
+        file_path = assets_dir / f"rating_vorbis_traktor={star_rating} star.flac"
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
         assert rating == expected_normalized_rating
 
-    def test_none_rating_vorbis_flac_traktor(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_vorbis_traktor=none.flac"
+    def test_none_rating_vorbis_flac_traktor(self, assets_dir: Path):
+        file_path = assets_dir / "rating_vorbis_traktor=none.flac"
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is None
@@ -36,16 +36,16 @@ class TestBase255Proportional:
         (4, 80),
         (5, 100),
     ])
-    def test_id3v2_mp3_traktor(self, test_files_dir: Path, star_rating, expected_normalized_rating):
-        file_path = test_files_dir / f"rating_id3v2_tracktor={star_rating} star.mp3"
+    def test_id3v2_mp3_traktor(self, assets_dir: Path, star_rating, expected_normalized_rating):
+        file_path = assets_dir / f"rating_id3v2_tracktor={star_rating} star.mp3"
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
         assert rating == expected_normalized_rating
 
-    def test_none_rating_id3v2_mp3_traktor(self, test_files_dir: Path):
-        file_path = test_files_dir / "rating_id3v2_tracktor=none.mp3"
+    def test_none_rating_id3v2_mp3_traktor(self, assets_dir: Path):
+        file_path = assets_dir / "rating_id3v2_tracktor=none.mp3"
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         # Traktor "none" may actually be 0, not None

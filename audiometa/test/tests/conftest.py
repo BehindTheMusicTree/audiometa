@@ -38,7 +38,7 @@ def pytest_collection_modifyitems(items):
 
 
 @pytest.fixture
-def test_files_dir() -> Path:
+def assets_dir() -> Path:
     return Path(__file__).parent.parent.parent / "test" / "assets"
 
 
@@ -65,234 +65,234 @@ def temp_wav_file() -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def sample_mp3_file(test_files_dir: Path) -> Path:
-    return test_files_dir / "sample.mp3"
+def sample_mp3_file(assets_dir: Path) -> Path:
+    return assets_dir / "sample.mp3"
 
 
 @pytest.fixture
-def sample_flac_file(test_files_dir: Path) -> Path:
-    return test_files_dir / "sample.flac"
+def sample_flac_file(assets_dir: Path) -> Path:
+    return assets_dir / "sample.flac"
 
 
 @pytest.fixture
-def sample_wav_file(test_files_dir: Path) -> Path:
-    return test_files_dir / "sample.wav"
+def sample_wav_file(assets_dir: Path) -> Path:
+    return assets_dir / "sample.wav"
 
 @pytest.fixture
-def sample_m4a_file(test_files_dir: Path) -> Path:
-    return test_files_dir / "sample.m4a"
-
-
-@pytest.fixture
-def metadata_id3v1_small_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v1_small.mp3"
+def sample_m4a_file(assets_dir: Path) -> Path:
+    return assets_dir / "sample.m4a"
 
 
 @pytest.fixture
-def metadata_id3v1_big_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v1_big.mp3"
+def metadata_id3v1_small_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v1_small.mp3"
 
 
 @pytest.fixture
-def metadata_id3v1_small_flac(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v1_small.flac"
+def metadata_id3v1_big_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v1_big.mp3"
 
 
 @pytest.fixture
-def metadata_id3v1_big_flac(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v1_big.flac"
+def metadata_id3v1_small_flac(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v1_small.flac"
 
 
 @pytest.fixture
-def metadata_id3v1_small_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v1_small.wav"
+def metadata_id3v1_big_flac(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v1_big.flac"
 
 
 @pytest.fixture
-def metadata_id3v1_big_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v1_big.wav"
+def metadata_id3v1_small_wav(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v1_small.wav"
 
 
 @pytest.fixture
-def metadata_id3v2_small_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v2_small.mp3"
+def metadata_id3v1_big_wav(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v1_big.wav"
 
 
 @pytest.fixture
-def metadata_id3v2_big_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v2_big.mp3"
+def metadata_id3v2_small_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v2_small.mp3"
 
 
 @pytest.fixture
-def metadata_id3v2_small_flac(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v2_small.flac"
+def metadata_id3v2_big_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v2_big.mp3"
 
 
 @pytest.fixture
-def metadata_id3v2_big_flac(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v2_big.flac"
+def metadata_id3v2_small_flac(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v2_small.flac"
 
 
 @pytest.fixture
-def metadata_id3v2_small_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v2_small.wav"
+def metadata_id3v2_big_flac(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v2_big.flac"
 
 
 @pytest.fixture
-def metadata_id3v2_big_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v2_big.wav"
+def metadata_id3v2_small_wav(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v2_small.wav"
 
 
 @pytest.fixture
-def metadata_id3v2_and_riff_small_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_id3v2_and_riff_small.wav"
+def metadata_id3v2_big_wav(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v2_big.wav"
 
 
 @pytest.fixture
-def metadata_riff_small_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_riff_small.wav"
+def metadata_id3v2_and_riff_small_wav(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_id3v2_and_riff_small.wav"
 
 
 @pytest.fixture
-def metadata_riff_big_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_riff_big.wav"
+def metadata_riff_small_wav(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_riff_small.wav"
 
 
 @pytest.fixture
-def metadata_vorbis_small_flac(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_vorbis_small.flac"
+def metadata_riff_big_wav(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_riff_big.wav"
 
 
 @pytest.fixture
-def metadata_vorbis_big_flac(test_files_dir: Path) -> Path:
-    return test_files_dir / "metadata=long a_vorbis_big.flac"
+def metadata_vorbis_small_flac(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_vorbis_small.flac"
 
 
 @pytest.fixture
-def rating_id3v2_base_100_0_star_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "rating_id3v2_base 100=0 star.wav"
+def metadata_vorbis_big_flac(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=long a_vorbis_big.flac"
 
 
 @pytest.fixture
-def rating_id3v2_base_100_5_star_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "rating_id3v2_base 100=5 star.wav"
+def rating_id3v2_base_100_0_star_wav(assets_dir: Path) -> Path:
+    return assets_dir / "rating_id3v2_base 100=0 star.wav"
 
 
 @pytest.fixture
-def rating_id3v2_base_255_5_star_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "rating_id3v2_base 255_kid3=5 star.mp3"
+def rating_id3v2_base_100_5_star_wav(assets_dir: Path) -> Path:
+    return assets_dir / "rating_id3v2_base 100=5 star.wav"
 
 
 @pytest.fixture
-def rating_riff_base_100_5_star_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "rating_riff_base 100_kid3=5 star.wav"
+def rating_id3v2_base_255_5_star_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "rating_id3v2_base 255_kid3=5 star.mp3"
 
 
 @pytest.fixture
-def rating_vorbis_base_100_5_star_flac(test_files_dir: Path) -> Path:
-    return test_files_dir / "rating_vorbis=5 star.flac"
+def rating_riff_base_100_5_star_wav(assets_dir: Path) -> Path:
+    return assets_dir / "rating_riff_base 100_kid3=5 star.wav"
 
 
 @pytest.fixture
-def artists_one_two_three_comma_id3v2(test_files_dir: Path) -> Path:
-    return test_files_dir / "artists=One Two Three_comma_id3v2.mp3"
+def rating_vorbis_base_100_5_star_flac(assets_dir: Path) -> Path:
+    return assets_dir / "rating_vorbis=5 star.flac"
 
 
 @pytest.fixture
-def artists_one_two_three_semicolon_id3v2(test_files_dir: Path) -> Path:
-    return test_files_dir / "artists=One Two Three_semicolon_id3v2.mp3"
+def artists_one_two_three_comma_id3v2(assets_dir: Path) -> Path:
+    return assets_dir / "artists=One Two Three_comma_id3v2.mp3"
 
 
 @pytest.fixture
-def artists_one_two_three_multi_tags_vorbis(test_files_dir: Path) -> Path:
-    return test_files_dir / "artists=One Two Three_muti tags_vorbis.flac"
+def artists_one_two_three_semicolon_id3v2(assets_dir: Path) -> Path:
+    return assets_dir / "artists=One Two Three_semicolon_id3v2.mp3"
 
 
 @pytest.fixture
-def album_koko_id3v2_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "album=koko_id3v2.mp3"
+def artists_one_two_three_multi_tags_vorbis(assets_dir: Path) -> Path:
+    return assets_dir / "artists=One Two Three_muti tags_vorbis.flac"
 
 
 @pytest.fixture
-def album_koko_id3v2_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "album=koko_id3v2.wav"
+def album_koko_id3v2_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "album=koko_id3v2.mp3"
 
 
 @pytest.fixture
-def album_koko_vorbis_flac(test_files_dir: Path) -> Path:
-    return test_files_dir / "album=koko_vorbis.flac"
+def album_koko_id3v2_wav(assets_dir: Path) -> Path:
+    return assets_dir / "album=koko_id3v2.wav"
 
 
 @pytest.fixture
-def genre_code_id3v1_abstract_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "genre_code_id3v1=Abstract.mp3"
+def album_koko_vorbis_flac(assets_dir: Path) -> Path:
+    return assets_dir / "album=koko_vorbis.flac"
 
 
 @pytest.fixture
-def genre_code_id3v1_unknown_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "genre_code_id3v1=Unknown.mp3"
+def genre_code_id3v1_abstract_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "genre_code_id3v1=Abstract.mp3"
 
 
 @pytest.fixture
-def duration_1s_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "duration=1s.wav"
+def genre_code_id3v1_unknown_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "genre_code_id3v1=Unknown.mp3"
 
 
 @pytest.fixture
-def duration_182s_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "duration=182.mp3"
+def duration_1s_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "duration=1s.wav"
 
 
 @pytest.fixture
-def duration_335s_flac(test_files_dir: Path) -> Path:
-    return test_files_dir / "duration=335s.flac"
+def duration_182s_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "duration=182.mp3"
 
 
 @pytest.fixture
-def duration_472s_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "duration=472s.wav"
+def duration_335s_flac(assets_dir: Path) -> Path:
+    return assets_dir / "duration=335s.flac"
 
 
 @pytest.fixture
-def bitrate_320_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "bitrate in kbps_big=320.mp3"
+def duration_472s_wav(assets_dir: Path) -> Path:
+    return assets_dir / "duration=472s.wav"
 
 
 @pytest.fixture
-def bitrate_946_flac(test_files_dir: Path) -> Path:
-    return test_files_dir / "bitrate in kbps_big=946.flac"
+def bitrate_320_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "bitrate in kbps_big=320.mp3"
 
 
 @pytest.fixture
-def bitrate_1411_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "bitrate in kbps_big=1411.wav"
+def bitrate_946_flac(assets_dir: Path) -> Path:
+    return assets_dir / "bitrate in kbps_big=946.flac"
 
 
 @pytest.fixture
-def size_small_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "size_small=0.01mo.mp3"
+def bitrate_1411_wav(assets_dir: Path) -> Path:
+    return assets_dir / "bitrate in kbps_big=1411.wav"
 
 
 @pytest.fixture
-def size_big_mp3(test_files_dir: Path) -> Path:
-    return test_files_dir / "size_big=9.98mo.mp3"
+def size_small_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "size_small=0.01mo.mp3"
 
 
 @pytest.fixture
-def size_small_flac(test_files_dir: Path) -> Path:
-    return test_files_dir / "size_small=0.05mo.flac"
+def size_big_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "size_big=9.98mo.mp3"
 
 
 @pytest.fixture
-def size_big_flac(test_files_dir: Path) -> Path:
-    return test_files_dir / "size_big=26.6mo.flac"
+def size_small_flac(assets_dir: Path) -> Path:
+    return assets_dir / "size_small=0.05mo.flac"
 
 
 @pytest.fixture
-def size_small_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "size_small=0.08mo.wav"
+def size_big_flac(assets_dir: Path) -> Path:
+    return assets_dir / "size_big=26.6mo.flac"
 
 
 @pytest.fixture
-def size_big_wav(test_files_dir: Path) -> Path:
-    return test_files_dir / "size_big=79.55mo.wav"
+def size_small_wav(assets_dir: Path) -> Path:
+    return assets_dir / "size_small=0.08mo.wav"
+
+
+@pytest.fixture
+def size_big_wav(assets_dir: Path) -> Path:
+    return assets_dir / "size_big=79.55mo.wav"

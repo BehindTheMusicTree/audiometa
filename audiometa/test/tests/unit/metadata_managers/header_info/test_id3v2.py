@@ -8,8 +8,8 @@ from audiometa.manager.rating_supporting.Id3v2Manager import Id3v2Manager
 class TestId3v2HeaderMethods:
 
     @patch('audiometa.manager.rating_supporting.Id3v2Manager.ID3')
-    def test_id3v2_manager_header_info(self, mock_id3_class, mock_audio_file_mp3, mock_id3_with_header_info):
-        mock_id3_class.return_value = mock_id3_with_header_info
+    def test_id3v2_manager_header_info(self, mock_id3_class, mock_audio_file_mp3, mock_id3_with_metadata):
+        mock_id3_class.return_value = mock_id3_with_metadata
         
         manager = Id3v2Manager(mock_audio_file_mp3)
         header_info = manager.get_header_info()
