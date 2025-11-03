@@ -253,22 +253,32 @@ class TestCLIErrorHandling:
                 str(temp_file.path), "--rating", "-5"
             ], capture_output=True, text=True)
             
-            # Should fail due to negative rating
+            # Should fail due to negative rating - CLI validates explicitly
             assert result.returncode != 0
             stderr_output = result.stderr.lower()
             assert "error" in stderr_output
+            assert "rating" in stderr_output
 
-    def test_cli_invalid_rating_value_too_high(self):
+    def test_cli_rating_value_allowed_without_normalization(self):
         with TempFileWithMetadata({}, "mp3") as temp_file:
+            # Any integer rating value should be allowed when normalized_rating_max_value is not provided
             result = subprocess.run([
                 sys.executable, "-m", "audiometa", "write",
                 str(temp_file.path), "--rating", "150"
             ], capture_output=True, text=True)
             
-            # Should fail due to rating > 100
-            assert result.returncode != 0
-            stderr_output = result.stderr.lower()
-            assert "error" in stderr_output
+            # Should succeed - no write profile validation when normalized_rating_max_value is None
+            assert result.returncode == 0
+
+    def test_cli_rating_value_non_multiple_of_10_allowed(self):
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "write",
+                str(temp_file.path), "--rating", "37"
+            ], capture_output=True, text=True)
+            
+            # Should succeed - no write profile validation when normalized_rating_max_value is None
+            assert result.returncode == 0
 
     def test_cli_invalid_rating_value_non_numeric(self):
         with TempFileWithMetadata({}, "mp3") as temp_file:
@@ -281,6 +291,17 @@ class TestCLIErrorHandling:
             assert result.returncode != 0
             stderr_output = result.stderr.lower()
             assert "invalid" in stderr_output.lower() or "error" in stderr_output
+
+    def test_cli_valid_rating_multiple_of_10(self):
+        with TempFileWithMetadata({}, "mp3") as temp_file:
+            result = subprocess.run([
+                sys.executable, "-m", "audiometa", "write",
+                str(temp_file.path), "--rating", "128"
+            ], capture_output=True, text=True)
+            
+            # Should succeed - any integer rating value is allowed
+            assert result.returncode == 0
+            assert "updated metadata" in result.stdout.lower()
 
     def test_cli_invalid_year_value_non_numeric(self):
         with TempFileWithMetadata({}, "mp3") as temp_file:
@@ -366,7 +387,6 @@ class TestCLIErrorHandling:
             assert "unrecognized arguments" in stderr_output
 
     def test_cli_write_empty_title_artist_album(self):
-        """Test CLI write with empty string values for metadata (should fail - no valid metadata)."""
         with TempFileWithMetadata({}, "mp3") as temp_file:
             result = subprocess.run([
                 sys.executable, "-m", "audiometa", "write",
