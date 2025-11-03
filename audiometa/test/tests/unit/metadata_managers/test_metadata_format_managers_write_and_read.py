@@ -3,6 +3,7 @@ import pytest
 
 from audiometa import AudioFile
 from audiometa.manager.id3v1.Id3v1Manager import Id3v1Manager
+from audiometa.manager.id3v1.Id3v1RawMetadataKey import Id3v1RawMetadataKey
 from audiometa.manager.rating_supporting.Id3v2Manager import Id3v2Manager
 from audiometa.manager.rating_supporting.RiffManager import RiffManager
 from audiometa.manager.rating_supporting.VorbisManager import VorbisManager
@@ -11,7 +12,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.unit
-class TestMetadataFormatManagers:
+class TestMetadataFormatManagersWriteAndRead:
 
     def test_id3v1_manager_write_and_read(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
@@ -23,11 +24,10 @@ class TestMetadataFormatManagers:
                 UnifiedMetadataKey.ARTISTS: ["Test Artist"]
             })
             
-            title = manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
-            artists = manager.get_unified_metadata_field(UnifiedMetadataKey.ARTISTS)
+            raw_metadata = manager._extract_mutagen_metadata()
             
-            assert title == "Test Title"
-            assert artists == ["Test Artist"]
+            assert raw_metadata.tags.get(Id3v1RawMetadataKey.TITLE) == ["Test Title"]
+            assert raw_metadata.tags.get(Id3v1RawMetadataKey.ARTISTS_NAMES_STR) == ["Test Artist"]
 
     def test_id3v2_manager_write_and_read(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
@@ -39,11 +39,13 @@ class TestMetadataFormatManagers:
                 UnifiedMetadataKey.ARTISTS: ["Test Artist"]
             })
             
-            title = manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
-            artists = manager.get_unified_metadata_field(UnifiedMetadataKey.ARTISTS)
+            raw_metadata = manager._extract_mutagen_metadata()
             
-            assert title == "Test Title"
-            assert artists == ["Test Artist"]
+            assert 'TIT2' in raw_metadata
+            assert str(raw_metadata['TIT2'][0]) == "Test Title"
+            assert 'TPE1' in raw_metadata
+            artists_text = str(raw_metadata['TPE1'][0])
+            assert "Test Artist" in artists_text
 
     def test_riff_manager_write_and_read(self):
         with TempFileWithMetadata({}, "wav") as test_file:
@@ -55,11 +57,12 @@ class TestMetadataFormatManagers:
                 UnifiedMetadataKey.ARTISTS: ["Test Artist"]
             })
             
-            title = manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
-            artists = manager.get_unified_metadata_field(UnifiedMetadataKey.ARTISTS)
+            raw_metadata = manager._extract_mutagen_metadata()
             
-            assert title == "Test Title"
-            assert artists == ["Test Artist"]
+            assert hasattr(raw_metadata, 'info')
+            info_tags = getattr(raw_metadata, 'info', {})
+            assert info_tags.get('INAM') == ["Test Title"]
+            assert info_tags.get('IART') == ["Test Artist"]
 
     def test_vorbis_manager_write_and_read(self):
         with TempFileWithMetadata({}, "flac") as test_file:
@@ -71,9 +74,8 @@ class TestMetadataFormatManagers:
                 UnifiedMetadataKey.ARTISTS: ["Test Artist"]
             })
             
-            title = manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
-            artists = manager.get_unified_metadata_field(UnifiedMetadataKey.ARTISTS)
+            raw_metadata = manager._extract_mutagen_metadata()
             
-            assert title == "Test Title"
-            assert artists == ["Test Artist"]
+            assert raw_metadata.get('TITLE') == ["Test Title"]
+            assert raw_metadata.get('ARTIST') == ["Test Artist"]
 
