@@ -10,6 +10,11 @@ This directory contains the test suite for audiometa-python, organized using the
   - [Run tests by category](#run-tests-by-category)
   - [Run tests by folder](#run-tests-by-folder)
   - [Combine markers](#combine-markers)
+- [Code Coverage](#code-coverage)
+  - [Running Tests with Coverage](#running-tests-with-coverage)
+  - [Running Tests Without Coverage (Default)](#running-tests-without-coverage-default)
+  - [Viewing Coverage Reports](#viewing-coverage-reports)
+  - [Coverage in CI](#coverage-in-ci)
 - [Test Logic Principles](#test-logic-principles)
   - [Unit Test Logic](#unit-test-logic)
     - [Unit Test Principles](#unit-test-principles)
@@ -99,6 +104,50 @@ pytest -m "not e2e"
 # Run only fast tests
 pytest -m unit
 ```
+
+## Code Coverage
+
+Coverage is **not enabled by default** in pytest configuration to keep test runs fast and reduce noise during development. This is a best practice that allows:
+
+- ⚡ **Faster development cycles**: Running individual tests without coverage overhead
+- 🔇 **Less noise**: No coverage output when debugging a single test
+- 📊 **Coverage on demand**: Run coverage when you need it, not every time
+
+### Running Tests with Coverage
+
+To run tests with coverage (recommended before committing or in CI):
+
+```bash
+pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-under=85
+```
+
+This will:
+
+- Measure coverage for the `audiometa` package
+- Display coverage summary in the terminal (including missing lines)
+- Generate an HTML report in `htmlcov/` directory
+- Fail if coverage is below 85%
+
+### Running Tests Without Coverage (Default)
+
+For faster development cycles, run tests without coverage:
+
+```bash
+pytest  # Fast, no coverage overhead
+```
+
+### Viewing Coverage Reports
+
+After running with coverage, view the HTML report:
+
+```bash
+open htmlcov/index.html  # macOS
+# or open htmlcov/index.html in your browser
+```
+
+### Coverage in CI
+
+Coverage is automatically enforced in CI workflows, ensuring the 85% threshold is maintained across all pull requests and merges.
 
 ## Test Logic Principles
 
