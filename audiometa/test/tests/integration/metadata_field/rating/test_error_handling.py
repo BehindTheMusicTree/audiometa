@@ -43,17 +43,18 @@ class TestRatingErrorHandling:
             with pytest.raises(InvalidMetadataFieldTypeError, match="Invalid type for metadata field 'rating': expected int, got str"):
                 update_metadata(test_file.path, {UnifiedMetadataKey.RATING: "invalid"}, normalized_rating_max_value=100)
 
-    def test_rating_negative_value_clamping(self):
+    def test_rating_negative_value_rejected_in_normalized_mode(self):
         with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
-            update_metadata(test_file.path, {UnifiedMetadataKey.RATING: -1}, normalized_rating_max_value=100)
-            metadata = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
-            assert metadata == 0  # Should be clamped to 0
+            with pytest.raises(InvalidRatingValueError) as exc_info:
+                update_metadata(test_file.path, {UnifiedMetadataKey.RATING: -1}, normalized_rating_max_value=100)
+            assert "must be non-negative" in str(exc_info.value)
 
-    def test_rating_over_max_value_clamping(self):
+    def test_rating_over_max_value_rejected_in_normalized_mode(self):
         with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
-            update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 101}, normalized_rating_max_value=100)
-            metadata = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
-            assert metadata == 100  # Should be clamped to 100
+            with pytest.raises(InvalidRatingValueError) as exc_info:
+                update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 101}, normalized_rating_max_value=100)
+            assert "out of range" in str(exc_info.value)
+            assert "must be between 0 and 100" in str(exc_info.value)
 
     def test_rating_none_value(self):
         with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
@@ -61,11 +62,17 @@ class TestRatingErrorHandling:
             metadata = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert metadata is None
 
-    def test_rating_without_max_value_allows_any_integer(self):
+    def test_rating_without_max_value_allows_any_non_negative_integer(self):
         with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
-            # Any integer value should be allowed when normalized_rating_max_value is None
+            # Any non-negative integer value should be allowed when normalized_rating_max_value is None
             update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.ID3V2)
             update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 75}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 0}, metadata_format=MetadataFormat.ID3V2)
+            
+            # Negative values should be rejected
+            with pytest.raises(InvalidRatingValueError) as exc_info:
+                update_metadata(test_file.path, {UnifiedMetadataKey.RATING: -1}, metadata_format=MetadataFormat.ID3V2)
+            assert "must be non-negative" in str(exc_info.value)
             
             # Valid value in BASE_100_PROPORTIONAL profile (Vorbis uses this)
             with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "flac") as test_file_flac:
