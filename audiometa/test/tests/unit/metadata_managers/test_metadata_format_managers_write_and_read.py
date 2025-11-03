@@ -41,10 +41,10 @@ class TestMetadataFormatManagersWriteAndRead:
             
             raw_metadata = manager._extract_mutagen_metadata()
             
-            assert 'TIT2' in raw_metadata
-            assert str(raw_metadata['TIT2'][0]) == "Test Title"
-            assert 'TPE1' in raw_metadata
-            artists_text = str(raw_metadata['TPE1'][0])
+            assert Id3v2Manager.Id3TextFrame.TITLE in raw_metadata
+            assert str(raw_metadata[Id3v2Manager.Id3TextFrame.TITLE][0]) == "Test Title"
+            assert Id3v2Manager.Id3TextFrame.ARTISTS in raw_metadata
+            artists_text = str(raw_metadata[Id3v2Manager.Id3TextFrame.ARTISTS][0])
             assert "Test Artist" in artists_text
 
     def test_riff_manager_write_and_read(self):
@@ -61,8 +61,8 @@ class TestMetadataFormatManagersWriteAndRead:
             
             assert hasattr(raw_metadata, 'info')
             info_tags = getattr(raw_metadata, 'info', {})
-            assert info_tags.get('INAM') == ["Test Title"]
-            assert info_tags.get('IART') == ["Test Artist"]
+            assert info_tags.get(RiffManager.RiffTagKey.TITLE) == ["Test Title"]
+            assert info_tags.get(RiffManager.RiffTagKey.ARTIST) == ["Test Artist"]
 
     def test_vorbis_manager_write_and_read(self):
         with TempFileWithMetadata({}, "flac") as test_file:
@@ -75,7 +75,7 @@ class TestMetadataFormatManagersWriteAndRead:
             })
             
             raw_metadata = manager._extract_mutagen_metadata()
-            
-            assert raw_metadata.get('TITLE') == ["Test Title"]
-            assert raw_metadata.get('ARTIST') == ["Test Artist"]
+
+            assert raw_metadata.get(VorbisManager.VorbisKey.TITLE) == ["Test Title"]
+            assert raw_metadata.get(VorbisManager.VorbisKey.ARTIST) == ["Test Artist"]
 
