@@ -1,5 +1,4 @@
 
-
 import pytest
 from pathlib import Path
 import os
@@ -9,22 +8,26 @@ from audiometa.exceptions import FileTypeNotSupportedError
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestFlacMd5Functions:
 
-    def test_is_flac_md5_valid_flac(self, sample_flac_file: Path):
+    def test_is_flac_md5_valid_works_with_path_string(self, sample_flac_file: Path):
+        is_valid = is_flac_md5_valid(str(sample_flac_file))
+        assert isinstance(is_valid, bool)
+
+    def test_is_flac_md5_valid_works_with_pathlib_path(self, sample_flac_file: Path):
         is_valid = is_flac_md5_valid(sample_flac_file)
+        assert isinstance(is_valid, bool)
+
+    def test_is_flac_md5_valid_works_with_audio_file_object(self, sample_flac_file: Path):
+        from audiometa import AudioFile
+        audio_file = AudioFile(sample_flac_file)
+        is_valid = is_flac_md5_valid(audio_file)
         assert isinstance(is_valid, bool)
 
     def test_is_flac_md5_valid_non_flac(self, sample_mp3_file: Path):
         with pytest.raises(FileTypeNotSupportedError):
             is_flac_md5_valid(sample_mp3_file)
-
-    def test_is_flac_md5_valid_with_audio_file_object(self, sample_flac_file: Path):
-        from audiometa import AudioFile
-        audio_file = AudioFile(sample_flac_file)
-        is_valid = is_flac_md5_valid(audio_file)
-        assert isinstance(is_valid, bool)
 
     def test_fix_md5_checking_flac(self):
         with TempFileWithMetadata({}, "flac") as test_file:
@@ -63,3 +66,4 @@ class TestFlacMd5Functions:
             
             # Clean up
             Path(fixed_file_path).unlink()
+
