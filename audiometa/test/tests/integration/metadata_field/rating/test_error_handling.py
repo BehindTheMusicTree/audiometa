@@ -61,24 +61,16 @@ class TestRatingErrorHandling:
             metadata = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert metadata is None
 
-    def test_rating_without_max_value_validates_against_write_profile(self):
+    def test_rating_without_max_value_allows_any_integer(self):
         with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
-            # Valid value in BASE_255_NON_PROPORTIONAL profile (ID3v2 uses this)
+            # Any integer value should be allowed when normalized_rating_max_value is None
             update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.ID3V2)
-            
-            # Invalid value not in write profile - should raise error
-            with pytest.raises(InvalidRatingValueError) as exc_info:
-                update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 75}, metadata_format=MetadataFormat.ID3V2)
-            assert "does not correspond to any value in the write profile" in str(exc_info.value)
+            update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 75}, metadata_format=MetadataFormat.ID3V2)
             
             # Valid value in BASE_100_PROPORTIONAL profile (Vorbis uses this)
             with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "flac") as test_file_flac:
                 update_metadata(test_file_flac.path, {UnifiedMetadataKey.RATING: 50}, metadata_format=MetadataFormat.VORBIS)
-                
-                # Invalid value for Vorbis profile
-                with pytest.raises(InvalidRatingValueError) as exc_info:
-                    update_metadata(test_file_flac.path, {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.VORBIS)
-                assert "does not correspond to any value in the write profile" in str(exc_info.value)
+                update_metadata(test_file_flac.path, {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.VORBIS)
 
     def test_rating_with_normalized_max_validates_tenth_ratio(self):
         with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
