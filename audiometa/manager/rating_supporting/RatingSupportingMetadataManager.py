@@ -76,18 +76,27 @@ class RatingSupportingMetadataManager(MetadataManager):
         """Validate rating value based on normalized_rating_max_value.
         
         Rules:
-        - When normalized_rating_max_value is None: no validation (any integer value is allowed)
+        - When normalized_rating_max_value is None: value must be >= 0 (any non-negative integer is allowed)
         - When normalized_rating_max_value is provided: value must be between 0 and normalized_rating_max_value
           and must be a tenth ratio of max (i.e., (value * 10) % normalized_rating_max_value == 0)
         
         Raises InvalidRatingValueError if validation fails.
         """
         if self.normalized_rating_max_value is None:
-            # Rating is written as-is - no validation, allow any integer value
-            pass
+            # Rating is written as-is - must be non-negative
+            if rating_value < 0:
+                raise InvalidRatingValueError(
+                    f"Rating value {rating_value} is invalid. "
+                    f"Rating values must be non-negative (>= 0)."
+                )
         else:
-            # Value is normalized - must be between 0 and max, and a tenth ratio of max
-            if rating_value < 0 or rating_value > self.normalized_rating_max_value:
+            # Value is normalized - must be non-negative, within max, and a tenth ratio of max
+            if rating_value < 0:
+                raise InvalidRatingValueError(
+                    f"Rating value {rating_value} is invalid. "
+                    f"Rating values must be non-negative (>= 0)."
+                )
+            if rating_value > self.normalized_rating_max_value:
                 raise InvalidRatingValueError(
                     f"Rating value {rating_value} is out of range. "
                     f"Value must be between 0 and {self.normalized_rating_max_value} (inclusive)."
