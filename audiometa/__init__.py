@@ -981,35 +981,3 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
                 }
     
     return result
-
-
-def delete_potential_id3_metadata_with_header(file: FILE_TYPE) -> None:
-    """
-    Delete ID3 metadata headers from an audio file.
-    
-    This function attempts to remove ID3 metadata headers from the file.
-    It's a low-level operation that directly manipulates the file structure.
-    
-    Args:
-        file: Audio file path or AudioFile object
-        
-    Returns:
-        None
-        
-    Raises:
-        FileNotFoundError: If the file does not exist
-        
-    Examples:
-        # Remove ID3 headers from MP3 file
-        delete_potential_id3_metadata_with_header("song.mp3")
-        
-        # This is typically used for cleanup operations
-        # when you want to remove all ID3 metadata
-    """
-    if not isinstance(file, AudioFile):
-        audio_file = AudioFile(file)
-    try:
-        id_metadata = ID3(audio_file.get_file_path_or_object())
-        id_metadata.delete()
-    except Exception:
-        pass
