@@ -118,13 +118,10 @@ class TestId3v2Manager:
             manager = Id3v2Manager(audio_file)
             manager.update_metadata({UnifiedMetadataKey.ARTISTS: ["Written Artist 1", "Written Artist 2"]})
             
-            raw_metadata_2_3 = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
-            raw_metadata_2_4 = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
+            artists_2_3 = ID3v2MetadataGetter.get_artists(test_file.path, version='2.3')
+            artists_2_4 = ID3v2MetadataGetter.get_artists(test_file.path, version='2.4')
             
-            assert isinstance(raw_metadata_2_3, dict) or isinstance(raw_metadata_2_4, dict)
-            
-            raw_metadata = raw_metadata_2_3 if isinstance(raw_metadata_2_3, dict) else raw_metadata_2_4
-            tpe1_values = raw_metadata.get('TPE1', [])
-            assert len(tpe1_values) > 0
-            assert "Written Artist 1" in tpe1_values[0]
-            assert "Written Artist 2" in tpe1_values[0]
+            artists = artists_2_3 or artists_2_4
+            assert artists is not None
+            assert "Written Artist 1" in artists
+            assert "Written Artist 2" in artists
