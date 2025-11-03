@@ -277,20 +277,20 @@ class TestGetFullMetadata:
         # Check that headers are detected correctly
         headers = result['headers']
         
-        for format_name, header_info in headers.items():
+        for metadata_format_name, header_info in headers.items():
             assert 'present' in header_info
             assert isinstance(header_info['present'], bool)
             
             if header_info['present']:
                 # If header is present, should have additional info
-                if format_name == 'id3v2':
+                if metadata_format_name == 'id3v2':
                     assert 'version' in header_info
                     assert 'header_size_bytes' in header_info
-                elif format_name == 'id3v1':
+                elif metadata_format_name == 'id3v1':
                     assert 'position' in header_info
                     assert 'size_bytes' in header_info
-                elif format_name == 'vorbis':
+                elif metadata_format_name == 'vorbis':
                     assert 'vendor_string' in header_info
                     assert 'comment_count' in header_info
-                elif format_name == 'riff':
+                elif metadata_format_name == 'riff':
                     assert 'chunk_info' in header_info

@@ -54,9 +54,9 @@ def format_as_table(data: Dict[str, Any]) -> str:
     
     if "format_metadata" in data:
         lines.append("=== FORMAT METADATA ===")
-        for format_name, format_data in data["format_metadata"].items():
+        for metadata_format_name, format_data in data["format_metadata"].items():
             if format_data:
-                lines.append(f"\n{format_name.upper()}:")
+                lines.append(f"\n{metadata_format_name.upper()}:")
                 for key, value in format_data.items():
                     if value is not None:
                         lines.append(f"  {key:18}: {value}")

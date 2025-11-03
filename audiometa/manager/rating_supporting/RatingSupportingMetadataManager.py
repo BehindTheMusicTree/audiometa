@@ -147,14 +147,14 @@ class RatingSupportingMetadataManager(MetadataManager):
         # Check if rating is supported by this format first
         if (not self.metadata_keys_direct_map_write or 
             UnifiedMetadataKey.RATING not in self.metadata_keys_direct_map_write):
-            format_name = self.__class__.__name__.replace('Manager', '').upper()
-            if format_name == 'RIFF':
-                format_name = 'RIFF'
-            elif format_name == 'ID3V2':
-                format_name = 'ID3v2'
-            elif format_name == 'VORBIS':
-                format_name = 'Vorbis'
-            raise MetadataFieldNotSupportedByMetadataFormatError(f"{UnifiedMetadataKey.RATING} metadata not supported by {format_name} format")
+            metadata_format_name = self.__class__.__name__.replace('Manager', '').upper()
+            if metadata_format_name == 'RIFF':
+                metadata_format_name = 'RIFF'
+            elif metadata_format_name == 'ID3V2':
+                metadata_format_name = 'ID3v2'
+            elif metadata_format_name == 'VORBIS':
+                metadata_format_name = 'Vorbis'
+            raise MetadataFieldNotSupportedByMetadataFormatError(f"{UnifiedMetadataKey.RATING} metadata not supported by {metadata_format_name} format")
         
         # Validate rating value before processing
         self._validate_rating_in_unified_metadata(unified_metadata)

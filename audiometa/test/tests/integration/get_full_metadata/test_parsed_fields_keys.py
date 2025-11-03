@@ -72,13 +72,13 @@ class TestParsedFieldsKeys:
         raw_metadata = result.get('raw_metadata', {})
         
         # Check that all formats have the expected structure
-        for format_name, format_data in raw_metadata.items():
+        for metadata_format_name, format_data in raw_metadata.items():
             assert 'parsed_fields' in format_data, \
-                f"Format {format_name} should have parsed_fields"
+                f"Format {metadata_format_name} should have parsed_fields"
             assert isinstance(format_data['parsed_fields'], dict), \
-                f"Format {format_name} parsed_fields should be a dictionary"
+                f"Format {metadata_format_name} parsed_fields should be a dictionary"
             
             # Check that parsed_fields values are strings (no binary data)
             for key, value in format_data['parsed_fields'].items():
                 assert isinstance(value, str), \
-                    f"Format {format_name} parsed_fields value for {key} should be string, got {type(value)}"
+                    f"Format {metadata_format_name} parsed_fields value for {key} should be string, got {type(value)}"

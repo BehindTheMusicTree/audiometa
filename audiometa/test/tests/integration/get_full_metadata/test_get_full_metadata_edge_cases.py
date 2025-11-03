@@ -66,7 +66,7 @@ class TestGetFullMetadataEdgeCases:
         # Should detect headers even if no metadata content
         headers = result['headers']
         
-        for format_name, header_info in headers.items():
+        for metadata_format_name, header_info in headers.items():
             # Headers might be present even without metadata content
             assert 'present' in header_info
             assert isinstance(header_info['present'], bool)
@@ -91,13 +91,13 @@ class TestGetFullMetadataEdgeCases:
         headers = result['headers']
         
         # Each format should have its own section
-        for format_name in ['id3v2', 'id3v1']:
-            assert format_name in format_metadata
-            assert format_name in headers
+        for metadata_format_name in ['id3v2', 'id3v1']:
+            assert metadata_format_name in format_metadata
+            assert metadata_format_name in headers
             
             # Each should be a dictionary
-            assert isinstance(format_metadata[format_name], dict)
-            assert isinstance(headers[format_name], dict)
+            assert isinstance(format_metadata[metadata_format_name], dict)
+            assert isinstance(headers[metadata_format_name], dict)
 
     def test_get_full_metadata_with_unicode_metadata(self, sample_mp3_file: Path):
         # This test ensures unicode handling works correctly
@@ -126,7 +126,7 @@ class TestGetFullMetadataEdgeCases:
         
         # Headers should be minimal
         headers = result['headers']
-        for format_name, header_info in headers.items():
+        for metadata_format_name, header_info in headers.items():
             # Should have basic structure but minimal data
             assert 'present' in header_info
 
