@@ -601,29 +601,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         if not self.metadata_keys_direct_map_write:
             raise MetadataFieldNotSupportedByMetadataFormatError('This format does not support metadata modification')
 
-        # Handle rating conversion first (from parent class)
-        if UnifiedMetadataKey.RATING in unified_metadata:
-            # Rating handling logic from parent class
-            if self.metadata_keys_direct_map_write[UnifiedMetadataKey.RATING] is None:
-                # Rating is handled indirectly by the manager
-                pass
-            else:
-                # Rating is handled directly by the base class
-                if self.update_using_mutagen_metadata:
-                    value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore
-                    if value is not None:
-                        if self.normalized_rating_max_value is None:
-                            from ...exceptions import ConfigurationError
-                            raise ConfigurationError(
-                                "If updating the rating, the max value of the normalized rating must be set.")
-
-                        try:
-                            normalized_rating = int(float(value))
-                            file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
-                            unified_metadata[UnifiedMetadataKey.RATING] = file_rating
-                        except (TypeError, ValueError):
-                            from ...exceptions import InvalidRatingValueError
-                            raise InvalidRatingValueError(f"Invalid rating value: {value}. Expected a numeric value.")
+        self._validate_and_process_rating(unified_metadata)
 
         # Preserve ID3v1 metadata before any modifications
         id3v1_data = self._preserve_id3v1_metadata(self.audio_file.file_path)
@@ -655,6 +633,8 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         """Update ID3v2 metadata for FLAC files using external tools to avoid file corruption."""
         if not self.metadata_keys_direct_map_write:
             raise MetadataFieldNotSupportedByMetadataFormatError('This format does not support metadata modification')
+        
+        self._validate_and_process_rating(unified_metadata)
         
         # Use external tools to write ID3v2 metadata to FLAC files
         # This avoids the file corruption that occurs with mutagen's ID3 class

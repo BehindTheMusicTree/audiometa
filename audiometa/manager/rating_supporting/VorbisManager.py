@@ -248,6 +248,8 @@ class VorbisManager(RatingSupportingMetadataManager):
         if not self.metadata_keys_direct_map_write:
             raise MetadataFieldNotSupportedByMetadataFormatError('This format does not support metadata modification')
 
+        self._validate_and_process_rating(unified_metadata)
+
         # Get current metadata
         current_metadata = self._extract_mutagen_metadata()
 
@@ -421,13 +423,15 @@ class VorbisManager(RatingSupportingMetadataManager):
         if unified_metadata_key == UnifiedMetadataKey.RATING:
             if app_metadata_value is not None:
                 if self.normalized_rating_max_value is None:
-                    raise ConfigurationError("normalized_rating_max_value must be set.")
-                try:
-                    normalized_rating = int(float(app_metadata_value))
-                    file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating)
-                    raw_mutagen_metadata[self.VorbisKey.RATING] = [str(file_rating)]
-                except (TypeError, ValueError):
-                    raise InvalidRatingValueError(f"Invalid rating value: {app_metadata_value}. Expected a numeric value.")
+                    # When no normalization, write value as-is (already validated by parent class)
+                    raw_mutagen_metadata[self.VorbisKey.RATING] = [str(int(app_metadata_value))]
+                else:
+                    try:
+                        normalized_rating = int(float(app_metadata_value))
+                        file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating)
+                        raw_mutagen_metadata[self.VorbisKey.RATING] = [str(file_rating)]
+                    except (TypeError, ValueError):
+                        raise InvalidRatingValueError(f"Invalid rating value: {app_metadata_value}. Expected a numeric value.")
             else:
                 # Remove rating
                 if self.VorbisKey.RATING in raw_mutagen_metadata:

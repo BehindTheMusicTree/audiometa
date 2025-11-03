@@ -72,39 +72,109 @@ class RatingSupportingMetadataManager(MetadataManager):
         star_rating_base_10 = (int)((normalized_rating * 10)/self.normalized_rating_max_value)
         return self.rating_write_profile[star_rating_base_10]
 
-    def update_metadata(self, unified_metadata: UnifiedMetadata):
-        if UnifiedMetadataKey.RATING in list[UnifiedMetadataKey](unified_metadata.keys()):
-            # Check if rating is supported by this format first
-            if (not self.metadata_keys_direct_map_write or 
-                UnifiedMetadataKey.RATING not in self.metadata_keys_direct_map_write):
-                # Get the format name for a more specific error message
-                format_name = self.__class__.__name__.replace('Manager', '').upper()
-                if format_name == 'RIFF':
-                    format_name = 'RIFF'
-                elif format_name == 'ID3V2':
-                    format_name = 'ID3v2'
-                elif format_name == 'VORBIS':
-                    format_name = 'Vorbis'
-                raise MetadataFieldNotSupportedByMetadataFormatError(f"{UnifiedMetadataKey.RATING} metadata not supported by {format_name} format")
-            
-            # If rating is mapped to None, it means it's handled indirectly by the manager
-            # We should let the manager handle it in its own way
-            if self.metadata_keys_direct_map_write[UnifiedMetadataKey.RATING] is not None:
-                # Only process rating if it's handled directly by the base class
-                # (i.e., when using mutagen-based approach)
-                if self.update_using_mutagen_metadata:
-                    value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore
-                    if value is not None:
-                        if self.normalized_rating_max_value is None:
-                            raise ConfigurationError(
-                                "If updating the rating, the max value of the normalized rating must be set.")
+    def _validate_rating_value(self, rating_value: int) -> None:
+        """Validate rating value based on normalized_rating_max_value.
+        
+        Rules:
+        - When normalized_rating_max_value is None: rating must be in write profile values
+        - When normalized_rating_max_value is provided: value must be between 0 and normalized_rating_max_value
+          and must be a tenth ratio of max (i.e., (value * 10) % normalized_rating_max_value == 0)
+        
+        Raises InvalidRatingValueError if validation fails.
+        """
+        if self.normalized_rating_max_value is None:
+            # Rating is written as-is - must correspond to a value in write profile
+            valid_values = [v for v in self.rating_write_profile.value if v is not None]
+            if rating_value not in valid_values:
+                raise InvalidRatingValueError(
+                    f"Rating value {rating_value} does not correspond to any value in the write profile. "
+                    f"Valid values are: {valid_values}"
+                )
+        else:
+            # Value is normalized - must be between 0 and max, and a tenth ratio of max
+            if rating_value < 0 or rating_value > self.normalized_rating_max_value:
+                raise InvalidRatingValueError(
+                    f"Rating value {rating_value} is out of range. "
+                    f"Value must be between 0 and {self.normalized_rating_max_value} (inclusive)."
+                )
+            # Formula: (value * 10) must be divisible by normalized_rating_max_value
+            if (rating_value * 10) % self.normalized_rating_max_value != 0:
+                raise InvalidRatingValueError(
+                    f"Rating value {rating_value} is not a valid tenth ratio of max value {self.normalized_rating_max_value}. "
+                    f"Value must satisfy: (value * 10) % {self.normalized_rating_max_value} == 0"
+                )
 
+    def _validate_rating_in_unified_metadata(self, unified_metadata: UnifiedMetadata) -> None:
+        """Validate rating value in unified metadata if present.
+        
+        Args:
+            unified_metadata: The metadata dictionary to validate
+            
+        Raises:
+            InvalidRatingValueError: If rating value is invalid
+        """
+        if UnifiedMetadataKey.RATING in unified_metadata:
+            value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore
+            if value is not None:
+                if isinstance(value, (int, float)):
+                    rating_int = int(value)
+                    self._validate_rating_value(rating_int)
+                else:
+                    raise InvalidRatingValueError(f"Rating value must be numeric, got {type(value).__name__}")
+
+    def _validate_and_process_rating(self, unified_metadata: UnifiedMetadata) -> None:
+        """Validate and process rating in unified metadata if present.
+        
+        This method handles:
+        - Checking if rating is supported by the format
+        - Validating the rating value
+        - Converting normalized ratings to file ratings (when applicable)
+        
+        Args:
+            unified_metadata: The metadata dictionary to validate and process
+            
+        Raises:
+            MetadataFieldNotSupportedByMetadataFormatError: If rating is not supported by the format
+            InvalidRatingValueError: If rating value is invalid
+        """
+        if UnifiedMetadataKey.RATING not in unified_metadata:
+            return
+            
+        # Check if rating is supported by this format first
+        if (not self.metadata_keys_direct_map_write or 
+            UnifiedMetadataKey.RATING not in self.metadata_keys_direct_map_write):
+            format_name = self.__class__.__name__.replace('Manager', '').upper()
+            if format_name == 'RIFF':
+                format_name = 'RIFF'
+            elif format_name == 'ID3V2':
+                format_name = 'ID3v2'
+            elif format_name == 'VORBIS':
+                format_name = 'Vorbis'
+            raise MetadataFieldNotSupportedByMetadataFormatError(f"{UnifiedMetadataKey.RATING} metadata not supported by {format_name} format")
+        
+        # Validate rating value before processing
+        self._validate_rating_in_unified_metadata(unified_metadata)
+        
+        # If rating is mapped to None, it means it's handled indirectly by the manager
+        # We should let the manager handle it in its own way
+        if self.metadata_keys_direct_map_write[UnifiedMetadataKey.RATING] is not None:
+            # Only process rating if it's handled directly by the base class
+            # (i.e., when using mutagen-based approach)
+            if self.update_using_mutagen_metadata:
+                value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore
+                if value is not None:
+                    if self.normalized_rating_max_value is None:
+                        # When no normalization, write value as-is (already validated above)
+                        pass
+                    else:
                         try:
                             normalized_rating = int(float(value))
                             file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
                             unified_metadata[UnifiedMetadataKey.RATING] = file_rating
                         except (TypeError, ValueError):
                             raise InvalidRatingValueError(f"Invalid rating value: {value}. Expected a numeric value.")
-                    # If value is None, let the individual managers handle the removal
+                # If value is None, let the individual managers handle the removal
 
+    def update_metadata(self, unified_metadata: UnifiedMetadata):
+        self._validate_and_process_rating(unified_metadata)
         super().update_metadata(unified_metadata)
