@@ -121,10 +121,6 @@ def write_metadata(args) -> None:
     if args.genre:
         metadata[UnifiedMetadataKey.GENRE] = args.genre
     if args.rating is not None:
-        # Validate rating
-        if not (0 <= args.rating <= 100):
-            print(f"Error: Rating must be between 0 and 100, got {args.rating}", file=sys.stderr)
-            sys.exit(1)
         metadata[UnifiedMetadataKey.RATING] = args.rating
     if args.comment:
         metadata[UnifiedMetadataKey.COMMENT] = args.comment
@@ -135,7 +131,8 @@ def write_metadata(args) -> None:
     
     for file_path in files:
         try:
-            update_metadata(file_path, metadata)
+            update_kwargs = {}
+            update_metadata(file_path, metadata, **update_kwargs)
             print(f"Updated metadata for {file_path}")
             
         except (FileTypeNotSupportedError, FileNotFoundError) as e:
@@ -260,7 +257,7 @@ Examples:
     write_parser.add_argument('--album', help='Album name')
     write_parser.add_argument('--year', type=int, help='Release year')
     write_parser.add_argument('--genre', help='Genre')
-    write_parser.add_argument('--rating', type=int, help='Rating (0-100)')
+    write_parser.add_argument('--rating', type=int, help='Rating value (integer)')
     write_parser.add_argument('--comment', help='Comment')
     write_parser.add_argument('--recursive', '-r', action='store_true',
                             help='Process directories recursively')
