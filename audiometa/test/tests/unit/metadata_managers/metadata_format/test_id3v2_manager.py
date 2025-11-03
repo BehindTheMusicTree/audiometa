@@ -100,28 +100,27 @@ class TestId3v2Manager:
             assert artists == ["Artist 1", "Artist 2"]
 
     def test_id3v2_manager_write_title(self):
-        from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
+        from mutagen.id3 import ID3
         
         with TempFileWithMetadata({}, "mp3") as test_file:
             audio_file = AudioFile(test_file.path)
             manager = Id3v2Manager(audio_file)
             manager.update_metadata({UnifiedMetadataKey.TITLE: "Written Title"})
             
-            title = ID3v2MetadataGetter.get_title(test_file.path)
-            assert title == "Written Title"
+            audio = ID3(str(test_file.path), translate=False)
+            assert 'TIT2' in audio
+            assert str(audio['TIT2'][0]) == "Written Title"
 
     def test_id3v2_manager_write_artists(self):
-        from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
+        from mutagen.id3 import ID3
         
         with TempFileWithMetadata({}, "mp3") as test_file:
             audio_file = AudioFile(test_file.path)
             manager = Id3v2Manager(audio_file)
             manager.update_metadata({UnifiedMetadataKey.ARTISTS: ["Written Artist 1", "Written Artist 2"]})
             
-            artists_2_3 = ID3v2MetadataGetter.get_artists(test_file.path, version='2.3')
-            artists_2_4 = ID3v2MetadataGetter.get_artists(test_file.path, version='2.4')
-            
-            artists = artists_2_3 or artists_2_4
-            assert artists is not None
-            assert "Written Artist 1" in artists
-            assert "Written Artist 2" in artists
+            audio = ID3(str(test_file.path), translate=False)
+            assert 'TPE1' in audio
+            artists_text = str(audio['TPE1'][0])
+            assert "Written Artist 1" in artists_text
+            assert "Written Artist 2" in artists_text

@@ -63,15 +63,16 @@ class TestVorbisManager:
             assert artists == ["Artist 1", "Artist 2"]
 
     def test_vorbis_manager_write_title(self):
-        from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
+        from mutagen.flac import FLAC
         
         with TempFileWithMetadata({}, "flac") as test_file:
             audio_file = AudioFile(test_file.path)
             manager = VorbisManager(audio_file)
             manager.update_metadata({UnifiedMetadataKey.TITLE: "Written Title"})
             
-            title = VorbisMetadataGetter.get_title(test_file.path)
-            assert title == "Written Title"
+            audio = FLAC(str(test_file.path))
+            assert 'TITLE' in audio
+            assert audio['TITLE'][0] == "Written Title"
 
     def test_vorbis_manager_write_artists(self):
         from mutagen.flac import FLAC
