@@ -48,7 +48,7 @@ Tests that verify how multiple components work together with real dependencies. 
 
 ### End-to-End Tests (`e2e/`)
 
-Tests that verify complete user workflows from start to finish. These simulate real user scenarios and test the entire system.
+Tests that verify complete user workflows from start to finish. These simulate real user scenarios and test the entire system. Speciffically they test the CLI operations.
 
 - **Marker**: `@pytest.mark.e2e`
 - **Speed**: Slow (minutes)
