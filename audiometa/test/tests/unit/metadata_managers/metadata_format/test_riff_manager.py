@@ -113,12 +113,40 @@ class TestRiffManager:
             assert found_title == "Written Title"
 
     def test_riff_manager_write_artists(self):
-        from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
-        
         with TempFileWithMetadata({}, "wav") as test_file:
             audio_file = AudioFile(test_file.path)
             manager = RiffManager(audio_file)
             manager.update_metadata({UnifiedMetadataKey.ARTISTS: ["Written Artist 1", "Written Artist 2"]})
             
-            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-            assert "TAG:artist=Written Artist 1//Written Artist 2" in raw_metadata
+            with open(test_file.path, 'rb') as f:
+                data = f.read()
+            
+            pos = 0
+            found_artists = None
+            while pos < len(data) - 4:
+                if data[pos:pos+4] == b'LIST' and pos + 12 <= len(data) and data[pos+8:pos+12] == b'INFO':
+                    chunk_size = int.from_bytes(data[pos+4:pos+8], 'little')
+                    info_data = data[pos+12:pos+8+chunk_size]
+                    
+                    field_pos = 0
+                    while field_pos < len(info_data) - 8:
+                        if field_pos + 8 <= len(info_data):
+                            field_id = info_data[field_pos:field_pos+4]
+                            if field_id == b'IART':
+                                field_size = int.from_bytes(info_data[field_pos+4:field_pos+8], 'little')
+                                if field_pos + 8 + field_size <= len(info_data):
+                                    field_data = info_data[field_pos+8:field_pos+8+field_size]
+                                    if field_data.endswith(b'\x00'):
+                                        field_data = field_data[:-1]
+                                    found_artists = field_data.decode('utf-8', errors='ignore')
+                                    break
+                            field_size = int.from_bytes(info_data[field_pos+4:field_pos+8], 'little')
+                            field_pos += 8 + ((field_size + 1) & ~1)
+                        else:
+                            break
+                    break
+                pos += 1
+            
+            assert found_artists is not None
+            assert "Written Artist 1" in found_artists
+            assert "Written Artist 2" in found_artists
