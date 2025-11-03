@@ -60,7 +60,7 @@ class RIFFMetadataGetter:
         result_lines.append("nb_streams=1")
         result_lines.append("nb_programs=0")
         result_lines.append("nb_stream_groups=0")
-        result_lines.append("format_name=wav")
+        result_lines.append("audio_format_name=wav")
         result_lines.append("format_long_name=WAV / WAVE (Waveform Audio)")
         result_lines.append("start_time=N/A")
         result_lines.append("duration=0.545354")

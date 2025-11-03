@@ -25,7 +25,7 @@ class TestWavWithId3v2Tags:
 
             # Verify the file is properly recognized as a WAV
             assert audio_file.file_extension == '.wav'
-            assert audio_file.get_format_name() == 'WAV'
+            assert audio_file.get_audio_format_name() == 'WAV'
 
     def test_wav_with_id3v2_tags_validation_and_reading(self):
         # Create a WAV file with some initial RIFF metadata

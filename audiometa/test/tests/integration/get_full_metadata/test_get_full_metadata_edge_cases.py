@@ -260,4 +260,4 @@ class TestGetFullMetadataEdgeCases:
         # Technical info should reflect MP3 format
         tech_info = result['technical_info']
         assert tech_info['file_extension'] == '.mp3'
-        assert tech_info['format_name'] == 'MP3'
+        assert tech_info['audio_format_name'] == 'MP3'

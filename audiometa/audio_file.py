@@ -408,19 +408,19 @@ class AudioFile:
         except OSError:
             return 0
 
-    def get_format_name(self) -> str:
+    def get_audio_format_name(self) -> str:
         """
         Get the human-readable format name.
         
         Returns:
-            Format name (e.g., 'MP3', 'FLAC', 'WAV')
+            Audio format name (e.g., 'MP3', 'FLAC', 'WAV')
         """
-        format_names = {
+        audio_format_names = {
             '.mp3': 'MP3',
             '.flac': 'FLAC',
             '.wav': 'WAV'
         }
-        return format_names.get(self.file_extension, 'Unknown')
+        return audio_format_names.get(self.file_extension, 'Unknown')
 
     def _skip_id3v2_tags(self, data: bytes) -> bytes:
         """

@@ -1,4 +1,4 @@
-"""Unit tests for AudioFile get_format_name method."""
+"""Unit tests for AudioFile get_audio_format_name method."""
 
 import pytest
 from pathlib import Path
@@ -11,18 +11,18 @@ class TestAudioFileFormatName:
 
     def test_get_format_name_mp3(self, sample_mp3_file: Path):
         audio_file = AudioFile(sample_mp3_file)
-        format_name = audio_file.get_format_name()
+        audio_format_name = audio_file.get_audio_format_name()
         
-        assert format_name == 'MP3'
+        assert audio_format_name == 'MP3'
 
     def test_get_format_name_wav(self, sample_wav_file: Path):
         audio_file = AudioFile(sample_wav_file)
-        format_name = audio_file.get_format_name()
+        audio_format_name = audio_file.get_audio_format_name()
         
-        assert format_name == 'WAV'
+        assert audio_format_name == 'WAV'
 
     def test_get_format_name_flac(self, sample_flac_file: Path):
         audio_file = AudioFile(sample_flac_file)
-        format_name = audio_file.get_format_name()
+        audio_format_name = audio_file.get_audio_format_name()
         
-        assert format_name == 'FLAC'
+        assert audio_format_name == 'FLAC'

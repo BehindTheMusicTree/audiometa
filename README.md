@@ -749,7 +749,7 @@ A comprehensive dictionary containing:
         'channels': 2,
         'file_size_bytes': 7234567,
         'file_extension': '.mp3',
-        'format_name': 'MP3',
+        'audio_format_name': 'MP3',
         'is_flac_md5_valid': None,  # Only for FLAC files
     },
     'format_metadata': {

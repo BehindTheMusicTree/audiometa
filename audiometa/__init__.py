@@ -905,7 +905,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
                 'channels': file.get_channels(),
                 'file_size_bytes': get_file_size(file),
                 'file_extension': file.file_extension,
-                'format_name': file.get_format_name(),
+                'audio_format_name': file.get_audio_format_name(),
                 'is_flac_md5_valid': file.is_flac_file_md5_valid() if file.file_extension == '.flac' else None
             }
         except Exception:
@@ -916,7 +916,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
                 'channels': 0,
                 'file_size_bytes': 0,
                 'file_extension': file.file_extension,
-                'format_name': file.get_format_name(),
+                'audio_format_name': file.get_audio_format_name(),
                 'is_flac_md5_valid': None
             }
     

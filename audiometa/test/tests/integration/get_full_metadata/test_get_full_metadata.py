@@ -34,9 +34,9 @@ class TestGetFullMetadata:
         assert 'channels' in tech_info
         assert 'file_size_bytes' in tech_info
         assert 'file_extension' in tech_info
-        assert 'format_name' in tech_info
+        assert 'audio_format_name' in tech_info
         assert tech_info['file_extension'] == '.mp3'
-        assert tech_info['format_name'] == 'MP3'
+        assert tech_info['audio_format_name'] == 'MP3'
         assert tech_info['is_flac_md5_valid'] is None  # Not a FLAC file
         
         # Check format metadata
@@ -64,7 +64,7 @@ class TestGetFullMetadata:
         # Check technical info
         tech_info = result['technical_info']
         assert tech_info['file_extension'] == '.flac'
-        assert tech_info['format_name'] == 'FLAC'
+        assert tech_info['audio_format_name'] == 'FLAC'
         assert 'is_flac_md5_valid' in tech_info  # Should be present for FLAC
         
         # Check format metadata
@@ -90,7 +90,7 @@ class TestGetFullMetadata:
         # Check technical info
         tech_info = result['technical_info']
         assert tech_info['file_extension'] == '.wav'
-        assert tech_info['format_name'] == 'WAV'
+        assert tech_info['audio_format_name'] == 'WAV'
         assert tech_info['is_flac_md5_valid'] is None  # Not a FLAC file
         
         # Check format metadata
@@ -221,7 +221,7 @@ class TestGetFullMetadata:
         assert tech_info['channels'] == audio_file.get_channels()
         assert tech_info['file_size_bytes'] == audio_file.get_file_size()
         assert tech_info['file_extension'] == audio_file.file_extension
-        assert tech_info['format_name'] == audio_file.get_format_name()
+        assert tech_info['audio_format_name'] == audio_file.get_audio_format_name()
 
     def test_get_full_metadata_flac_md5_validation(self, sample_flac_file: Path):
         result = get_full_metadata(sample_flac_file)
