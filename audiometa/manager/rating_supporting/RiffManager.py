@@ -69,7 +69,7 @@ class RiffManager(RatingSupportingMetadataManager):
     class RiffTagKey(RawMetadataKey):
         # Standard
         TITLE = 'INAM'
-        ARTIST_NAME = 'IART'
+        ARTIST = 'IART'
         ALBUM = 'IPRD'
         GENRES_NAMES_OR_CODES = 'IGNR'
         DATE = 'ICRD'  # Creation/Release date
@@ -95,7 +95,7 @@ class RiffManager(RatingSupportingMetadataManager):
         
         metadata_keys_direct_map_read = {
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
-            UnifiedMetadataKey.ARTISTS: self.RiffTagKey.ARTIST_NAME,
+            UnifiedMetadataKey.ARTISTS: self.RiffTagKey.ARTIST,
             UnifiedMetadataKey.ALBUM: self.RiffTagKey.ALBUM,
             UnifiedMetadataKey.ALBUM_ARTISTS: self.RiffTagKey.ALBUM_ARTISTS,
             UnifiedMetadataKey.GENRES_NAMES: None,
@@ -111,7 +111,7 @@ class RiffManager(RatingSupportingMetadataManager):
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
-            UnifiedMetadataKey.ARTISTS: self.RiffTagKey.ARTIST_NAME,
+            UnifiedMetadataKey.ARTISTS: self.RiffTagKey.ARTIST,
             UnifiedMetadataKey.ALBUM: self.RiffTagKey.ALBUM,
             UnifiedMetadataKey.ALBUM_ARTISTS: self.RiffTagKey.ALBUM_ARTISTS,
             UnifiedMetadataKey.GENRES_NAMES: None,
