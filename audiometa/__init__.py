@@ -863,7 +863,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
         print(f"Bitrate: {full_metadata['technical_info']['bitrate_kbps']} kbps")
         
         # Access format-specific metadata
-        print(f"ID3v2 Title: {full_metadata['format_metadata']['id3v2']['title']}")
+        print(f"ID3v2 Title: {full_metadata['metadata_format']['id3v2']['title']}")
         
         # Access header information
         print(f"ID3v2 Version: {full_metadata['headers']['id3v2']['version']}")
@@ -882,7 +882,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
     result = {
         'unified_metadata': {},
         'technical_info': {},
-        'format_metadata': {},
+        'metadata_format': {},
         'headers': {},
         'raw_metadata': {},
         'format_priorities': {
@@ -928,10 +928,10 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
         if manager:
             # Get format-specific metadata
             try:
-                format_metadata = manager.get_unified_metadata()
-                result['format_metadata'][format_key] = format_metadata
+                metadata_format = manager.get_unified_metadata()
+                result['metadata_format'][format_key] = metadata_format
             except Exception:
-                result['format_metadata'][format_key] = {}
+                result['metadata_format'][format_key] = {}
             
             # Get header information
             if include_headers:
@@ -962,7 +962,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
                     }
         else:
             # Format not available for this file type
-            result['format_metadata'][format_key] = {}
+            result['metadata_format'][format_key] = {}
             if include_headers:
                 result['headers'][format_key] = {
                     'present': False,

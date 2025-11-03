@@ -15,7 +15,7 @@ class TestGetFullMetadataOptions:
         # Should include basic structure
         assert 'unified_metadata' in result
         assert 'technical_info' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'format_priorities' in result
 
         # Headers should be empty dict when excluded
@@ -35,16 +35,16 @@ class TestGetFullMetadataOptions:
         assert isinstance(result['unified_metadata'], dict)
 
         # Verify format metadata is still included
-        assert isinstance(result['format_metadata'], dict)
-        assert 'id3v2' in result['format_metadata']
-        assert 'id3v1' in result['format_metadata']
+        assert isinstance(result['metadata_format'], dict)
+        assert 'id3v2' in result['metadata_format']
+        assert 'id3v1' in result['metadata_format']
 
     def test_get_full_metadata_exclude_technical(self, sample_mp3_file: Path):
         result = get_full_metadata(sample_mp3_file, include_technical=False)
 
         # Should include basic structure
         assert 'unified_metadata' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'headers' in result
         assert 'raw_metadata' in result
         assert 'format_priorities' in result
@@ -67,14 +67,14 @@ class TestGetFullMetadataOptions:
         assert isinstance(result['unified_metadata'], dict)
 
         # Verify format metadata is still included
-        assert isinstance(result['format_metadata'], dict)
+        assert isinstance(result['metadata_format'], dict)
 
     def test_get_full_metadata_exclude_both_headers_and_technical(self, sample_mp3_file: Path):
         result = get_full_metadata(sample_mp3_file, include_headers=False, include_technical=False)
 
         # Should include basic structure
         assert 'unified_metadata' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'format_priorities' in result
 
         # Headers should be empty dict when excluded
@@ -93,7 +93,7 @@ class TestGetFullMetadataOptions:
         assert isinstance(result['unified_metadata'], dict)
 
         # Verify format metadata is still included
-        assert isinstance(result['format_metadata'], dict)
+        assert isinstance(result['metadata_format'], dict)
 
     def test_get_full_metadata_exclude_headers_flac(self, sample_flac_file: Path):
         result = get_full_metadata(sample_flac_file, include_headers=False)
@@ -101,7 +101,7 @@ class TestGetFullMetadataOptions:
         # Should include basic structure
         assert 'unified_metadata' in result
         assert 'technical_info' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'format_priorities' in result
 
         # Headers should be empty dict when excluded
@@ -117,15 +117,15 @@ class TestGetFullMetadataOptions:
         assert 'is_flac_md5_valid' in result['technical_info']
 
         # Verify format metadata is still included
-        assert isinstance(result['format_metadata'], dict)
-        assert 'vorbis' in result['format_metadata']
+        assert isinstance(result['metadata_format'], dict)
+        assert 'vorbis' in result['metadata_format']
 
     def test_get_full_metadata_exclude_technical_flac(self, sample_flac_file: Path):
         result = get_full_metadata(sample_flac_file, include_technical=False)
 
         # Should include basic structure
         assert 'unified_metadata' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'headers' in result
         assert 'raw_metadata' in result
         assert 'format_priorities' in result
@@ -148,7 +148,7 @@ class TestGetFullMetadataOptions:
         # Should include basic structure
         assert 'unified_metadata' in result
         assert 'technical_info' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'format_priorities' in result
 
         # Headers should be empty dict when excluded
@@ -164,15 +164,15 @@ class TestGetFullMetadataOptions:
         assert result['technical_info']['file_extension'] == '.wav'
 
         # Verify format metadata is still included
-        assert isinstance(result['format_metadata'], dict)
-        assert 'riff' in result['format_metadata']
+        assert isinstance(result['metadata_format'], dict)
+        assert 'riff' in result['metadata_format']
 
     def test_get_full_metadata_exclude_technical_wav(self, sample_wav_file: Path):
         result = get_full_metadata(sample_wav_file, include_technical=False)
 
         # Should include basic structure
         assert 'unified_metadata' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'headers' in result
         assert 'raw_metadata' in result
         assert 'format_priorities' in result
@@ -197,7 +197,7 @@ class TestGetFullMetadataOptions:
 
         # Should work the same as with path
         assert 'unified_metadata' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'format_priorities' in result
 
         # Excluded sections should be empty
@@ -207,4 +207,4 @@ class TestGetFullMetadataOptions:
 
         # Included sections should have data
         assert isinstance(result['unified_metadata'], dict)
-        assert isinstance(result['format_metadata'], dict)
+        assert isinstance(result['metadata_format'], dict)

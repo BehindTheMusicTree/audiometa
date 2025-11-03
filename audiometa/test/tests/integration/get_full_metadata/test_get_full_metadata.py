@@ -15,7 +15,7 @@ class TestGetFullMetadata:
         # Check structure
         assert 'unified_metadata' in result
         assert 'technical_info' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'headers' in result
         assert 'raw_metadata' in result
         assert 'format_priorities' in result
@@ -40,8 +40,8 @@ class TestGetFullMetadata:
         assert tech_info['is_flac_md5_valid'] is None  # Not a FLAC file
         
         # Check format metadata
-        assert 'id3v2' in result['format_metadata']
-        assert 'id3v1' in result['format_metadata']
+        assert 'id3v2' in result['metadata_format']
+        assert 'id3v1' in result['metadata_format']
         
         # Check headers
         assert 'id3v2' in result['headers']
@@ -68,9 +68,9 @@ class TestGetFullMetadata:
         assert 'is_flac_md5_valid' in tech_info  # Should be present for FLAC
         
         # Check format metadata
-        assert 'vorbis' in result['format_metadata']
-        assert 'id3v2' in result['format_metadata']
-        assert 'id3v1' in result['format_metadata']
+        assert 'vorbis' in result['metadata_format']
+        assert 'id3v2' in result['metadata_format']
+        assert 'id3v1' in result['metadata_format']
         
         # Check headers
         assert 'vorbis' in result['headers']
@@ -94,9 +94,9 @@ class TestGetFullMetadata:
         assert tech_info['is_flac_md5_valid'] is None  # Not a FLAC file
         
         # Check format metadata
-        assert 'riff' in result['format_metadata']
-        assert 'id3v2' in result['format_metadata']
-        assert 'id3v1' in result['format_metadata']
+        assert 'riff' in result['metadata_format']
+        assert 'id3v2' in result['metadata_format']
+        assert 'id3v1' in result['metadata_format']
         
         # Check headers
         assert 'riff' in result['headers']
@@ -109,7 +109,7 @@ class TestGetFullMetadata:
         # Should still have basic structure
         assert 'unified_metadata' in result
         assert 'technical_info' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'format_priorities' in result
         
         # Headers and raw metadata should be empty or minimal
@@ -121,7 +121,7 @@ class TestGetFullMetadata:
         
         # Should still have basic structure
         assert 'unified_metadata' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'headers' in result
         assert 'raw_metadata' in result
         assert 'format_priorities' in result
@@ -136,7 +136,7 @@ class TestGetFullMetadata:
         # Should work the same as with path
         assert 'unified_metadata' in result
         assert 'technical_info' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'headers' in result
         assert 'raw_metadata' in result
         assert 'format_priorities' in result
@@ -147,7 +147,7 @@ class TestGetFullMetadata:
         # Should still return complete structure
         assert 'unified_metadata' in result
         assert 'technical_info' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'headers' in result
         assert 'raw_metadata' in result
         assert 'format_priorities' in result
@@ -246,7 +246,7 @@ class TestGetFullMetadata:
         
         # Should still have basic structure
         assert 'unified_metadata' in result_minimal
-        assert 'format_metadata' in result_minimal
+        assert 'metadata_format' in result_minimal
         assert 'format_priorities' in result_minimal
         
         # Headers and technical info should be minimal
@@ -257,12 +257,12 @@ class TestGetFullMetadata:
         result = get_full_metadata(sample_mp3_file)
         
         # Each format should have its own metadata section
-        format_metadata = result['format_metadata']
+        metadata_format = result['metadata_format']
         
         # ID3v2 metadata should be separate from ID3v1
-        if 'id3v2' in format_metadata and 'id3v1' in format_metadata:
-            id3v2_metadata = format_metadata['id3v2']
-            id3v1_metadata = format_metadata['id3v1']
+        if 'id3v2' in metadata_format and 'id3v1' in metadata_format:
+            id3v2_metadata = metadata_format['id3v2']
+            id3v1_metadata = metadata_format['id3v1']
             
             # They should be separate dictionaries
             assert isinstance(id3v2_metadata, dict)

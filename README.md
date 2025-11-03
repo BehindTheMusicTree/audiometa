@@ -710,8 +710,8 @@ print(f"Channels: {full_metadata['technical_info']['channels']}")
 print(f"File Size: {full_metadata['technical_info']['file_size_bytes']} bytes")
 
 # Access format-specific metadata
-print(f"ID3v2 Title: {full_metadata['format_metadata']['id3v2']['title']}")
-print(f"Vorbis Title: {full_metadata['format_metadata']['vorbis']['title']}")
+print(f"ID3v2 Title: {full_metadata['metadata_format']['id3v2']['title']}")
+print(f"Vorbis Title: {full_metadata['metadata_format']['vorbis']['title']}")
 
 # Access header information
 print(f"ID3v2 Version: {full_metadata['headers']['id3v2']['version']}")
@@ -752,7 +752,7 @@ A comprehensive dictionary containing:
         'audio_format_name': 'MP3',
         'is_flac_md5_valid': None,  # Only for FLAC files
     },
-    'format_metadata': {
+    'metadata_format': {
         'id3v1': {
             # ID3v1 specific metadata (if present)
             'title': 'Song Title',
@@ -862,8 +862,8 @@ if full_info['headers']['id3v2']['present']:
     print(f"ID3v2 version: {full_info['headers']['id3v2']['version']}")
 
 # Compare metadata across formats
-id3v2_title = full_info['format_metadata']['id3v2'].get('title')
-vorbis_title = full_info['format_metadata']['vorbis'].get('title')
+id3v2_title = full_info['metadata_format']['id3v2'].get('title')
+vorbis_title = full_info['metadata_format']['vorbis'].get('title')
 if id3v2_title != vorbis_title:
     print("Title differs between ID3v2 and Vorbis")
 

@@ -25,7 +25,7 @@ class TestGetFullMetadataEdgeCases:
             # Should still return complete structure
             assert 'unified_metadata' in result
             assert 'technical_info' in result
-            assert 'format_metadata' in result
+            assert 'metadata_format' in result
             assert 'headers' in result
             assert 'raw_metadata' in result
             assert 'format_priorities' in result
@@ -46,7 +46,7 @@ class TestGetFullMetadataEdgeCases:
             # Should still return complete structure
             assert 'unified_metadata' in result
             assert 'technical_info' in result
-            assert 'format_metadata' in result
+            assert 'metadata_format' in result
             assert 'headers' in result
             assert 'raw_metadata' in result
             assert 'format_priorities' in result
@@ -87,16 +87,16 @@ class TestGetFullMetadataEdgeCases:
         result = get_full_metadata(sample_mp3_file)
         
         # Should handle multiple formats gracefully
-        format_metadata = result['format_metadata']
+        metadata_format = result['metadata_format']
         headers = result['headers']
         
         # Each format should have its own section
         for metadata_format_name in ['id3v2', 'id3v1']:
-            assert metadata_format_name in format_metadata
+            assert metadata_format_name in metadata_format
             assert metadata_format_name in headers
             
             # Each should be a dictionary
-            assert isinstance(format_metadata[metadata_format_name], dict)
+            assert isinstance(metadata_format[metadata_format_name], dict)
             assert isinstance(headers[metadata_format_name], dict)
 
     def test_get_full_metadata_with_unicode_metadata(self, sample_mp3_file: Path):
@@ -122,7 +122,7 @@ class TestGetFullMetadataEdgeCases:
         # Should still work correctly
         assert 'unified_metadata' in result
         assert 'technical_info' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         
         # Headers should be minimal
         headers = result['headers']
@@ -135,7 +135,7 @@ class TestGetFullMetadataEdgeCases:
         
         # Should still work correctly
         assert 'unified_metadata' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'headers' in result
         
         # Technical info should be minimal
@@ -224,7 +224,7 @@ class TestGetFullMetadataEdgeCases:
         
         # Each top-level section should have same keys
         for key in result1.keys():
-            if key in ['unified_metadata', 'technical_info', 'format_metadata', 'headers', 'raw_metadata']:
+            if key in ['unified_metadata', 'technical_info', 'metadata_format', 'headers', 'raw_metadata']:
                 assert set(result1[key].keys()) == set(result2[key].keys())
 
     def test_get_full_metadata_with_minimal_metadata(self, temp_audio_file: Path):
@@ -233,7 +233,7 @@ class TestGetFullMetadataEdgeCases:
         # Should still return complete structure
         assert 'unified_metadata' in result
         assert 'technical_info' in result
-        assert 'format_metadata' in result
+        assert 'metadata_format' in result
         assert 'headers' in result
         assert 'raw_metadata' in result
         assert 'format_priorities' in result
