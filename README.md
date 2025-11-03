@@ -151,7 +151,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [Output Formats](#output-formats)
   - [Examples](#examples)
 - [Requirements](#requirements)
-- [Contributing](CONTRIBUTING.md)
+- [Contributing](audiometa/CONTRIBUTING.md)
 - [License](#license)
 - [Changelog](#changelog)
 
