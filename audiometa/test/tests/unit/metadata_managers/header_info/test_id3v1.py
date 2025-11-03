@@ -1,4 +1,3 @@
-"""Unit tests for ID3v1 metadata manager header information methods."""
 
 from pathlib import Path
 
@@ -9,7 +8,6 @@ import pytest
 
 @pytest.mark.unit
 class TestId3v1HeaderMethods:
-    """Test cases for ID3v1 metadata manager header information methods."""
 
     def test_id3v1_manager_header_info(self, sample_mp3_file: Path):
         audio_file = AudioFile(sample_mp3_file)
