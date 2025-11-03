@@ -106,13 +106,15 @@ A comprehensive Python library for reading and writing audio metadata across mul
         - [Writing Genres for ID3v2.4](#writing-genres-for-id3v2.4)
         - [Writing Genres for Vorbis](#writing-genres-for-vorbis)
         - [Writing Genres for RIFF](#writing-genres-for-riff)
-  - [Rating Profiles](#rating-profiles)
+  - [Rating Handling](#rating-handling)
     - [The Rating Profile Problem](#the-rating-profile-problem)
     - [Rating Profile Types](#rating-profile-types)
+    - [Rating Normalization](#rating-normalization)
     - [How AudioMeta Handles Rating Profiles](#how-audiometa-handles-rating-profiles)
-      - [Automatic Profile Detection](#automatic-profile-detection)
-      - [Writing with Profile Compatibility](#writing-with-profile-compatibility)
+      - [Reading Ratings](#reading-ratings)
+      - [Writing Ratings](#writing-ratings)
     - [Half-Star Rating Support](#half-star-rating-support)
+    - [Rating Validation Rules](#rating-validation-rules)
     - [Normalized Rating Scale](#normalized-rating-scale)
   - [Track Number](#track-number)
     - [ID3v1 Track Number Format](#id3v1-track-number-format)
@@ -1803,7 +1805,7 @@ When writing genres, AudioMeta uses a smart strategy based on the target format'
 
 - Writes genres as text using smart separator selection
 
-### Rating Profiles
+### Rating Handling
 
 AudioMeta implements a sophisticated rating profile system to handle the complex compatibility requirements across different audio players and formats. This system ensures that ratings work consistently regardless of which software was used to create them.
 
@@ -1814,8 +1816,6 @@ AudioMeta implements a sophisticated rating profile system to handle the complex
 - `128` (Windows Media Player, MusicBee, Winamp)
 - `60` (FLAC players, Vorbis)
 - `153` (Traktor)
-
-**The Solution**: AudioMeta automatically detects and converts between these different rating systems, so you always get consistent 0-10 scale values regardless of which software created the file.
 
 > 📋 **Complete Compatibility Table**: See [`rating_profiles.py`](audiometa/utils/rating_profiles.py) for the detailed reference table showing all player compatibility and exact numeric values.
 
@@ -1846,41 +1846,139 @@ AudioMeta recognizes three main rating profiles:
 **Profile C: 255 Proportional (Traktor)**
 
 - Used by: Traktor software (Native Instruments)
+- For MP3 ID3v2 and FLAC Vorbis (Traktor does not write tags on WAV files)
 - Examples: Traktor Pro, Traktor DJ
 - **Half-star support**: ❌ No support (only whole stars: 1, 2, 3, 4, 5)
 
+#### Rating Normalization
+
+AudioMeta supports two modes for handling ratings:
+
+1. **Raw Mode** (default): Returns and accepts raw profile-specific values
+2. **Normalized Mode**: Converts between raw values and a normalized scale
+
+```python
+from audiometa import get_unified_metadata, update_metadata
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
+
+# Raw mode (no normalization)
+metadata = get_unified_metadata("song.mp3")
+rating = metadata.get(UnifiedMetadataKey.RATING)  # Returns: 128, 60, 153, etc. (raw profile values)
+
+# Normalized mode (0-10 scale)
+metadata = get_unified_metadata("song.mp3", normalized_rating_max_value=10)
+rating = metadata.get(UnifiedMetadataKey.RATING)  # Returns: 0, 2, 4, 6, 8, 10 (normalized)
+
+# Writing with normalization
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 6}, normalized_rating_max_value=10)  # Writes 128 (Profile A)
+update_metadata("song.flac", {UnifiedMetadataKey.RATING: 6}, normalized_rating_max_value=10)  # Writes 60 (Profile B)
+
+# Writing without normalization (raw values)
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.ID3V2)  # Direct raw value
+```
+
+**Normalization Formula**:
+
+- **Reading**: `normalized_rating = star_rating_base_10 * normalized_rating_max_value / 10`
+  - Example: 3 stars (star_rating_base_10=6) with max=100 → `6 * 100 / 10 = 60`
+- **Writing**: `star_rating_base_10 = int((normalized_rating * 10) / normalized_rating_max_value)`
+  - Example: normalized_rating=60 with max=100 → `int((60 * 10) / 100) = 6` → Profile A writes 128
+
+**Benefits of Normalization**:
+
+- Consistent values across different rating profiles
+- Easy to work with regardless of source player
+- Flexible scale (can use 0-10, 0-100, 0-255, etc.)
+
+**When to Use Each Mode**:
+
+- **Normalized**: When you want consistent, player-agnostic rating values
+- **Raw**: When you need direct control over the exact profile values written to files
+
+#### Normalized Rating Scale
+
+When `normalized_rating_max_value` is provided, AudioMeta uses a normalized scale. With `normalized_rating_max_value=10`, the scale is:
+
+```python
+# 0 = No rating
+# 2 = 1 star
+# 4 = 2 stars
+# 6 = 3 stars
+# 8 = 4 stars
+# 10 = 5 stars
+
+# Reading with normalization
+metadata = get_unified_metadata("song.mp3", normalized_rating_max_value=10)
+rating = metadata.get('rating')  # Returns 0-10 scale
+
+# Writing with normalization
+update_metadata("song.mp3", {"rating": 8}, normalized_rating_max_value=10)  # 4 stars
+```
+
+**Note**: Without `normalized_rating_max_value`, AudioMeta returns raw profile-specific values (e.g., 128, 60, 153) instead of normalized values.
+
 #### How AudioMeta Handles Rating Profiles
+
+##### Reading Ratings
 
 **Automatic Profile Detection**
 
 ```python
 from audiometa import get_unified_metadata
 
-# AudioMeta automatically detects the rating profile and normalizes the value
+# AudioMeta automatically detects the rating profile
+# Without normalization: returns raw profile values
 metadata = get_unified_metadata("song.mp3")
-rating = metadata.get('rating')  # Always returns 0-10 scale regardless of source profile
+rating = metadata.get('rating')  # Returns raw values: 128, 60, 153, etc.
 
-# Examples of what you get:
-# - File rated 3 stars in Windows Media Player (128) → rating = 6.0
-# - File rated 3 stars in FLAC player (60) → rating = 6.0
-# - File rated 3 stars in Traktor (153) → rating = 6.0
-# - File rated 3.5 stars in MusicBee (186) → rating = 7.0
-# - File rated 2.5 stars in FLAC (50) → rating = 5.0
+# With normalization: returns consistent normalized values
+metadata = get_unified_metadata("song.mp3", normalized_rating_max_value=10)
+rating = metadata.get('rating')  # Returns 0-10 scale: 0, 2, 4, 6, 8, 10, etc.
+
+# Examples of what you get with normalization (normalized_rating_max_value=10):
+# - File rated 3 stars in Windows Media Player (128) → rating = 6
+# - File rated 3 stars in FLAC player (60) → rating = 6
+# - File rated 3 stars in Traktor (153) → rating = 6
+# - File rated 3.5 stars in MusicBee (186) → rating = 7
+# - File rated 2.5 stars in FLAC (50) → rating = 5
+
+# Examples without normalization:
+# - File rated 3 stars in Windows Media Player → rating = 128 (raw)
+# - File rated 3 stars in FLAC player → rating = 60 (raw)
+# - File rated 3 stars in Traktor → rating = 153 (raw)
 ```
 
-**Writing with Profile Compatibility**
+##### Writing Ratings
+
+**Writing Profiles**
+
+AudioMeta uses two write profiles to ensure maximum compatibility across different audio players:
+
+- **BASE_255_NON_PROPORTIONAL** (Profile A): Used for ID3v2 (MP3) and RIFF (WAV)
+
+  - Values: `[0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255]`
+  - Most widely supported profile
+  - Full half-star support (0.5, 1.5, 2.5, 3.5, 4.5 stars)
+
+- **BASE_100_PROPORTIONAL** (Profile B): Used for Vorbis (FLAC)
+  - Values: `[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]`
+  - Standard for FLAC files
+  - Full half-star support (0.5, 1.5, 2.5, 3.5, 4.5 stars)
+
+AudioMeta automatically selects the appropriate profile based on the file format:
 
 ```python
 from audiometa import update_metadata
 
 # AudioMeta automatically uses the most compatible profile for each metadata format
-update_metadata("song.mp3", {"rating": 6})   # ID3v2 uses Profile A (128)
-update_metadata("song.flac", {"rating": 6})  # Vorbis uses Profile B (60)
-update_metadata("song.wav", {"rating": 6})   # RIFF uses Profile A (128)
+update_metadata("song.mp3", {"rating": 6})   # ID3v2 uses BASE_255_NON_PROPORTIONAL (128)
+update_metadata("song.flac", {"rating": 6})  # Vorbis uses BASE_100_PROPORTIONAL (60)
+update_metadata("song.wav", {"rating": 6})   # RIFF uses BASE_255_NON_PROPORTIONAL (128)
 
 # Half-star ratings are also supported:
-update_metadata("song.mp3", {"rating": 7})   # 3.5 stars → Profile A (186)
-update_metadata("song.flac", {"rating": 5})  # 2.5 stars → Profile B (50)
+update_metadata("song.mp3", {"rating": 7})   # 3.5 stars → BASE_255_NON_PROPORTIONAL (186)
+update_metadata("song.flac", {"rating": 5})  # 2.5 stars → BASE_100_PROPORTIONAL (50)
 ```
 
 #### Half-Star Rating Support
@@ -1905,19 +2003,61 @@ update_metadata("song.wav", {"rating": 9})   # 4.5 stars
 - ✅ **RIFF (WAV)**: Full half-star support
 - ❌ **Traktor**: Only whole stars (1, 2, 3, 4, 5)
 
-#### Normalized Rating Scale
+#### Rating Validation Rules
+
+AudioMeta validates rating values based on whether normalization is enabled:
+
+**When `normalized_rating_max_value` is not provided (raw mode)**:
+
+The rating value is written as-is and must correspond to a valid value in the write profile for the target format.
 
 ```python
-# AudioMeta uses a 0-10 scale internally
-# 0 = No rating
-# 2 = 1 star
-# 4 = 2 stars
-# 6 = 3 stars
-# 8 = 4 stars
-# 10 = 5 stars
+from audiometa import update_metadata
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
 
-update_metadata("song.mp3", {"rating": 8})  # 4 stars
+# Valid: 128 is in BASE_255_NON_PROPORTIONAL profile (used by ID3v2)
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.ID3V2)
+
+# Valid: 50 is in BASE_100_PROPORTIONAL profile (used by Vorbis)
+update_metadata("song.flac", {UnifiedMetadataKey.RATING: 50}, metadata_format=MetadataFormat.VORBIS)
+
+# Invalid: 75 is not in any write profile - raises InvalidRatingValueError
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 75}, metadata_format=MetadataFormat.ID3V2)
+# Error: Rating value 75 does not correspond to any value in the write profile
 ```
+
+**Valid profile values**:
+
+- **BASE_255_NON_PROPORTIONAL** (ID3v2, RIFF): `[0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255]`
+- **BASE_100_PROPORTIONAL** (Vorbis): `[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]`
+
+**When `normalized_rating_max_value` is provided (normalized mode)**:
+
+The rating value is normalized and must be a "tenth ratio" of the max value. This means `(rating * 10) % max_value == 0`.
+
+```python
+# Valid: 50 is a tenth ratio of 100 (50 * 10 % 100 == 0)
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 50}, normalized_rating_max_value=100)
+
+# Invalid: 37 is not a tenth ratio of 100 (37 * 10 % 100 == 70 != 0)
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 37}, normalized_rating_max_value=100)
+# Error: Rating value 37 is not a valid tenth ratio of max value 100
+
+# With max=10, any integer 0-10 is valid (all are tenth ratios)
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 7}, normalized_rating_max_value=10)
+
+# With max=255, valid values are multiples of 25.5 (0, 51, 102, 153, 204, 255)
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 51}, normalized_rating_max_value=255)
+```
+
+**Why tenth ratio validation?**
+
+When normalization is enabled, ratings are converted to a 0-10 star scale using the formula: `star_rating = int((rating * 10) / max_value)`. Only values that are exact multiples of `max_value / 10` map cleanly to integer star ratings without precision loss. Values that don't satisfy this condition would lose precision during conversion.
+
+**Error Handling**:
+
+Invalid rating values raise `InvalidRatingValueError` with a descriptive message indicating why the value is invalid.
 
 ### Track Number
 
