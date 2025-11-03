@@ -62,7 +62,8 @@ class AudioFile:
             elif file_extension == '.flac':
                 FLAC(self.file_path)
             elif file_extension == '.wav':
-                WAVE(self.file_path)
+                # Use custom WAV validation that handles ID3v2 tags
+                self._validate_wav_file(self.file_path)
         except Exception as e:
             raise FileCorruptedError(f"The file content is corrupted or not a valid {file_extension.upper()} file: {str(e)}")
 
@@ -420,3 +421,69 @@ class AudioFile:
             '.wav': 'WAV'
         }
         return format_names.get(self.file_extension, 'Unknown')
+
+    def _skip_id3v2_tags(self, data: bytes) -> bytes:
+        """
+        Skip ID3v2 tags if present at the start of the file.
+        Returns the data starting from after any ID3v2 tags.
+        """
+        if data.startswith(b'ID3'):
+            # ID3v2 header is 10 bytes:
+            # 3 bytes: ID3
+            # 2 bytes: version
+            # 1 byte: flags
+            # 4 bytes: size (synchsafe integer)
+            if len(data) < 10:
+                return data
+
+            # Get size from synchsafe integer (7 bits per byte)
+            size_bytes = data[6:10]
+            size = ((size_bytes[0] & 0x7F) << 21) | \
+                   ((size_bytes[1] & 0x7F) << 14) | \
+                   ((size_bytes[2] & 0x7F) << 7) | \
+                   (size_bytes[3] & 0x7F)
+
+            # Skip the header (10 bytes) plus the size of the tag
+            return data[10 + size:]
+        return data
+
+    def _validate_wav_file(self, file_path: str) -> None:
+        """
+        Validate WAV file structure, handling ID3v2 tags at the beginning.
+        
+        This method performs lightweight validation of the RIFF/WAV structure
+        without relying on mutagen for files that have ID3v2 tags.
+        """
+        with open(file_path, 'rb') as f:
+            # Read enough data to cover potential ID3v2 tags (up to ~1MB for very large tags)
+            header_data = f.read(12)
+            
+            # Skip ID3v2 tags if present
+            if header_data.startswith(b'ID3'):
+                # Read the full file to properly handle ID3v2 tags
+                f.seek(0)
+                full_data = f.read()
+                
+                # Skip the ID3v2 tag
+                clean_data = self._skip_id3v2_tags(full_data)
+                
+                # Check if we have enough data for RIFF header after skipping ID3v2
+                if len(clean_data) < 12:
+                    raise FileCorruptedError("File too small after skipping ID3v2 tags")
+                
+                riff_header = clean_data[:12]
+            else:
+                riff_header = header_data
+            
+            # Validate RIFF header
+            if len(riff_header) < 12:
+                raise FileCorruptedError("File too small to contain RIFF header")
+            
+            if not riff_header.startswith(b'RIFF'):
+                raise FileCorruptedError("Invalid RIFF header")
+            
+            if riff_header[8:12] != b'WAVE':
+                raise FileCorruptedError("Not a WAVE file")
+            
+            # Basic structure validation passed
+            return
