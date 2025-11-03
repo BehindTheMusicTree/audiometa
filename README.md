@@ -110,12 +110,13 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [The Rating Profile Problem](#the-rating-profile-problem)
     - [Rating Profile Types](#rating-profile-types)
     - [Rating Normalization](#rating-normalization)
+    - [Normalized Rating Scale](#normalized-rating-scale)
     - [How AudioMeta Handles Rating Profiles](#how-audiometa-handles-rating-profiles)
       - [Reading Ratings](#reading-ratings)
       - [Writing Ratings](#writing-ratings)
+        - [Rating Writing Profiles](#rating-writing-profiles)
+        - [Rating Validation Rules](#rating-validation-rules)
     - [Half-Star Rating Support](#half-star-rating-support)
-    - [Rating Validation Rules](#rating-validation-rules)
-    - [Normalized Rating Scale](#normalized-rating-scale)
   - [Track Number](#track-number)
     - [ID3v1 Track Number Format](#id3v1-track-number-format)
     - [ID3v2 Track Number Format](#id3v2-track-number-format)
@@ -1951,7 +1952,7 @@ rating = metadata.get('rating')  # Returns 0-10 scale: 0, 2, 4, 6, 8, 10, etc.
 
 ##### Writing Ratings
 
-**Writing Profiles**
+##### Rating Writing Profiles
 
 AudioMeta uses two write profiles to ensure maximum compatibility across different audio players:
 
@@ -1981,56 +1982,25 @@ update_metadata("song.mp3", {"rating": 7})   # 3.5 stars → BASE_255_NON_PROPOR
 update_metadata("song.flac", {"rating": 5})  # 2.5 stars → BASE_100_PROPORTIONAL (50)
 ```
 
-#### Half-Star Rating Support
-
-AudioMeta fully supports half-star ratings (0.5, 1.5, 2.5, 3.5, 4.5 stars) across most formats:
-
-```python
-# Reading half-star ratings
-metadata = get_unified_metadata("half_star_rated.mp3")
-rating = metadata.get('rating')  # Could be 1.0, 3.0, 5.0, 7.0, 9.0 for half-stars
-
-# Writing half-star ratings
-update_metadata("song.mp3", {"rating": 7})   # 3.5 stars
-update_metadata("song.flac", {"rating": 5})  # 2.5 stars
-update_metadata("song.wav", {"rating": 9})   # 4.5 stars
-```
-
-**Format Support for Half-Stars:**
-
-- ✅ **ID3v2 (MP3)**: Full half-star support
-- ✅ **Vorbis (FLAC)**: Full half-star support
-- ✅ **RIFF (WAV)**: Full half-star support
-- ❌ **Traktor**: Only whole stars (1, 2, 3, 4, 5)
-
-#### Rating Validation Rules
+##### Rating Validation Rules
 
 AudioMeta validates rating values based on whether normalization is enabled:
 
 **When `normalized_rating_max_value` is not provided (raw mode)**:
 
-The rating value is written as-is and must correspond to a valid value in the write profile for the target format.
+The rating value is written as-is without validation. Any integer value is allowed.
 
 ```python
 from audiometa import update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 
-# Valid: 128 is in BASE_255_NON_PROPORTIONAL profile (used by ID3v2)
+# Any integer rating value is allowed when normalized_rating_max_value is not provided
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.ID3V2)
-
-# Valid: 50 is in BASE_100_PROPORTIONAL profile (used by Vorbis)
-update_metadata("song.flac", {UnifiedMetadataKey.RATING: 50}, metadata_format=MetadataFormat.VORBIS)
-
-# Invalid: 75 is not in any write profile - raises InvalidRatingValueError
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 75}, metadata_format=MetadataFormat.ID3V2)
-# Error: Rating value 75 does not correspond to any value in the write profile
+update_metadata("song.flac", {UnifiedMetadataKey.RATING: 50}, metadata_format=MetadataFormat.VORBIS)
+update_metadata("song.flac", {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.VORBIS)
 ```
-
-**Valid profile values**:
-
-- **BASE_255_NON_PROPORTIONAL** (ID3v2, RIFF): `[0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255]`
-- **BASE_100_PROPORTIONAL** (Vorbis): `[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]`
 
 **When `normalized_rating_max_value` is provided (normalized mode)**:
 
@@ -2049,6 +2019,21 @@ update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 7}, normalized_rating_ma
 
 # With max=255, valid values are multiples of 25.5 (0, 51, 102, 153, 204, 255)
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 51}, normalized_rating_max_value=255)
+```
+
+#### Half-Star Rating Support
+
+AudioMeta fully supports half-star ratings (0.5, 1.5, 2.5, 3.5, 4.5 stars) across all the formats:
+
+```python
+# Reading half-star ratings
+metadata = get_unified_metadata("half_star_rated.mp3")
+rating = metadata.get('rating')  # Could be 1.0, 3.0, 5.0, 7.0, 9.0 for half-stars
+
+# Writing half-star ratings
+update_metadata("song.mp3", {"rating": 7})   # 3.5 stars
+update_metadata("song.flac", {"rating": 5})  # 2.5 stars
+update_metadata("song.wav", {"rating": 9})   # 4.5 stars
 ```
 
 **Why tenth ratio validation?**
