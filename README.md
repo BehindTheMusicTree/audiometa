@@ -151,19 +151,14 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [Output Formats](#output-formats)
   - [Examples](#examples)
 - [Requirements](#requirements)
-- [Development](#development)
-  - [Setup Development Environment](#setup-development-environment)
-  - [Running Tests](#running-tests)
-  - [Code Formatting](#code-formatting)
-  - [Commit Message Conventions](#commit-message-conventions)
+- [Contributing](CONTRIBUTING.md)
 - [License](#license)
-- [Contributing](#contributing)
 - [Changelog](#changelog)
 
 ## Features
 
 - **Multi-format Support**: ID3v1, ID3v2, Vorbis (FLAC), and RIFF (WAV) metadata formats
-- **Comprehensive Metadata Fields**: Support for 50+ metadata fields including title, artist, album, rating, BPM, and more
+- **Comprehensive Metadata Fields**: Support for 15+ metadata fields including title, artist, album, rating, BPM, and more
 - **Read/Write Operations**: Full read and write support for most formats
 - **Rating Support**: Normalized rating handling across different formats
 - **Technical Information**: Access to bitrate, duration, sample rate, channels, and more
@@ -2416,55 +2411,13 @@ audiometa delete music/ --recursive
 - ffprobe (for WAV file processing)
 - flac (for FLAC MD5 validation)
 
-## Development
+## Contributing
 
-### Setup Development Environment
-
-```bash
-git clone https://github.com/your-username/audiometa-python.git
-cd audiometa-python
-pip install -e ".[dev]"
-```
-
-### Running Tests
-
-```bash
-pytest
-```
-
-For detailed information about the test suite, including test organization, data files, and testing strategies, see the [Test Documentation](audiometa/test/tests/README.md).
-
-### Code Formatting
-
-```bash
-black audio_metadata/
-isort audio_metadata/
-```
-
-### Commit Message Conventions
-
-This project follows conventional commit message format. Use these prefixes:
-
-- `feat:` - New features
-- `fix:` - Bug fixes
-- `fix(test):` - Fixing a bug in a test
-- `test:` - General test update/fix
-- `refactor:` - Code refactoring
-- `chore:` - Non-functional maintenance
-- `chore(test):` - Maintenance related to tests (rare)
-- `docs:` - Documentation changes
-- `style:` - Formatting changes
-- `perf:` - Performance improvements
-
-**Note**: As of 2025 Oct. 8th, we updated our commit message conventions for test-related changes. Previous commits may use older conventions, but going forward we use the prefixes listed above.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for information on how to contribute to this project.
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
