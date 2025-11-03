@@ -100,21 +100,31 @@ class TestId3v2Manager:
             assert artists == ["Artist 1", "Artist 2"]
 
     def test_id3v2_manager_write_title(self):
+        from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
+        
         with TempFileWithMetadata({}, "mp3") as test_file:
             audio_file = AudioFile(test_file.path)
             manager = Id3v2Manager(audio_file)
             manager.update_metadata({UnifiedMetadataKey.TITLE: "Written Title"})
             
-            new_manager = Id3v2Manager(AudioFile(test_file.path))
-            title = new_manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
+            title = ID3v2MetadataGetter.get_title(test_file.path)
             assert title == "Written Title"
 
     def test_id3v2_manager_write_artists(self):
+        from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
+        
         with TempFileWithMetadata({}, "mp3") as test_file:
             audio_file = AudioFile(test_file.path)
             manager = Id3v2Manager(audio_file)
             manager.update_metadata({UnifiedMetadataKey.ARTISTS: ["Written Artist 1", "Written Artist 2"]})
             
-            new_manager = Id3v2Manager(AudioFile(test_file.path))
-            artists = new_manager.get_unified_metadata_field(UnifiedMetadataKey.ARTISTS)
-            assert artists == ["Written Artist 1", "Written Artist 2"]
+            raw_metadata_2_3 = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
+            raw_metadata_2_4 = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
+            
+            assert isinstance(raw_metadata_2_3, dict) or isinstance(raw_metadata_2_4, dict)
+            
+            raw_metadata = raw_metadata_2_3 if isinstance(raw_metadata_2_3, dict) else raw_metadata_2_4
+            tpe1_values = raw_metadata.get('TPE1', [])
+            assert len(tpe1_values) > 0
+            assert "Written Artist 1" in tpe1_values[0]
+            assert "Written Artist 2" in tpe1_values[0]

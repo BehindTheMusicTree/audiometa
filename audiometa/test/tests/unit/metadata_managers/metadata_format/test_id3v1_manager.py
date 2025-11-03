@@ -62,39 +62,26 @@ class TestId3v1Manager:
         title = manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
         assert title is None or isinstance(title, str)
 
-    def test_id3v1_manager_write_support(self, mocker):
-        # Mock AudioFile to avoid real file operations
-        mock_audio_file = mocker.MagicMock()
-        mocker.patch('audiometa.AudioFile', return_value=mock_audio_file)
-        mocker.patch('os.path.exists', return_value=True)
+    def test_id3v1_manager_write_support(self):
+        from audiometa.test.helpers.id3v1.id3v1_metadata_getter import ID3v1MetadataGetter
         
-        # Mock the metadata extraction to return expected metadata after "write"
-        mock_raw_metadata = mocker.MagicMock()
-        mock_raw_metadata.tags = {
-            Id3v1RawMetadataKey.TITLE: ['ID3v1 Test Title'],
-            Id3v1RawMetadataKey.ARTISTS_NAMES_STR: ['ID3v1 Test Artist'],
-            Id3v1RawMetadataKey.ALBUM: ['ID3v1 Test Album']
-        }
-        mocker.patch.object(Id3v1Manager, '_extract_mutagen_metadata', return_value=mock_raw_metadata)
-        mocker.patch.object(Id3v1Manager, '_update_not_using_mutagen_metadata')
-        
-        audio_file = AudioFile('dummy.mp3')
-        manager = Id3v1Manager(audio_file)
-        
-        test_metadata = {
-            UnifiedMetadataKey.TITLE: "ID3v1 Test Title",
-            UnifiedMetadataKey.ARTISTS: ["ID3v1 Test Artist"],
-            UnifiedMetadataKey.ALBUM: "ID3v1 Test Album"
-        }
-        
-        # ID3v1 manager should successfully update metadata
-        manager.update_metadata(test_metadata)
-        
-        # Verify the metadata was written correctly
-        updated_metadata = manager.get_unified_metadata()
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v1 Test Title"
-        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["ID3v1 Test Artist"]
-        assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "ID3v1 Test Album"
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            audio_file = AudioFile(test_file.path)
+            manager = Id3v1Manager(audio_file)
+            
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "ID3v1 Test Title",
+                UnifiedMetadataKey.ARTISTS: ["ID3v1 Test Artist"],
+                UnifiedMetadataKey.ALBUM: "ID3v1 Test Album"
+            }
+            
+            manager.update_metadata(test_metadata)
+            
+            raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
+            
+            assert raw_metadata.get('title') == "ID3v1 Test Title"
+            assert raw_metadata.get('artist') == "ID3v1 Test Artist"
+            assert raw_metadata.get('album') == "ID3v1 Test Album"
 
     def test_id3v1_manager_write_unsupported_fields_raises_error(self, mocker):
         # Mock AudioFile to avoid real file operations

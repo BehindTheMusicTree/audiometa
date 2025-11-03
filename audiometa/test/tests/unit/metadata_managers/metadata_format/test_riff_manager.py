@@ -76,21 +76,23 @@ class TestRiffManager:
             assert artists == ["Artist 1", "Artist 2"]
 
     def test_riff_manager_write_title(self):
+        from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
+        
         with TempFileWithMetadata({}, "wav") as test_file:
             audio_file = AudioFile(test_file.path)
             manager = RiffManager(audio_file)
             manager.update_metadata({UnifiedMetadataKey.TITLE: "Written Title"})
             
-            new_manager = RiffManager(AudioFile(test_file.path))
-            title = new_manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
+            title = RIFFMetadataGetter.get_title(test_file.path)
             assert title == "Written Title"
 
     def test_riff_manager_write_artists(self):
+        from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
+        
         with TempFileWithMetadata({}, "wav") as test_file:
             audio_file = AudioFile(test_file.path)
             manager = RiffManager(audio_file)
             manager.update_metadata({UnifiedMetadataKey.ARTISTS: ["Written Artist 1", "Written Artist 2"]})
             
-            new_manager = RiffManager(AudioFile(test_file.path))
-            artists = new_manager.get_unified_metadata_field(UnifiedMetadataKey.ARTISTS)
-            assert artists == ["Written Artist 1", "Written Artist 2"]
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert "TAG:artist=Written Artist 1//Written Artist 2" in raw_metadata
