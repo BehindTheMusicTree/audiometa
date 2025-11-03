@@ -1988,18 +1988,23 @@ AudioMeta validates rating values based on whether normalization is enabled:
 
 **When `normalized_rating_max_value` is not provided (raw mode)**:
 
-The rating value is written as-is without validation. Any integer value is allowed.
+The rating value is written as-is. Any non-negative integer value (>= 0) is allowed.
 
 ```python
 from audiometa import update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 
-# Any integer rating value is allowed when normalized_rating_max_value is not provided
+# Any non-negative integer rating value is allowed when normalized_rating_max_value is not provided
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.ID3V2)
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 75}, metadata_format=MetadataFormat.ID3V2)
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 0}, metadata_format=MetadataFormat.ID3V2)
 update_metadata("song.flac", {UnifiedMetadataKey.RATING: 50}, metadata_format=MetadataFormat.VORBIS)
 update_metadata("song.flac", {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.VORBIS)
+
+# Invalid: negative values are rejected
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: -1}, metadata_format=MetadataFormat.ID3V2)
+# Error: Rating value -1 is invalid. Rating values must be non-negative (>= 0)
 ```
 
 **When `normalized_rating_max_value` is provided (normalized mode)**:
@@ -2013,6 +2018,14 @@ update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 50}, normalized_rating_m
 # Invalid: 37 is not a tenth ratio of 100 (37 * 10 % 100 == 70 != 0)
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 37}, normalized_rating_max_value=100)
 # Error: Rating value 37 is not a valid tenth ratio of max value 100
+
+# Invalid: negative values are rejected
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: -1}, normalized_rating_max_value=100)
+# Error: Rating value -1 is invalid. Rating values must be non-negative (>= 0)
+
+# Invalid: values above max are rejected
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 101}, normalized_rating_max_value=100)
+# Error: Rating value 101 is out of range. Value must be between 0 and 100 (inclusive)
 
 # With max=10, any integer 0-10 is valid (all are tenth ratios)
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 7}, normalized_rating_max_value=10)
