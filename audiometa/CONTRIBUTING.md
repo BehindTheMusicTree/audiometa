@@ -5,8 +5,8 @@ This project is currently maintained by a solo developer, but contributions, sug
 
 ## Table of Contents
 
-- [� Contributors vs Maintainers](#-contributors-vs-maintainers)
-- [��� Contributing Code](#-contributing-code)
+- [🧑‍🤝‍🧑 Contributors vs Maintainers](#-contributors-vs-maintainers)
+- [💻 Contributing Code](#-contributing-code)
 - [📦 Environment Setup](#-environment-setup)
 - [🧱 Development Workflow](#-development-workflow)
   - [Main Branch (`main`)](#main-branch-main)
