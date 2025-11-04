@@ -67,3 +67,4 @@ class TestFlacMd5Functions:
             # Clean up
             Path(fixed_file_path).unlink()
 
+
