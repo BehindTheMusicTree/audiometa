@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Changelogs are for humans, not machines.
 - Include an entry for every version, with the latest first.
-- Group similar changes under: Added, Changed, Deprecated, Removed, Fixed, Security.
+- Group similar changes under: Added, Changed, Improved, Deprecated, Removed, Fixed, Security, Documentation, Performance.
 - Use an "Unreleased" section for upcoming changes.
 - Follow Semantic Versioning where possible.
 - Use ISO 8601 date format: YYYY-MM-DD.
