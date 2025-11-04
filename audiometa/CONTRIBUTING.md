@@ -5,7 +5,8 @@ This project is currently maintained by a solo developer, but contributions, sug
 
 ## Table of Contents
 
-- [💡 Contributing Code](#-contributing-code)
+- [� Contributors vs Maintainers](#-contributors-vs-maintainers)
+- [��� Contributing Code](#-contributing-code)
 - [📦 Environment Setup](#-environment-setup)
 - [🧱 Development Workflow](#-development-workflow)
   - [Main Branch (`main`)](#main-branch-main)
@@ -31,6 +32,30 @@ This project is currently maintained by a solo developer, but contributions, sug
   - [Guidelines](#guidelines)
 - [🪪 License & Attribution](#-license--attribution)
 - [🌍 Contact & Discussions](#-contact--discussions)
+
+## Contributors vs Maintainers
+
+**Contributors**
+
+Anyone can be a contributor by:
+
+- Submitting bug reports or feature requests via GitHub Issues
+- Proposing code changes through Pull Requests
+- Improving documentation
+- Participating in discussions
+- Testing and providing feedback
+
+**Maintainers**
+
+The maintainer(s) are responsible for:
+
+- Reviewing and merging Pull Requests
+- Managing releases and versioning
+- Ensuring code quality and project direction
+- Responding to critical issues
+- Maintaining the project's infrastructure
+
+Currently, this project has a solo maintainer, but the role may expand as the project grows.
 
 ## 💡 Contributing Code
 
