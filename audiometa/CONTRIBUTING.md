@@ -151,9 +151,19 @@ open htmlcov/index.html  # macOS
 
 #### Lint Code for Style Consistency
 
+To check code style and formatting:
+
 ```bash
-black . && flake8
+black --check . && isort --check-only . && mypy audiometa && flake8 audiometa
 ```
+
+To auto-fix formatting issues locally:
+
+```bash
+black . && isort .
+```
+
+Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
 
 CI will automatically test all pushes and PRs using GitHub Actions.
 

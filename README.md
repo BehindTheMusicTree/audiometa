@@ -239,7 +239,7 @@ pip install audiometa-python
 
 ### System Requirements
 
-- **Python**: 3.8 or higher
+- **Python**: 3.10 or higher
 - **Operating Systems**: Windows, macOS, Linux
 - **Dependencies**: Automatically installed with the package
 - **Required Tools**: ffprobe (for WAV file processing), flac (for FLAC MD5 validation)
@@ -346,7 +346,7 @@ AudioMeta uses a combination of Python libraries and external command-line tools
 
 ### What You Need
 
-- Python 3.8+
+- Python 3.10+
 - Audio files (MP3, FLAC, WAV)
 - Basic Python knowledge
 
@@ -2406,7 +2406,7 @@ audiometa delete music/ --recursive
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.10+
 - mutagen >= 1.45.0
 - ffprobe (for WAV file processing)
 - flac (for FLAC MD5 validation)
