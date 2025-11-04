@@ -11,14 +11,14 @@ This project is currently maintained by a solo developer, but contributions, sug
   - [Main Branch (`main`)](#main-branch-main)
   - [Feature Branches (`feature/<name>`)](#feature-branches-featurename)
   - [Hotfix Branches (`hotfix/<issue>`)](#hotfix-branches-hotfixissue)
-- [🧪 Testing](#-testing)
-  - [Run Local Tests](#run-local-tests)
-  - [Run Coverage](#run-coverage)
-    - [Running Tests with Coverage](#running-tests-with-coverage)
-    - [Running Tests Without Coverage](#running-tests-without-coverage)
-    - [Viewing Coverage Reports](#viewing-coverage-reports)
-  - [Lint Code for Style Consistency](#lint-code-for-style-consistency)
-- [🚀 Releasing](#-releasing)
+  - [🧪 Testing](#-testing)
+    - [Run Local Tests](#run-local-tests)
+    - [Run Coverage](#run-coverage)
+      - [Running Tests with Coverage](#running-tests-with-coverage)
+      - [Running Tests Without Coverage](#running-tests-without-coverage)
+      - [Viewing Coverage Reports](#viewing-coverage-reports)
+    - [Lint Code for Style Consistency](#lint-code-for-style-consistency)
+  - [🚀 Releasing](#-releasing)
 - [📝 Commit Message Convention](#-commit-message-convention)
   - [Format](#format)
     - [Breaking Changes](#breaking-changes)
@@ -76,19 +76,19 @@ We follow a light GitFlow model adapted for small teams and open-source projects
 
 - For urgent bug fixes on production versions
 
-## 🧪 Testing
+### 🧪 Testing
 
 We use pytest for all automated testing.
 
-### Run Local Tests
+#### Run Local Tests
 
 ```bash
 pytest
 ```
 
-### Run Coverage
+#### Run Coverage
 
-#### Running Tests with Coverage
+##### Running Tests with Coverage
 
 To run tests with coverage (recommended before committing or in CI):
 
@@ -103,7 +103,7 @@ This will:
 - Generate an HTML report in `htmlcov/` directory
 - Fail if coverage is below 85%
 
-#### Running Tests Without Coverage
+##### Running Tests Without Coverage
 
 For faster development cycles, run tests without coverage:
 
@@ -111,7 +111,7 @@ For faster development cycles, run tests without coverage:
 pytest  # Fast, no coverage overhead
 ```
 
-#### Viewing Coverage Reports
+##### Viewing Coverage Reports
 
 To view the HTML coverage report:
 
@@ -120,7 +120,7 @@ open htmlcov/index.html  # macOS
 # or open htmlcov/index.html in your browser
 ```
 
-### Lint Code for Style Consistency
+#### Lint Code for Style Consistency
 
 ```bash
 black . && flake8
@@ -128,18 +128,18 @@ black . && flake8
 
 CI will automatically test all pushes and PRs using GitHub Actions.
 
-## � Commit Message Convention
+### Commit Message Convention
 
 We follow a structured commit format inspired by [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 This helps keep the commit history readable, supports automatic changelog generation, and ensures consistent release versioning.
 
-### Format
+#### Format
 
 <type>(<optional scope>): <short summary>
 
 [optional body]
 
-#### Breaking Changes
+##### Breaking Changes
 
 For breaking changes, append `!` after the type/scope:
 
@@ -147,14 +147,14 @@ For breaking changes, append `!` after the type/scope:
 
 Or include a `BREAKING CHANGE:` footer in the commit body.
 
-### Example
+#### Example
 
 feat(mp3): support writing composer tag
 
 Added support for writing the "composer" field in ID3v2.4 MP3 files.
 Ensures backward compatibility with ID3v2.3 readers.
 
-### Allowed Commit Types
+#### Allowed Commit Types
 
 | Type     | Description                                          |
 | -------- | ---------------------------------------------------- |
@@ -167,12 +167,12 @@ Ensures backward compatibility with ID3v2.3 readers.
 | style    | Code style or formatting changes (no logic impact)   |
 | perf     | Performance improvements                             |
 
-### Scopes
+#### Scopes
 
 Use a scope to clarify which part of the library your change affects.
 Scopes are optional but encouraged for clarity.
 
-#### Common Scopes
+##### Common Scopes
 
 | Scope  | Example                                             | Description                  |
 | ------ | --------------------------------------------------- | ---------------------------- |
@@ -186,7 +186,7 @@ Scopes are optional but encouraged for clarity.
 | deps   | chore(deps): update mutagen dependency              | Dependency management        |
 | docs   | docs: improve README example                        | Documentation updates        |
 
-#### Test Commits Best Practices
+##### Test Commits Best Practices
 
 For a single library project, use `test:` as the **type**, not the scope, for general test changes:
 
@@ -209,7 +209,7 @@ Reserve `chore(test):`, `refactor(test):` for test infrastructure changes:
 | Refactoring core test structure | `refactor(test): …`                       |
 | Feature/bug in main code        | Use relevant scope (e.g., `feat(mp3): …`) |
 
-### Examples
+#### Examples
 
 feat(id3v2): add album artist tag support
 fix(vorbis): correctly parse embedded picture metadata
@@ -222,7 +222,7 @@ feat(core)!: remove deprecated get_metadata function
 BREAKING CHANGE: The get_metadata function has been removed.
 Use get_unified_metadata instead.
 
-### Guidelines
+#### Guidelines
 
 Use imperative mood ("add", "fix", not "added", "fixed").
 
@@ -234,7 +234,7 @@ One logical change per commit.
 
 Small, focused commits are better than large, mixed ones.
 
-## � Releasing
+### Releasing
 
 Releases are created from the `main` branch.
 
