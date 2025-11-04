@@ -107,49 +107,29 @@ We follow a light GitFlow model adapted for small teams and open-source projects
 
 ### 🧪 Testing
 
-We use pytest for all automated testing.
+We use pytest for all automated testing with markers for unit, integration, and e2e tests.
 
-#### Run Local Tests
+#### Quick Reference
 
 ```bash
+# Run all tests
 pytest
-```
 
-#### Run Coverage
+# Run tests by category (matches CI behavior)
+pytest -m unit          # Fast unit tests only
+pytest -m integration   # Integration tests only
+pytest -m e2e           # End-to-end tests only
 
-##### Running Tests with Coverage
+# Run without slow e2e tests
+pytest -m "not e2e"
 
-To run tests with coverage (recommended before committing or in CI):
-
-```bash
+# Run with coverage (recommended before committing)
 pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-under=85
 ```
 
-This will:
+**Note:** CI runs tests separately by marker (`unit`, `integration`, `e2e`) with coverage. The coverage threshold of 85% applies to the combined total.
 
-- Measure coverage for the `audiometa` package
-- Display coverage summary in the terminal (including missing lines)
-- Generate an HTML report in `htmlcov/` directory (ideal for local development)
-- Fail if coverage is below 85%
-
-**Note:** CI uses `--cov-report=xml --cov-report=term` for automated coverage reporting, but the HTML format shown above is recommended for local development to easily explore coverage details.
-
-##### Running Tests Without Coverage
-
-For faster development cycles, run tests without coverage:
-
-```bash
-pytest  # Fast, no coverage overhead
-```
-
-##### Viewing Coverage Reports
-
-To view the HTML coverage report:
-
-```bash
-open htmlcov/index.html  # macOS
-# or open htmlcov/index.html in your browser
-```
+For detailed test documentation, including test principles, markers, and advanced usage, see [`audiometa/test/README.md`](test/README.md).
 
 #### Lint Code for Style Consistency
 
