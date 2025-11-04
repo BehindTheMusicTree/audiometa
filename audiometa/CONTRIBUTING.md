@@ -19,7 +19,7 @@ This project is currently maintained by a solo developer, but contributions, sug
       - [Running Tests Without Coverage](#running-tests-without-coverage)
       - [Viewing Coverage Reports](#viewing-coverage-reports)
     - [Lint Code for Style Consistency](#lint-code-for-style-consistency)
-  - [🚀 Releasing](#releasing)
+  - [🚀 Releasing _(For Maintainers)_](#releasing-for-maintainers)
 - [📝 Commit Message Convention](#-commit-message-convention)
   - [Format](#format)
     - [Breaking Changes](#breaking-changes)
