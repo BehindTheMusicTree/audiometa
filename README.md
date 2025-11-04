@@ -2417,7 +2417,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for information on how to contribute to t
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
+
+The Apache 2.0 license provides patent protection, which helps prevent contributors and users from facing patent litigation from other contributors. This makes it a safer choice for both individual contributors and organizations compared to licenses without explicit patent grants.
 
 ## Changelog
 
