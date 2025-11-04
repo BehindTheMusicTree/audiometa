@@ -1,0 +1,139 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop, "feature/**", "release/**", "hotfix/**"]
+  pull_request:
+    branches: [main, master, develop, "feature/**", "release/**", "hotfix/**"]
+
+jobs:
+  lint:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Check code formatting with black
+        run: black --check .
+
+      - name: Check import sorting with isort
+        run: isort --check-only .
+
+      - name: Run mypy type checking
+        run: mypy audiometa
+
+      - name: Run flake8
+        run: flake8 audiometa
+
+  test:
+    name: Test Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install system dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg flac
+
+      - name: Install system dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install ffmpeg flac
+
+      - name: Install system dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install ffmpeg flac -y
+        continue-on-error: true
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install -r requirements.txt
+
+      - name: Verify external tools (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        run: |
+          ffprobe -version
+          flac --version
+          which mid3v2 || echo "mid3v2 check skipped (provided by mutagen)"
+
+      - name: Verify external tools (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          ffprobe -version
+          flac --version
+
+      - name: Run unit tests
+        run: pytest -m unit --cov=audiometa --cov-report=xml --cov-report=term
+
+      - name: Run integration tests
+        run: pytest -m integration --cov=audiometa --cov-report=xml --cov-report=term --cov-append
+
+      - name: Run e2e tests
+        run: pytest -m e2e --cov=audiometa --cov-report=xml --cov-report=term --cov-append
+
+      - name: Check combined coverage threshold
+        run: coverage report --fail-under=85
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.12' && matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  test-fast:
+    name: Fast Tests (Unit Only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg flac
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install -r requirements.txt
+
+      - name: Run unit tests only
+        run: pytest -m unit -v
