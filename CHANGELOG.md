@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Changelog Best Practices
+
+- Changelogs are for humans, not machines.
+- Include an entry for every version, with the latest first.
+- Group similar changes under: Added, Changed, Deprecated, Removed, Fixed, Security.
+- Use an "Unreleased" section for upcoming changes.
+- Follow Semantic Versioning where possible.
+- Use ISO 8601 date format: YYYY-MM-DD.
+- Avoid dumping raw git logs; summarize notable changes clearly.
+
 ## [Unreleased]
 
 ### Added
