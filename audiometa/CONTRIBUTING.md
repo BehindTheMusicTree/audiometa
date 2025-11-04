@@ -259,7 +259,7 @@ One logical change per commit.
 
 Small, focused commits are better than large, mixed ones.
 
-### Releasing
+### Releasing _(For Maintainers)_
 
 Releases are created from the `main` branch.
 
