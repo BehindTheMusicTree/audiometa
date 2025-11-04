@@ -54,6 +54,9 @@ The maintainer(s) are responsible for:
 - Ensuring code quality and project direction
 - Responding to critical issues
 - Maintaining the project's infrastructure
+- Creating and managing hotfix branches for urgent production fixes
+
+_Note: Contributors can submit fixes for critical issues via feature branches. Maintainers may promote these to hotfix branches when urgent production fixes are needed._
 
 Currently, this project has a solo maintainer, but the role may expand as the project grows.
 
@@ -97,9 +100,10 @@ We follow a light GitFlow model adapted for small teams and open-source projects
   ```
 - Merge into `main` via Pull Request when complete and tested
 
-### Hotfix Branches (`hotfix/<issue>`)
+### Hotfix Branches (`hotfix/<issue>`) _(For Maintainers)_
 
 - For urgent bug fixes on production versions
+- Contributors can submit fixes via feature branches that maintainers may promote to hotfixes if needed
 
 ### 🧪 Testing
 
