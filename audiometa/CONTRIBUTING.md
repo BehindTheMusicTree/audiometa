@@ -71,7 +71,7 @@ Currently, this project has a solo maintainer, but the role may expand as the pr
 
 Ensure you're using:
 
-- Python 3.10+
+- Python 3.10 or higher
 - Virtual environment with dependencies:
 
   ```bash
@@ -267,8 +267,8 @@ Small, focused commits are better than large, mixed ones.
 
 Releases are created from the `main` branch.
 
-1. Bump your version (using bump2version or manually editing **version**)
-2. Tag the release:
+1. Bump your version (increment the version number, e.g., from 1.2.2 to 1.2.3) using bump2version (which automatically finds and updates version references in your project files) or manually editing **version**
+2. Tag the release (create a Git tag to mark this specific commit as the release point):
    ```bash
    git tag v1.2.3
    git push origin v1.2.3

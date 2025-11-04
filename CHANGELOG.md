@@ -154,7 +154,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Requirements
 
-- Python 3.8+
+- Python 3.10+
 - mutagen >= 1.45.0
 - ffprobe (for WAV file processing)
 - flac (for FLAC MD5 validation)
