@@ -129,8 +129,10 @@ This will:
 
 - Measure coverage for the `audiometa` package
 - Display coverage summary in the terminal (including missing lines)
-- Generate an HTML report in `htmlcov/` directory
+- Generate an HTML report in `htmlcov/` directory (ideal for local development)
 - Fail if coverage is below 85%
+
+**Note:** CI uses `--cov-report=xml --cov-report=term` for automated coverage reporting, but the HTML format shown above is recommended for local development to easily explore coverage details.
 
 ##### Running Tests Without Coverage
 
