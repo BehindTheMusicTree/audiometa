@@ -60,13 +60,13 @@ Tests that verify complete user workflows from start to finish. These simulate r
 
 ## Running Tests
 
-### Run all tests
+### Run All Tests
 
 ```bash
 pytest
 ```
 
-### Run tests by category
+### Run Tests by Category
 
 ```bash
 # Unit tests only (fast)
@@ -79,7 +79,7 @@ pytest -m integration
 pytest -m e2e
 ```
 
-### Run tests by folder
+### Run Tests by Folder
 
 ```bash
 # Unit tests
