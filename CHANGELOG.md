@@ -42,6 +42,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for choosing between ID3v2.3 (maximum compatibility) and ID3v2.4 (modern features)
 - `id3v2_version` parameter in all metadata functions
 - Automatic version upgrade when reading existing files
+- **Technical Information Functions**: Additional audio file analysis functions:
+  - `get_file_size()`: Retrieve audio file size in bytes
+  - `get_channels()`: Get number of audio channels (mono, stereo, etc.)
+- **Comprehensive Metadata API**: `get_full_metadata()` function providing complete file analysis:
+  - Unified metadata from all formats
+  - Technical information (duration, bitrate, sample rate, channels, file size)
+  - Format-specific headers and structure information
+  - Raw metadata details from each format
+  - Format priority information
 
 ### Changed
 
@@ -53,6 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Default ID3v2 version changed from v2.4 to v2.3 for maximum compatibility
 - ID3v2Manager now accepts `id3v2_version` parameter
 - All public API functions now support `id3v2_version` parameter
+- **Enhanced WAV file validation**: WAV files now properly validate and handle ID3v2 tags when present
+- **RIFF metadata preservation**: RiffManager now merges existing metadata with new updates, ensuring preservation of existing data during metadata operations
 
 ### Implementation Improvements
 
@@ -85,6 +96,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Range validation for numeric fields (ratings, BPM, track numbers)
   - Multi-value field handling with proper list validation
   - Empty value filtering for list-type metadata fields
+  - Rating validation improvements: Non-negative integer requirement when normalized_rating_max_value is None
+  - Release date format validation with corresponding error handling
+  - Year value validation with improved error handling for invalid values
+  - File content validation enhancements for supported audio formats
+  - AudioFileMetadataParseError for improved metadata parsing error handling
 
 ### Documentation Enhancements
 
