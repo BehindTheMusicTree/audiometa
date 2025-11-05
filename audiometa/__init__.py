@@ -850,6 +850,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
     Raises:
         FileTypeNotSupportedError: If the file format is not supported
         FileNotFoundError: If the file does not exist
+        FileCorruptedError: If the file content is corrupted or not a valid audio file
         
     Examples:
         # Get complete metadata including headers and technical info
