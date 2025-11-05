@@ -129,6 +129,8 @@ pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-un
 
 **Note:** CI runs tests separately by marker (`unit`, `integration`, `e2e`) with coverage. The coverage threshold of 85% applies to the combined total.
 
+**Note:** CI tests only run on latest OS versions: `ubuntu-latest`, `macos-latest`, `windows-latest`.
+
 For detailed test documentation, including test principles, markers, and advanced usage, see [`audiometa/test/README.md`](test/README.md).
 
 #### Lint Code for Style Consistency
