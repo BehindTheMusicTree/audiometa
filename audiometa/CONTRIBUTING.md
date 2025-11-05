@@ -55,6 +55,7 @@ The maintainer(s) are responsible for:
 - Responding to critical issues
 - Maintaining the project's infrastructure
 - Creating and managing hotfix branches for urgent production fixes
+- Updating the changelog (contributors should not modify `CHANGELOG.md`)
 
 _Note: Contributors can submit fixes for critical issues via feature branches. Maintainers may promote these to hotfix branches when urgent production fixes are needed._
 
@@ -262,12 +263,14 @@ Small, focused commits are better than large, mixed ones.
 Releases are created from the `main` branch.
 
 1. Bump your version (increment the version number, e.g., from 1.2.2 to 1.2.3) using bump2version (which automatically finds and updates version references in your project files) or manually editing **version**
-2. Tag the release (create a Git tag to mark this specific commit as the release point):
+2. Update the changelog (`CHANGELOG.md`) with the new release version and changes
+   - Contributors should not modify the changelog; this is maintained by maintainers during releases
+3. Tag the release (create a Git tag to mark this specific commit as the release point):
    ```bash
    git tag v1.2.3
    git push origin v1.2.3
    ```
-3. CI/CD will:
+4. CI/CD will:
    - Run tests
    - Build a package
    - Upload to PyPI (if configured)
