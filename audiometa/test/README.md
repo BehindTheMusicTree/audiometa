@@ -345,30 +345,31 @@ The test suite uses a **hybrid approach** for test data management, combining pr
 - 📊 **Comprehensive**: Covers complex scenarios that would be difficult to generate
 - 🔄 **Stable**: Consistent across test runs
 
-### On-the-fly Generation (TempFileWithMetadata)
+### On-the-fly Generation (temp_file_with_metadata)
 
-**Dynamic test file creation** using the unified `TempFileWithMetadata` class:
+**Dynamic test file creation** using the `temp_file_with_metadata` context manager decorator:
 
 - **Writing tests**: When testing the application's metadata writing functionality
-- **Dynamic scenarios**: Specific metadata combinations not available in pre-created files
+- **Reading tests**: Needing specific metadata combinations not available in pre-created files
 - **Clean state**: Fresh files for each test run
 - **Isolation**: Prevents test setup from depending on the code being tested
+- **Automatic cleanup**: Uses `@contextmanager` decorator for simple, reliable resource management
 
 **Basic Usage:**
 
 ```python
-from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 # Create test file with initial metadata
-with TempFileWithMetadata({
+with temp_file_with_metadata({
     "title": "Test Title",
     "artist": "Test Artist",
     "album": "Test Album",
     "year": "2023",
     "genre": "Rock"
-}, "mp3") as test_file:
-    # Use test_file.path for testing
-    metadata = get_unified_metadata(test_file.path)
+}, "mp3") as test_file_path:
+    # Use test_file_path directly for testing
+    metadata = get_unified_metadata(test_file_path)
     assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
 ```
 
@@ -384,24 +385,24 @@ def test_read_metadata_from_pre_created_file(sample_mp3_file: Path):
     assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Sample Artist"]
 ```
 
-#### Testing writing functionality (TempFileWithMetadata)
+#### Testing writing functionality (temp_file_with_metadata)
 
 ```python
 def test_write_metadata_using_temp_file():
     """Test writing metadata by setting up with external tools, then testing our app."""
-    # Use TempFileWithMetadata to set up test data
-    with TempFileWithMetadata(
+    # Use temp_file_with_metadata to set up test data
+    with temp_file_with_metadata(
         {"title": "Original Title", "artist": "Original Artist"},
         "mp3"
-    ) as test_file:
+    ) as test_file_path:
         # Now test our application's writing functionality
         new_metadata = {
             UnifiedMetadataKey.TITLE: "New Title"
         }
-        update_metadata(test_file.path, new_metadata)
+        update_metadata(test_file_path, new_metadata)
 
         # Verify by reading back
-        metadata = get_unified_metadata(test_file.path)
+        metadata = get_unified_metadata(test_file_path)
         assert metadata.get(UnifiedMetadataKey.TITLE) == ["New Title"]
 ```
 
@@ -415,30 +416,22 @@ def test_corrupted_metadata_handling(corrupted_mp3_file: Path):
         get_unified_metadata(corrupted_mp3_file)
 ```
 
-#### Dynamic test scenarios (TempFileWithMetadata)
+#### Dynamic test scenarios (temp_file_with_metadata)
 
 ```python
 def test_specific_metadata_combination():
     """Test a specific metadata scenario not available in pre-created files."""
     # Create specific metadata combination on demand
-    with TempFileWithMetadata(
+    with temp_file_with_metadata(
         {
             "title": "Custom Title",
             "artist": "Custom Artist",
             "genre": "Custom Genre"
         },
         "mp3"
-    ) as test_file:
-        # Use additional methods to set more complex metadata
-        test_file.set_id3v2_multiple_genres(["Rock", "Alternative", "Indie"])
-        test_file.set_id3v1_genre("17")  # Blues genre code
-
-        # Verify headers are present
-        assert test_file.has_id3v2_header()
-        assert test_file.has_id3v1_header()
-
-        # Test our application
-        metadata = get_unified_metadata(test_file.path)
+    ) as test_file_path:
+        # Use test_file_path for testing
+        metadata = get_unified_metadata(test_file_path)
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Custom Genre"]
 ```
 
