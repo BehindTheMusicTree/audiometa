@@ -1,10 +1,11 @@
 """Test configuration for audiometa-python tests."""
 
-import tempfile
 from pathlib import Path
 from typing import Generator
 
 import pytest
+
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 def pytest_collection_modifyitems(items):
@@ -40,28 +41,6 @@ def pytest_collection_modifyitems(items):
 @pytest.fixture
 def assets_dir() -> Path:
     return Path(__file__).parent.parent.parent / "test" / "assets"
-
-
-@pytest.fixture
-def temp_audio_file() -> Generator[Path, None, None]:
-    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp_file:
-        temp_path = Path(tmp_file.name)
-    
-    yield temp_path
-    
-    if temp_path.exists():
-        temp_path.unlink()
-
-
-@pytest.fixture
-def temp_wav_file() -> Generator[Path, None, None]:
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
-        temp_path = Path(tmp_file.name)
-    
-    yield temp_path
-    
-    if temp_path.exists():
-        temp_path.unlink()
 
 
 @pytest.fixture
