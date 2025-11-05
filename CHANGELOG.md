@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use ISO 8601 date format: YYYY-MM-DD.
 - Avoid dumping raw git logs; summarize notable changes clearly.
 
+**Note**: This changelog is maintained by project maintainers. Contributors should not update this file directly.
+
 ## [Unreleased]
 
 ### Added
