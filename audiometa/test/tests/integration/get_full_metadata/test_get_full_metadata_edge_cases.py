@@ -6,7 +6,7 @@ import tempfile
 import os
 
 from audiometa import get_full_metadata, AudioFile
-from audiometa.exceptions import FileTypeNotSupportedError
+from audiometa.exceptions import FileTypeNotSupportedError, FileCorruptedError
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
@@ -33,23 +33,8 @@ class TestGetFullMetadataEdgeCases:
             temp_file.write(b'This is not a valid audio file')
         
         try:
-            # Should handle gracefully and return structure with minimal data
-            result = get_full_metadata(temp_path)
-            
-            # Should still return complete structure
-            assert 'unified_metadata' in result
-            assert 'technical_info' in result
-            assert 'metadata_format' in result
-            assert 'headers' in result
-            assert 'raw_metadata' in result
-            assert 'format_priorities' in result
-            
-            # Technical info might have default values
-            tech_info = result['technical_info']
-            assert 'duration_seconds' in tech_info
-            assert 'bitrate_kbps' in tech_info
-            assert 'file_size_bytes' in tech_info
-            
+            with pytest.raises(FileCorruptedError):
+                get_full_metadata(temp_path)
         finally:
             os.unlink(temp_path)
 
