@@ -6,10 +6,10 @@ This directory contains the test suite for audiometa-python, organized using the
 
 - [Test Structure](#test-structure)
 - [Running Tests](#running-tests)
-  - [Run all tests](#run-all-tests)
-  - [Run tests by category](#run-tests-by-category)
-  - [Run tests by folder](#run-tests-by-folder)
-  - [Combine markers](#combine-markers)
+  - [Run All Tests](#run-all-tests)
+  - [Run Tests by Category](#run-tests-by-category)
+  - [Run Tests by Folder](#run-tests-by-folder)
+  - [Combine Markers](#combine-markers)
 - [Code Coverage](#code-coverage)
   - [Running Tests with Coverage](#running-tests-with-coverage)
   - [Running Tests Without Coverage (Default)](#running-tests-without-coverage-default)
@@ -92,7 +92,7 @@ pytest audiometa/test/tests/integration/
 pytest audiometa/test/tests/e2e/
 ```
 
-### Combine markers
+### Combine Markers
 
 ```bash
 # Run unit and integration tests (skip slow e2e)
