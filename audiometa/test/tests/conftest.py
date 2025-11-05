@@ -82,10 +82,17 @@ def sample_wav_file(assets_dir: Path) -> Path:
 def sample_m4a_file(assets_dir: Path) -> Path:
     return assets_dir / "sample.m4a"
 
+@pytest.fixture
+def metadata_none_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=none.mp3"
 
 @pytest.fixture
-def metadata_id3v1_small_mp3(assets_dir: Path) -> Path:
-    return assets_dir / "metadata=long a_id3v1_small.mp3"
+def metadata_none_wav(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=none.wav"
+
+@pytest.fixture
+def metadata_none_flac(assets_dir: Path) -> Path:
+    return assets_dir / "metadata=none.flac"
 
 
 @pytest.fixture
