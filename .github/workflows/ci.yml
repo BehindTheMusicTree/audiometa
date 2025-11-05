@@ -102,12 +102,3 @@ jobs:
 
       - name: Check combined coverage threshold
         run: coverage report --fail-under=85
-
-      - name: Upload coverage to Codecov
-        if: matrix.python-version == '3.13' && matrix.os == 'ubuntu-latest'
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
-          flags: unittests
-          name: audiometa-coverage
-          fail_ci_if_error: false
