@@ -7,20 +7,16 @@ import os
 
 from audiometa import get_full_metadata, AudioFile
 from audiometa.exceptions import FileTypeNotSupportedError
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.integration
 class TestGetFullMetadataEdgeCases:
 
     def test_get_full_metadata_empty_file(self):
-        with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as temp_file:
-            temp_path = temp_file.name
-            # Create empty file
-            temp_file.write(b'')
-        
-        try:
+        with TempFileWithMetadata({}, "mp3") as temp_file:
             # Should handle gracefully and return structure with minimal data
-            result = get_full_metadata(temp_path)
+            result = get_full_metadata(temp_file.path)
             
             # Should still return complete structure
             assert 'unified_metadata' in result
@@ -29,9 +25,6 @@ class TestGetFullMetadataEdgeCases:
             assert 'headers' in result
             assert 'raw_metadata' in result
             assert 'format_priorities' in result
-            
-        finally:
-            os.unlink(temp_path)
 
     def test_get_full_metadata_corrupted_file(self):
         with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as temp_file:

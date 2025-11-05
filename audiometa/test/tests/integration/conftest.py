@@ -3,22 +3,6 @@ import pytest
 from pathlib import Path
 
 
-# Test tracks with no metadata
-@pytest.fixture
-def metadata_none_mp3(assets_dir: Path) -> Path:
-    return assets_dir / "metadata=none.mp3"
-
-
-@pytest.fixture
-def metadata_none_flac(assets_dir: Path) -> Path:
-    return assets_dir / "metadata=none.flac"
-
-
-@pytest.fixture
-def metadata_none_wav(assets_dir: Path) -> Path:
-    return assets_dir / "metadata=none.wav"
-
-
 # Test tracks with rating
 @pytest.fixture
 def rating_id3v2_base_100_0_star_wav(assets_dir: Path) -> Path:
