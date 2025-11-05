@@ -76,6 +76,14 @@ jobs:
           pip install -e ".[dev]"
           pip install -r requirements.txt
 
+      - name: Cache pytest cache
+        uses: actions/cache@v4
+        with:
+          path: .pytest_cache
+          key: pytest-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/*.py') }}
+          restore-keys: |
+            pytest-${{ runner.os }}-${{ matrix.python-version }}-
+
       - name: Verify external tools (Linux/macOS)
         if: matrix.os != 'windows-latest'
         run: |
