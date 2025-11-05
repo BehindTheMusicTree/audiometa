@@ -109,7 +109,7 @@ jobs:
         with:
           file: ./coverage.xml
           flags: unittests
-          name: codecov-umbrella
+          name: audiometa-coverage
           fail_ci_if_error: false
 
   test-fast:
