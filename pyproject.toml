@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "Apache-2.0"}
 authors = [
-    {name = "Andreas Garcia", email = "Andreas-Garcia@users.noreply.github.com"},
+    {name = "Andreas Garcia", email = "garcia.andreas.1991@gmail.com"},
     {name = "AudioMeta Python Contributors"}
 ]
 keywords = ["audio", "metadata", "mp3", "flac", "wav", "id3", "vorbis", "riff"]
