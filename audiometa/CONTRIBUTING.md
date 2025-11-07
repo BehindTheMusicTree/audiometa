@@ -275,6 +275,11 @@ black . && isort .
 
 Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
 
+**Test file exceptions:**
+
+- Test files are excluded from `mypy` type checking
+- Test files have docstring requirements disabled in `flake8` (per contributing guidelines - test functions don't require docstrings)
+
 CI will automatically test all pushes and PRs using GitHub Actions.
 
 ### ✅ Pre-PR / Pre-Merge Checklist
