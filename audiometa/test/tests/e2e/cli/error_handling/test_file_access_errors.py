@@ -2,7 +2,7 @@ import subprocess
 import sys
 import pytest
 
-from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.e2e
@@ -73,7 +73,7 @@ class TestCLIFileAccessErrors:
         assert "error" in stderr_output
 
     def test_cli_output_file_unified_command(self, tmp_path):
-        with TempFileWithMetadata({}, "mp3") as temp_file:
+        with temp_file_with_metadata({}, "mp3") as temp_file_path:
             # Create read-only directory
             read_only_dir = tmp_path / "readonly"
             read_only_dir.mkdir(mode=0o444)
@@ -81,7 +81,7 @@ class TestCLIFileAccessErrors:
 
             result = subprocess.run([
                 sys.executable, "-m", "audiometa", "unified",
-                str(temp_file.path), "--output", str(output_file)
+                str(temp_file_path), "--output", str(output_file)
             ], capture_output=True, text=True)
 
             # Should fail due to permission error

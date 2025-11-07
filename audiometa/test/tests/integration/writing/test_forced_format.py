@@ -18,7 +18,7 @@ from audiometa.exceptions import (
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.integration
@@ -30,18 +30,18 @@ class TestForcedFormat:
             "title": "Original RIFF Title",
             "artist": "Original RIFF Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
+        with temp_file_with_metadata(initial_metadata, "wav") as test_file_path:
             # Add ID3v2 metadata using the library directly
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "Original ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS: ["Original ID3v2 Artist"]
             }
-            update_metadata(test_file.path, id3v2_metadata, 
+            update_metadata(test_file_path, id3v2_metadata, 
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify both formats have their respective metadata
-            riff_before = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
-            id3v2_before = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
+            riff_before = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.RIFF)
+            id3v2_before = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.ID3V2)
             assert riff_before.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "Original ID3v2 Title"
             
@@ -52,16 +52,16 @@ class TestForcedFormat:
             }
             
             # This should write only to ID3v2 format, leaving RIFF unchanged
-            update_metadata(test_file.path, new_metadata, 
+            update_metadata(test_file_path, new_metadata, 
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify ID3v2 has new metadata
-            id3v2_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
+            id3v2_after = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "New ID3v2 Title"
             assert id3v2_after.get(UnifiedMetadataKey.ARTISTS) == ["New ID3v2 Artist"]
             
             # Verify RIFF still has original metadata (forced format doesn't affect other formats)
-            riff_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
+            riff_after = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.RIFF)
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
             assert riff_after.get(UnifiedMetadataKey.ARTISTS) == ["Original RIFF Artist"]
 
@@ -71,7 +71,7 @@ class TestForcedFormat:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
+        with temp_file_with_metadata(initial_metadata, "wav") as test_file_path:
             # Try to write ARCHIVAL_LOCATION to RIFF format (not supported)
             unsupported_metadata = {
                 UnifiedMetadataKey.TITLE: "Test Title",
@@ -80,7 +80,7 @@ class TestForcedFormat:
             
             # This should raise MetadataFieldNotSupportedByMetadataFormatError because format is forced
             with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.ARCHIVAL_LOCATION metadata not supported by RIFF format"):
-                update_metadata(test_file.path, unsupported_metadata, 
+                update_metadata(test_file_path, unsupported_metadata, 
                                    metadata_format=MetadataFormat.RIFF)
 
     def test_forced_format_succeeds_with_supported_fields(self):
@@ -89,7 +89,7 @@ class TestForcedFormat:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
+        with temp_file_with_metadata(initial_metadata, "wav") as test_file_path:
             # Write supported fields to RIFF format
             supported_metadata = {
                 UnifiedMetadataKey.TITLE: "New RIFF Title",
@@ -98,11 +98,11 @@ class TestForcedFormat:
             }
             
             # This should succeed because all fields are supported by RIFF
-            update_metadata(test_file.path, supported_metadata, 
+            update_metadata(test_file_path, supported_metadata, 
                                metadata_format=MetadataFormat.RIFF)
             
             # Verify RIFF has new metadata
-            riff_metadata = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
+            riff_metadata = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.RIFF)
             assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "New RIFF Title"
             assert riff_metadata.get(UnifiedMetadataKey.ARTISTS) == ["New RIFF Artist"]
             assert riff_metadata.get(UnifiedMetadataKey.ALBUM) == "New RIFF Album"
@@ -113,7 +113,7 @@ class TestForcedFormat:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
+        with temp_file_with_metadata(initial_metadata, "wav") as test_file_path:
             metadata = {
                 UnifiedMetadataKey.TITLE: "Test Title",
                 UnifiedMetadataKey.ARTISTS: ["Test Artist"]
@@ -121,7 +121,7 @@ class TestForcedFormat:
             
             # This should raise error because both parameters are specified
             with pytest.raises(MetadataWritingConflictParametersError, match="Cannot specify both metadata_strategy and metadata_format"):
-                update_metadata(test_file.path, metadata,
+                update_metadata(test_file_path, metadata,
                                    metadata_format=MetadataFormat.RIFF,
                                    metadata_strategy=MetadataWritingStrategy.SYNC)
 
@@ -131,7 +131,7 @@ class TestForcedFormat:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
             metadata = {
                 UnifiedMetadataKey.TITLE: "Test Title",
                 UnifiedMetadataKey.ARTISTS: ["Test Artist"]
@@ -139,7 +139,7 @@ class TestForcedFormat:
             
             # Try to force Vorbis format on MP3 file (not supported)
             with pytest.raises(MetadataFormatNotSupportedByAudioFormatError, match="Tag format MetadataFormat.VORBIS not supported for file extension .mp3"):
-                update_metadata(test_file.path, metadata, 
+                update_metadata(test_file_path, metadata, 
                                    metadata_format=MetadataFormat.VORBIS)
 
     def test_forced_format_id3v1_writing_support(self):
@@ -148,18 +148,18 @@ class TestForcedFormat:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
             metadata = {
                 UnifiedMetadataKey.TITLE: "New ID3v1 Title",
                 UnifiedMetadataKey.ARTISTS: ["New ID3v1 Artist"]
             }
             
-            update_metadata(test_file.path, metadata, 
+            update_metadata(test_file_path, metadata, 
                                metadata_format=MetadataFormat.ID3V1)
             
             # Verify the metadata was written
             from audiometa import get_unified_metadata
-            result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
+            result = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.ID3V1)
             assert result.get(UnifiedMetadataKey.TITLE) == "New ID3v1 Title"
             assert result.get(UnifiedMetadataKey.ARTISTS) == ["New ID3v1 Artist"]
 
@@ -169,18 +169,18 @@ class TestForcedFormat:
             "title": "Original RIFF Title",
             "artist": "Original RIFF Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
+        with temp_file_with_metadata(initial_metadata, "wav") as test_file_path:
             # Add ID3v2 metadata using the library directly
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "Original ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS: ["Original ID3v2 Artist"]
             }
-            update_metadata(test_file.path, id3v2_metadata, 
+            update_metadata(test_file_path, id3v2_metadata, 
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify both formats have original metadata
-            riff_before = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
-            id3v2_before = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
+            riff_before = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.RIFF)
+            id3v2_before = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.ID3V2)
             assert riff_before.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "Original ID3v2 Title"
             
@@ -190,16 +190,16 @@ class TestForcedFormat:
                 UnifiedMetadataKey.ARTISTS: ["New ID3v2 Artist"]
             }
             
-            update_metadata(test_file.path, new_metadata, 
+            update_metadata(test_file_path, new_metadata, 
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify ID3v2 was updated
-            id3v2_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
+            id3v2_after = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "New ID3v2 Title"
             assert id3v2_after.get(UnifiedMetadataKey.ARTISTS) == ["New ID3v2 Artist"]
             
             # Verify RIFF was NOT updated (forced format only affects specified format)
-            riff_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
+            riff_after = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.RIFF)
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
             assert riff_after.get(UnifiedMetadataKey.ARTISTS) == ["Original RIFF Artist"]
 
@@ -209,7 +209,7 @@ class TestForcedFormat:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
             # Try to write rating to ID3v2 format (requires normalized_rating_max_value)
             metadata_with_rating = {
                 UnifiedMetadataKey.TITLE: "Test Title",
@@ -218,7 +218,7 @@ class TestForcedFormat:
             
             # This should fail because normalized_rating_max_value is not set
             with pytest.raises(Exception):  # ConfigurationError
-                update_metadata(test_file.path, metadata_with_rating, 
+                update_metadata(test_file_path, metadata_with_rating, 
                                    metadata_format=MetadataFormat.ID3V2)
 
     def test_forced_format_with_rating_field_success(self):
@@ -227,7 +227,7 @@ class TestForcedFormat:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
             # Write rating to ID3v2 format with proper configuration
             metadata_with_rating = {
                 UnifiedMetadataKey.TITLE: "Test Title",
@@ -235,12 +235,12 @@ class TestForcedFormat:
             }
             
             # This should succeed with proper configuration
-            update_metadata(test_file.path, metadata_with_rating, 
+            update_metadata(test_file_path, metadata_with_rating, 
                                metadata_format=MetadataFormat.ID3V2,
                                normalized_rating_max_value=100)
             
             # Verify rating was written (converted from 0-100 to 0-255 scale)
-            id3v2_metadata = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
+            id3v2_metadata = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
             # Rating 85 on 0-100 scale becomes 196 on 0-255 scale (85 * 255 / 100 = 216.75, rounded to 196)
             assert id3v2_metadata.get(UnifiedMetadataKey.RATING) == 196
@@ -253,7 +253,7 @@ class TestForcedFormat:
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
+        with temp_file_with_metadata(initial_metadata, "wav") as test_file_path:
             # Try to write mixed supported/unsupported fields to RIFF format
             mixed_metadata = {
                 UnifiedMetadataKey.TITLE: "New Title",  # Supported
@@ -264,11 +264,11 @@ class TestForcedFormat:
             
             # This should fail because ARCHIVAL_LOCATION is not supported by RIFF
             with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.ARCHIVAL_LOCATION metadata not supported by RIFF format"):
-                update_metadata(test_file.path, mixed_metadata, 
+                update_metadata(test_file_path, mixed_metadata, 
                                    metadata_format=MetadataFormat.RIFF)
             
             # Verify NO changes were made to the file (validation happens before writing)
-            final_metadata = get_unified_metadata(test_file)
+            final_metadata = get_unified_metadata(test_file_path)
             assert final_metadata.get(UnifiedMetadataKey.TITLE) == "Original Title"
             assert final_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Original Artist"]
             assert final_metadata.get(UnifiedMetadataKey.BPM) is None

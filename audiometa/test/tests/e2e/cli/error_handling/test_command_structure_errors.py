@@ -2,17 +2,17 @@ import subprocess
 import sys
 import pytest
 
-from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.e2e
 class TestCLICommandStructureErrors:
 
     def test_cli_unified_with_no_headers_technical_flags(self):
-        with TempFileWithMetadata({}, "mp3") as temp_file:
+        with temp_file_with_metadata({}, "mp3") as temp_file_path:
             result = subprocess.run([
                 sys.executable, "-m", "audiometa", "unified",
-                str(temp_file.path), "--no-headers", "--no-technical"
+                str(temp_file_path), "--no-headers", "--no-technical"
             ], capture_output=True, text=True)
 
             # Should fail - unified command doesn't accept these flags
@@ -32,10 +32,10 @@ class TestCLICommandStructureErrors:
 
     def test_cli_recursive_with_single_file(self):
         """Test CLI recursive flag with single file (should work but be redundant)."""
-        with TempFileWithMetadata({}, "mp3") as temp_file:
+        with temp_file_with_metadata({}, "mp3") as temp_file_path:
             result = subprocess.run([
                 sys.executable, "-m", "audiometa", "read",
-                str(temp_file.path), "--recursive"
+                str(temp_file_path), "--recursive"
             ], capture_output=True, text=True)
 
             # Should succeed - recursive with single file is valid

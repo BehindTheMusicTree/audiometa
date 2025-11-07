@@ -3,6 +3,7 @@ from pathlib import Path
 
 from audiometa import AudioFile
 from audiometa.exceptions import FileCorruptedError, FileTypeNotSupportedError
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.unit
@@ -24,14 +25,15 @@ class TestAudioFileFileTypeValidation:
         with pytest.raises(FileTypeNotSupportedError):
             AudioFile(sample_m4a_file)
             
-    def test_bad_content_then_not_ok(self, temp_audio_file: Path):
+    def test_bad_content_then_not_ok(self):
         # Create a file with valid extension but bad content
-        temp_audio_file.write_bytes(b"not a real audio file")
-        temp_audio_file = temp_audio_file.with_suffix(".mp3")
-        temp_audio_file.write_bytes(b"not a real audio file")
-        
-        with pytest.raises(FileCorruptedError):
-            AudioFile(str(temp_audio_file))
+        with temp_file_with_metadata({}, "mp3") as temp_audio_file_path:
+            temp_audio_file_path.write_bytes(b"not a real audio file")
+            temp_audio_file_path = temp_audio_file_path.with_suffix(".mp3")
+            temp_audio_file_path.write_bytes(b"not a real audio file")
+            
+            with pytest.raises(FileCorruptedError):
+                AudioFile(str(temp_audio_file_path))
 
     def test_nonexistent_file_raises_error(self):
         with pytest.raises(FileNotFoundError):

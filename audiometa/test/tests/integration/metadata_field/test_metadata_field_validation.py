@@ -4,7 +4,7 @@ from pathlib import Path
 from audiometa import get_unified_metadata_field, UnifiedMetadataKey, update_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError, MetadataFieldNotSupportedByLib, InvalidMetadataFieldTypeError
-from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.integration
@@ -45,15 +45,15 @@ class TestMetadataFieldValidation:
             raise MetadataFieldNotSupportedByLib("Test field not supported by library")
 
     def test_field_not_supported_by_lib_concept(self, sample_wav_file: Path):
-        with TempFileWithMetadata({}, "wav") as test_file:
+        with temp_file_with_metadata({}, "wav") as test_file_path:
             with pytest.raises(MetadataFieldNotSupportedByLib, match="Test field not supported by library"):
-                get_unified_metadata_field(test_file.path, 'Test field not supported by library')
+                get_unified_metadata_field(test_file_path, 'Test field not supported by library')
 
     def test_invalid_metadata_field_type_error_wrong_type_for_list_field(self):
-        with TempFileWithMetadata({}, "mp3") as test_file:
+        with temp_file_with_metadata({}, "mp3") as test_file_path:
             with pytest.raises(InvalidMetadataFieldTypeError) as exc_info:
                 update_metadata(
-                    test_file.path,
+                    test_file_path,
                     {UnifiedMetadataKey.ARTISTS: "should be list"}
                 )
             error = exc_info.value
@@ -62,10 +62,10 @@ class TestMetadataFieldValidation:
             assert error.value == "should be list"
 
     def test_invalid_metadata_field_type_error_wrong_type_for_string_field(self):
-        with TempFileWithMetadata({}, "mp3") as test_file:
+        with temp_file_with_metadata({}, "mp3") as test_file_path:
             with pytest.raises(InvalidMetadataFieldTypeError) as exc_info:
                 update_metadata(
-                    test_file.path,
+                    test_file_path,
                     {UnifiedMetadataKey.TITLE: 12345}
                 )
             error = exc_info.value

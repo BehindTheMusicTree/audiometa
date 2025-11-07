@@ -7,16 +7,16 @@ import os
 
 from audiometa import get_full_metadata, AudioFile
 from audiometa.exceptions import FileTypeNotSupportedError, FileCorruptedError
-from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.integration
 class TestGetFullMetadataEdgeCases:
 
     def test_get_full_metadata_empty_file(self):
-        with TempFileWithMetadata({}, "mp3") as temp_file:
+        with temp_file_with_metadata({}, "mp3") as temp_file_path:
             # Should handle gracefully and return structure with minimal data
-            result = get_full_metadata(temp_file.path)
+            result = get_full_metadata(temp_file_path)
             
             # Should still return complete structure
             assert 'unified_metadata' in result
@@ -38,16 +38,17 @@ class TestGetFullMetadataEdgeCases:
         finally:
             os.unlink(temp_path)
 
-    def test_get_full_metadata_file_with_only_headers_no_metadata(self, temp_audio_file: Path):
-        result = get_full_metadata(temp_audio_file)
-        
-        # Should detect headers even if no metadata content
-        headers = result['headers']
-        
-        for metadata_format_name, header_info in headers.items():
-            # Headers might be present even without metadata content
-            assert 'present' in header_info
-            assert isinstance(header_info['present'], bool)
+    def test_get_full_metadata_file_with_only_headers_no_metadata(self):
+        with temp_file_with_metadata({}, "mp3") as temp_file_path:
+            result = get_full_metadata(temp_file_path)
+            
+            # Should detect headers even if no metadata content
+            headers = result['headers']
+            
+            for metadata_format_name, header_info in headers.items():
+                # Headers might be present even without metadata content
+                assert 'present' in header_info
+                assert isinstance(header_info['present'], bool)
 
     def test_get_full_metadata_large_file(self, sample_mp3_file: Path):
         # This test ensures the function can handle larger files
@@ -205,25 +206,26 @@ class TestGetFullMetadataEdgeCases:
             if key in ['unified_metadata', 'technical_info', 'metadata_format', 'headers', 'raw_metadata']:
                 assert set(result1[key].keys()) == set(result2[key].keys())
 
-    def test_get_full_metadata_with_minimal_metadata(self, temp_audio_file: Path):
-        result = get_full_metadata(temp_audio_file)
-        
-        # Should still return complete structure
-        assert 'unified_metadata' in result
-        assert 'technical_info' in result
-        assert 'metadata_format' in result
-        assert 'headers' in result
-        assert 'raw_metadata' in result
-        assert 'format_priorities' in result
-        
-        # Unified metadata might be empty or minimal
-        unified_metadata = result['unified_metadata']
-        assert isinstance(unified_metadata, dict)
-        
-        # Technical info should still be present
-        tech_info = result['technical_info']
-        assert 'file_size_bytes' in tech_info
-        assert tech_info['file_size_bytes'] >= 0  # Can be 0 for empty files
+    def test_get_full_metadata_with_minimal_metadata(self):
+        with temp_file_with_metadata({}, "mp3") as temp_file_path:
+            result = get_full_metadata(temp_file_path)
+            
+            # Should still return complete structure
+            assert 'unified_metadata' in result
+            assert 'technical_info' in result
+            assert 'metadata_format' in result
+            assert 'headers' in result
+            assert 'raw_metadata' in result
+            assert 'format_priorities' in result
+            
+            # Unified metadata might be empty or minimal
+            unified_metadata = result['unified_metadata']
+            assert isinstance(unified_metadata, dict)
+            
+            # Technical info should still be present
+            tech_info = result['technical_info']
+            assert 'file_size_bytes' in tech_info
+            assert tech_info['file_size_bytes'] >= 0  # Can be 0 for empty files
 
     def test_get_full_metadata_format_detection_accuracy(self, sample_mp3_file: Path):
         result = get_full_metadata(sample_mp3_file)

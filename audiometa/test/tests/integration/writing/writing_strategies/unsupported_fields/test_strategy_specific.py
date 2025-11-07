@@ -7,7 +7,7 @@ from audiometa import (
 from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
-from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.integration
@@ -18,8 +18,8 @@ class TestStrategySpecific:
             "title": "Original WAV Title",
             "artist": "Original WAV Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
-            initial_read = get_unified_metadata(test_file)
+        with temp_file_with_metadata(initial_metadata, "wav") as test_file_path:
+            initial_read = get_unified_metadata(test_file_path)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"
             assert initial_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]
             
@@ -30,14 +30,14 @@ class TestStrategySpecific:
             }
             
             with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError) as exc_info:
-                update_metadata(test_file.path, test_metadata, 
+                update_metadata(test_file_path, test_metadata, 
                                    metadata_strategy=MetadataWritingStrategy.PRESERVE,
                                    fail_on_unsupported_field=True)
             
             assert "Fields not supported by riff format" in str(exc_info.value)
             assert "REPLAYGAIN" in str(exc_info.value)
             
-            final_read = get_unified_metadata(test_file)
+            final_read = get_unified_metadata(test_file_path)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
@@ -47,8 +47,8 @@ class TestStrategySpecific:
             "title": "Original WAV Title",
             "artist": "Original WAV Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
-            initial_read = get_unified_metadata(test_file)
+        with temp_file_with_metadata(initial_metadata, "wav") as test_file_path:
+            initial_read = get_unified_metadata(test_file_path)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"
             assert initial_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]
             
@@ -59,14 +59,14 @@ class TestStrategySpecific:
             }
             
             with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError) as exc_info:
-                update_metadata(test_file.path, test_metadata, 
+                update_metadata(test_file_path, test_metadata, 
                                    metadata_strategy=MetadataWritingStrategy.CLEANUP,
                                    fail_on_unsupported_field=True)
             
             assert "Fields not supported by riff format" in str(exc_info.value)
             assert "REPLAYGAIN" in str(exc_info.value)
             
-            final_read = get_unified_metadata(test_file)
+            final_read = get_unified_metadata(test_file_path)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
@@ -76,8 +76,8 @@ class TestStrategySpecific:
             "title": "Original WAV Title",
             "artist": "Original WAV Artist"
         }
-        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
-            initial_read = get_unified_metadata(test_file)
+        with temp_file_with_metadata(initial_metadata, "wav") as test_file_path:
+            initial_read = get_unified_metadata(test_file_path)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"
             assert initial_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]
             
@@ -88,7 +88,7 @@ class TestStrategySpecific:
             }
             
             with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError) as exc_info:
-                update_metadata(test_file.path, test_metadata, 
+                update_metadata(test_file_path, test_metadata, 
                                    metadata_strategy=MetadataWritingStrategy.SYNC,
                                    fail_on_unsupported_field=True)
             
@@ -97,7 +97,7 @@ class TestStrategySpecific:
             
             # With fail_on_unsupported_field=True, the operation should be atomic
             # No writing should occur, so file should remain unchanged
-            final_read = get_unified_metadata(test_file)
+            final_read = get_unified_metadata(test_file_path)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist

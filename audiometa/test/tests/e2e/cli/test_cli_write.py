@@ -2,7 +2,7 @@ import subprocess
 import sys
 import pytest
 
-from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.e2e
@@ -15,17 +15,17 @@ class TestCLIWrite:
         assert "no metadata fields specified" in result.stderr.lower()
     
     def test_cli_write_basic_metadata(self):
-        with TempFileWithMetadata({}, "mp3") as test_file:
+        with temp_file_with_metadata({}, "mp3") as test_file_path:
             result = subprocess.run([sys.executable, "-m", "audiometa", "write", 
-                                   str(test_file.path), "--title", "CLI Test Title"], 
+                                   str(test_file_path), "--title", "CLI Test Title"], 
                                   capture_output=True, text=True)
             assert result.returncode == 0
             assert "Updated metadata" in result.stdout
     
     def test_cli_with_spaces_in_filename_write(self):
-        with TempFileWithMetadata({}, "mp3") as test_file:
+        with temp_file_with_metadata({}, "mp3") as test_file_path:
             result = subprocess.run([sys.executable, "-m", "audiometa", "write", 
-                                   str(test_file.path), "--title", "Test Title", "--artist", "Test Artist"], 
+                                   str(test_file_path), "--title", "Test Title", "--artist", "Test Artist"], 
                                   capture_output=True, text=True)
             assert result.returncode == 0
             assert "Updated metadata" in result.stdout

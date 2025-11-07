@@ -7,19 +7,21 @@ from audiometa import (
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.integration
 class TestReadingErrorHandling:
 
-    def test_unsupported_file_type_raises_error(self, temp_audio_file: Path):
+    def test_unsupported_file_type_raises_error(self):
         # Create a file with unsupported extension
-        temp_audio_file.write_bytes(b"fake audio content")
-        temp_audio_file = temp_audio_file.with_suffix(".txt")
-        temp_audio_file.write_bytes(b"fake audio content")
-        
-        with pytest.raises(FileTypeNotSupportedError):
-            get_unified_metadata(str(temp_audio_file))
+        with temp_file_with_metadata({}, "mp3") as temp_audio_file_path:
+            temp_audio_file_path.write_bytes(b"fake audio content")
+            temp_audio_file_path = temp_audio_file_path.with_suffix(".txt")
+            temp_audio_file_path.write_bytes(b"fake audio content")
+            
+            with pytest.raises(FileTypeNotSupportedError):
+                get_unified_metadata(str(temp_audio_file_path))
 
     def test_nonexistent_file_raises_error(self):
         nonexistent_file = "nonexistent_file.mp3"

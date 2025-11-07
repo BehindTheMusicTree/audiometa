@@ -11,7 +11,7 @@ from audiometa import (
     get_unified_metadata
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.integration
@@ -27,9 +27,9 @@ class TestMetadataWriting:
             "album": "Original Album"
         }
         
-        with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
             # Get original metadata
-            original_metadata = get_unified_metadata(test_file.path)
+            original_metadata = get_unified_metadata(test_file_path)
             original_album = original_metadata.get(UnifiedMetadataKey.ALBUM)
             
             # Update only title using app's function (this is what we're testing)
@@ -37,8 +37,8 @@ class TestMetadataWriting:
                 UnifiedMetadataKey.TITLE: "Partial Update Title"
             }
             
-            update_metadata(test_file.path, test_metadata)
-            updated_metadata = get_unified_metadata(test_file.path)
+            update_metadata(test_file_path, test_metadata)
+            updated_metadata = get_unified_metadata(test_file_path)
             
             # Title should be updated
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Partial Update Title"

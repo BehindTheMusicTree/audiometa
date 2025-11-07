@@ -4,6 +4,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import get_full_metadata, AudioFile
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.integration
@@ -141,25 +142,26 @@ class TestGetFullMetadata:
         assert 'raw_metadata' in result
         assert 'format_priorities' in result
 
-    def test_get_full_metadata_file_with_no_metadata(self, temp_audio_file: Path):
-        result = get_full_metadata(temp_audio_file)
-        
-        # Should still return complete structure
-        assert 'unified_metadata' in result
-        assert 'technical_info' in result
-        assert 'metadata_format' in result
-        assert 'headers' in result
-        assert 'raw_metadata' in result
-        assert 'format_priorities' in result
-        
-        # Unified metadata should be empty or minimal
-        assert isinstance(result['unified_metadata'], dict)
-        
-        # Technical info should still be present
-        tech_info = result['technical_info']
-        assert 'duration_seconds' in tech_info
-        assert 'bitrate_kbps' in tech_info
-        assert 'file_size_bytes' in tech_info
+    def test_get_full_metadata_file_with_no_metadata(self):
+        with temp_file_with_metadata({}, "mp3") as temp_file_path:
+            result = get_full_metadata(temp_file_path)
+            
+            # Should still return complete structure
+            assert 'unified_metadata' in result
+            assert 'technical_info' in result
+            assert 'metadata_format' in result
+            assert 'headers' in result
+            assert 'raw_metadata' in result
+            assert 'format_priorities' in result
+            
+            # Unified metadata should be empty or minimal
+            assert isinstance(result['unified_metadata'], dict)
+            
+            # Technical info should still be present
+            tech_info = result['technical_info']
+            assert 'duration_seconds' in tech_info
+            assert 'bitrate_kbps' in tech_info
+            assert 'file_size_bytes' in tech_info
 
     def test_get_full_metadata_headers_present_flags(self, sample_mp3_file: Path):
         result = get_full_metadata(sample_mp3_file)

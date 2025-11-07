@@ -2,7 +2,7 @@ import subprocess
 import sys
 import pytest
 
-from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.e2e
@@ -71,8 +71,8 @@ class TestCLIMultipleFilesErrors:
         assert "error" in stderr_output
 
     def test_cli_multiple_files_write_mixed_success_failure(self, tmp_path):
-        with TempFileWithMetadata({}, "mp3") as temp_mp3, \
-             TempFileWithMetadata({}, "flac") as temp_flac:
+        with temp_file_with_metadata({}, "mp3") as temp_mp3_path, \
+             temp_file_with_metadata({}, "flac") as temp_flac_path:
 
             # Create unsupported file type
             unsupported_file = tmp_path / "unsupported.txt"
@@ -81,7 +81,7 @@ class TestCLIMultipleFilesErrors:
             # Run CLI write command with mixed files
             result = subprocess.run([
                 sys.executable, "-m", "audiometa", "write",
-                str(temp_mp3.path), str(temp_flac.path), str(unsupported_file),
+                str(temp_mp3_path), str(temp_flac_path), str(unsupported_file),
                 "--title", "Test Title",
                 "--continue-on-error"
             ], capture_output=True, text=True)
@@ -98,8 +98,8 @@ class TestCLIMultipleFilesErrors:
             assert "error" in stderr_output
 
     def test_cli_multiple_files_delete_mixed_success_failure(self, tmp_path):
-        with TempFileWithMetadata({}, "mp3") as temp_mp3, \
-             TempFileWithMetadata({}, "wav") as temp_wav:
+        with temp_file_with_metadata({}, "mp3") as temp_mp3_path, \
+             temp_file_with_metadata({}, "wav") as temp_wav_path:
 
             # Create unsupported file type
             unsupported_file = tmp_path / "unsupported.txt"
@@ -108,7 +108,7 @@ class TestCLIMultipleFilesErrors:
             # Run CLI delete command with mixed files
             result = subprocess.run([
                 sys.executable, "-m", "audiometa", "delete",
-                str(temp_mp3.path), str(temp_wav.path), str(unsupported_file),
+                str(temp_mp3_path), str(temp_wav_path), str(unsupported_file),
                 "--continue-on-error"
             ], capture_output=True, text=True)
 
