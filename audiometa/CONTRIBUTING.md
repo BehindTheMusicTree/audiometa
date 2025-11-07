@@ -136,13 +136,33 @@ For detailed test documentation, including test principles, markers, and advance
 
 #### Lint Code for Style Consistency
 
-To check code style and formatting:
+We use [pre-commit](https://pre-commit.com/) hooks to automatically check code quality before commits.
+
+**First-time setup:**
 
 ```bash
-black --check . && isort --check-only . && mypy audiometa && flake8 audiometa
+# Install pre-commit (if not already installed)
+pip install -e ".[dev]"
+
+# Install the git hooks
+pre-commit install
 ```
 
-To auto-fix formatting issues locally:
+**Usage:**
+
+Once installed, pre-commit will automatically run on every commit. You can also run it manually:
+
+```bash
+# Run on all files
+pre-commit run --all-files
+
+# Run only on staged files (default when committing)
+pre-commit run
+```
+
+**Auto-fix formatting:**
+
+Pre-commit will auto-fix black and isort issues. You can also run manually:
 
 ```bash
 black . && isort .
