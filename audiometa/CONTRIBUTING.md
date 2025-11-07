@@ -19,17 +19,9 @@ This project is currently maintained by a solo developer, but contributions, sug
       - [Running Tests Without Coverage](#running-tests-without-coverage)
       - [Viewing Coverage Reports](#viewing-coverage-reports)
     - [Lint Code for Style Consistency](#lint-code-for-style-consistency)
+  - [📝 Commit Message Convention](#-commit-message-convention)
+  - [✅ Pre-PR / Pre-Merge Checklist](#-pre-pr--pre-merge-checklist)
   - [🚀 Releasing _(For Maintainers)_](#releasing-for-maintainers)
-- [📝 Commit Message Convention](#-commit-message-convention)
-  - [Format](#format)
-    - [Breaking Changes](#breaking-changes)
-  - [Example](#example)
-  - [Allowed Commit Types](#allowed-commit-types)
-  - [Scopes](#scopes)
-    - [Common Scopes](#common-scopes)
-    - [Test Commits Best Practices](#test-commits-best-practices)
-  - [Examples](#examples)
-  - [Guidelines](#guidelines)
 - [🪪 License & Attribution](#-license--attribution)
 - [🌍 Contact & Discussions](#-contact--discussions)
 
@@ -106,73 +98,7 @@ We follow a light GitFlow model adapted for small teams and open-source projects
 - For urgent bug fixes on production versions
 - Contributors can submit fixes via feature branches that maintainers may promote to hotfixes if needed
 
-### 🧪 Testing
-
-We use pytest for all automated testing with markers for unit, integration, and e2e tests.
-
-#### Quick Reference
-
-```bash
-# Run all tests
-pytest
-
-# Run tests by category (matches CI behavior)
-pytest -m unit          # Fast unit tests only
-pytest -m integration   # Integration tests only
-pytest -m e2e           # End-to-end tests only
-
-# Run without slow e2e tests
-pytest -m "not e2e"
-
-# Run with coverage (recommended before committing)
-pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-under=85
-```
-
-**Note:** CI runs tests separately by marker (`unit`, `integration`, `e2e`) with coverage. The coverage threshold of 85% applies to the combined total.
-
-**Note:** CI tests only run on latest OS versions: `ubuntu-latest`, `macos-latest`, `windows-latest`.
-
-For detailed test documentation, including test principles, markers, and advanced usage, see [`audiometa/test/README.md`](test/README.md).
-
-#### Lint Code for Style Consistency
-
-We use [pre-commit](https://pre-commit.com/) hooks to automatically check code quality before commits.
-
-**First-time setup:**
-
-```bash
-# Install pre-commit (if not already installed)
-pip install -e ".[dev]"
-
-# Install the git hooks
-pre-commit install
-```
-
-**Usage:**
-
-Once installed, pre-commit will automatically run on every commit. You can also run it manually:
-
-```bash
-# Run on all files
-pre-commit run --all-files
-
-# Run only on staged files (default when committing)
-pre-commit run
-```
-
-**Auto-fix formatting:**
-
-Pre-commit will auto-fix black and isort issues. You can also run manually:
-
-```bash
-black . && isort .
-```
-
-Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
-
-CI will automatically test all pushes and PRs using GitHub Actions.
-
-### Commit Message Convention
+### 📝 Commit Message Convention
 
 We follow a structured commit format inspired by [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 This helps keep the commit history readable, supports automatic changelog generation, and ensures consistent release versioning.
@@ -277,6 +203,216 @@ Use the commit body for additional context if needed.
 One logical change per commit.
 
 Small, focused commits are better than large, mixed ones.
+
+### 🧪 Testing
+
+We use pytest for all automated testing with markers for unit, integration, and e2e tests.
+
+#### Quick Reference
+
+```bash
+# Run all tests
+pytest
+
+# Run tests by category (matches CI behavior)
+pytest -m unit          # Fast unit tests only
+pytest -m integration   # Integration tests only
+pytest -m e2e           # End-to-end tests only
+
+# Run without slow e2e tests
+pytest -m "not e2e"
+
+# Run with coverage (recommended before committing)
+pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-under=85
+```
+
+**Note:** CI runs tests separately by marker (`unit`, `integration`, `e2e`) with coverage. The coverage threshold of 85% applies to the combined total.
+
+**Note:** CI tests only run on latest OS versions: `ubuntu-latest`, `macos-latest`, `windows-latest`.
+
+For detailed test documentation, including test principles, markers, and advanced usage, see [`audiometa/test/README.md`](test/README.md).
+
+#### Lint Code for Style Consistency
+
+We use [pre-commit](https://pre-commit.com/) hooks to automatically check code quality before commits.
+
+**First-time setup:**
+
+```bash
+# Install pre-commit (if not already installed)
+pip install -e ".[dev]"
+
+# Install the git hooks
+pre-commit install
+```
+
+**Usage:**
+
+Once installed, pre-commit will automatically run on every commit. You can also run it manually:
+
+```bash
+# Run on all files
+pre-commit run --all-files
+
+# Run only on staged files (default when committing)
+pre-commit run
+```
+
+**Auto-fix formatting:**
+
+Pre-commit will auto-fix black and isort issues. You can also run manually:
+
+```bash
+black . && isort .
+```
+
+Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
+
+CI will automatically test all pushes and PRs using GitHub Actions.
+
+### ✅ Pre-PR / Pre-Merge Checklist
+
+Before submitting a Pull Request (contributors) or merging to `main` (maintainers), ensure the following checks are completed:
+
+#### For Contributors (Before Opening a PR)
+
+**1. Code Quality Checks**
+
+- ✅ Run pre-commit hooks: `pre-commit run --all-files`
+- ✅ All linting checks pass (black, isort, mypy, flake8)
+- ✅ Code is properly formatted
+
+**2. Tests**
+
+- ✅ All tests pass: `pytest`
+- ✅ Coverage meets threshold (≥85%): `pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=85`
+- ✅ New features have corresponding tests
+- ✅ Bug fixes include regression tests
+
+**3. Code Cleanup**
+
+- ✅ Remove all debug print statements (`print()`, `pdb`, etc.)
+- ✅ Remove commented-out code
+- ✅ Remove temporary files and test artifacts
+- ✅ No hardcoded credentials, API keys, or secrets
+
+**4. Documentation**
+
+- ✅ Update docstrings for new functions/classes (only when needed - see docstring guidelines below)
+- ✅ Update README if adding new features or changing behavior
+- ✅ Update CONTRIBUTING.md if changing development workflow
+- ✅ Add/update type hints where appropriate
+
+**Docstring Guidelines:**
+
+Docstrings should only be added when they provide value (complex logic, public API, edge cases, etc.). When docstrings are needed, use a **systematic Google-style format** for consistency:
+
+```python
+def public_api_function(param1: str, param2: int | None = None) -> dict[str, Any]:
+    """Brief one-line description.
+
+    More detailed explanation if needed. Can span multiple lines
+    to explain complex behavior, edge cases, or important details.
+
+    Args:
+        param1: Description of param1
+        param2: Description of param2. Defaults to None.
+
+    Returns:
+        Description of return value
+
+    Raises:
+        ValueError: When param1 is invalid
+        FileNotFoundError: When file doesn't exist
+
+    Examples:
+        >>> result = public_api_function("test", 42)
+        >>> print(result)
+        {'key': 'value'}
+    """
+    # Implementation
+```
+
+**When to add docstrings:**
+
+- Public API functions/classes (exported from `__init__.py`)
+- Complex business logic that isn't obvious
+- Functions with non-obvious side effects
+- Important edge cases or assumptions
+
+**When NOT to add docstrings:**
+
+- Simple getter/setter functions
+- Self-explanatory functions with descriptive names
+- Test functions (unless testing complex scenarios)
+- Internal helper functions that are obvious from context
+
+**5. Git Hygiene**
+
+- ✅ Commit messages follow the [commit message convention](#-commit-message-convention)
+- ✅ No merge conflicts with target branch
+- ✅ Branch is up to date with target branch
+- ✅ No accidental commits (large files, secrets, personal configs)
+
+**6. PR Description**
+
+- ✅ Clear description of changes
+- ✅ Reference related issues (e.g., "Fixes #123")
+- ✅ Note any breaking changes
+- ✅ Include testing instructions if applicable
+
+**7. Breaking Changes & Compatibility**
+
+- ✅ Breaking changes are clearly marked in PR description
+- ✅ Breaking changes include proper versioning notes (for maintainers to handle)
+- ✅ Backward compatibility maintained (unless breaking change is intentional)
+- ✅ If breaking change is intentional, clearly document the migration path
+
+#### For Maintainers (Before Merging to `main`)
+
+**All Contributor Checks Plus:**
+
+**1. Code Review**
+
+- ✅ Code follows project conventions and style
+- ✅ Logic is sound and well-structured
+- ✅ Error handling is appropriate
+- ✅ Performance considerations addressed (if applicable)
+
+**2. Testing Verification**
+
+- ✅ CI tests pass on all platforms and Python versions
+- ✅ Test coverage is adequate for the changes
+- ✅ Edge cases are handled
+- ✅ Integration with existing features works correctly
+
+**3. Documentation Review**
+
+- ✅ Public API changes are documented
+- ✅ Breaking changes are clearly marked and documented
+- ✅ Examples and usage are updated if needed
+
+**4. Compatibility Verification**
+
+- ✅ Breaking changes have proper versioning plan (major version bump)
+- ✅ Backward compatibility maintained (unless intentional breaking change)
+- ✅ Migration path documented for breaking changes
+- ✅ Dependencies are up to date and compatible
+
+**5. Final Checks**
+
+- ✅ PR description is clear and complete
+- ✅ All review comments are addressed
+- ✅ No unresolved discussions
+- ✅ Ready for release (if applicable)
+
+**Quick Pre-PR Command:**
+
+```bash
+# Run all checks at once
+pre-commit run --all-files && \
+pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=85
+```
 
 ### Releasing _(For Maintainers)_
 
