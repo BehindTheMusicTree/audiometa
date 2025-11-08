@@ -152,7 +152,6 @@ Scopes are optional but encouraged for clarity.
 | vorbis | fix(vorbis): improve comment parsing                | Vorbis comment format        |
 | riff   | feat(riff): detect and write INFO chunks            | RIFF metadata format         |
 | test   | refactor(test): reorganize test fixtures            | Testing infrastructure       |
-| io     | test(io): verify metadata persistence on temp files | File I/O operations          |
 | deps   | chore(deps): update mutagen dependency              | Dependency management        |
 | docs   | docs: improve README example                        | Documentation updates        |
 
@@ -161,7 +160,6 @@ Scopes are optional but encouraged for clarity.
 For a single library project, use `test:` as the **type**, not the scope, for general test changes:
 
 - `test(mp3): add roundtrip test for title tag`
-- `test(io): verify temporary file metadata write`
 - `test(core): improve coverage for metadata merge`
 
 Reserve `chore(test):`, `refactor(test):` for test infrastructure changes:
@@ -184,7 +182,7 @@ Reserve `chore(test):`, `refactor(test):` for test infrastructure changes:
 feat(id3v2): add album artist tag support
 fix(vorbis): correctly parse embedded picture metadata
 refactor(core): move format detection to utils module
-test(io): add roundtrip test for metadata write/read
+test(mp3): add roundtrip test for metadata write/read
 docs: document supported tag fields
 chore(deps): bump mutagen to 1.47.0
 feat(core)!: remove deprecated get_metadata function

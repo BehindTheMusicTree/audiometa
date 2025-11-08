@@ -39,14 +39,24 @@ Or include a `BREAKING CHANGE:` footer in the commit body.
 Use a scope to clarify which part of the library your change affects.
 Scopes are optional but encouraged for clarity.
 
-Common scopes: core, id3v1, id3v2, vorbis, riff, test, io, deps, docs
+### Common Scopes
+
+| Scope  | Example                                     | Description                  |
+| ------ | ------------------------------------------- | ---------------------------- |
+| core   | refactor(core): simplify metadata interface | Core metadata handling logic |
+| id3v1  | fix(id3v1): handle encoding issues          | ID3v1 tag format             |
+| id3v2  | feat(id3v2): add custom text frame support  | ID3v2 tag format             |
+| vorbis | fix(vorbis): improve comment parsing        | Vorbis comment format        |
+| riff   | feat(riff): detect and write INFO chunks    | RIFF metadata format         |
+| test   | refactor(test): reorganize test fixtures    | Testing infrastructure       |
+| deps   | chore(deps): update mutagen dependency      | Dependency management        |
+| docs   | docs: improve README example                | Documentation updates        |
 
 ## Test Commits Best Practices
 
 For a single library project, use `test:` as the **type**, not the scope, for general test changes:
 
 - `test(mp3): add roundtrip test for title tag`
-- `test(io): verify temporary file metadata write`
 - `test(core): improve coverage for metadata merge`
 
 Reserve `chore(test):`, `refactor(test):` for test infrastructure changes:
@@ -69,7 +79,7 @@ Reserve `chore(test):`, `refactor(test):` for test infrastructure changes:
 feat(id3v2): add album artist tag support
 fix(vorbis): correctly parse embedded picture metadata
 refactor(core): move format detection to utils module
-test(io): add roundtrip test for metadata write/read
+test(mp3): add roundtrip test for metadata write/read
 docs: document supported tag fields
 chore(deps): bump mutagen to 1.47.0
 feat(core)!: remove deprecated get_metadata function

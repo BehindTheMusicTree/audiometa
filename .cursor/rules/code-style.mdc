@@ -84,3 +84,47 @@ Do NOT add comments for:
 - Test functions with obvious names like `test_artists_metadata_mp3`
 - Class docstrings that just repeat the class name
 - Module docstrings that just describe what the module contains
+
+## Docstring Format (When Docstrings ARE Needed)
+
+When docstrings are needed (for public API, complex logic, etc.), use a **systematic Google-style format** for consistency:
+
+```python
+def public_api_function(param1: str, param2: int | None = None) -> dict[str, Any]:
+    """Brief one-line description.
+
+    More detailed explanation if needed. Can span multiple lines
+    to explain complex behavior, edge cases, or important details.
+
+    Args:
+        param1: Description of param1
+        param2: Description of param2. Defaults to None.
+
+    Returns:
+        Description of return value
+
+    Raises:
+        ValueError: When param1 is invalid
+        FileNotFoundError: When file doesn't exist
+
+    Examples:
+        >>> result = public_api_function("test", 42)
+        >>> print(result)
+        {'key': 'value'}
+    """
+    # Implementation
+```
+
+### When to Add Docstrings
+
+- Public API functions/classes (exported from `__init__.py`)
+- Complex business logic that isn't obvious
+- Functions with non-obvious side effects
+- Important edge cases or assumptions
+
+### When NOT to Add Docstrings
+
+- Simple getter/setter functions
+- Self-explanatory functions with descriptive names
+- Test functions (unless testing complex scenarios)
+- Internal helper functions that are obvious from context
