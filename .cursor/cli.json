@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(python)",
+      "Shell(pytest)",
+      "Shell(pip)",
+      "Shell(git)",
+      "Shell(ls)",
+      "Shell(cat)",
+      "Shell(mkdir)",
+      "Shell(cd)",
+      "Shell(find)",
+      "Shell(grep)",
+      "Read(**/*.py)",
+      "Read(**/*.json)",
+      "Read(**/*.toml)",
+      "Read(**/*.txt)",
+      "Read(**/*.md)",
+      "Read(**/*.yml)",
+      "Read(**/*.yaml)",
+      "Write(**/*.py)",
+      "Write(**/*.json)",
+      "Write(**/*.md)"
+    ],
+    "deny": [
+      "Shell(rm)",
+      "Shell(sudo)",
+      "Shell(chmod)",
+      "Shell(git add)",
+      "Shell(git push)",
+      "Shell(git reset)",
+      "Shell(git commit)",
+      "Shell(git pull)",
+      "Read(.env*)",
+      "Write(**/*.key)",
+      "Write(**/*.pem)",
+      "Write(**/*.env*)"
+    ]
+  }
+}
