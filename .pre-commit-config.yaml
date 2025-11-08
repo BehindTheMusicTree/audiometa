@@ -57,7 +57,8 @@ repos:
       - id: docformatter
         name: docformatter
         entry: docformatter
-        language: system
+        language: python
+        additional_dependencies: ["docformatter[tomli]"]
         args:
           [
             "--in-place",
