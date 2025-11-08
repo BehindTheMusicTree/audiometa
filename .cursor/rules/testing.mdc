@@ -1,185 +1,10 @@
-# Cursor Rules for AudioMeta Python
+---
+alwaysApply: true
+---
 
-## Code Style and Comments
+# Test Organization
 
-### Avoid Unnecessary Comments
-
-Do NOT add comments for functions, classes, or modules that are self-explanatory. The function name, class name, and parameters should clearly indicate what they do.
-
-#### ❌ Avoid these unnecessary comments:
-
-```python
-"""Test cases for artists metadata."""
-class TestArtistsMetadata:
-    """Test cases for artists metadata."""
-
-def test_artists_metadata_mp3():
-    """Test artists metadata for MP3 files."""
-
-def test_forced_format_affects_delete_metadata_behavior():
-    """Test that forced format affects delete_metadata behavior."""
-
-def get_user_name():
-    """This function returns the user's name."""
-    return user.name
-
-def calculate_total(price, tax):
-    """This function calculates the total price."""
-    return price + (price * tax)
-```
-
-#### ✅ Good - No comments needed:
-
-```python
-class TestArtistsMetadata:
-    def test_artists_metadata_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
-        # Test implementation here
-
-    def test_forced_format_affects_delete_metadata_behavior(self):
-        # Test implementation here
-
-def get_user_name():
-    return user.name
-
-def calculate_total(price, tax):
-    return price + (price * tax)
-```
-
-#### ✅ Only add comments when they provide value:
-
-```python
-def calculate_compound_interest(principal, rate, time):
-    # Uses the formula: A = P(1 + r/n)^(nt) where n=12 for monthly compounding
-    return principal * (1 + rate/12) ** (12 * time)
-
-def process_audio_metadata(file_path):
-    # Handles edge cases where ID3v2 tags may be corrupted
-    # and falls back to ID3v1 if necessary
-    try:
-        return extract_id3v2_metadata(file_path)
-    except CorruptedTagError:
-        return extract_id3v1_metadata(file_path)
-```
-
-### When to Add Comments
-
-Only add function, class, or module comments when:
-
-1. The function/class implements complex business logic that isn't obvious
-2. There are important edge cases or assumptions to document
-3. The function/class has non-obvious side effects
-4. The function/class uses algorithms or formulas that need explanation
-5. There are performance considerations or limitations to note
-
-### When NOT to Add Comments
-
-Do NOT add comments for:
-
-- Simple getter/setter functions
-- Functions with descriptive names that clearly indicate their purpose
-- Standard CRUD operations
-- Functions that are self-documenting through their implementation
-- Test functions with obvious names like `test_artists_metadata_mp3`
-- Class docstrings that just repeat the class name
-- Module docstrings that just describe what the module contains
-
-## Python Style
-
-### Type Hints
-
-- Use `list`, `dict`, `tuple`, `|` instead of `List`, `Dict`, `Tuple`, `Union`
-- Only add type hints when necessary for clarity
-
-### Commit Messages
-
-We follow a structured commit format inspired by [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
-This helps keep the commit history readable, supports automatic changelog generation, and ensures consistent release versioning.
-
-#### Format
-
-<type>(<optional scope>): <short summary>
-
-[optional body]
-
-#### Breaking Changes
-
-For breaking changes, append `!` after the type/scope:
-
-<type>(<optional scope>)!: <short summary>
-
-Or include a `BREAKING CHANGE:` footer in the commit body.
-
-#### Allowed Commit Types
-
-| Type     | Description                                          |
-| -------- | ---------------------------------------------------- |
-| feat     | A new feature or enhancement                         |
-| fix      | A bug fix                                            |
-| refactor | Code refactoring that doesn't change behavior        |
-| docs     | Documentation-only changes                           |
-| test     | Adding or updating tests                             |
-| chore    | Maintenance tasks (e.g. CI, packaging, dependencies) |
-| style    | Code style or formatting changes (no logic impact)   |
-| perf     | Performance improvements                             |
-
-#### Scopes
-
-Use a scope to clarify which part of the library your change affects.
-Scopes are optional but encouraged for clarity.
-
-Common scopes: core, id3v1, id3v2, vorbis, riff, test, io, deps, docs
-
-#### Test Commits Best Practices
-
-For a single library project, use `test:` as the **type**, not the scope, for general test changes:
-
-- `test(mp3): add roundtrip test for title tag`
-- `test(io): verify temporary file metadata write`
-- `test(core): improve coverage for metadata merge`
-
-Reserve `chore(test):`, `refactor(test):` for test infrastructure changes:
-
-- `chore(test): reorganize test helpers`
-- `refactor(test): improve test fixture structure`
-
-**Summary:**
-
-| Use case                        | Best practice                             |
-| ------------------------------- | ----------------------------------------- |
-| Adding or improving tests       | `test(scope): …`                          |
-| Fixing a bug in a test          | `fix(test): …` or `test(scope): fix …`    |
-| Changing test utilities/config  | `chore(test): …`                          |
-| Refactoring core test structure | `refactor(test): …`                       |
-| Feature/bug in main code        | Use relevant scope (e.g., `feat(mp3): …`) |
-
-#### Examples
-
-feat(id3v2): add album artist tag support
-fix(vorbis): correctly parse embedded picture metadata
-refactor(core): move format detection to utils module
-test(io): add roundtrip test for metadata write/read
-docs: document supported tag fields
-chore(deps): bump mutagen to 1.47.0
-feat(core)!: remove deprecated get_metadata function
-
-BREAKING CHANGE: The get_metadata function has been removed.
-Use get_unified_metadata instead.
-
-#### Guidelines
-
-Use imperative mood ("add", "fix", not "added", "fixed").
-
-Keep the summary under 72 characters.
-
-Use the commit body for additional context if needed.
-
-One logical change per commit.
-
-Small, focused commits are better than large, mixed ones.
-
-## Test Organization
-
-### Test Types and Markers
+## Test Types and Markers
 
 Tests are organized into three categories with clear markers:
 
@@ -187,11 +12,11 @@ Tests are organized into three categories with clear markers:
 - **Integration Tests** (`@pytest.mark.integration`): Medium speed (seconds), test component interactions
 - **E2E Tests** (`@pytest.mark.e2e`): Slow (minutes), test complete user workflows
 
-### Unit Test Principles
+## Unit Test Principles
 
 Unit tests should test **individual components in isolation** with fast, focused tests that verify behavior without external dependencies.
 
-#### Unit Test Principles
+### Unit Test Principles
 
 - Test individual classes and their methods
 - Fast execution (milliseconds)
@@ -201,7 +26,7 @@ Unit tests should test **individual components in isolation** with fast, focused
 - When mocking, exact values from mocks are acceptable for testing controlled scenarios
 - **File I/O operations are acceptable** when testing file operations directly (pragmatic approach)
 
-#### Pragmatic Approach to File I/O in Unit Tests
+### Pragmatic Approach to File I/O in Unit Tests
 
 For audio file libraries, file I/O operations are often **part of the functionality being tested**, not external dependencies. This codebase follows a pragmatic approach:
 
@@ -210,7 +35,7 @@ For audio file libraries, file I/O operations are often **part of the functional
 - ❌ **Mock or avoid** external tools (e.g., `ffmpeg`, `mid3v2`, `vorbiscomment`)
 - ❌ **Mock or avoid** network calls, databases, or other external services
 
-#### What Unit Tests Should Do
+### What Unit Tests Should Do
 
 ```python
 # ✅ Test AudioFile class methods directly with real files
@@ -236,7 +61,7 @@ def test_get_duration_in_sec_nonexistent_file(self):
         AudioFile("nonexistent.mp3").get_duration_in_sec()
 ```
 
-#### What Unit Tests Should NOT Do
+### What Unit Tests Should NOT Do
 
 ```python
 # ❌ Don't use external tools in unit tests
@@ -253,11 +78,11 @@ def test_get_duration_in_sec(self, sample_mp3_file: Path):
 # Test AudioFile methods directly, not wrapper functions
 ```
 
-### Integration Test Principles
+## Integration Test Principles
 
 Integration tests should verify **component interactions**, not duplicate unit tests.
 
-#### Integration Test Principles
+### Integration Test Principles
 
 - Test component interactions
 - Verify non-trivial wrapper functions work correctly
@@ -265,7 +90,7 @@ Integration tests should verify **component interactions**, not duplicate unit t
 - Test different input types (str, Path, AudioFile)
 - Don't duplicate unit test coverage
 
-#### When Integration Tests ARE Needed
+### When Integration Tests ARE Needed
 
 ```python
 # ✅ Tests that wrapper correctly handles different input types
@@ -281,7 +106,7 @@ def test_get_duration_in_sec_matches_external_tool(self, sample_mp3_file: Path):
     assert duration == pytest.approx(external_duration)
 ```
 
-#### When Integration Tests Are NOT Needed
+### When Integration Tests Are NOT Needed
 
 ```python
 # ❌ Just testing AudioFile again through wrapper
@@ -291,11 +116,11 @@ def test_get_duration_in_sec_unsupported_file_type_raises_error(self):
 # This is already tested in unit tests for AudioFile
 ```
 
-### E2E Test Principles
+## E2E Test Principles
 
 End-to-end tests should verify **complete user workflows** from start to finish, simulating real-world usage scenarios.
 
-#### E2E Test Principles
+### E2E Test Principles
 
 - Test complete user scenarios
 - Simulate real-world usage
@@ -304,7 +129,7 @@ End-to-end tests should verify **complete user workflows** from start to finish,
 - May be slower but provide confidence in system behavior
 - Test happy paths and critical user journeys
 
-#### What E2E Tests Should Do
+### What E2E Tests Should Do
 
 ```python
 # ✅ Test complete user workflow
@@ -325,7 +150,7 @@ def test_complete_metadata_editing_workflow(temp_audio_file: Path):
     assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["New Artist"]
 ```
 
-#### What E2E Tests Should NOT Do
+### What E2E Tests Should NOT Do
 
 ```python
 # ❌ Testing individual components
@@ -336,11 +161,11 @@ def test_audio_file_class_in_e2e(temp_audio_file: Path):
 # This is a unit test concern
 ```
 
-### Test Data Strategy
+## Test Data Strategy
 
 The test suite uses a **hybrid approach** for test data management, combining pre-created files with on-the-fly generation.
 
-#### Pre-created Test Files (`../assets/`)
+### Pre-created Test Files (`../assets/`)
 
 **Use pre-created files for:**
 
@@ -366,7 +191,7 @@ def test_read_metadata_from_pre_created_file(sample_mp3_file: Path):
     assert metadata.get(UnifiedMetadataKey.TITLE) == ["Sample Title"]
 ```
 
-#### On-the-fly Generation (TempFileWithMetadata)
+### On-the-fly Generation (TempFileWithMetadata)
 
 **Use TempFileWithMetadata for:**
 
@@ -397,7 +222,7 @@ def test_write_metadata_using_temp_file():
         assert metadata.get(UnifiedMetadataKey.TITLE) == ["New Title"]
 ```
 
-#### Examples for Each Scenario
+### Examples for Each Scenario
 
 **Reading existing metadata (Pre-created files):**
 
@@ -422,9 +247,9 @@ def test_write_metadata_using_temp_file():
         assert metadata.get(UnifiedMetadataKey.TITLE) == ["New Title"]
 ```
 
-### Test Isolation and Avoiding Circular Dependencies
+## Test Isolation and Avoiding Circular Dependencies
 
-#### Use Helper Classes for Initial Data Setup (When Needed)
+### Use Helper Classes for Initial Data Setup (When Needed)
 
 For tests that verify **reading, writing, or deleting functionality** using temporary files (not pre-created assets or mocks), NEVER use the library's own `update_metadata()` function to set up initial test data. This ensures proper test isolation and prevents testing the library's own writing logic when testing other functionality.
 
@@ -444,7 +269,7 @@ For tests that verify **reading, writing, or deleting functionality** using temp
 
 **Note**: Helper classes use external tools internally for proper test isolation.
 
-#### ❌ Avoid using shutil for test files:
+### ❌ Avoid using shutil for test files:
 
 ```python
 def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: Path):
@@ -452,7 +277,7 @@ def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: 
     shutil.copy2(sample_wav_file, test_file)  # Don't do this
 ```
 
-#### ❌ WRONG - Don't use subprocess or external tools directly for metadata setup:
+### ❌ WRONG - Don't use subprocess or external tools directly for metadata setup:
 
 ```python
 def test_metadata_writing(self):
@@ -467,7 +292,7 @@ def test_metadata_writing(self):
         ], check=True)
 ```
 
-#### ❌ WRONG - Poor test isolation (using library API for setup):
+### ❌ WRONG - Poor test isolation (using library API for setup):
 
 ```python
 def test_id3v1_genre_reading(self):
@@ -482,7 +307,7 @@ def test_id3v1_genre_reading(self):
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
 ```
 
-#### ✅ CORRECT - Use helper classes for proper test isolation:
+### ✅ CORRECT - Use helper classes for proper test isolation:
 
 ```python
 def test_id3v1_genre_reading(self):
@@ -497,7 +322,7 @@ def test_id3v1_genre_reading(self):
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Blues"]
 ```
 
-#### ✅ ALTERNATIVE - Use TempFileWithMetadata with specific format:
+### ✅ ALTERNATIVE - Use TempFileWithMetadata with specific format:
 
 ```python
 def test_id3v1_genre_reading(self):
@@ -507,11 +332,11 @@ def test_id3v1_genre_reading(self):
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
 ```
 
-### Test Principle: Only Test the API Function Being Tested
+## Test Principle: Only Test the API Function Being Tested
 
 **The rule**: In any test, only use the API function that you're actually testing. Everything else should use helper classes.
 
-#### ✅ CORRECT - Deletion tests:
+### ✅ CORRECT - Deletion tests:
 
 ```python
 def test_delete_comment_riff(self):
@@ -527,7 +352,7 @@ def test_delete_comment_riff(self):
         assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMMENT) is None
 ```
 
-#### ✅ CORRECT - Reading tests:
+### ✅ CORRECT - Reading tests:
 
 ```python
 def test_read_comment_riff(self):
@@ -542,7 +367,7 @@ def test_read_comment_riff(self):
         assert comment == "Test comment"
 ```
 
-#### ✅ CORRECT - Writing tests:
+### ✅ CORRECT - Writing tests:
 
 ```python
 def test_write_comment_riff(self):
@@ -555,7 +380,7 @@ def test_write_comment_riff(self):
         assert comment == "Test comment"
 ```
 
-#### ❌ WRONG - Don't mix API functions in tests:
+### ❌ WRONG - Don't mix API functions in tests:
 
 ```python
 def test_delete_comment_riff(self):
@@ -568,13 +393,13 @@ def test_delete_comment_riff(self):
         assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMMENT) is None
 ```
 
-### Individual Metadata Reading Tests
+## Individual Metadata Reading Tests
 
-#### Use get_unified_metadata_field for Single Metadata Field Tests
+### Use get_unified_metadata_field for Single Metadata Field Tests
 
 When testing reading of a **single metadata field**, use `get_unified_metadata_field()` instead of `get_unified_metadata()` for better performance and clarity.
 
-#### ❌ WRONG - Inefficient for single field:
+### ❌ WRONG - Inefficient for single field:
 
 ```python
 def test_title_reading(self, test_file):
@@ -583,7 +408,7 @@ def test_title_reading(self, test_file):
     assert title == "Expected Title"
 ```
 
-#### ✅ CORRECT - Use get_unified_metadata_field:
+### ✅ CORRECT - Use get_unified_metadata_field:
 
 ```python
 def test_title_reading(self, test_file):
@@ -591,30 +416,7 @@ def test_title_reading(self, test_file):
     assert title == "Expected Title"
 ```
 
-#### When to Use Each Function
+### When to Use Each Function
 
 - **`get_unified_metadata_field()`**: When testing a single metadata field
 - **`get_unified_metadata()`**: When testing multiple metadata fields or full metadata workflows
-
-## File Organization
-
-### Module Structure
-
-- Keep related functionality together
-- Use clear, descriptive file names
-- Avoid unnecessary module docstrings that just describe the file contents
-
-### Import Organization
-
-- Group imports logically
-- Use absolute imports when possible
-- Keep imports clean and minimal
-
-## Git and Version Control
-
-### Commit Behavior
-
-- **NEVER commit changes automatically**
-- Always ask the user before making any git commits
-- Let the user review changes before committing
-- Only suggest commit messages, don't execute commits without explicit user approval

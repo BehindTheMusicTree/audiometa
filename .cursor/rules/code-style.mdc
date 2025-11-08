@@ -1,0 +1,86 @@
+---
+alwaysApply: true
+---
+
+# Code Style and Comments
+
+## Avoid Unnecessary Comments
+
+Do NOT add comments for functions, classes, or modules that are self-explanatory. The function name, class name, and parameters should clearly indicate what they do.
+
+### ❌ Avoid these unnecessary comments:
+
+```python
+"""Test cases for artists metadata."""
+class TestArtistsMetadata:
+    """Test cases for artists metadata."""
+
+def test_artists_metadata_mp3():
+    """Test artists metadata for MP3 files."""
+
+def test_forced_format_affects_delete_metadata_behavior():
+    """Test that forced format affects delete_metadata behavior."""
+
+def get_user_name():
+    """This function returns the user's name."""
+    return user.name
+
+def calculate_total(price, tax):
+    """This function calculates the total price."""
+    return price + (price * tax)
+```
+
+### ✅ Good - No comments needed:
+
+```python
+class TestArtistsMetadata:
+    def test_artists_metadata_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
+        # Test implementation here
+
+    def test_forced_format_affects_delete_metadata_behavior(self):
+        # Test implementation here
+
+def get_user_name():
+    return user.name
+
+def calculate_total(price, tax):
+    return price + (price * tax)
+```
+
+### ✅ Only add comments when they provide value:
+
+```python
+def calculate_compound_interest(principal, rate, time):
+    # Uses the formula: A = P(1 + r/n)^(nt) where n=12 for monthly compounding
+    return principal * (1 + rate/12) ** (12 * time)
+
+def process_audio_metadata(file_path):
+    # Handles edge cases where ID3v2 tags may be corrupted
+    # and falls back to ID3v1 if necessary
+    try:
+        return extract_id3v2_metadata(file_path)
+    except CorruptedTagError:
+        return extract_id3v1_metadata(file_path)
+```
+
+## When to Add Comments
+
+Only add function, class, or module comments when:
+
+1. The function/class implements complex business logic that isn't obvious
+2. There are important edge cases or assumptions to document
+3. The function/class has non-obvious side effects
+4. The function/class uses algorithms or formulas that need explanation
+5. There are performance considerations or limitations to note
+
+## When NOT to Add Comments
+
+Do NOT add comments for:
+
+- Simple getter/setter functions
+- Functions with descriptive names that clearly indicate their purpose
+- Standard CRUD operations
+- Functions that are self-documenting through their implementation
+- Test functions with obvious names like `test_artists_metadata_mp3`
+- Class docstrings that just repeat the class name
+- Module docstrings that just describe what the module contains

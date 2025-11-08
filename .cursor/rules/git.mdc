@@ -1,0 +1,12 @@
+---
+alwaysApply: true
+---
+
+# Git and Version Control
+
+## Commit Behavior
+
+- **NEVER commit changes automatically**
+- Always ask the user before making any git commits
+- Let the user review changes before committing
+- Only suggest commit messages, don't execute commits without explicit user approval

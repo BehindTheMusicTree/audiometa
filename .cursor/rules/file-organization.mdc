@@ -1,0 +1,17 @@
+---
+alwaysApply: true
+---
+
+# File Organization
+
+## Module Structure
+
+- Keep related functionality together
+- Use clear, descriptive file names
+- Avoid unnecessary module docstrings that just describe the file contents
+
+## Import Organization
+
+- Group imports logically
+- Use absolute imports when possible
+- Keep imports clean and minimal
