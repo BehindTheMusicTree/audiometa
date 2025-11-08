@@ -268,6 +268,16 @@ black . && isort . && docformatter --in-place --wrap-summaries=120 --wrap-descri
 
 Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
 
+**Type Checking Behavior:**
+
+- **Pre-commit hooks**: `mypy` checks only **staged files** for faster feedback during development
+- **CI/CD**: `mypy` checks the **entire codebase** to ensure type consistency across all files
+
+This means:
+- You can commit individual files even if other files have type errors
+- Before opening a PR, run `pre-commit run --all-files` or `mypy audiometa` to check the entire codebase
+- CI will catch any type errors in the full codebase before merging
+
 CI will automatically test all pushes and PRs using GitHub Actions.
 
 ### ✅ Pre-PR / Pre-Merge Checklist
