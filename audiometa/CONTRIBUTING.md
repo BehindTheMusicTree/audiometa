@@ -260,25 +260,13 @@ pre-commit run
 
 **Auto-fix formatting:**
 
-Pre-commit will automatically fix:
-
-- **autoflake**: Removes unused imports and unused variables
-- **isort**: Sorts and organizes imports
-- **black**: Formats code style
-
-You can also run these tools manually:
+Pre-commit will auto-fix black, isort, and docformatter issues. You can also run manually:
 
 ```bash
-autoflake --in-place --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports audiometa/
-black . && isort .
+black . && isort . && docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 --make-summary-multi-line .
 ```
 
 Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
-
-**Test file exceptions:**
-
-- Test files are excluded from `mypy` type checking
-- Test files have docstring requirements disabled in `flake8` (per contributing guidelines - test functions don't require docstrings)
 
 CI will automatically test all pushes and PRs using GitHub Actions.
 
@@ -291,12 +279,7 @@ Before submitting a Pull Request (contributors) or merging to `main` (maintainer
 **1. Code Quality Checks**
 
 - ✅ Run pre-commit hooks: `pre-commit run --all-files`
-- ✅ All linting checks pass:
-  - **autoflake**: Removes unused imports/variables (auto-fixes)
-  - **black**: Formats code style (auto-fixes)
-  - **isort**: Sorts imports (auto-fixes)
-  - **mypy**: Type checking (requires manual fixes)
-  - **flake8**: General linting - undefined names, complexity, docstrings (requires manual fixes)
+- ✅ All linting checks pass (black, isort, docformatter, mypy, flake8)
 - ✅ Code is properly formatted
 
 **2. Tests**
