@@ -38,7 +38,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [Remove Specific Fields (Selective Removal)](#remove-specific-fields-selective-removal)
     - [Comparison Table](#comparison-table)
     - [Example Scenarios](#example-scenarios)
-  - [Working with AudioFile](#working-with-audiofile)
+  - [Advanced: AudioFile Class (Optional)](#advanced-audiofile-class-optional)
 - [Core API Reference](#core-api-reference)
   - [Reading Metadata (API Reference)](#reading-metadata-api-reference)
     - [Reading Priorities (Tag Precedence)](#reading-priorities-tag-precedence)
@@ -62,9 +62,6 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [Deleting Metadata (API Reference)](#deleting-metadata-api-reference)
     - [Delete All Metadata From All Formats](#delete-all-metadata-from-all-formats)
     - [Delete All Metadata From A Specific Format](#delete-all-metadata-from-a-specific-format)
-  - [AudioFile Class](#audiofile-class)
-    - [Get Technical Information](#get-technical-information)
-    - [AudioFile Validation](#audio-file-validation)
 - [Error Handling](#error-handling)
 - [Metadata Field Guide: Support and Handling](#metadata-field-guide-support-and-handling)
   - [Metadata Support by Format](#metadata-support-by-format)
@@ -572,19 +569,28 @@ update_metadata("song.mp3", {
 # Result: File keeps metadata headers but removes specific fields
 ```
 
-### Working with AudioFile
+### Getting Technical Information
+
+The library provides functional APIs for getting technical information about audio files:
 
 ```python
-from audiometa import AudioFile
+from audiometa import get_duration_in_sec, get_bitrate, get_sample_rate, get_channels, get_file_size
 
-# Create an AudioFile instance
-audio_file = AudioFile("path/to/your/audio.flac")
+# Get technical information using functional API (recommended)
+duration = get_duration_in_sec("path/to/your/audio.flac")
+bitrate = get_bitrate("path/to/your/audio.flac")
+sample_rate = get_sample_rate("path/to/your/audio.flac")
+channels = get_channels("path/to/your/audio.flac")
+file_size = get_file_size("path/to/your/audio.flac")
 
-# Get technical information
-print(f"Duration: {audio_file.get_duration_in_sec()} seconds")
-print(f"Bitrate: {audio_file.get_bitrate()} kbps")
-print(f"File extension: {audio_file.file_extension}")
+print(f"Duration: {duration} seconds")
+print(f"Bitrate: {bitrate} kbps")
+print(f"Sample Rate: {sample_rate} Hz")
+print(f"Channels: {channels}")
+print(f"File Size: {file_size} bytes")
 ```
+
+**Note**: The functional API is recommended for most use cases. An object-oriented `AudioFile` class is also available for advanced use cases (see [Advanced: AudioFile Class](#advanced-audiofile-class-optional)).
 
 ## Core API Reference
 
@@ -1157,11 +1163,37 @@ except MetadataFormatNotSupportedByAudioFormatError as e:
     print(f"Error: {e}")
 ```
 
-### AudioFile Class
+## Advanced: AudioFile Class (Optional)
 
-Object-oriented approach for working with audio files
+> **Note**: The functional API (e.g., `get_duration_in_sec()`, `get_bitrate()`) is recommended for most use cases. The `AudioFile` class is available for advanced scenarios but is not required for typical metadata operations.
 
-#### Get Technical Information
+The `AudioFile` class provides an object-oriented interface for working with audio files. All functionality is also available through the functional API, which is simpler and recommended for most use cases.
+
+### When to Use AudioFile
+
+The `AudioFile` class may be useful if you:
+- Need to perform multiple operations on the same file and want to reuse a validated file object
+- Prefer object-oriented programming style
+- Need direct access to file operations (`read()`, `write()`, `seek()`)
+
+For most use cases, the functional API is simpler:
+
+```python
+# Recommended: Functional API
+from audiometa import get_duration_in_sec, get_bitrate
+duration = get_duration_in_sec("song.mp3")
+bitrate = get_bitrate("song.mp3")
+```
+
+```python
+# Alternative: AudioFile class (optional)
+from audiometa import AudioFile
+audio_file = AudioFile("song.mp3")
+duration = audio_file.get_duration_in_sec()
+bitrate = audio_file.get_bitrate()
+```
+
+### Get Technical Information
 
 ```python
 from audiometa import AudioFile
@@ -1180,13 +1212,9 @@ print(f"File extension: {audio_file.file_extension}")
 if audio_file.file_extension == '.flac':
     is_valid = audio_file.is_flac_file_md5_valid()
     print(f"FLAC MD5 valid: {is_valid}")
-
-# Get metadata using the object
-metadata = audio_file.get_unified_metadata()
-print(f"Title: {metadata.get(UnifiedMetadataKey.TITLE, 'Unknown')}")
 ```
 
-#### Audio File Validation
+### Audio File Validation
 
 The `AudioFile` class performs comprehensive validation during initialization to ensure file integrity and format compatibility.
 
