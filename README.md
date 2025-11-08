@@ -38,7 +38,6 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [Remove Specific Fields (Selective Removal)](#remove-specific-fields-selective-removal)
     - [Comparison Table](#comparison-table)
     - [Example Scenarios](#example-scenarios)
-  - [Advanced: AudioFile Class (Optional)](#advanced-audiofile-class-optional)
 - [Core API Reference](#core-api-reference)
   - [Reading Metadata (API Reference)](#reading-metadata-api-reference)
     - [Reading Priorities (Tag Precedence)](#reading-priorities-tag-precedence)
@@ -590,7 +589,6 @@ print(f"Channels: {channels}")
 print(f"File Size: {file_size} bytes")
 ```
 
-**Note**: The functional API is recommended for most use cases. An object-oriented `AudioFile` class is also available for advanced use cases (see [Advanced: AudioFile Class](#advanced-audiofile-class-optional)).
 
 ## Core API Reference
 
@@ -1162,107 +1160,6 @@ try:
 except MetadataFormatNotSupportedByAudioFormatError as e:
     print(f"Error: {e}")
 ```
-
-## Advanced: AudioFile Class (Optional)
-
-> **Note**: The functional API (e.g., `get_duration_in_sec()`, `get_bitrate()`) is recommended for most use cases. The `AudioFile` class is available for advanced scenarios but is not required for typical metadata operations.
-
-The `AudioFile` class provides an object-oriented interface for working with audio files. All functionality is also available through the functional API, which is simpler and recommended for most use cases.
-
-### When to Use AudioFile
-
-The `AudioFile` class may be useful if you:
-- Need to perform multiple operations on the same file and want to reuse a validated file object
-- Prefer object-oriented programming style
-- Need direct access to file operations (`read()`, `write()`, `seek()`)
-
-For most use cases, the functional API is simpler:
-
-```python
-# Recommended: Functional API
-from audiometa import get_duration_in_sec, get_bitrate
-duration = get_duration_in_sec("song.mp3")
-bitrate = get_bitrate("song.mp3")
-```
-
-```python
-# Alternative: AudioFile class (optional)
-from audiometa import AudioFile
-audio_file = AudioFile("song.mp3")
-duration = audio_file.get_duration_in_sec()
-bitrate = audio_file.get_bitrate()
-```
-
-### Get Technical Information
-
-```python
-from audiometa import AudioFile
-
-# Create an AudioFile instance
-audio_file = AudioFile("path/to/your/audio.flac")
-
-# Get technical information
-print(f"Duration: {audio_file.get_duration_in_sec()} seconds")
-print(f"Bitrate: {audio_file.get_bitrate()} kbps")
-print(f"Sample Rate: {audio_file.get_sample_rate()} Hz")
-print(f"Channels: {audio_file.get_channels()}")
-print(f"File extension: {audio_file.file_extension}")
-
-# Check FLAC MD5 validity
-if audio_file.file_extension == '.flac':
-    is_valid = audio_file.is_flac_file_md5_valid()
-    print(f"FLAC MD5 valid: {is_valid}")
-```
-
-### Audio File Validation
-
-The `AudioFile` class performs comprehensive validation during initialization to ensure file integrity and format compatibility.
-
-### File Extension Validation
-
-`AudioFile` first validates the file extension against supported audio formats:
-
-- **Supported Extensions**: `.mp3`, `.flac`, `.wav`
-- **Error**: Raises `FileTypeNotSupportedError` for unsupported extensions
-
-### Content Validation
-
-After extension validation, `AudioFile` performs content validation by attempting to parse the file using the appropriate audio library:
-
-- **MP3 files**: Uses Mutagen's MP3 parser
-- **FLAC files**: Uses Mutagen's FLAC parser
-- **WAV files**: Uses Mutagen's WAVE parser
-
-**Error**: Raises `FileCorruptedError` for files with invalid or corrupted audio content
-
-### Validation Examples
-
-```python
-from audiometa import AudioFile
-from audiometa.exceptions import FileTypeNotSupportedError, FileCorruptedError
-
-# Valid file - works fine
-audio_file = AudioFile("song.mp3")
-
-# Unsupported extension - raises FileTypeNotSupportedError
-try:
-    audio_file = AudioFile("document.txt")
-except FileTypeNotSupportedError as e:
-    print(f"Unsupported file type: {e}")
-
-# Corrupted content - raises FileCorruptedError
-try:
-    audio_file = AudioFile("corrupted.mp3")
-except FileCorruptedError as e:
-    print(f"File is corrupted: {e}")
-```
-
-### Validation Benefits
-
-- **Early Error Detection**: Catches invalid files before attempting metadata operations
-- **Data Integrity**: Ensures only valid audio files are processed
-- **Clear Error Messages**: Provides specific exceptions for different validation failures
-- **Performance**: Avoids unnecessary processing of invalid files
 
 The library provides specific exception types for different error conditions:
 
