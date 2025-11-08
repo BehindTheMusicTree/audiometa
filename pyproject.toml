@@ -44,6 +44,7 @@ dev = [
     "flake8>=5.0.0",
     "pre-commit>=3.0.0",
     "autoflake>=2.0.0",
+    "docformatter>=1.7.0",
     "soundfile>=0.10.0",
 ]
 yaml = [

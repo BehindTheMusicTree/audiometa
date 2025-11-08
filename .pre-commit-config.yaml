@@ -23,8 +23,9 @@ repos:
   # 1. autoflake: Remove unused imports/variables first
   # 2. isort: Sort imports (configured to work with black)
   # 3. black: Format code (must run before linting)
-  # 4. mypy: Type checking on formatted code
-  # 5. flake8: Lint already-formatted code
+  # 4. docformatter: Format docstrings (after code formatting)
+  # 5. mypy: Type checking on formatted code
+  # 6. flake8: Lint already-formatted code
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.3.1
     hooks:
@@ -50,6 +51,22 @@ repos:
       - id: black
         language_version: python3
         args: ["--line-length=120"]
+
+  - repo: local
+    hooks:
+      - id: docformatter
+        name: docformatter
+        entry: docformatter
+        language: system
+        args:
+          [
+            "--in-place",
+            "--wrap-summaries=120",
+            "--wrap-descriptions=120",
+            "--make-summary-multi-line",
+          ]
+        files: ^audiometa/
+        pass_filenames: true
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
