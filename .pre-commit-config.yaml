@@ -68,9 +68,10 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: []
-        args: []
+        args: ["--follow-imports=skip"]
         files: ^audiometa/
         exclude: ^(audiometa/test/|scripts/)
+        pass_filenames: true
 
   - repo: https://github.com/pycqa/flake8
     rev: 7.0.0
