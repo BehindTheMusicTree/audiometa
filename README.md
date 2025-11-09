@@ -589,7 +589,6 @@ print(f"Channels: {channels}")
 print(f"File Size: {file_size} bytes")
 ```
 
-
 ## Core API Reference
 
 ### Reading Metadata (API Reference)
@@ -730,7 +729,7 @@ print(f"Raw Vorbis Comments: {full_metadata['raw_metadata']['vorbis']['comments'
 
 **Parameters:**
 
-- `file_path`: Path to the audio file or AudioFile object
+- `file_path`: Path to the audio file or \_AudioFile object
 - `include_headers`: Whether to include format-specific header information (default: True)
 - `include_technical`: Whether to include technical audio information (default: True)
 
