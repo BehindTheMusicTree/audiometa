@@ -35,7 +35,7 @@
 # EXAMPLES:
 #     # Set maximum RIFF metadata
 #     ./set-riff-max-metadata.sh test.wav
-#     
+#
 #     # Verify the results
 #     mediainfo test.wav
 #     bwfmetaedit --out-core test.wav
@@ -49,13 +49,13 @@
 # TROUBLESHOOTING:
 #     # Check if bwfmetaedit is installed
 #     which bwfmetaedit
-#     
+#
 #     # Install if missing (macOS)
 #     brew install bwfmetaedit
-#     
+#
 #     # Check file format
 #     file test.wav  # Should show "RIFF (little-endian) data, WAVE audio"
-#     
+#
 #     # Verify RIFF metadata was written
 #     mediainfo test.wav  # Should show all metadata fields
 #     bwfmetaedit --out-core test.wav  # Should show technical details

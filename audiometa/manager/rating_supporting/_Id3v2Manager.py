@@ -1,4 +1,4 @@
-from typing import Type, cast
+from typing import Any, Type, cast
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.id3 import ID3
@@ -31,14 +31,14 @@ from mutagen.id3._util import ID3NoHeaderError
 
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
-from ...audio_file import AudioFile
+from ..._audio_file import _AudioFile
 from ...exceptions import MetadataFieldNotSupportedByMetadataFormatError
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey, UnifiedMetadata
-from ._RatingSupportingMetadataManager import _RatingSupportingMetadataManager as RatingSupportingMetadataManager
+from ._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
 
 
-class Id3v2Manager(RatingSupportingMetadataManager):
+class _Id3v2Manager(_RatingSupportingMetadataManager):
     """ID3v2 metadata manager for audio files.
 
     ID3v2 Version Compatibility Table:
@@ -244,7 +244,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
     def __init__(
         self,
-        audio_file: AudioFile,
+        audio_file: _AudioFile,
         normalized_rating_max_value: int | None = None,
         id3v2_version: tuple[int, int, int] = (2, 3, 0),
     ):
@@ -267,7 +267,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
             UnifiedMetadataKey.REPLAYGAIN: None,
         }
-        metadata_keys_direct_map_write: dict = {
+        metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
             UnifiedMetadataKey.ARTISTS: self.Id3TextFrame.ARTISTS,
             UnifiedMetadataKey.ALBUM: self.Id3TextFrame.ALBUM,
@@ -288,39 +288,43 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
         super().__init__(
             audio_file=audio_file,
-            metadata_keys_direct_map_read=metadata_keys_direct_map_read,
-            metadata_keys_direct_map_write=metadata_keys_direct_map_write,
+            metadata_keys_direct_map_read=cast(
+                dict[UnifiedMetadataKey, RawMetadataKey | None], metadata_keys_direct_map_read
+            ),
+            metadata_keys_direct_map_write=cast(
+                dict[UnifiedMetadataKey, RawMetadataKey | None], metadata_keys_direct_map_write
+            ),
             rating_write_profile=RatingWriteProfile.BASE_255_NON_PROPORTIONAL,
             normalized_rating_max_value=normalized_rating_max_value,
         )
 
-    def _extract_mutagen_metadata(self) -> MutagenMetadata:
+    def _extract_mutagen_metadata(self) -> RawMetadataDict:
         try:
-            id3 = ID3(self.audio_file.file_path, load_v1=False, translate=False)  # type: ignore[return-value]
+            id3 = ID3(self.audio_file.file_path, load_v1=False, translate=False)
 
             # Upgrade to specified version if different
             if id3.version != self.id3v2_version:
                 id3.version = self.id3v2_version
 
-            return id3
+            return cast(RawMetadataDict, id3)
         except ID3NoHeaderError:
             try:
                 id3 = ID3(self.audio_file.file_path, load_v1=True, translate=False)
                 id3.clear()  # Exclude ID3v1 tags
                 id3.version = self.id3v2_version
-                return id3  # type: ignore[return-value]
+                return cast(RawMetadataDict, id3)
             except ID3NoHeaderError:
                 # Create empty ID3 object - will be saved during write operations
                 # This allows write operations to work with files that have no ID3v2 header
-                id3 = ID3()  # type: ignore[return-value]
+                id3 = ID3()
                 id3.version = self.id3v2_version
-                return id3
+                return cast(RawMetadataDict, id3)
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
         self, raw_mutagen_metadata: MutagenMetadata
     ) -> RawMetadataDict:
         raw_metadata_id3: ID3 = cast(ID3, raw_mutagen_metadata)
-        result = {}
+        result: RawMetadataDict = {}
 
         for frame_key in self.Id3TextFrame:
             if frame_key == self.Id3TextFrame.RATING:
@@ -332,7 +336,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                         result[self.Id3TextFrame.RATING] = [
                             popm_key_without_prefixes,
                             popm.rating,
-                        ]  # type: ignore[index]
+                        ]
                         break
             elif frame_key == self.Id3TextFrame.COMMENT:
                 # Handle COMM frames (comment frames)
@@ -409,7 +413,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
     def _update_undirectly_mapped_metadata(
         self, raw_mutagen_metadata: ID3, app_metadata_value: AppMetadataValue, unified_metadata_key: UnifiedMetadataKey
-    ):
+    ) -> None:
         if unified_metadata_key == UnifiedMetadataKey.REPLAYGAIN:
             # Remove existing TXXX:REPLAYGAIN frames
             raw_mutagen_metadata.delall("TXXX:REPLAYGAIN")
@@ -435,7 +439,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         raw_mutagen_metadata: RawMetadataDict,
         raw_metadata_key: RawMetadataKey,
         app_metadata_value: AppMetadataValue,
-    ):
+    ) -> None:
         raw_mutagen_metadata_id3: ID3 = cast(ID3, raw_mutagen_metadata)
         raw_mutagen_metadata_id3.delall(raw_metadata_key)
 
@@ -470,7 +474,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                     return
 
                 # For ID3v2.3, use concatenation with separators (ID3v2.3 doesn't support null-separated values)
-                from ..MetadataManager import MetadataManager
+                from .._MetadataManager import _MetadataManager as MetadataManager
 
                 # Find a separator that doesn't appear in any of the values and concatenate
                 separator = MetadataManager.find_safe_separator(app_metadata_value)
@@ -478,7 +482,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                 # Continue to handle as single value
             else:
                 # For non-multi-value fields, concatenate with separators as fallback
-                from ..MetadataManager import MetadataManager
+                from .._MetadataManager import _MetadataManager as MetadataManager
 
                 # Find a separator that doesn't appear in any of the values and concatenate
                 separator = MetadataManager.find_safe_separator(app_metadata_value)
@@ -491,10 +495,10 @@ class Id3v2Manager(RatingSupportingMetadataManager):
     def _add_id3_frame(
         self,
         raw_mutagen_metadata_id3: ID3,
-        text_frame_class,
+        text_frame_class: Type[Any],
         raw_metadata_key: RawMetadataKey,
         app_metadata_value: AppMetadataValue,
-    ):
+    ) -> None:
         """Add a single ID3 frame with proper encoding and format handling."""
         # Determine encoding based on ID3v2 version
         encoding = 0 if self.id3v2_version[1] == 3 else 3
@@ -523,7 +527,9 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         else:
             raw_mutagen_metadata_id3.add(text_frame_class(encoding=encoding, text=app_metadata_value))
 
-    def _add_id3_frame_v24_multi(self, raw_mutagen_metadata_id3: ID3, text_frame_class, values: list[str]):
+    def _add_id3_frame_v24_multi(
+        self, raw_mutagen_metadata_id3: ID3, text_frame_class: Type[Any], values: list[str]
+    ) -> None:
         """ID3v2.4: add a single text frame containing multiple null-separated values.
 
         Mutagen accepts a list for the `text` parameter and will write it as
@@ -599,7 +605,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             # Save ID3v2 while preserving ID3v1
             self._save_with_id3v1_preservation(file_path, id3v1_data)
 
-    def update_metadata(self, unified_metadata: UnifiedMetadata):
+    def update_metadata(self, unified_metadata: UnifiedMetadata) -> None:
         """
         Update ID3v2 metadata using hybrid approach: mutagen for most formats, external tools for FLAC.
 
@@ -681,7 +687,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         # Save with ID3v1 preservation
         self._save_with_id3v1_preservation(self.audio_file.file_path, id3v1_data)
 
-    def _update_metadata_for_flac(self, unified_metadata: UnifiedMetadata):
+    def _update_metadata_for_flac(self, unified_metadata: UnifiedMetadata) -> None:
         """Update ID3v2 metadata for FLAC files using external tools to avoid file corruption."""
         if not self.metadata_keys_direct_map_write:
             raise MetadataFieldNotSupportedByMetadataFormatError("This format does not support metadata modification")

@@ -1,15 +1,11 @@
 import pytest
-from pathlib import Path
 
-from audiometa import (
-    update_metadata,
-    delete_all_metadata
-)
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.utils.MetadataFormat import MetadataFormat
-from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
+from audiometa import delete_all_metadata, update_metadata
 from audiometa.exceptions import FileTypeNotSupportedError, MetadataWritingConflictParametersError
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
+from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.integration
@@ -21,19 +17,19 @@ class TestWritingErrorHandling:
             temp_file_path.write_bytes(b"fake audio content")
             temp_txt = temp_file_path.with_suffix(".txt")
             temp_txt.write_bytes(b"fake audio content")
-            
+
             with pytest.raises(FileTypeNotSupportedError):
                 update_metadata(str(temp_txt), {UnifiedMetadataKey.TITLE: "Test"})
-            
+
             with pytest.raises(FileTypeNotSupportedError):
                 delete_all_metadata(str(temp_txt))
 
     def test_nonexistent_file_raises_error(self):
         nonexistent_file = "nonexistent_file.mp3"
-        
+
         with pytest.raises(FileNotFoundError):
             update_metadata(nonexistent_file, {UnifiedMetadataKey.TITLE: "Test"})
-        
+
         # Note: delete_all_metadata error handling tests have been moved to test_delete_all_metadata.py
 
     def test_metadata_writing_conflict_parameters_error_both_strategy_and_format(self):
@@ -43,7 +39,7 @@ class TestWritingErrorHandling:
                     test_file_path,
                     {UnifiedMetadataKey.TITLE: "Test"},
                     metadata_strategy=MetadataWritingStrategy.SYNC,
-                    metadata_format=MetadataFormat.ID3V2
+                    metadata_format=MetadataFormat.ID3V2,
                 )
             assert "metadata_strategy" in str(exc_info.value).lower()
             assert "metadata_format" in str(exc_info.value).lower()

@@ -44,7 +44,7 @@
 #     # Set maximum ID3v2 metadata
 #     ./set-id3v2-max-metadata.sh test.mp3
 #     ./set-id3v2-max-metadata.sh test.flac
-#     
+#
 #     # Verify the results
 #     mid3v2 -l test.mp3
 #     mutagen-inspect test.mp3
@@ -59,17 +59,17 @@
 # TROUBLESHOOTING:
 #     # Check if required tools are installed
 #     which mid3v2 mutagen-inspect
-#     
+#
 #     # Install missing tools
 #     pip install mutagen
-#     
+#
 #     # Check ImageMagick (optional)
 #     which convert
 #     brew install imagemagick  # if missing
-#     
+#
 #     # Verify file format
 #     file test.mp3  # Should show MP3 audio
-#     
+#
 #     # Check metadata after running
 #     mid3v2 -l test.mp3 | grep -E "(TIT2|TPE1|TALB|TXXX)"
 #
@@ -213,13 +213,13 @@ if [ $HAS_IMAGEMAGICK -eq 1 ]; then
     TEMP_IMAGE=$(mktemp).jpg
     convert -size 1200x1200 xc:white -pointsize 20 -gravity center \
         -draw "text 0,0 'Test Cover Art'" "$TEMP_IMAGE"
-    
+
     mid3v2 --APIC "$TEMP_IMAGE" "$RESOLVED_FILE"
-    
+
     if [ $? -ne 0 ]; then
         echo "Warning: Failed to write cover art"
     fi
-    
+
     rm -f "$TEMP_IMAGE"
 else
     echo "Note: ImageMagick not found - skipping cover art test"

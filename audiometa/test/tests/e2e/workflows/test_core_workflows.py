@@ -1,27 +1,28 @@
-"""
-End-to-end tests for core metadata editing workflows.
+"""End-to-end tests for core metadata editing workflows.
 
-These tests verify the basic functionality of the entire system
-for real users, including file I/O and complete metadata editing workflows.
+These tests verify the basic functionality of the entire system for real users, including file I/O and complete metadata
+editing workflows.
 """
-import pytest
+
 from pathlib import Path
+
+import pytest
 
 from audiometa import (
     AudioFile,
-    get_unified_metadata,
-    update_metadata,
     delete_all_metadata,
     get_bitrate,
-    get_duration_in_sec
+    get_duration_in_sec,
+    get_unified_metadata,
+    update_metadata,
 )
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.e2e
 class TestCoreWorkflows:
-    
+
     def test_complete_metadata_editing_workflow(self):
         # This is an e2e test - it tests the entire user journey
         # 1. Load a file
@@ -29,14 +30,10 @@ class TestCoreWorkflows:
         # 3. Edit multiple fields
         # 4. Save changes
         # 5. Verify persistence
-        
+
         # Use external script to set initial metadata
-        initial_metadata = {
-            "title": "Original Title",
-            "artist": "Original Artist",
-            "album": "Original Album"
-        }
-        
+        initial_metadata = {"title": "Original Title", "artist": "Original Artist", "album": "Original Album"}
+
         with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
             # Edit metadata using app's function (this is what we're testing)
             test_metadata = {
@@ -44,12 +41,12 @@ class TestCoreWorkflows:
                 UnifiedMetadataKey.ARTISTS: ["New Artist"],
                 UnifiedMetadataKey.ALBUM: "New Album",
                 UnifiedMetadataKey.GENRES_NAMES: ["Rock"],
-                UnifiedMetadataKey.COMMENT: "Test comment"
+                UnifiedMetadataKey.COMMENT: "Test comment",
             }
-            
+
             # Save changes
             update_metadata(test_file_path, test_metadata)
-            
+
             # Verify persistence by reloading
             metadata = get_unified_metadata(test_file_path)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "New Title"
@@ -57,35 +54,28 @@ class TestCoreWorkflows:
             assert metadata.get(UnifiedMetadataKey.ALBUM) == "New Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
             assert metadata.get(UnifiedMetadataKey.COMMENT) == "Test comment"
-    
+
     def test_batch_metadata_processing(self, sample_mp3_file, sample_flac_file, sample_wav_file):
         # E2E test for batch operations
         results = []
-        
-        sample_files = [
-            (sample_mp3_file, "mp3"),
-            (sample_flac_file, "flac"), 
-            (sample_wav_file, "wav")
-        ]
-        
+
+        sample_files = [(sample_mp3_file, "mp3"), (sample_flac_file, "flac"), (sample_wav_file, "wav")]
+
         for file_path, format_type in sample_files:
             try:
                 # Set initial metadata using external script
-                initial_metadata = {
-                    "title": "Batch Test Title",
-                    "artist": "Batch Test Artist"
-                }
+                initial_metadata = {"title": "Batch Test Title", "artist": "Batch Test Artist"}
                 with temp_file_with_metadata(initial_metadata, format_type) as test_file_path:
                     # Update metadata using functional API (this is what we're testing)
                     test_metadata = {
                         UnifiedMetadataKey.ALBUM: "Batch Album",
-                        UnifiedMetadataKey.COMMENT: "Batch processing test"
+                        UnifiedMetadataKey.COMMENT: "Batch processing test",
                     }
                     update_metadata(test_file_path, test_metadata)
                     results.append(("success", file_path))
             except Exception as e:
                 results.append(("error", file_path, str(e)))
-        
+
         # Verify all files were processed
         assert len(results) == len(sample_files)
         success_count = sum(1 for result in results if result[0] == "success")
@@ -96,7 +86,7 @@ class TestCoreWorkflows:
             # Test that we can read metadata within context
             metadata = get_unified_metadata(audio_file)
             assert isinstance(metadata, dict)
-            
+
             # Test that we can get technical info within context
             bitrate = get_bitrate(audio_file)
             duration = get_duration_in_sec(audio_file)
@@ -108,36 +98,32 @@ class TestCoreWorkflows:
         test_metadata = {
             UnifiedMetadataKey.TITLE: "Cross Format Deletion",
             UnifiedMetadataKey.ARTISTS: ["Cross Format Artist"],
-            UnifiedMetadataKey.ALBUM: "Cross Format Album"
+            UnifiedMetadataKey.ALBUM: "Cross Format Album",
         }
-        
-        sample_files = [
-            (sample_mp3_file, "mp3"),
-            (sample_flac_file, "flac"),
-            (sample_wav_file, "wav")
-        ]
-        
+
+        sample_files = [(sample_mp3_file, "mp3"), (sample_flac_file, "flac"), (sample_wav_file, "wav")]
+
         for file_path, format_type in sample_files:
             # Set up metadata using external script
-            initial_metadata = {
-                "title": "Original Title",
-                "artist": "Original Artist"
-            }
+            initial_metadata = {"title": "Original Title", "artist": "Original Artist"}
             with temp_file_with_metadata(initial_metadata, format_type) as test_file_path:
                 # Add metadata using app's function
                 update_metadata(test_file_path, test_metadata)
-                
+
                 # Verify metadata was added
                 added_metadata = get_unified_metadata(test_file_path)
                 assert added_metadata.get(UnifiedMetadataKey.TITLE) == "Cross Format Deletion"
-                
+
                 # Delete all metadata
                 delete_result = delete_all_metadata(test_file_path)
                 assert delete_result is True
-                
+
                 # Verify metadata was deleted
                 deleted_metadata = get_unified_metadata(test_file_path)
-                assert deleted_metadata.get(UnifiedMetadataKey.TITLE) is None or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Cross Format Deletion"
+                assert (
+                    deleted_metadata.get(UnifiedMetadataKey.TITLE) is None
+                    or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Cross Format Deletion"
+                )
 
     def test_metadata_cleanup_workflow(self):
         # E2E test for complete metadata cleanup workflow
@@ -146,33 +132,36 @@ class TestCoreWorkflows:
             "artist": "Cleanup Test Artist",
             "album": "Cleanup Test Album",
             "year": "2023",
-            "genre": "Electronic"
+            "genre": "Electronic",
         }
-        
+
         with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
             # 1. Verify initial metadata exists
             initial_metadata_result = get_unified_metadata(test_file_path)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Cleanup Test Title"
-            
+
             # 2. Add more metadata
             additional_metadata = {
                 UnifiedMetadataKey.RATING: 80,
                 UnifiedMetadataKey.BPM: 128,
-                UnifiedMetadataKey.COMMENT: "Cleanup test comment"
+                UnifiedMetadataKey.COMMENT: "Cleanup test comment",
             }
             update_metadata(test_file_path, additional_metadata, normalized_rating_max_value=100)
-            
+
             # 3. Verify all metadata exists
             full_metadata = get_unified_metadata(test_file_path, normalized_rating_max_value=100)
             assert full_metadata.get(UnifiedMetadataKey.RATING) == 80
             assert full_metadata.get(UnifiedMetadataKey.BPM) == 128
-            
+
             # 4. Complete cleanup - delete all metadata
             delete_result = delete_all_metadata(test_file_path)
             assert delete_result is True
-            
+
             # 5. Verify complete cleanup
             cleaned_metadata = get_unified_metadata(test_file_path)
-            assert cleaned_metadata.get(UnifiedMetadataKey.TITLE) is None or cleaned_metadata.get(UnifiedMetadataKey.TITLE) != "Cleanup Test Title"
+            assert (
+                cleaned_metadata.get(UnifiedMetadataKey.TITLE) is None
+                or cleaned_metadata.get(UnifiedMetadataKey.TITLE) != "Cleanup Test Title"
+            )
             assert cleaned_metadata.get(UnifiedMetadataKey.RATING) is None
             assert cleaned_metadata.get(UnifiedMetadataKey.BPM) is None

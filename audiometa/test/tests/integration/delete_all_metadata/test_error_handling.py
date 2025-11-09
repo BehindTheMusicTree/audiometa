@@ -1,5 +1,4 @@
 import pytest
-from pathlib import Path
 
 from audiometa import delete_all_metadata
 from audiometa.exceptions import FileTypeNotSupportedError
@@ -15,12 +14,12 @@ class TestDeleteAllMetadataErrorHandling:
             temp_audio_file_path.write_bytes(b"fake audio content")
             temp_audio_file_path = temp_audio_file_path.with_suffix(".txt")
             temp_audio_file_path.write_bytes(b"fake audio content")
-            
+
             with pytest.raises(FileTypeNotSupportedError):
                 delete_all_metadata(str(temp_audio_file_path))
 
     def test_delete_all_metadata_nonexistent_file(self):
         nonexistent_file = "nonexistent_file.mp3"
-        
+
         with pytest.raises(FileNotFoundError):
             delete_all_metadata(nonexistent_file)

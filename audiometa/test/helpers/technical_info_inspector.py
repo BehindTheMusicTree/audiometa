@@ -14,6 +14,7 @@ class TechnicalInfoInspector:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             if output_format == "JSON":
                 import json
+
                 return json.loads(result.stdout)
             else:
                 return {"text": result.stdout}

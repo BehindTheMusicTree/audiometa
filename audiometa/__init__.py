@@ -13,7 +13,7 @@ import re
 import warnings
 from typing import Any, TypeAlias
 
-from .audio_file import AudioFile
+from ._audio_file import _AudioFile
 from .exceptions import (
     FileCorruptedError,
     FileTypeNotSupportedError,
@@ -24,12 +24,12 @@ from .exceptions import (
     MetadataFormatNotSupportedByAudioFormatError,
     MetadataWritingConflictParametersError,
 )
-from .manager.id3v1.Id3v1Manager import Id3v1Manager
-from .manager.MetadataManager import MetadataManager
-from .manager.rating_supporting.Id3v2Manager import Id3v2Manager
-from .manager.rating_supporting.RatingSupportingMetadataManager import RatingSupportingMetadataManager
-from .manager.rating_supporting.RiffManager import RiffManager
-from .manager.rating_supporting.VorbisManager import VorbisManager
+from .manager._MetadataManager import _MetadataManager
+from .manager.id3v1._Id3v1Manager import _Id3v1Manager
+from .manager.rating_supporting._Id3v2Manager import _Id3v2Manager
+from .manager.rating_supporting._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
+from .manager.rating_supporting._RiffManager import _RiffManager
+from .manager.rating_supporting._VorbisManager import _VorbisManager
 from .utils.MetadataFormat import MetadataFormat
 from .utils.MetadataWritingStrategy import MetadataWritingStrategy
 from .utils.types import AppMetadataValue, UnifiedMetadata
@@ -38,13 +38,13 @@ from .utils.UnifiedMetadataKey import UnifiedMetadataKey
 FILE_EXTENSION_NOT_HANDLED_MESSAGE = "The file's format is not handled by the service."
 
 METADATA_FORMAT_MANAGER_CLASS_MAP = {
-    MetadataFormat.ID3V1: Id3v1Manager,
-    MetadataFormat.ID3V2: Id3v2Manager,
-    MetadataFormat.VORBIS: VorbisManager,
-    MetadataFormat.RIFF: RiffManager,
+    MetadataFormat.ID3V1: _Id3v1Manager,
+    MetadataFormat.ID3V2: _Id3v2Manager,
+    MetadataFormat.VORBIS: _VorbisManager,
+    MetadataFormat.RIFF: _RiffManager,
 }
 
-FILE_TYPE: TypeAlias = AudioFile | str
+FILE_TYPE: TypeAlias = str
 
 
 def _get_metadata_manager(
@@ -52,11 +52,10 @@ def _get_metadata_manager(
     metadata_format: MetadataFormat | None = None,
     normalized_rating_max_value: int | None = None,
     id3v2_version: tuple[int, int, int] | None = None,
-) -> MetadataManager:
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
+) -> _MetadataManager:
+    audio_file = _AudioFile(file)
 
-    audio_file_prioritized_tag_formats = MetadataFormat.get_priorities().get(file.file_extension)
+    audio_file_prioritized_tag_formats = MetadataFormat.get_priorities().get(audio_file.file_extension)
     if not audio_file_prioritized_tag_formats:
         raise FileTypeNotSupportedError(FILE_EXTENSION_NOT_HANDLED_MESSAGE)
 
@@ -65,23 +64,23 @@ def _get_metadata_manager(
     else:
         if metadata_format not in audio_file_prioritized_tag_formats:
             raise MetadataFormatNotSupportedByAudioFormatError(
-                f"Tag format {metadata_format} not supported for file extension {file.file_extension}"
+                f"Tag format {metadata_format} not supported for file extension {audio_file.file_extension}"
             )
 
     manager_class = METADATA_FORMAT_MANAGER_CLASS_MAP[metadata_format]
-    if issubclass(manager_class, RatingSupportingMetadataManager):
-        if manager_class == Id3v2Manager:
+    if issubclass(manager_class, _RatingSupportingMetadataManager):
+        if manager_class == _Id3v2Manager:
             # Determine ID3v2 version based on provided version or use default
             if id3v2_version is not None:
                 version = id3v2_version
             else:
                 version = (2, 3, 0)  # Default to ID3v2.3
             return manager_class(
-                audio_file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=version
+                audio_file=audio_file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=version
             )
         else:
-            return manager_class(audio_file=file, normalized_rating_max_value=normalized_rating_max_value)
-    return manager_class(audio_file=file)
+            return manager_class(audio_file=audio_file, normalized_rating_max_value=normalized_rating_max_value)
+    return manager_class(audio_file=audio_file)
 
 
 def _get_metadata_managers(
@@ -89,14 +88,13 @@ def _get_metadata_managers(
     tag_formats: list[MetadataFormat] | None = None,
     normalized_rating_max_value: int | None = None,
     id3v2_version: tuple[int, int, int] | None = None,
-) -> dict[MetadataFormat, MetadataManager]:
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
+) -> dict[MetadataFormat, _MetadataManager]:
+    audio_file = _AudioFile(file)
 
     managers = {}
 
     if not tag_formats:
-        tag_formats = MetadataFormat.get_priorities().get(file.file_extension)
+        tag_formats = MetadataFormat.get_priorities().get(audio_file.file_extension)
         if not tag_formats:
             raise FileTypeNotSupportedError(FILE_EXTENSION_NOT_HANDLED_MESSAGE)
 
@@ -126,7 +124,7 @@ def get_unified_metadata(
     format, returning data from that format only.
 
     Args:
-        file: Audio file path or AudioFile object
+        file: Audio file path
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             When provided, ratings are normalized to this scale. Defaults to None (raw values).
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
@@ -166,8 +164,7 @@ def get_unified_metadata(
         )
         print(metadata.get(UnifiedMetadataKey.RATING))  # Returns 0-100
     """
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
+    audio_file = _AudioFile(file)
 
     # If specific format requested, return data from that format only
     if metadata_format is not None:
@@ -185,7 +182,7 @@ def get_unified_metadata(
     )
 
     # Get file-specific format priorities
-    available_formats = MetadataFormat.get_priorities().get(file.file_extension, [])
+    available_formats = MetadataFormat.get_priorities().get(audio_file.file_extension, [])
     managers_by_precedence = []
 
     for format_type in available_formats:
@@ -218,7 +215,7 @@ def get_unified_metadata_field(
     """Get a specific unified metadata field from an audio file.
 
     Args:
-        file: Audio file path or AudioFile object
+        file: Audio file path
         unified_metadata_key: The metadata field to retrieve
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             Only used when unified_metadata_key is RATING. For other metadata fields,
@@ -264,8 +261,7 @@ def get_unified_metadata_field(
     if not isinstance(unified_metadata_key, UnifiedMetadataKey):
         raise MetadataFieldNotSupportedByLib(f"{unified_metadata_key} metadata not supported by the library.")
 
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
+    _AudioFile(file)
 
     if metadata_format is not None:
         # Get metadata from specific format
@@ -392,7 +388,7 @@ def update_metadata(
     format manager. It supports multiple writing strategies and format selection.
 
     Args:
-        file: Audio file path or AudioFile object
+        file: Audio file path
         unified_metadata: Dictionary containing metadata to write
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             When provided, ratings are normalized to this scale. Defaults to None (raw values).
@@ -468,8 +464,7 @@ def update_metadata(
         # Results in: ["Artist 1", "Artist 2"] - empty strings and None filtered out
         update_metadata("song.mp3", metadata)
     """
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
+    _AudioFile(file)
 
     # Validate that both parameters are not specified simultaneously
     if metadata_strategy is not None and metadata_format is not None:
@@ -509,16 +504,15 @@ def _handle_metadata_strategy(
     fail_on_unsupported_field: bool = False,
 ) -> None:
     """Handle metadata strategy-specific behavior for all strategies."""
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
+    audio_file = _AudioFile(file)
 
     # Get the target format (specified format or native format)
     if target_format:
         target_format_actual = target_format
     else:
-        available_formats = MetadataFormat.get_priorities().get(file.file_extension)
+        available_formats = MetadataFormat.get_priorities().get(audio_file.file_extension)
         if not available_formats:
-            raise FileTypeNotSupportedError(f"File extension {file.file_extension} is not supported")
+            raise FileTypeNotSupportedError(f"File extension {audio_file.file_extension} is not supported")
         target_format_actual = available_formats[0]
 
     # When a specific format is forced, ignore strategy and write only to that format
@@ -705,7 +699,7 @@ def delete_all_metadata(
     metadata headers entirely, not just the content.
 
     Args:
-        file: Audio file path or AudioFile object
+        file: Audio file path
         metadata_format: Specific format to delete metadata from. If None, deletes from ALL supported formats.
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
 
@@ -742,8 +736,8 @@ def delete_all_metadata(
 
         For selective field removal, use update_metadata with None values instead.
     """
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
+    if not isinstance(file, _AudioFile):
+        file = _AudioFile(file)
 
     # If specific format requested, delete only that format
     if metadata_format:
@@ -772,7 +766,7 @@ def get_bitrate(file: FILE_TYPE) -> int:
     """Get the bitrate of an audio file.
 
     Args:
-        file: Audio file path or AudioFile object
+        file: Audio file path
 
     Returns:
         Bitrate in bits per second
@@ -785,16 +779,15 @@ def get_bitrate(file: FILE_TYPE) -> int:
         bitrate = get_bitrate("song.mp3")
         print(f"Bitrate: {bitrate} bps")
     """
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
-    return file.get_bitrate()  # type: ignore[no-any-return]
+    audio_file = _AudioFile(file)
+    return audio_file.get_bitrate()  # type: ignore[no-any-return]
 
 
 def get_channels(file: FILE_TYPE) -> int:
     """Get the number of channels in an audio file.
 
     Args:
-        file: Audio file path or AudioFile object
+        file: Audio file path
 
     Returns:
         Number of audio channels (e.g., 1 for mono, 2 for stereo)
@@ -807,16 +800,15 @@ def get_channels(file: FILE_TYPE) -> int:
         channels = get_channels("song.mp3")
         print(f"Channels: {channels}")
     """
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
-    return file.get_channels()  # type: ignore[no-any-return]
+    audio_file = _AudioFile(file)
+    return audio_file.get_channels()  # type: ignore[no-any-return]
 
 
 def get_file_size(file: FILE_TYPE) -> int:
     """Get the file size of an audio file in bytes.
 
     Args:
-        file: Audio file path or AudioFile object
+        file: Audio file path
 
     Returns:
         File size in bytes
@@ -829,16 +821,15 @@ def get_file_size(file: FILE_TYPE) -> int:
         size = get_file_size("song.mp3")
         print(f"File size: {size} bytes")
     """
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
-    return file.get_file_size()  # type: ignore[no-any-return]
+    audio_file = _AudioFile(file)
+    return audio_file.get_file_size()  # type: ignore[no-any-return]
 
 
 def get_sample_rate(file: FILE_TYPE) -> int:
     """Get the sample rate of an audio file in Hz.
 
     Args:
-        file: Audio file path or AudioFile object
+        file: Audio file path
 
     Returns:
         Sample rate in Hz
@@ -851,16 +842,15 @@ def get_sample_rate(file: FILE_TYPE) -> int:
         sample_rate = get_sample_rate("song.mp3")
         print(f"Sample rate: {sample_rate} Hz")
     """
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
-    return file.get_sample_rate()  # type: ignore[no-any-return]
+    audio_file = _AudioFile(file)
+    return audio_file.get_sample_rate()  # type: ignore[no-any-return]
 
 
 def get_duration_in_sec(file: FILE_TYPE) -> float:
     """Get the duration of an audio file in seconds.
 
     Args:
-        file: Audio file path or AudioFile object
+        file: Audio file path
 
     Returns:
         Duration in seconds as a float
@@ -877,9 +867,8 @@ def get_duration_in_sec(file: FILE_TYPE) -> float:
         minutes = duration / 60
         print(f"Duration: {minutes:.2f} minutes")
     """
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
-    return file.get_duration_in_sec()  # type: ignore[no-any-return]
+    audio_file = _AudioFile(file)
+    return audio_file.get_duration_in_sec()  # type: ignore[no-any-return]
 
 
 def is_flac_md5_valid(file: FILE_TYPE) -> bool:
@@ -889,7 +878,7 @@ def is_flac_md5_valid(file: FILE_TYPE) -> bool:
     Only works with FLAC files.
 
     Args:
-        file: Audio file path or AudioFile object (must be FLAC)
+        file: Audio file path (must be FLAC)
 
     Returns:
         True if MD5 signature is valid, False otherwise
@@ -906,10 +895,9 @@ def is_flac_md5_valid(file: FILE_TYPE) -> bool:
         else:
             print("FLAC file may be corrupted")
     """
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
+    audio_file = _AudioFile(file)
     try:
-        return file.is_flac_file_md5_valid()  # type: ignore[no-any-return]
+        return audio_file.is_flac_file_md5_valid()  # type: ignore[no-any-return]
     except FileCorruptedError:
         return False
 
@@ -928,9 +916,7 @@ def fix_md5_checking(file: FILE_TYPE) -> str:
         FileCorruptedError: If the FLAC file is corrupted or cannot be corrected
         RuntimeError: If the FLAC command fails to execute
     """
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
-    audio_file: AudioFile = file
+    audio_file = _AudioFile(file)
     return audio_file.get_file_with_corrected_md5(delete_original=True)  # type: ignore[no-any-return]
 
 
@@ -946,7 +932,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
     - Raw metadata details from each format
 
     Args:
-        file: Audio file path or AudioFile object
+        file: Audio file path
         include_headers: Whether to include format-specific header information (default: True)
         include_technical: Whether to include technical audio information (default: True)
 
@@ -976,14 +962,13 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
         print(f"ID3v2 Version: {full_metadata['headers']['id3v2']['version']}")
         print(f"Has ID3v1 Header: {full_metadata['headers']['id3v1']['present']}")
     """
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
+    audio_file = _AudioFile(file)
 
     # Get all available managers for this file type
     all_managers = _get_metadata_managers(file=file, normalized_rating_max_value=None, id3v2_version=None)
 
     # Get file-specific format priorities
-    available_formats = MetadataFormat.get_priorities().get(file.file_extension, [])
+    available_formats = MetadataFormat.get_priorities().get(audio_file.file_extension, [])
 
     # Initialize result structure
     result: dict[str, Any] = {
@@ -993,7 +978,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
         "headers": {},
         "raw_metadata": {},
         "format_priorities": {
-            "file_extension": file.file_extension,
+            "file_extension": audio_file.file_extension,
             "reading_order": [fmt.value for fmt in available_formats],
             "writing_format": available_formats[0].value if available_formats else None,
         },
@@ -1006,14 +991,16 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
     if include_technical:
         try:
             result["technical_info"] = {
-                "duration_seconds": file.get_duration_in_sec(),
-                "bitrate_kbps": file.get_bitrate(),
-                "sample_rate_hz": file.get_sample_rate(),
-                "channels": file.get_channels(),
+                "duration_seconds": audio_file.get_duration_in_sec(),
+                "bitrate_kbps": audio_file.get_bitrate(),
+                "sample_rate_hz": audio_file.get_sample_rate(),
+                "channels": audio_file.get_channels(),
                 "file_size_bytes": get_file_size(file),
-                "file_extension": file.file_extension,
-                "audio_format_name": file.get_audio_format_name(),
-                "is_flac_md5_valid": (file.is_flac_file_md5_valid() if file.file_extension == ".flac" else None),
+                "file_extension": audio_file.file_extension,
+                "audio_format_name": audio_file.get_audio_format_name(),
+                "is_flac_md5_valid": (
+                    audio_file.is_flac_file_md5_valid() if audio_file.file_extension == ".flac" else None
+                ),
             }
         except Exception:
             result["technical_info"] = {
@@ -1022,8 +1009,8 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
                 "sample_rate_hz": 0,
                 "channels": 0,
                 "file_size_bytes": 0,
-                "file_extension": file.file_extension,
-                "audio_format_name": file.get_audio_format_name(),
+                "file_extension": audio_file.file_extension,
+                "audio_format_name": audio_file.get_audio_format_name(),
                 "is_flac_md5_valid": None,
             }
 

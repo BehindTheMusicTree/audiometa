@@ -37,7 +37,7 @@
 # EXAMPLES:
 #     # Set maximum Vorbis metadata
 #     ./set-vorbis-max-metadata.sh test.flac
-#     
+#
 #     # Verify the results
 #     metaflac --list test.flac
 #     metaflac --list --block-type=VORBIS_COMMENT test.flac
@@ -56,13 +56,13 @@
 # TROUBLESHOOTING:
 #     # Check if metaflac is installed
 #     which metaflac
-#     
+#
 #     # Install if missing (macOS)
 #     brew install flac  # provides metaflac
-#     
+#
 #     # Check file format
 #     file test.flac  # Should show "FLAC audio"
-#     
+#
 #     # Verify Vorbis comments were written
 #     metaflac --list test.flac | grep -E "(TITLE|ARTIST|ALBUM)"
 #     metaflac --list --block-type=VORBIS_COMMENT test.flac

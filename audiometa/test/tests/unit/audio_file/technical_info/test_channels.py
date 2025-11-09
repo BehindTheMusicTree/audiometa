@@ -1,10 +1,8 @@
-
-
-import pytest
 from pathlib import Path
 
-from audiometa import AudioFile
-from audiometa.exceptions import FileTypeNotSupportedError
+import pytest
+
+from audiometa._audio_file import _AudioFile as AudioFile
 
 
 @pytest.mark.unit

@@ -1,7 +1,8 @@
-import pytest
 from unittest.mock import MagicMock
 
-from audiometa import AudioFile
+import pytest
+
+from audiometa._audio_file import _AudioFile as AudioFile
 
 
 @pytest.fixture
@@ -47,24 +48,24 @@ def mock_id3_with_metadata():
     mock_id3.size = 2048
     mock_id3.flags = 0x40
     mock_id3.extended_header = None
-    
+
     mock_title = MagicMock()
     mock_title.text = ["Test Title"]
     mock_artists = MagicMock()
     mock_artists.text = ["Test Artist"]
     mock_album = MagicMock()
     mock_album.text = ["Test Album"]
-    
+
     frame_dict = {
-        'TIT2': mock_title,
-        'TPE1': mock_artists,
-        'TALB': mock_album,
+        "TIT2": mock_title,
+        "TPE1": mock_artists,
+        "TALB": mock_album,
     }
-    
+
     mock_id3.__contains__ = lambda self, key: key in frame_dict
     mock_id3.__getitem__ = lambda self, key: frame_dict.get(key)
     mock_id3.items.return_value = []
-    
+
     return mock_id3
 
 
@@ -76,34 +77,34 @@ def mock_id3_updatable():
     mock_id3.size = 0
     mock_id3.flags = 0
     mock_id3.extended_header = None
-    
+
     # Storage for frames
     frames = {}
-    
+
     def mock_delall(key):
         """Remove all frames with the given key."""
         keys_to_remove = [k for k in frames.keys() if k.startswith(key)]
         for k in keys_to_remove:
             del frames[k]
-    
+
     def mock_add(frame):
         """Add a frame to the mock."""
         frame_id = frame.FrameID
-        if hasattr(frame, 'email'):  # POPM frame
-            frame_id = f'{frame_id}:{frame.email}'
-        
+        if hasattr(frame, "email"):  # POPM frame
+            frame_id = f"{frame_id}:{frame.email}"
+
         frames[frame_id] = frame
-    
+
     def mock_items():
         """Return list of (key, frame) tuples."""
         return list(frames.items())
-    
+
     mock_id3.delall = mock_delall
     mock_id3.add = mock_add
     mock_id3.items = mock_items
     mock_id3.__contains__ = lambda self, key: key in frames
     mock_id3.__getitem__ = lambda self, key: frames[key]
-    
+
     return mock_id3
 
 
@@ -118,9 +119,9 @@ def mock_wave_empty():
 def mock_wave_with_metadata():
     mock_wave = MagicMock()
     mock_wave.info = {
-        'INAM': ['Test Title'],
-        'IART': ['Test Artist'],
-        'IPRD': ['Test Album'],
+        "INAM": ["Test Title"],
+        "IART": ["Test Artist"],
+        "IPRD": ["Test Album"],
     }
     return mock_wave
 
@@ -135,8 +136,7 @@ def mock_vorbis_metadata_empty():
 def mock_vorbis_metadata_with_data():
     """Mock Vorbis metadata dict with sample metadata."""
     return {
-        'TITLE': ['Test Title'],
-        'ARTIST': ['Test Artist'],
-        'ALBUM': ['Test Album'],
+        "TITLE": ["Test Title"],
+        "ARTIST": ["Test Artist"],
+        "ALBUM": ["Test Album"],
     }
-

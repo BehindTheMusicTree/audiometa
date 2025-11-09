@@ -1,11 +1,10 @@
 import pytest
-from pathlib import Path
 
 from audiometa import get_unified_metadata_field, update_metadata
+from audiometa.exceptions import FileTypeNotSupportedError, InvalidMetadataFieldTypeError, InvalidRatingValueError
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
-from audiometa.exceptions import FileTypeNotSupportedError, InvalidMetadataFieldTypeError, ConfigurationError, InvalidRatingValueError
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.integration
@@ -16,32 +15,38 @@ class TestRatingErrorHandling:
             temp_file_path.write_bytes(b"fake audio content")
             temp_txt = temp_file_path.with_suffix(".txt")
             temp_txt.write_bytes(b"fake audio content")
-            
+
             with pytest.raises(FileTypeNotSupportedError):
                 get_unified_metadata_field(str(temp_txt), UnifiedMetadataKey.RATING)
-            
+
             with pytest.raises(FileTypeNotSupportedError):
                 update_metadata(str(temp_txt), {UnifiedMetadataKey.RATING: 85})
 
     def test_rating_nonexistent_file(self):
         nonexistent_file = "nonexistent_file.mp3"
-        
+
         with pytest.raises(FileNotFoundError):
             get_unified_metadata_field(nonexistent_file, UnifiedMetadataKey.RATING)
-        
+
         with pytest.raises(FileNotFoundError):
             update_metadata(nonexistent_file, {UnifiedMetadataKey.RATING: 85})
-            
 
     def test_write_fractional_values(self):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         with temp_file_with_metadata(basic_metadata, "mp3") as test_file_path:
             with pytest.raises(InvalidMetadataFieldTypeError):
-                update_metadata(test_file_path, {UnifiedMetadataKey.RATING: 25.5}, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
+                update_metadata(
+                    test_file_path,
+                    {UnifiedMetadataKey.RATING: 25.5},
+                    normalized_rating_max_value=100,
+                    metadata_format=MetadataFormat.ID3V2,
+                )
 
     def test_rating_invalid_string_value(self):
         with temp_file_with_metadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file_path:
-            with pytest.raises(InvalidMetadataFieldTypeError, match="Invalid type for metadata field 'rating': expected int, got str"):
+            with pytest.raises(
+                InvalidMetadataFieldTypeError, match="Invalid type for metadata field 'rating': expected int, got str"
+            ):
                 update_metadata(test_file_path, {UnifiedMetadataKey.RATING: "invalid"}, normalized_rating_max_value=100)
 
     def test_rating_negative_value_rejected_in_normalized_mode(self):
@@ -60,7 +65,9 @@ class TestRatingErrorHandling:
     def test_rating_none_value(self):
         with temp_file_with_metadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file_path:
             update_metadata(test_file_path, {UnifiedMetadataKey.RATING: None}, normalized_rating_max_value=100)
-            metadata = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            metadata = get_unified_metadata_field(
+                test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100
+            )
             assert metadata is None
 
     def test_rating_without_max_value_allows_any_non_negative_integer(self):
@@ -69,43 +76,53 @@ class TestRatingErrorHandling:
             update_metadata(test_file_path, {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.ID3V2)
             update_metadata(test_file_path, {UnifiedMetadataKey.RATING: 75}, metadata_format=MetadataFormat.ID3V2)
             update_metadata(test_file_path, {UnifiedMetadataKey.RATING: 0}, metadata_format=MetadataFormat.ID3V2)
-            
+
             # Negative values should be rejected
             with pytest.raises(InvalidRatingValueError) as exc_info:
                 update_metadata(test_file_path, {UnifiedMetadataKey.RATING: -1}, metadata_format=MetadataFormat.ID3V2)
             assert "must be non-negative" in str(exc_info.value)
-            
+
             # Valid value in BASE_100_PROPORTIONAL profile (Vorbis uses this)
-            with temp_file_with_metadata({"title": "Test Title", "artist": "Test Artist"}, "flac") as test_file_flac_path:
-                update_metadata(test_file_flac_path, {UnifiedMetadataKey.RATING: 50}, metadata_format=MetadataFormat.VORBIS)
-                update_metadata(test_file_flac_path, {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.VORBIS)
+            with temp_file_with_metadata(
+                {"title": "Test Title", "artist": "Test Artist"}, "flac"
+            ) as test_file_flac_path:
+                update_metadata(
+                    test_file_flac_path, {UnifiedMetadataKey.RATING: 50}, metadata_format=MetadataFormat.VORBIS
+                )
+                update_metadata(
+                    test_file_flac_path, {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.VORBIS
+                )
 
     def test_rating_with_normalized_max_validates_tenth_ratio(self):
         with temp_file_with_metadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file_path:
             # Valid tenth ratio of 100 (50 * 10 % 100 == 0)
-            update_metadata(test_file_path, {UnifiedMetadataKey.RATING: 50}, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            
+            update_metadata(
+                test_file_path,
+                {UnifiedMetadataKey.RATING: 50},
+                normalized_rating_max_value=100,
+                metadata_format=MetadataFormat.ID3V2,
+            )
+
             # Invalid - not a tenth ratio (37 * 10 % 100 == 70 != 0)
             with pytest.raises(InvalidRatingValueError) as exc_info:
-                update_metadata(test_file_path, {UnifiedMetadataKey.RATING: 37}, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
+                update_metadata(
+                    test_file_path,
+                    {UnifiedMetadataKey.RATING: 37},
+                    normalized_rating_max_value=100,
+                    metadata_format=MetadataFormat.ID3V2,
+                )
             assert "not a valid tenth ratio" in str(exc_info.value)
 
     def test_invalid_rating_value_error_non_numeric_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
             with pytest.raises(InvalidMetadataFieldTypeError) as exc_info:
-                update_metadata(
-                    test_file_path,
-                    {UnifiedMetadataKey.RATING: "invalid"},
-                    normalized_rating_max_value=100
-                )
+                update_metadata(test_file_path, {UnifiedMetadataKey.RATING: "invalid"}, normalized_rating_max_value=100)
             assert "invalid type for metadata field 'rating'" in str(exc_info.value).lower()
 
     def test_invalid_rating_value_error_non_numeric_type(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
             with pytest.raises(InvalidMetadataFieldTypeError) as exc_info:
                 update_metadata(
-                    test_file_path,
-                    {UnifiedMetadataKey.RATING: {"not": "valid"}},
-                    normalized_rating_max_value=100
+                    test_file_path, {UnifiedMetadataKey.RATING: {"not": "valid"}}, normalized_rating_max_value=100
                 )
             assert "invalid type for metadata field 'rating'" in str(exc_info.value).lower()

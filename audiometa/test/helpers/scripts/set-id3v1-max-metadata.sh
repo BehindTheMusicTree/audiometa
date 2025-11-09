@@ -35,7 +35,7 @@
 # EXAMPLES:
 #     # Set maximum ID3v1 metadata
 #     ./set-id3v1-max-metadata.sh test.mp3
-#     
+#
 #     # Verify the results
 #     id3v2 -l test.mp3
 #
@@ -57,13 +57,13 @@
 # TROUBLESHOOTING:
 #     # Check if id3v2 is installed
 #     which id3v2
-#     
+#
 #     # Install if missing (macOS)
 #     brew install id3v2
-#     
+#
 #     # Check file format
 #     file test.mp3  # Should show MP3 audio
-#     
+#
 #     # Verify ID3v1 tags were written
 #     id3v2 -l1 test.mp3  # Should show all fields with max lengths
 #

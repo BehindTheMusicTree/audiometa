@@ -1,7 +1,8 @@
-import pytest
 from pathlib import Path
 
-from audiometa import AudioFile
+import pytest
+
+from audiometa._audio_file import _AudioFile as AudioFile
 
 
 @pytest.mark.unit

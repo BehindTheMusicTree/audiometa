@@ -2,11 +2,11 @@ import re
 from abc import abstractmethod
 from typing import TypeVar, cast
 
-from mutagen._file import FileType as MutagenMetadata
+from mutagen._file import FileType as MutagenMetadata  # type: ignore[import]
 
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
-from ..audio_file import AudioFile
+from .._audio_file import _AudioFile
 from ..exceptions import MetadataFieldNotSupportedByMetadataFormatError
 from ..utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 from ..utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey, UnifiedMetadata
@@ -19,9 +19,9 @@ METADATA_MULTI_VALUE_SEPARATORS_PRIORITIZED = ("//", "\\\\", "\\", ";", "/", ","
 T = TypeVar("T", str, int)
 
 
-class MetadataManager:
+class _MetadataManager:
 
-    audio_file: AudioFile
+    audio_file: _AudioFile
     metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None]
     metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] | None
     raw_mutagen_metadata: MutagenMetadata | None = None
@@ -31,7 +31,7 @@ class MetadataManager:
 
     def __init__(
         self,
-        audio_file: AudioFile,
+        audio_file: _AudioFile,
         metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None],
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] | None = None,
         update_using_mutagen_metadata: bool = True,
@@ -120,19 +120,12 @@ class MetadataManager:
         )
         return self._extract_and_regroup_raw_metadata_unique_entries(raw_metadata_with_potential_duplicate_keys)
 
-    def _extract_raw_clean_metadata_uppercase_keys_from_file(self):
+    def _extract_raw_clean_metadata_uppercase_keys_from_file(self) -> None:
         if self.raw_clean_metadata is None:
             self.raw_clean_metadata = self._extract_cleaned_raw_metadata_from_file()
 
-        self.raw_clean_metadata_uppercase_keys = {}
-        for key, value in self.raw_clean_metadata.items():
-            # Handle enum keys properly - use the enum member itself as the key
-            if hasattr(key, "value") and hasattr(key, "name"):
-                # This is an enum member, use it directly
-                self.raw_clean_metadata_uppercase_keys[key] = value
-            else:
-                # This is a string key, convert to uppercase
-                self.raw_clean_metadata_uppercase_keys[key.upper()] = value
+        # raw_clean_metadata is RawMetadataDict, so all keys are RawMetadataKey enum members
+        self.raw_clean_metadata_uppercase_keys = dict(self.raw_clean_metadata)
 
     def _should_apply_smart_parsing(self, values_list_str: list[str]) -> bool:
         """Determine if smart parsing should be applied based on entry count and null separators.
@@ -217,7 +210,7 @@ class MetadataManager:
 
     def _extract_and_regroup_raw_metadata_unique_entries(
         self, raw_metadata_with_potential_duplicate_keys: RawMetadataDict
-    ):
+    ) -> RawMetadataDict:
         raw_clean_metadata = {}
 
         for raw_metadata_key, raw_metadata_value in raw_metadata_with_potential_duplicate_keys.items():
@@ -275,7 +268,7 @@ class MetadataManager:
             return None
 
         # Step 1: Extract all genre entries from the file
-        genre_entries = [entry.strip() for entry in raw_value_list if entry.strip()]
+        genre_entries = [str(entry).strip() for entry in raw_value_list if str(entry).strip()]
 
         if not genre_entries:
             return None
@@ -404,7 +397,7 @@ class MetadataManager:
         # No code found, return as-is
         return genre_entry if genre_entry else None
 
-    def get_unified_metadata(self) -> UnifiedMetadata:
+    def get_unified_metadata(self) -> dict[UnifiedMetadataKey, int | float | str | list[str]]:
         unified_metadata = {}
         for metadata_key in self.metadata_keys_direct_map_read:
             unified_metadata_value = self.get_unified_metadata_field(metadata_key)
@@ -423,12 +416,13 @@ class MetadataManager:
 
         raw_metadata_key = self.metadata_keys_direct_map_read[unified_metadata_key]
         if not raw_metadata_key:
+            assert self.raw_clean_metadata_uppercase_keys is not None
             return self._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
                 raw_clean_metadata_uppercase_keys=self.raw_clean_metadata_uppercase_keys,
                 unified_metadata_key=unified_metadata_key,
             )
 
-        value = self.raw_clean_metadata_uppercase_keys.get(raw_metadata_key)
+        value = self.raw_clean_metadata_uppercase_keys.get(cast(RawMetadataKey, raw_metadata_key))
 
         if not value or not len(value):
             return None
@@ -446,6 +440,7 @@ class MetadataManager:
             track_str = str(value[0])
             if re.match(r"^\d+([-/]\d*)?$", track_str):
                 track_match = re.match(r"(\d+)", track_str)
+                assert track_match is not None
                 return int(track_match.group(1))
             else:
                 return None
@@ -457,7 +452,9 @@ class MetadataManager:
         if unified_metadata_key_optional_type == str:
             return str(value[0]) if value else None
         if unified_metadata_key_optional_type == list[str]:
-            return self._get_value_from_multi_values_data(unified_metadata_key, value, raw_metadata_key)
+            return self._get_value_from_multi_values_data(
+                unified_metadata_key, cast(list[str], value), raw_metadata_key
+            )
         raise ValueError(f"Unsupported metadata type: {unified_metadata_key_optional_type}")
 
     def _get_value_from_multi_values_data(
@@ -465,9 +462,10 @@ class MetadataManager:
     ) -> AppMetadataValue:
         if not value:
             return None
-        values_list_str = cast(list[str], value)
+        values_list_str = value
         if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             # Use specialized genre reading logic
+            assert self.raw_clean_metadata is not None
             return self._get_genres_from_raw_clean_metadata_uppercase_keys(self.raw_clean_metadata, raw_metadata_key)
         elif unified_metadata_key.can_semantically_have_multiple_values():
             # Apply smart parsing logic for semantically multi-value fields

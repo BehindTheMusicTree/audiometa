@@ -1,30 +1,23 @@
 """Test configuration for audiometa-python tests."""
 
 from pathlib import Path
-from typing import Generator
 
 import pytest
-
-from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 def pytest_collection_modifyitems(items):
     """Reorder test items to ensure proper execution order: unit → integration → e2e."""
     # Define the desired test execution order based on directory structure
-    TEST_ORDER = {
-        "unit": 1,
-        "integration": 2, 
-        "e2e": 3
-    }
-    
+    TEST_ORDER = {"unit": 1, "integration": 2, "e2e": 3}
+
     def get_test_priority(item):
         """Get the priority order for a test item based on its path."""
         test_path = str(item.fspath)
-        
+
         # Check for unit tests
         if "/unit/" in test_path:
             return TEST_ORDER["unit"]
-        # Check for integration tests  
+        # Check for integration tests
         elif "/integration/" in test_path:
             return TEST_ORDER["integration"]
         # Check for e2e tests
@@ -33,7 +26,7 @@ def pytest_collection_modifyitems(items):
         # Default priority for other tests (comprehensive, etc.)
         else:
             return 0  # Run first (before unit tests)
-    
+
     # Sort items by priority
     items.sort(key=get_test_priority)
 
@@ -56,6 +49,7 @@ def sample_flac_file(assets_dir: Path) -> Path:
 @pytest.fixture
 def sample_wav_file(assets_dir: Path) -> Path:
     return assets_dir / "sample.wav"
+
 
 @pytest.fixture
 def sample_m4a_file(assets_dir: Path) -> Path:

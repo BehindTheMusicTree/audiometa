@@ -1,5 +1,6 @@
-import pytest
 from pathlib import Path
+
+import pytest
 
 from audiometa.cli import expand_file_patterns
 
@@ -62,7 +63,7 @@ class TestExpandFilePatterns:
         result = expand_file_patterns([str(subdir)], recursive=True)
 
         assert len(result) == 3
-        assert all(path.suffix in ['.mp3', '.flac', '.wav'] for path in result)
+        assert all(path.suffix in [".mp3", ".flac", ".wav"] for path in result)
         assert all(subdir in path.parents for path in result)
 
     def test_directory_recursive_nested_directories(self, tmp_path):
@@ -81,7 +82,7 @@ class TestExpandFilePatterns:
         result = expand_file_patterns([str(music_dir)], recursive=True)
 
         assert len(result) == 4
-        assert all(path.suffix in ['.mp3', '.flac'] for path in result)
+        assert all(path.suffix in [".mp3", ".flac"] for path in result)
 
     def test_mixed_patterns(self, tmp_path):
         # Create files and directories
@@ -98,8 +99,8 @@ class TestExpandFilePatterns:
 
         patterns = [
             str(single_file),  # Single file
-            str(music_dir),    # Directory (recursive)
-            str(tmp_path / "glob*.mp3")  # Glob pattern
+            str(music_dir),  # Directory (recursive)
+            str(tmp_path / "glob*.mp3"),  # Glob pattern
         ]
 
         result = expand_file_patterns(patterns, recursive=True)
@@ -122,7 +123,7 @@ class TestExpandFilePatterns:
         result = expand_file_patterns([str(music_dir)], recursive=True)
 
         assert len(result) == 3
-        assert all(path.suffix in ['.mp3', '.flac', '.wav'] for path in result)
+        assert all(path.suffix in [".mp3", ".flac", ".wav"] for path in result)
 
     def test_no_files_found_continue_on_error_true(self, tmp_path, capsys):
         nonexistent_pattern = str(tmp_path / "nonexistent.mp3")
@@ -191,7 +192,7 @@ class TestExpandFilePatterns:
 
         pattern_mp3 = str(tmp_path / "*.mp3")
         pattern_wav = str(tmp_path / "*.wav")
-        
+
         result_mp3 = expand_file_patterns([pattern_mp3], continue_on_error=True)
         result_wav = expand_file_patterns([pattern_wav], continue_on_error=True)
 

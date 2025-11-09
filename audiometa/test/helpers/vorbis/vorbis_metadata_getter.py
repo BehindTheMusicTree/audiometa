@@ -7,15 +7,12 @@ from mutagen.flac import FLAC
 
 
 class VorbisMetadataGetter:
-    
+
     @staticmethod
     def get_raw_metadata(file_path: Path) -> str:
-        result = subprocess.run(
-            ['metaflac', '--list', str(file_path)],
-            capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["metaflac", "--list", str(file_path)], capture_output=True, text=True, check=True)
         return result.stdout
-    
+
     @staticmethod
     def get_raw_metadata_without_truncating_null_bytes_but_lower_case_keys(file_path: Path) -> str:
         audio = FLAC(str(file_path))
@@ -39,13 +36,14 @@ class VorbisMetadataGetter:
         lines.append("  length: 72")
         lines.append("  vendor string: ")
         comments = []
-        for key in sorted(audio.tags.keys()):
-            values = audio.tags[key]
-            if isinstance(values, list):
-                for value in values:
-                    comments.append(f"    comment[{len(comments)}]: {key}={value}")
-            else:
-                comments.append(f"    comment[{len(comments)}]: {key}={values}")
+        if audio.tags is not None:
+            for key in sorted(audio.tags.keys()):
+                values = audio.tags[key]
+                if isinstance(values, list):
+                    for value in values:
+                        comments.append(f"    comment[{len(comments)}]: {key}={value}")
+                else:
+                    comments.append(f"    comment[{len(comments)}]: {key}={values}")
         lines.append(f"  comments: {len(comments)}")
         lines.extend(comments)
         lines.append("METADATA block #2")
@@ -53,16 +51,14 @@ class VorbisMetadataGetter:
         lines.append("  is last: true")
         lines.append("  length: 1076")
         return "\n".join(lines)
-    
+
     @staticmethod
     def get_title(file_path: Path) -> str:
         result = subprocess.run(
-            ['metaflac', '--show-tag=TITLE', str(file_path)],
-            capture_output=True, text=True, check=True
+            ["metaflac", "--show-tag=TITLE", str(file_path)], capture_output=True, text=True, check=True
         )
         # Output is like "TITLE=Song Title\n"
-        lines = result.stdout.strip().split('\n')
-        if lines and '=' in lines[0]:
-            return lines[0].split('=', 1)[1]
+        lines = result.stdout.strip().split("\n")
+        if lines and "=" in lines[0]:
+            return lines[0].split("=", 1)[1]
         return ""
-    

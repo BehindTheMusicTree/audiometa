@@ -1,9 +1,9 @@
 """End-to-end tests using real audio files for writing metadata."""
 
-from pathlib import Path
 import shutil
 import tempfile
-import os
+from pathlib import Path
+
 import pytest
 
 from audiometa import get_unified_metadata, update_metadata

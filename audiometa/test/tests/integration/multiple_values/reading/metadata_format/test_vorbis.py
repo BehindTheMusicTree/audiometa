@@ -1,59 +1,74 @@
-
 import pytest
 
 from audiometa import get_unified_metadata_field
-from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
+from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
+from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.integration
 class TestVorbis:
-    
+
     def test_null_value_separated_artists(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One", "Artist Two", "Artist Three"], in_single_entry=True)
-            
-            raw_metadata = VorbisMetadataGetter.get_raw_metadata_without_truncating_null_bytes_but_lower_case_keys(test_file.path)
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
+            VorbisMetadataSetter.set_artists(
+                test_file_path, ["Artist One", "Artist Two", "Artist Three"], in_single_entry=True
+            )
+
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata_without_truncating_null_bytes_but_lower_case_keys(
+                test_file_path
+            )
             # The key is lower case because that is how mutagen stores it but it is upper case in the file
             assert "artist=Artist One\x00Artist Two\x00Artist Three" in raw_metadata
-            
-            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+
+            artists = get_unified_metadata_field(
+                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS
+            )
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "Artist One" in artists
             assert "Artist Two" in artists
             assert "Artist Three" in artists
-            
+
     def test_null_separated_artists_with_additional_entries(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_artists(test_file.path, ["Artist A", "Artist B"], in_single_entry=True)
-            VorbisMetadataSetter.set_artists(test_file.path, ["Artist C", "Artist D"], removing_existing=False, in_single_entry=True)
-            
-            raw_metadata = VorbisMetadataGetter.get_raw_metadata_without_truncating_null_bytes_but_lower_case_keys(test_file.path)
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
+            VorbisMetadataSetter.set_artists(test_file_path, ["Artist A", "Artist B"], in_single_entry=True)
+            VorbisMetadataSetter.set_artists(
+                test_file_path, ["Artist C", "Artist D"], removing_existing=False, in_single_entry=True
+            )
+
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata_without_truncating_null_bytes_but_lower_case_keys(
+                test_file_path
+            )
             # The key is lower case because that is how mutagen stores it but it is upper case in the file
             assert "artist=Artist A\x00Artist B" in raw_metadata
             assert "artist=Artist C\x00Artist D" in raw_metadata
-            
-            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+
+            artists = get_unified_metadata_field(
+                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS
+            )
             assert isinstance(artists, list)
             assert len(artists) == 4
             assert "Artist A" in artists
             assert "Artist B" in artists
             assert "Artist C" in artists
             assert "Artist D" in artists
-            
+
     def test_null_separated_artists_in_multiple_entries_with_semicolon(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One\x00Artist Two", "Artist Three;Artist Four"])
-            
-            raw_metadata = VorbisMetadataGetter.get_raw_metadata_without_truncating_null_bytes_but_lower_case_keys(test_file.path)
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
+            VorbisMetadataSetter.set_artists(test_file_path, ["Artist One\x00Artist Two", "Artist Three;Artist Four"])
+
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata_without_truncating_null_bytes_but_lower_case_keys(
+                test_file_path
+            )
             assert "artist=Artist One\x00Artist Two" in raw_metadata
             assert "artist=Artist Three;Artist Four" in raw_metadata
-            
-            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+
+            artists = get_unified_metadata_field(
+                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS
+            )
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "Artist One" in artists
@@ -61,83 +76,95 @@ class TestVorbis:
             assert "Artist Three;Artist Four" in artists
 
     def test_semicolon_separated_artists(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"])
-            
-            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
+            VorbisMetadataSetter.set_artists(test_file_path, ["Artist One;Artist Two;Artist Three"])
+
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file_path)
             assert "ARTIST=Artist One;Artist Two;Artist Three" in raw_metadata
-            
-            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+
+            artists = get_unified_metadata_field(
+                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS
+            )
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "Artist One" in artists
             assert "Artist Two" in artists
             assert "Artist Three" in artists
-            
+
     def test_artists_in_multiple_entries(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_artists(test_file.path, ["One", "Two", "Three"])
-            
-            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
+            VorbisMetadataSetter.set_artists(test_file_path, ["One", "Two", "Three"])
+
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file_path)
             assert "ARTIST=One" in raw_metadata
             assert "ARTIST=Two" in raw_metadata
             assert "ARTIST=Three" in raw_metadata
-            
-            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
-            
+
+            artists = get_unified_metadata_field(
+                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS
+            )
+
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "One" in artists
             assert "Two" in artists
             assert "Three" in artists
-            
+
     def test_artists_in_multiple_entries_with_different_key_casings(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_artists(test_file.path, ["Artist A", "Artist B"])
-            VorbisMetadataSetter.set_artists(test_file.path, ["Artist C", "Artist D"], removing_existing=False, key_lower_case=True)
-            
-            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
+            VorbisMetadataSetter.set_artists(test_file_path, ["Artist A", "Artist B"])
+            VorbisMetadataSetter.set_artists(
+                test_file_path, ["Artist C", "Artist D"], removing_existing=False, key_lower_case=True
+            )
+
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file_path)
             assert "artist=Artist A" in raw_metadata
             assert "artist=Artist B" in raw_metadata
             assert "artist=Artist C" in raw_metadata
             assert "artist=Artist D" in raw_metadata
-            
-            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
-            
+
+            artists = get_unified_metadata_field(
+                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS
+            )
+
             assert isinstance(artists, list)
             assert len(artists) == 4
             assert "Artist A" in artists
             assert "Artist B" in artists
             assert "Artist C" in artists
             assert "Artist D" in artists
-    
+
     def test_mixed_single_and_multiple_entries(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"])
-            
-            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
+            VorbisMetadataSetter.set_artists(test_file_path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"])
+
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file_path)
 
             assert "ARTIST=Artist 1;Artist" in raw_metadata
             assert "ARTIST=Artist 3" in raw_metadata
             assert "ARTIST=Artist 4" in raw_metadata
 
-            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+            artists = get_unified_metadata_field(
+                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS
+            )
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "Artist 1;Artist 2" in artists
             assert "Artist 3" in artists
-            assert "Artist 4" in artists            
+            assert "Artist 4" in artists
 
     def test_multiple_title_entries_returns_first_value(self):
-        with TempFileWithMetadata({}, "flac") as test_file:
-            VorbisMetadataSetter.add_title(test_file.path, "Title One")
-            VorbisMetadataSetter.add_title(test_file.path, "Title Two")
-            VorbisMetadataSetter.add_title(test_file.path, "Title Three")
+        with temp_file_with_metadata({}, "flac") as test_file_path:
+            VorbisMetadataSetter.add_title(test_file_path, "Title One")
+            VorbisMetadataSetter.add_title(test_file_path, "Title Two")
+            VorbisMetadataSetter.add_title(test_file_path, "Title Three")
 
-            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file_path)
             assert "TITLE=Title One" in raw_metadata
             assert "TITLE=Title Two" in raw_metadata
             assert "TITLE=Title Three" in raw_metadata
 
-            title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.VORBIS)
+            title = get_unified_metadata_field(
+                test_file_path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.VORBIS
+            )
             assert title == "Title One"

@@ -1,7 +1,7 @@
 """ID3v1 metadata setting operations."""
 
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 from ..common.external_tool_runner import run_external_tool
 
@@ -42,35 +42,37 @@ class ID3v1MetadataSetter:
     @staticmethod
     def set_max_metadata(file_path: Path) -> None:
         """Set maximum ID3v1 metadata using external script."""
-        from ..common.external_tool_runner import run_script
         from pathlib import Path
+
+        from ..common.external_tool_runner import run_script
+
         scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "helpers" / "scripts"
         run_script("set-id3v1-max-metadata.sh", file_path, scripts_dir)
-    
+
     @staticmethod
     def set_metadata(file_path: Path, metadata: Dict[str, Any]) -> None:
         """Set ID3v1 metadata using id3v2 tool (id3v2 can also set ID3v1 tags)."""
         # Ensure ID3v1.1 format when track is set
         metadata = metadata.copy()
-        if 'track' in metadata and 'comment' not in metadata:
-            metadata['comment'] = ' ' * 28  # Set comment to 28 spaces to enable ID3v1.1
-        
+        if "track" in metadata and "comment" not in metadata:
+            metadata["comment"] = " " * 28  # Set comment to 28 spaces to enable ID3v1.1
+
         cmd = ["id3v2", "--id3v1-only"]
-        
+
         # Map common metadata keys to id3v2 arguments for ID3v1
         key_mapping = {
-            'title': '--song',
-            'artist': '--artist', 
-            'album': '--album',
-            'year': '--year',
-            'genre': '--genre',
-            'comment': '--comment',
-            'track': '--track'
+            "title": "--song",
+            "artist": "--artist",
+            "album": "--album",
+            "year": "--year",
+            "genre": "--genre",
+            "comment": "--comment",
+            "track": "--track",
         }
-        
+
         for key, value in metadata.items():
             if key.lower() in key_mapping:
                 cmd.extend([key_mapping[key.lower()], str(value)])
-        
+
         cmd.append(str(file_path))
         run_external_tool(cmd, "id3v2")

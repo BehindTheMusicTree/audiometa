@@ -1,5 +1,6 @@
 import subprocess
 import sys
+
 import pytest
 
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
@@ -8,17 +9,28 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 @pytest.mark.e2e
 class TestCLIMultipleFilesErrors:
 
-    def test_cli_multiple_files_mixed_success_failure_continue_on_error(self, sample_mp3_file, sample_wav_file, tmp_path):
+    def test_cli_multiple_files_mixed_success_failure_continue_on_error(
+        self, sample_mp3_file, sample_wav_file, tmp_path
+    ):
         # Create unsupported file type
         unsupported_file = tmp_path / "unsupported.txt"
         unsupported_file.write_text("not audio")
 
         # Run CLI with mixed files and continue_on_error=True
-        result = subprocess.run([
-            sys.executable, "-m", "audiometa", "read",
-            str(sample_mp3_file), str(sample_wav_file), str(unsupported_file),
-            "--continue-on-error"
-        ], capture_output=True, text=True)
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "audiometa",
+                "read",
+                str(sample_mp3_file),
+                str(sample_wav_file),
+                str(unsupported_file),
+                "--continue-on-error",
+            ],
+            capture_output=True,
+            text=True,
+        )
 
         # Should succeed overall (exit code 0)
         assert result.returncode == 0
@@ -36,10 +48,11 @@ class TestCLIMultipleFilesErrors:
         unsupported_file.write_text("not audio")
 
         # Run CLI with mixed files and continue_on_error=False (default)
-        result = subprocess.run([
-            sys.executable, "-m", "audiometa", "read",
-            str(sample_mp3_file), str(unsupported_file)
-        ], capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, "-m", "audiometa", "read", str(sample_mp3_file), str(unsupported_file)],
+            capture_output=True,
+            text=True,
+        )
 
         # Should fail overall (exit code 1) due to the unsupported file
         assert result.returncode == 1
@@ -57,11 +70,11 @@ class TestCLIMultipleFilesErrors:
         unsupported2.write_text("not audio")
 
         # Run CLI with all failing files and continue_on_error=True
-        result = subprocess.run([
-            sys.executable, "-m", "audiometa", "read",
-            str(unsupported1), str(unsupported2),
-            "--continue-on-error"
-        ], capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, "-m", "audiometa", "read", str(unsupported1), str(unsupported2), "--continue-on-error"],
+            capture_output=True,
+            text=True,
+        )
 
         # Should succeed overall (exit code 0) despite all files failing
         assert result.returncode == 0
@@ -71,20 +84,29 @@ class TestCLIMultipleFilesErrors:
         assert "error" in stderr_output
 
     def test_cli_multiple_files_write_mixed_success_failure(self, tmp_path):
-        with temp_file_with_metadata({}, "mp3") as temp_mp3_path, \
-             temp_file_with_metadata({}, "flac") as temp_flac_path:
+        with temp_file_with_metadata({}, "mp3") as temp_mp3_path, temp_file_with_metadata({}, "flac") as temp_flac_path:
 
             # Create unsupported file type
             unsupported_file = tmp_path / "unsupported.txt"
             unsupported_file.write_text("not audio")
 
             # Run CLI write command with mixed files
-            result = subprocess.run([
-                sys.executable, "-m", "audiometa", "write",
-                str(temp_mp3_path), str(temp_flac_path), str(unsupported_file),
-                "--title", "Test Title",
-                "--continue-on-error"
-            ], capture_output=True, text=True)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "audiometa",
+                    "write",
+                    str(temp_mp3_path),
+                    str(temp_flac_path),
+                    str(unsupported_file),
+                    "--title",
+                    "Test Title",
+                    "--continue-on-error",
+                ],
+                capture_output=True,
+                text=True,
+            )
 
             # Should succeed overall (exit code 0)
             assert result.returncode == 0
@@ -98,19 +120,27 @@ class TestCLIMultipleFilesErrors:
             assert "error" in stderr_output
 
     def test_cli_multiple_files_delete_mixed_success_failure(self, tmp_path):
-        with temp_file_with_metadata({}, "mp3") as temp_mp3_path, \
-             temp_file_with_metadata({}, "wav") as temp_wav_path:
+        with temp_file_with_metadata({}, "mp3") as temp_mp3_path, temp_file_with_metadata({}, "wav") as temp_wav_path:
 
             # Create unsupported file type
             unsupported_file = tmp_path / "unsupported.txt"
             unsupported_file.write_text("not audio")
 
             # Run CLI delete command with mixed files
-            result = subprocess.run([
-                sys.executable, "-m", "audiometa", "delete",
-                str(temp_mp3_path), str(temp_wav_path), str(unsupported_file),
-                "--continue-on-error"
-            ], capture_output=True, text=True)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "audiometa",
+                    "delete",
+                    str(temp_mp3_path),
+                    str(temp_wav_path),
+                    str(unsupported_file),
+                    "--continue-on-error",
+                ],
+                capture_output=True,
+                text=True,
+            )
 
             # Should succeed overall (exit code 0)
             assert result.returncode == 0

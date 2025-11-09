@@ -1,8 +1,8 @@
 import pytest
 
+from audiometa import _validate_unified_metadata_types
 from audiometa.exceptions import InvalidMetadataFieldTypeError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa import _validate_unified_metadata_types
 
 
 @pytest.mark.unit
@@ -10,15 +10,15 @@ class TestUnifiedMetadataTypeValidation:
 
     def test_track_number_invalid_types(self):
         invalid_values = [
-            [],             # Empty list
-            {},             # Empty dict
-            object(),       # Custom object
-            (1, 2, 3),      # Tuple
-            {1, 2, 3},      # Set
+            [],  # Empty list
+            {},  # Empty dict
+            object(),  # Custom object
+            (1, 2, 3),  # Tuple
+            {1, 2, 3},  # Set
             frozenset([1, 2, 3]),  # Frozenset
-            3.14,           # Float
+            3.14,  # Float
             {"key": "value"},  # Dict
-            [1, 2, 3],      # List
+            [1, 2, 3],  # List
         ]
 
         for invalid_value in invalid_values:
@@ -57,12 +57,12 @@ class TestUnifiedMetadataTypeValidation:
 
         invalid_values = [
             CustomObject("test"),  # Custom object
-            (1, 2, 3),            # Tuple
-            {1, 2, 3},            # Set
-            frozenset([1, 2, 3]), # Frozenset
-            {"key": "value"},     # Dict
-            [1, 2, 3],            # List
-            None,                  # None (wait, this should be allowed!)
+            (1, 2, 3),  # Tuple
+            {1, 2, 3},  # Set
+            frozenset([1, 2, 3]),  # Frozenset
+            {"key": "value"},  # Dict
+            [1, 2, 3],  # List
+            None,  # None (wait, this should be allowed!)
         ]
 
         for invalid_value in invalid_values:
@@ -87,7 +87,7 @@ class TestUnifiedMetadataTypeValidation:
 
     def test_boolean_values_for_int_fields_are_allowed(self):
         # Boolean values should be accepted for int fields (True=1, False=0)
-        _validate_unified_metadata_types({UnifiedMetadataKey.BPM: True})   # Should work
+        _validate_unified_metadata_types({UnifiedMetadataKey.BPM: True})  # Should work
         _validate_unified_metadata_types({UnifiedMetadataKey.BPM: False})  # Should work
 
     def test_float_values_for_int_fields(self):
@@ -108,13 +108,13 @@ class TestUnifiedMetadataTypeValidation:
             pass
 
         invalid_values = [
-            CustomObject(),       # Custom object
-            42,                   # Int
-            "single string",      # String (should be list)
-            {"key": "value"},     # Dict
-            True,                 # Boolean
-            3.14,                 # Float
-            None,                 # None (should be allowed)
+            CustomObject(),  # Custom object
+            42,  # Int
+            "single string",  # String (should be list)
+            {"key": "value"},  # Dict
+            True,  # Boolean
+            3.14,  # Float
+            None,  # None (should be allowed)
         ]
 
         for invalid_value in invalid_values:
@@ -148,10 +148,10 @@ class TestUnifiedMetadataTypeValidation:
 
     def test_nested_collections(self):
         invalid_values = [
-            [{"nested": "dict"}],     # List of dicts
-            {"key": ["list"]},        # Dict with list value
-            [[1, 2], [3, 4]],        # Nested lists
-            {"set": {1, 2, 3}},      # Dict with set value
+            [{"nested": "dict"}],  # List of dicts
+            {"key": ["list"]},  # Dict with list value
+            [[1, 2], [3, 4]],  # Nested lists
+            {"set": {1, 2, 3}},  # Dict with set value
         ]
 
         for invalid_value in invalid_values:
