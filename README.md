@@ -729,7 +729,7 @@ print(f"Raw Vorbis Comments: {full_metadata['raw_metadata']['vorbis']['comments'
 
 **Parameters:**
 
-- `file_path`: Path to the audio file or \_AudioFile object
+- `file_path`: Path to the audio file
 - `include_headers`: Whether to include format-specific header information (default: True)
 - `include_technical`: Whether to include technical audio information (default: True)
 
