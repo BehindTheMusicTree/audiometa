@@ -21,11 +21,12 @@ repos:
 
   # Code formatters and linters - order matters!
   # 1. autoflake: Remove unused imports/variables first
-  # 2. isort: Sort imports (configured to work with black)
-  # 3. black: Format code (must run before linting)
+  # 2. isort: Sort imports (configured to work with ruff-format/black)
+  # 3. ruff-format: Format code (replaces black, must run before linting)
   # 4. docformatter: Format docstrings (after code formatting)
-  # 5. mypy: Type checking on formatted code
-  # 6. flake8: Lint already-formatted code
+  # 5. ruff: Auto-fix linting issues (including line length)
+  # 6. mypy: Type checking on formatted code
+  # 7. flake8: Lint already-formatted code
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.3.1
     hooks:
@@ -45,12 +46,15 @@ repos:
       - id: isort
         args: ["--profile", "black", "--line-length=120"]
 
-  - repo: https://github.com/psf/black
-    rev: 24.1.1
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.15
     hooks:
-      - id: black
-        language_version: python3
+      - id: ruff-format
         args: ["--line-length=120"]
+        files: ^audiometa/
+      - id: ruff
+        args: ["--fix", "--line-length=120"]
+        files: ^audiometa/
 
   - repo: local
     hooks:
