@@ -177,9 +177,9 @@ For audio file libraries, file I/O operations are often **part of the functional
 #### What Unit Tests Should Do
 
 ```python
-# ✅ Good - Test AudioFile class methods directly with real files
+# ✅ Good - Test _AudioFile class methods directly with real files
 def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
-    audio_file = AudioFile(sample_mp3_file)
+    audio_file = _AudioFile(sample_mp3_file)
     duration = audio_file.get_duration_in_sec()
     assert isinstance(duration, float)
     assert duration > 0
@@ -187,7 +187,7 @@ def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
 # ✅ Good - Test file I/O operations with real files (pragmatic approach)
 def test_file_operations(self):
     with TempFileWithMetadata({}, "mp3") as test_file:
-        audio_file = AudioFile(test_file.path)
+        audio_file = _AudioFile(test_file.path)
         test_data = b"test audio data"
         bytes_written = audio_file.write(test_data)
         assert bytes_written == len(test_data)
@@ -197,7 +197,7 @@ def test_file_operations(self):
 # ✅ Good - Test error handling for this component
 def test_get_duration_in_sec_nonexistent_file(self):
     with pytest.raises(FileNotFoundError):
-        AudioFile("nonexistent.mp3").get_duration_in_sec()
+        _AudioFile("nonexistent.mp3").get_duration_in_sec()
 ```
 
 #### What Unit Tests Should NOT Do
@@ -206,7 +206,7 @@ def test_get_duration_in_sec_nonexistent_file(self):
 # ❌ Bad - Don't use external tools in unit tests
 def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
     external_duration = TechnicalInfoInspector.get_duration(sample_mp3_file)
-    duration = AudioFile(sample_mp3_file).get_duration_in_sec()
+    duration = _AudioFile(sample_mp3_file).get_duration_in_sec()
     assert duration == external_duration
 # Don't verify exact values with external tools - that's for integration tests
 
@@ -214,7 +214,7 @@ def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
 def test_get_duration_in_sec(self, sample_mp3_file: Path):
     duration = get_duration_in_sec(sample_mp3_file)  # Top-level function
     assert duration > 0
-# Test AudioFile methods directly, not wrapper functions
+# Test _AudioFile methods directly, not wrapper functions
 
 # ❌ Bad - Don't use subprocess or external tools directly
 def test_metadata_writing(self):
@@ -233,7 +233,7 @@ Integration tests should verify **integration** (component interactions), not du
 - Test component interactions
 - Verify non trivial wrapper functions work correctly
 - Use external tools for verification
-- Test different input types (str, Path, AudioFile)
+- Test different input types (str, Path, \_AudioFile)
 - Don't duplicate unit test coverage
 
 #### When Integration Tests ARE Needed
@@ -241,8 +241,8 @@ Integration tests should verify **integration** (component interactions), not du
 ```python
 # ✅ Good - Tests that wrapper correctly handles different input types
 def test_get_duration_in_sec_works_with_audio_file_object(self, sample_mp3_file: Path):
-    audio_file = AudioFile(sample_mp3_file)
-    duration = get_duration_in_sec(audio_file)  # Passing AudioFile directly
+    audio_file = _AudioFile(sample_mp3_file)
+    duration = get_duration_in_sec(audio_file)  # Passing _AudioFile directly
     assert duration > 0
 
 # ✅ Good - Tests external tool verification
@@ -255,11 +255,11 @@ def test_get_duration_in_sec_matches_external_tool(self, sample_mp3_file: Path):
 #### When Integration Tests Are NOT Needed
 
 ```python
-# ❌ Bad - Just testing AudioFile again through wrapper
+# ❌ Bad - Just testing _AudioFile again through wrapper
 def test_get_duration_in_sec_unsupported_file_type_raises_error(self):
     with pytest.raises(FileTypeNotSupportedError):
         get_duration_in_sec("file.txt")
-# This is already tested in unit tests for AudioFile
+# This is already tested in unit tests for _AudioFile
 ```
 
 ### E2E Test Logic
@@ -312,14 +312,14 @@ def test_cli_read_and_write_workflow(temp_audio_file: Path):
 ```python
 # ❌ Bad - Testing individual components
 def test_audio_file_class_in_e2e(temp_audio_file: Path):
-    audio_file = AudioFile(temp_audio_file)
+    audio_file = _AudioFile(temp_audio_file)
     duration = audio_file.get_duration_in_sec()
     assert duration > 0
 # This is a unit test concern
 
 # ❌ Bad - Testing implementation details
 def test_internal_manager_logic(temp_audio_file: Path):
-    manager = MetadataManager(AudioFile(temp_audio_file))
+    manager = MetadataManager(_AudioFile(temp_audio_file))
     # Test internal behavior
 # This should be in unit tests
 ```
