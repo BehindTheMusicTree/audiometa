@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Git Progressive Push Script
-# 
+#
 # This script addresses GitHub's file size limitations by pushing changes progressively
 # instead of attempting to push all files at once. This is particularly important for
 # audio files which can be large and may exceed GitHub's push size limits.
@@ -43,7 +43,7 @@ while true; do
         file_path=$(echo "$file" | awk '{print substr($0, index($0,$2))}')
         file_path=${file_path%\"}
         file_path=${file_path#\"}
-        
+
         if [ -n "$file_path" ]; then
             # Handle different file states (deleted, untracked, modified)
             if [ "$status" == "D" ]; then
@@ -58,7 +58,7 @@ while true; do
                 # Modified file - add to git index
                 git add "$file_path"
             fi
-            
+
             # Commit and push immediately after adding each file
             # This ensures we never try to push too much data at once
             git commit -m "$commit_message"
