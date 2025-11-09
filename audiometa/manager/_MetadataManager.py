@@ -20,7 +20,6 @@ T = TypeVar("T", str, int)
 
 
 class _MetadataManager:
-
     audio_file: _AudioFile
     metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None]
     metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] | None
@@ -360,8 +359,9 @@ class _MetadataManager:
         return [genre_string]
 
     def _convert_genre_code_or_text_to_name(self, genre_entry: str) -> str | None:
-        """Convert a genre code or code+text entry to a genre name using ID3V1_GENRE_CODE_MAP. For code + text entries,
-        use text part only for more flexibility.
+        """Convert a genre code or code+text entry to a genre name using ID3V1_GENRE_CODE_MAP.
+
+        For code + text entries, use text part only for more flexibility.
 
         Examples:
         - "(17)" -> "Rock"
@@ -397,8 +397,8 @@ class _MetadataManager:
         # No code found, return as-is
         return genre_entry if genre_entry else None
 
-    def get_unified_metadata(self) -> dict[UnifiedMetadataKey, int | float | str | list[str]]:
-        unified_metadata = {}
+    def get_unified_metadata(self) -> UnifiedMetadata:
+        unified_metadata: UnifiedMetadata = {}
         for metadata_key in self.metadata_keys_direct_map_read:
             unified_metadata_value = self.get_unified_metadata_field(metadata_key)
             if unified_metadata_value is not None:

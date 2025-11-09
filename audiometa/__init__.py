@@ -2,7 +2,7 @@
 
 A comprehensive Python library for reading and writing audio metadata across multiple formats
 including MP3, FLAC, WAV, and more. Supports ID3v1, ID3v2, Vorbis (FLAC), and RIFF (WAV) formats
-with 50+ metadata fields including title, artist, album, rating, BPM, and more.
+with 15+ metadata fields including title, artist, album, rating, BPM, and more.
 
 Note: OGG file support is planned but not yet implemented.
 
@@ -11,7 +11,7 @@ For detailed metadata support information, see the README.md file.
 
 import re
 import warnings
-from typing import Any, TypeAlias
+from typing import Any, TypeAlias, Union, cast
 
 from ._audio_file import _AudioFile
 from .exceptions import (
@@ -25,11 +25,11 @@ from .exceptions import (
     MetadataWritingConflictParametersError,
 )
 from .manager._MetadataManager import _MetadataManager
+from .manager._rating_supporting._Id3v2Manager import _Id3v2Manager
+from .manager._rating_supporting._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
+from .manager._rating_supporting._RiffManager import _RiffManager
+from .manager._rating_supporting._VorbisManager import _VorbisManager
 from .manager.id3v1._Id3v1Manager import _Id3v1Manager
-from .manager.rating_supporting._Id3v2Manager import _Id3v2Manager
-from .manager.rating_supporting._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
-from .manager.rating_supporting._RiffManager import _RiffManager
-from .manager.rating_supporting._VorbisManager import _VorbisManager
 from .utils.MetadataFormat import MetadataFormat
 from .utils.MetadataWritingStrategy import MetadataWritingStrategy
 from .utils.types import AppMetadataValue, UnifiedMetadata
@@ -44,7 +44,7 @@ METADATA_FORMAT_MANAGER_CLASS_MAP = {
     MetadataFormat.RIFF: _RiffManager,
 }
 
-FILE_TYPE: TypeAlias = str
+FILE_TYPE: TypeAlias = Union[str, "_AudioFile"]
 
 
 def _get_metadata_manager(
@@ -67,7 +67,7 @@ def _get_metadata_manager(
                 f"Tag format {metadata_format} not supported for file extension {audio_file.file_extension}"
             )
 
-    manager_class = METADATA_FORMAT_MANAGER_CLASS_MAP[metadata_format]
+    manager_class = cast(Any, METADATA_FORMAT_MANAGER_CLASS_MAP[metadata_format])
     if issubclass(manager_class, _RatingSupportingMetadataManager):
         if manager_class == _Id3v2Manager:
             # Determine ID3v2 version based on provided version or use default
@@ -75,12 +75,20 @@ def _get_metadata_manager(
                 version = id3v2_version
             else:
                 version = (2, 3, 0)  # Default to ID3v2.3
-            return manager_class(
-                audio_file=audio_file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=version
+            return cast(
+                _MetadataManager,
+                manager_class(
+                    audio_file=audio_file,
+                    normalized_rating_max_value=normalized_rating_max_value,
+                    id3v2_version=version,
+                ),
             )
         else:
-            return manager_class(audio_file=audio_file, normalized_rating_max_value=normalized_rating_max_value)
-    return manager_class(audio_file=audio_file)
+            return cast(
+                _MetadataManager,
+                manager_class(audio_file=audio_file, normalized_rating_max_value=normalized_rating_max_value),
+            )
+    return cast(_MetadataManager, manager_class(audio_file=audio_file))
 
 
 def _get_metadata_managers(
@@ -174,7 +182,7 @@ def get_unified_metadata(
             normalized_rating_max_value=normalized_rating_max_value,
             id3v2_version=id3v2_version,
         )
-        return manager.get_unified_metadata()
+        return cast(UnifiedMetadata, manager.get_unified_metadata())
 
     # Get all available managers for this file type
     all_managers = _get_metadata_managers(
@@ -641,12 +649,12 @@ def _handle_metadata_strategy(
 
     elif strategy == MetadataWritingStrategy.PRESERVE:
         # For PRESERVE, we need to save existing metadata from other formats first
-        preserved_metadata = {}
+        preserved_metadata: dict[MetadataFormat, UnifiedMetadata] = {}
         for fmt, manager in other_managers.items():
             try:
                 existing_metadata = manager.get_unified_metadata()
                 if existing_metadata:
-                    preserved_metadata[fmt] = existing_metadata
+                    preserved_metadata[fmt] = cast(UnifiedMetadata, existing_metadata)
             except Exception:
                 pass
 
@@ -780,7 +788,7 @@ def get_bitrate(file: FILE_TYPE) -> int:
         print(f"Bitrate: {bitrate} bps")
     """
     audio_file = _AudioFile(file)
-    return audio_file.get_bitrate()  # type: ignore[no-any-return]
+    return audio_file.get_bitrate()
 
 
 def get_channels(file: FILE_TYPE) -> int:
@@ -801,7 +809,7 @@ def get_channels(file: FILE_TYPE) -> int:
         print(f"Channels: {channels}")
     """
     audio_file = _AudioFile(file)
-    return audio_file.get_channels()  # type: ignore[no-any-return]
+    return audio_file.get_channels()
 
 
 def get_file_size(file: FILE_TYPE) -> int:
@@ -822,7 +830,7 @@ def get_file_size(file: FILE_TYPE) -> int:
         print(f"File size: {size} bytes")
     """
     audio_file = _AudioFile(file)
-    return audio_file.get_file_size()  # type: ignore[no-any-return]
+    return audio_file.get_file_size()
 
 
 def get_sample_rate(file: FILE_TYPE) -> int:
@@ -843,7 +851,7 @@ def get_sample_rate(file: FILE_TYPE) -> int:
         print(f"Sample rate: {sample_rate} Hz")
     """
     audio_file = _AudioFile(file)
-    return audio_file.get_sample_rate()  # type: ignore[no-any-return]
+    return audio_file.get_sample_rate()
 
 
 def get_duration_in_sec(file: FILE_TYPE) -> float:
@@ -868,7 +876,7 @@ def get_duration_in_sec(file: FILE_TYPE) -> float:
         print(f"Duration: {minutes:.2f} minutes")
     """
     audio_file = _AudioFile(file)
-    return audio_file.get_duration_in_sec()  # type: ignore[no-any-return]
+    return audio_file.get_duration_in_sec()
 
 
 def is_flac_md5_valid(file: FILE_TYPE) -> bool:
@@ -897,7 +905,7 @@ def is_flac_md5_valid(file: FILE_TYPE) -> bool:
     """
     audio_file = _AudioFile(file)
     try:
-        return audio_file.is_flac_file_md5_valid()  # type: ignore[no-any-return]
+        return audio_file.is_flac_file_md5_valid()
     except FileCorruptedError:
         return False
 
@@ -906,7 +914,7 @@ def fix_md5_checking(file: FILE_TYPE) -> str:
     """Return a temporary file with corrected MD5 signature.
 
     Args:
-        file: The file to fix MD5 for. Can be AudioFile or str path.
+        file: The file to fix MD5 for. Can be _AudioFile or str path.
 
     Returns:
         str: Path to a temporary file containing the corrected audio data.
@@ -917,7 +925,7 @@ def fix_md5_checking(file: FILE_TYPE) -> str:
         RuntimeError: If the FLAC command fails to execute
     """
     audio_file = _AudioFile(file)
-    return audio_file.get_file_with_corrected_md5(delete_original=True)  # type: ignore[no-any-return]
+    return audio_file.get_file_with_corrected_md5(delete_original=True)
 
 
 def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_technical: bool = True) -> dict[str, Any]:
