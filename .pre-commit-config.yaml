@@ -59,7 +59,7 @@ repos:
         entry: docformatter
         language: python
         additional_dependencies: ["docformatter[tomli]"]
-        args: ["--in-place", "--wrap-summaries=120", "--wrap-descriptions=120"]
+        args: ["--in-place", "--line-length=120", "--wrap-summaries=120", "--wrap-descriptions=120"]
         files: ^audiometa/
         pass_filenames: true
 
