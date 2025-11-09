@@ -85,6 +85,10 @@ profile = "black"
 multi_line_output = 3
 line_length = 120
 
+[tool.docformatter]
+wrap-summaries = 120
+wrap-descriptions = 120
+
 [tool.mypy]
 python_version = "3.13"
 warn_return_any = true
