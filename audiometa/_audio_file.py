@@ -90,12 +90,14 @@ class _AudioFile:
             except Exception as exc:
                 # If MP3 fails, try other formats as fallback
                 try:
-                    return float(WAVE(path).info.length)
-                except:
+                    wave_audio = WAVE(path)
+                    return float(wave_audio.info.length)  # type: ignore[attr-defined,unused-ignore]
+                except Exception:  # noqa: E722
                     try:
-                        return float(FLAC(path).info.length)
-                    except:
-                        raise exc  # If all attempts fail, raise original MP3 error
+                        flac_audio = FLAC(path)
+                        return float(flac_audio.info.length)  # type: ignore[attr-defined,unused-ignore]
+                    except Exception:  # noqa: E722
+                        raise DurationNotFoundError(f"Could not determine duration for {path}") from exc
 
         elif self.file_extension == ".wav":
             try:
@@ -224,7 +226,7 @@ class _AudioFile:
         self.close()
 
     def get_file_path_or_object(self) -> str:
-        """Returns the path to the file on the filesystem."""
+        """Get the path to the file on the filesystem."""
         return self.file_path
 
     def is_flac_file_md5_valid(self) -> bool:
@@ -244,7 +246,7 @@ class _AudioFile:
             raise FlacMd5CheckFailedError("The Flac file md5 check failed")
 
     def get_file_with_corrected_md5(self, delete_original: bool = False) -> str:
-        """Returns a new temporary file with corrected MD5 signature. Returns the path to the corrected file.
+        """Get a new temporary file with corrected MD5 signature. Returns the path to the corrected file.
 
         Args:
             delete_original: If True, deletes the original file after creating the corrected version.
@@ -284,7 +286,8 @@ class _AudioFile:
 
                     if ffmpeg_result.returncode != 0:
                         raise FileCorruptedError(
-                            "The FLAC file MD5 check failed and reencoding attempts were unsuccessful. The file is probably corrupted."
+                            "The FLAC file MD5 check failed and reencoding attempts were unsuccessful. "  # noqa: E501
+                            "The file is probably corrupted."
                         )
 
             # Verify the output file exists and is valid
@@ -327,9 +330,11 @@ class _AudioFile:
         if self.file_extension == ".mp3":
             try:
                 audio = MP3(self.file_path)
-                return int(float(audio.info.sample_rate))
+                if audio.info.sample_rate is not None:
+                    return int(float(audio.info.sample_rate))
             except Exception:
-                return 0
+                pass
+            return 0
         elif self.file_extension == ".wav":
             try:
                 result = subprocess.run(
@@ -381,9 +386,11 @@ class _AudioFile:
         if self.file_extension == ".mp3":
             try:
                 audio = MP3(self.file_path)
-                return int(float(audio.info.channels))
+                if audio.info.channels is not None:
+                    return int(float(audio.info.channels))
             except Exception:
-                return 0
+                pass
+            return 0
         elif self.file_extension == ".wav":
             try:
                 result = subprocess.run(

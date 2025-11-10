@@ -90,6 +90,10 @@ repos:
     rev: v1.8.0
     hooks:
       - id: mypy
+        # Note: pytest type stubs are not available as a separate package (types-pytest doesn't exist)
+        # Mypy will report "Cannot find implementation or library stub for module named 'pytest'"
+        # This is expected and acceptable - real import errors are still caught by test execution
+        # The mypy overrides in pyproject.toml relax type checking rules for test files
         additional_dependencies: []
         args: ["--follow-imports=normal"]
         files: ^audiometa/

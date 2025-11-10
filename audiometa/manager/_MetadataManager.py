@@ -2,7 +2,7 @@ import re
 from abc import abstractmethod
 from typing import TypeVar, cast
 
-from mutagen._file import FileType as MutagenMetadata  # type: ignore[import-not-found]
+from mutagen._file import FileType as MutagenMetadata
 
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
@@ -387,13 +387,13 @@ class _MetadataManager:
         if code_only_match:
             code = int(code_only_match.group(1))
             genre_name = ID3V1_GENRE_CODE_MAP.get(code)
-            return cast(str | None, genre_name)
+            return genre_name
 
         # Check for bare numeric code: number (without parentheses)
         if genre_entry.isdigit():
             code = int(genre_entry)
             genre_name = ID3V1_GENRE_CODE_MAP.get(code)
-            return cast(str | None, genre_name)
+            return genre_name
 
         # No code found, return as-is
         return genre_entry if genre_entry else None

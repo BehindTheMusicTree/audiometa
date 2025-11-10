@@ -24,13 +24,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
 
-      - name: Check code formatting with black
-        run: black --check .
+      - name: Check for assert statements
+        run: |
+          find audiometa -name "*.py" ! -path "*/test/*" ! -path "*/tests/*" ! -path "*/scripts/*" -print0 | \
+          xargs -0 bash .pre-commit-hooks/no-assert.sh
+
+      - name: Check code formatting with ruff-format
+        run: ruff format --check .
 
       - name: Check import sorting with isort
         run: isort --check-only .
 
+      - name: Run ruff linting
+        run: ruff check .
+
       - name: Run mypy type checking
+        # Note: pytest type stubs are not available, so mypy will report missing stubs for pytest
+        # This is expected - real import errors are caught by test execution
+        # The mypy overrides in pyproject.toml relax type checking rules for test files
         run: mypy audiometa
 
       - name: Run flake8

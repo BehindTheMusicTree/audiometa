@@ -300,11 +300,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
         self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
     ) -> AppMetadataValue:
         if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
-            return cast(
-                AppMetadataValue,
-                self._get_genres_from_raw_clean_metadata_uppercase_keys(
-                    raw_clean_metadata, self.RiffTagKey.GENRES_NAMES_OR_CODES
-                ),
+            return self._get_genres_from_raw_clean_metadata_uppercase_keys(
+                raw_clean_metadata, self.RiffTagKey.GENRES_NAMES_OR_CODES
             )
         else:
             raise MetadataFieldNotSupportedByMetadataFormatError(f"Metadata key not handled: {unified_metadata_key}")
@@ -734,7 +731,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
 
     def get_raw_metadata_info(self) -> dict[str, Any]:
         try:
-            if self.raw_clean_metadata is None:  # type: ignore[has-type]
+            if self.raw_clean_metadata is None:
                 extracted_metadata: RawMetadataDict = self._extract_cleaned_raw_metadata_from_file()
                 self.raw_clean_metadata = extracted_metadata
 

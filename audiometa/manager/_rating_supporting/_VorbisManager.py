@@ -187,7 +187,8 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         return cast(RawMetadataDict, comments)
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
-        self, raw_mutagen_metadata: dict
+        self,
+        raw_mutagen_metadata: dict,
     ) -> RawMetadataDict:
         # _extract_mutagen_metadata already returns metadata with list values
         return raw_mutagen_metadata
@@ -206,7 +207,10 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         return None, False
 
     def _update_formatted_value_in_raw_mutagen_metadata(
-        self, raw_mutagen_metadata: dict, raw_metadata_key: RawMetadataKey, app_metadata_value: AppMetadataValue
+        self,
+        raw_mutagen_metadata: dict,
+        raw_metadata_key: RawMetadataKey,
+        app_metadata_value: AppMetadataValue,
     ) -> None:
         if app_metadata_value is not None:
             if isinstance(app_metadata_value, list):
@@ -429,7 +433,10 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         raise MetadataFieldNotSupportedByMetadataFormatError(f"Metadata key not handled: {unified_metadata_key}")
 
     def _update_undirectly_mapped_metadata(
-        self, raw_mutagen_metadata: dict, app_metadata_value: AppMetadataValue, unified_metadata_key: UnifiedMetadataKey
+        self,
+        raw_mutagen_metadata: dict,
+        app_metadata_value: AppMetadataValue,
+        unified_metadata_key: UnifiedMetadataKey,
     ) -> None:
         if unified_metadata_key == UnifiedMetadataKey.RATING:
             if app_metadata_value is not None:

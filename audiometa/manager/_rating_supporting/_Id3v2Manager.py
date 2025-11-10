@@ -289,7 +289,9 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
         super().__init__(
             audio_file=audio_file,
-            metadata_keys_direct_map_read=metadata_keys_direct_map_read,
+            metadata_keys_direct_map_read=cast(
+                dict[UnifiedMetadataKey, RawMetadataKey | None], metadata_keys_direct_map_read
+            ),
             metadata_keys_direct_map_write=metadata_keys_direct_map_write,
             rating_write_profile=RatingWriteProfile.BASE_255_NON_PROPORTIONAL,
             normalized_rating_max_value=normalized_rating_max_value,
@@ -571,10 +573,10 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             file_path: Path to the audio file
             id3v1_data: The 128-byte ID3v1 tag data to preserve, or None
         """
-        if self.raw_mutagen_metadata is not None:  # type: ignore[has-type]
+        if self.raw_mutagen_metadata is not None:
             # Extract the major version number from the tuple (2, 3, 0) -> 3
             version_major = self.id3v2_version[1]
-            id3_metadata: ID3 = cast(ID3, self.raw_mutagen_metadata)  # type: ignore[has-type]
+            id3_metadata: ID3 = cast(ID3, self.raw_mutagen_metadata)
 
             if id3v1_data:
                 # Save to a temporary file first
@@ -612,7 +614,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
     def _save_with_version(self, file_path: str) -> None:
         """Save ID3 tags with the specified version, preserving existing ID3v1 metadata."""
-        if self.raw_mutagen_metadata is not None:  # type: ignore[has-type]
+        if self.raw_mutagen_metadata is not None:
             # Preserve existing ID3v1 metadata before saving ID3v2
             id3v1_data = self._preserve_id3v1_metadata(file_path)
 
@@ -664,7 +666,6 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             return
 
         if not self.metadata_keys_direct_map_write:
-            # noqa: F823
             raise MetadataFieldNotSupportedByMetadataFormatError("This format does not support metadata modification")
 
         self._validate_and_process_rating(unified_metadata)
@@ -673,7 +674,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         id3v1_data = self._preserve_id3v1_metadata(self.audio_file.file_path)
 
         # Update the raw mutagen metadata (without saving yet)
-        if self.raw_mutagen_metadata is None:  # type: ignore[has-type]
+        if self.raw_mutagen_metadata is None:
             self.raw_mutagen_metadata = cast(MutagenMetadata, self._extract_mutagen_metadata())
 
         id3_metadata: ID3 = cast(ID3, self.raw_mutagen_metadata)
@@ -681,8 +682,6 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         for unified_metadata_key in list(unified_metadata.keys()):
             app_metadata_value = unified_metadata[unified_metadata_key]
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
-                from ...exceptions import MetadataFieldNotSupportedByMetadataFormatError
-
                 raise MetadataFieldNotSupportedByMetadataFormatError(
                     f"{unified_metadata_key} metadata not supported by this format"
                 )

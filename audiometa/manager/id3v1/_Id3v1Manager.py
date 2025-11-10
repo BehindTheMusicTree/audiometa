@@ -1,6 +1,6 @@
-from typing import cast
+from typing import Any, cast
 
-from mutagen._file import FileType as MutagenMetadata  # type: ignore[import-not-found]
+from mutagen._file import FileType as MutagenMetadata
 
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
@@ -128,7 +128,7 @@ class _Id3v1Manager(_MetadataManager):
             return {}
 
         # Create a mapping of string values to enum members with proper value types
-        result: RawMetadataDict = {}
+        result: RawMetadataDict = {}  # type: ignore[unreachable]
         for key, value in raw_metadata_id3v1.tags.items():
             # Skip empty values
             if not value:
@@ -162,10 +162,7 @@ class _Id3v1Manager(_MetadataManager):
         if not hasattr(raw_mutagen_metadata, "tags") or raw_mutagen_metadata.tags is None:
             raw_mutagen_metadata.tags = {}
         # Type narrowing: mypy now knows tags is not None after the assignment above
-        tags = raw_mutagen_metadata.tags
-        if tags is None:
-            tags = {}
-            raw_mutagen_metadata.tags = tags
+        tags: dict[Any, Any] = cast(dict[Any, Any], raw_mutagen_metadata.tags)
 
         if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             # Handle both single string and list values gracefully
@@ -192,10 +189,7 @@ class _Id3v1Manager(_MetadataManager):
         if not hasattr(raw_mutagen_metadata, "tags") or raw_mutagen_metadata.tags is None:
             raw_mutagen_metadata.tags = {}
         # Type narrowing: mypy now knows tags is not None after the assignment above
-        tags = raw_mutagen_metadata.tags
-        if tags is None:
-            tags = {}
-            raw_mutagen_metadata.tags = tags
+        tags: dict[Any, Any] = cast(dict[Any, Any], raw_mutagen_metadata.tags)
 
         # If value is None, remove the field (delete from tags)
         if app_metadata_value is None:
@@ -236,7 +230,10 @@ class _Id3v1Manager(_MetadataManager):
                 else:
                     track_num = 0
             else:
-                track_num = int(float(app_metadata_value)) if app_metadata_value is not None else 0
+                if isinstance(app_metadata_value, (int, float)):
+                    track_num = int(float(app_metadata_value))
+                else:
+                    track_num = 0
             value = str(max(0, min(255, track_num)))
         elif raw_metadata_key == Id3v1RawMetadataKey.COMMENT:
             value = self._truncate_string(str(app_metadata_value), 28)  # 28 for ID3v1.1 with track number
@@ -330,7 +327,10 @@ class _Id3v1Manager(_MetadataManager):
                 else:
                     track_num = 0
             else:
-                track_num = int(float(track_number))
+                if isinstance(track_number, (int, float)):
+                    track_num = int(float(track_number))
+                else:
+                    track_num = 0
             track_num = max(0, min(255, track_num))
             if track_num > 0:
                 tag_data[125] = 0  # Null byte to indicate track number presence
@@ -386,12 +386,12 @@ class _Id3v1Manager(_MetadataManager):
         # First try exact match
         for code, name in ID3V1_GENRE_CODE_MAP.items():
             if name and name.lower() == genre_name.lower():
-                return cast(int, code)
+                return code
 
         # Try partial match
         for code, name in ID3V1_GENRE_CODE_MAP.items():
             if name and genre_name.lower() in name.lower():
-                return cast(int, code)
+                return code
 
         return None
 
@@ -445,9 +445,10 @@ class _Id3v1Manager(_MetadataManager):
             version = "1.0"
             has_track_number = False
 
-            if hasattr(self.raw_mutagen_metadata, "tags"):
+            if hasattr(self.raw_mutagen_metadata, "tags") and self.raw_mutagen_metadata.tags is not None:
                 # Check if track number is present (ID3v1.1 feature)
-                comment = self.raw_mutagen_metadata.tags.get("COMMENT", [""])[0]
+                tags = cast(dict[Any, Any], self.raw_mutagen_metadata.tags)
+                comment = tags.get("COMMENT", [""])[0]
                 if len(comment) >= 2 and comment[-2] == "\x00" and comment[-1] != "\x00":
                     version = "1.1"
                     has_track_number = True
@@ -478,12 +479,13 @@ class _Id3v1Manager(_MetadataManager):
                 return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
 
             # Get parsed fields using unified metadata keys
-            parsed_fields = {}
-            if self.raw_mutagen_metadata.tags:
+            parsed_fields: dict[str, Any] = {}
+            if hasattr(self.raw_mutagen_metadata, "tags") and self.raw_mutagen_metadata.tags is not None:
+                tags = cast(dict[Any, Any], self.raw_mutagen_metadata.tags)
                 # Map raw mutagen keys to unified metadata keys
                 for unified_key, raw_key in self.metadata_keys_direct_map_read.items():
-                    if raw_key and raw_key in self.raw_mutagen_metadata.tags:
-                        value = self.raw_mutagen_metadata.tags[raw_key]
+                    if raw_key and raw_key in tags:
+                        value = tags[raw_key]
                         parsed_fields[unified_key] = value[0] if value else ""
 
             return {

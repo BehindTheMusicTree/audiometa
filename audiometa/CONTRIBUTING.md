@@ -327,6 +327,7 @@ Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
   - Functions can be untyped (no type annotations required)
   - Missing type annotations for variables are allowed
   - This allows test code to be more flexible while maintaining type safety in production code
+  - **Note on pytest type stubs**: Mypy will report "Cannot find implementation or library stub for module named 'pytest'" because pytest type stubs are not available as a separate package. This is expected and acceptable - real import errors are still caught by test execution at runtime. The mypy overrides in `pyproject.toml` relax type checking rules for test files to accommodate this.
 
 This means:
 
