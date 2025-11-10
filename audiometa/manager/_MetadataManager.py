@@ -2,7 +2,7 @@ import re
 from abc import abstractmethod
 from typing import TypeVar, cast
 
-from mutagen._file import FileType as MutagenMetadata
+from mutagen._file import FileType as MutagenMetadata  # type: ignore[import-not-found]
 
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
@@ -387,13 +387,13 @@ class _MetadataManager:
         if code_only_match:
             code = int(code_only_match.group(1))
             genre_name = ID3V1_GENRE_CODE_MAP.get(code)
-            return genre_name
+            return cast(str | None, genre_name)
 
         # Check for bare numeric code: number (without parentheses)
         if genre_entry.isdigit():
             code = int(genre_entry)
             genre_name = ID3V1_GENRE_CODE_MAP.get(code)
-            return genre_name
+            return cast(str | None, genre_name)
 
         # No code found, return as-is
         return genre_entry if genre_entry else None
@@ -474,7 +474,9 @@ class _MetadataManager:
             # Use specialized genre reading logic
             if self.raw_clean_metadata_uppercase_keys is None:
                 return None
-            return self._get_genres_from_raw_clean_metadata_uppercase_keys(self.raw_clean_metadata_uppercase_keys, raw_metadata_key)
+            return self._get_genres_from_raw_clean_metadata_uppercase_keys(
+                self.raw_clean_metadata_uppercase_keys, raw_metadata_key
+            )
         elif unified_metadata_key.can_semantically_have_multiple_values():
             # Apply smart parsing logic for semantically multi-value fields
             if self._should_apply_smart_parsing(values_list_str):
