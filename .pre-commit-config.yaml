@@ -10,7 +10,9 @@ repos:
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
+        exclude: \.(md|markdown)$
       - id: end-of-file-fixer
+        exclude: \.(md|markdown)$
       - id: check-yaml
       - id: check-added-large-files
         args: ["--maxkb=10000"]
@@ -37,6 +39,7 @@ repos:
   # 6. ruff: Auto-fix linting issues (including line length)
   # 7. mypy: Type checking on formatted code
   # 8. flake8: Lint already-formatted code
+  # 9. mdformat: Format markdown files (runs after basic text fixes, which exclude .md files)
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.3.1
     hooks:
