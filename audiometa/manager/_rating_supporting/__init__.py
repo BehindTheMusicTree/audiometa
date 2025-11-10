@@ -1,0 +1,1 @@
+"""Rating-supporting metadata managers."""
