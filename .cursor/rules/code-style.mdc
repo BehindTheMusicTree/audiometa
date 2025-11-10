@@ -18,7 +18,7 @@ alwaysApply: true
   # ❌ Bad
   assert value is not None
   assert isinstance(value, str)
-  
+
   # ✅ Good
   if value is None:
       raise ValueError("value cannot be None")
