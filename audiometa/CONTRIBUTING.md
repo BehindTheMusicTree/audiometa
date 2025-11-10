@@ -266,12 +266,17 @@ black . && isort . && docformatter --in-place --wrap-summaries=120 --wrap-descri
 
 Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
 
-**Pre-commit hooks include:**
+**Pre-commit hooks include (in execution order):**
 
-- **Code formatting**: `autoflake`, `isort`, `ruff-format`, `docformatter`, `ruff`
-- **Type checking**: `mypy`
-- **Linting**: `flake8`
-- **Assert check**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
+1. **autoflake**: Removes unused imports and variables from Python files
+2. **isort**: Sorts and organizes import statements according to PEP 8
+3. **ruff-format**: Formats Python code (replaces black) - handles code formatting but not comments/docstrings
+4. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
+5. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
+6. **ruff**: Auto-fixes linting issues (code style, unused variables, etc.) - does not fix line length violations
+7. **mypy**: Static type checking - reports type errors but does not auto-fix
+8. **flake8**: Lints code for style issues (PEP 8 compliance) - reports errors but does not auto-fix
+9. **Assert check**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
 
 **Type Checking Behavior:**
 

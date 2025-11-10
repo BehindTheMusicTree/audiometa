@@ -33,9 +33,10 @@ repos:
   # 2. isort: Sort imports (configured to work with ruff-format/black)
   # 3. ruff-format: Format code (replaces black, must run before linting)
   # 4. docformatter: Format docstrings (after code formatting)
-  # 5. ruff: Auto-fix linting issues (including line length)
-  # 6. mypy: Type checking on formatted code
-  # 7. flake8: Lint already-formatted code
+  # 5. fix-long-comments: Fix long comment lines (custom hook)
+  # 6. ruff: Auto-fix linting issues (including line length)
+  # 7. mypy: Type checking on formatted code
+  # 8. flake8: Lint already-formatted code
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.3.1
     hooks:
@@ -75,6 +76,12 @@ repos:
         args: ["--in-place", "--wrap-summaries=120", "--wrap-descriptions=120"]
         files: ^audiometa/
         pass_filenames: true
+      - id: fix-long-comments
+        name: Fix long comment lines
+        entry: bash -c '.pre-commit-hooks/fix-long-comments.py "$@"' --
+        language: system
+        files: ^audiometa/.*\.py$
+        exclude: ^scripts/
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
