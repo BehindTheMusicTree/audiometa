@@ -3,13 +3,12 @@ from unittest.mock import MagicMock
 import pytest
 
 from audiometa.exceptions import InvalidRatingValueError
-from audiometa.manager.rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
+from audiometa.manager._rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.unit
 class TestRatingValidation:
-
     def test_validate_rating_value_raw_mode_non_negative_allowed(self):
         manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=None)
 

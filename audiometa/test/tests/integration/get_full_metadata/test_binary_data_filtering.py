@@ -3,7 +3,7 @@
 import pytest
 
 from audiometa import get_full_metadata
-from audiometa.manager.rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
+from audiometa.manager._rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
 
 
 @pytest.mark.integration
@@ -217,6 +217,8 @@ class TestGetFullMetadataBinaryDataFiltering:
 
         for frame_id, frame_data in frames.items():
             if frame_id in binary_frame_types:
+                size = frame_data.get("size")
+                flags = frame_data.get("flags")
 
                 # Size and flags should still be present
                 assert isinstance(size, int), f"Binary frame {frame_id} size should be int"

@@ -278,9 +278,37 @@ Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
 8. **flake8**: Lints code for style issues (PEP 8 compliance) - reports errors but does not auto-fix
 9. **Assert check**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
 
+**Known Linting Issues:**
+
+- **Ruff F823 False Positive**: Ruff may incorrectly report `F823: Local variable referenced before assignment` when an imported exception class is:
+
+  1. Referenced in a docstring's `Raises:` section
+  2. Used later in the code with `raise`
+
+  This is a known limitation of ruff's static analysis. When this occurs, it's acceptable to suppress the false positive with `# noqa: F823` on the line where the exception is raised.
+
+  Example:
+
+  ```python
+  from ...exceptions import MetadataFieldNotSupportedByMetadataFormatError
+
+  def some_function():
+      """Do something.
+
+      Raises:
+          MetadataFieldNotSupportedByMetadataFormatError: If field not supported
+      """
+      if condition:
+          raise MetadataFieldNotSupportedByMetadataFormatError("message")  # noqa: F823
+  ```
+
 **Type Checking Behavior:**
 
-- **Pre-commit hooks**: `mypy` checks only **staged files** for faster feedback during development
+- **Pre-commit hooks**: `mypy` checks staged files with `--follow-imports=normal`, which means:
+  - Staged files are checked along with their imports
+  - This ensures type consistency across the codebase
+  - Errors in imported files (even if unstaged) will block your commit
+  - **Exception for large refactorings**: For very large commits (e.g., major refactorings), you can temporarily use `--follow-imports=skip` in `.pre-commit-config.yaml` to allow incremental commits, but this should be reverted immediately after the refactoring is complete
 - **CI/CD**: `mypy` checks the **entire codebase** to ensure type consistency across all files
 
 **Type Checking Rules:**

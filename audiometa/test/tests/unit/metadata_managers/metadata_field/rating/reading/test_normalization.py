@@ -2,15 +2,14 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from audiometa.manager.rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
-from audiometa.manager.rating_supporting._RiffManager import _RiffManager as RiffManager
-from audiometa.manager.rating_supporting._VorbisManager import _VorbisManager as VorbisManager
+from audiometa.manager._rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
+from audiometa.manager._rating_supporting._RiffManager import _RiffManager as RiffManager
+from audiometa.manager._rating_supporting._VorbisManager import _VorbisManager as VorbisManager
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.unit
 class TestNormalization:
-
     @pytest.mark.parametrize(
         "metadata_rating_read, expected_normalized_value",
         [

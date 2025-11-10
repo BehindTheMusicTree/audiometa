@@ -1,18 +1,17 @@
 import pytest
 
 from audiometa._audio_file import _AudioFile as AudioFile
+from audiometa.manager._rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
+from audiometa.manager._rating_supporting._RiffManager import _RiffManager as RiffManager
+from audiometa.manager._rating_supporting._VorbisManager import _VorbisManager as VorbisManager
 from audiometa.manager.id3v1._Id3v1Manager import _Id3v1Manager as Id3v1Manager
 from audiometa.manager.id3v1.Id3v1RawMetadataKey import Id3v1RawMetadataKey
-from audiometa.manager.rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
-from audiometa.manager.rating_supporting._RiffManager import _RiffManager as RiffManager
-from audiometa.manager.rating_supporting._VorbisManager import _VorbisManager as VorbisManager
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.unit
 class TestMetadataFormatManagersWriteAndRead:
-
     def test_id3v1_manager_write_and_read(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
             audio_file = AudioFile(test_file_path)

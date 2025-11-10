@@ -2,14 +2,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from audiometa.manager.rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
-from audiometa.manager.rating_supporting._RiffManager import _RiffManager as RiffManager
-from audiometa.manager.rating_supporting._VorbisManager import _VorbisManager as VorbisManager
+from audiometa.manager._rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
+from audiometa.manager._rating_supporting._RiffManager import _RiffManager as RiffManager
+from audiometa.manager._rating_supporting._VorbisManager import _VorbisManager as VorbisManager
 
 
 @pytest.mark.unit
 class TestWritingProfiles:
-
     @pytest.mark.parametrize(
         "normalized_rating, expected_raw_rating",
         [

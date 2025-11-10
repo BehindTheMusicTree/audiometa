@@ -88,7 +88,7 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: []
-        args: ["--follow-imports=skip"]
+        args: ["--follow-imports=normal"]
         files: ^audiometa/
         exclude: ^scripts/
         pass_filenames: true
