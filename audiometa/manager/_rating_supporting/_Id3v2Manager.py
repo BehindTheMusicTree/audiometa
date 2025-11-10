@@ -215,6 +215,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         ISRC = "TSRC"
         MOOD = "TMOO"
         KEY = "TKEY"
+        REPLAYGAIN = "REPLAYGAIN"
 
     ID3_TEXT_FRAME_CLASS_MAP: dict[RawMetadataKey, Type] = {
         Id3TextFrame.TITLE: TIT2,
@@ -288,12 +289,8 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
         super().__init__(
             audio_file=audio_file,
-            metadata_keys_direct_map_read=cast(
-                dict[UnifiedMetadataKey, RawMetadataKey | None], metadata_keys_direct_map_read
-            ),
-            metadata_keys_direct_map_write=cast(
-                dict[UnifiedMetadataKey, RawMetadataKey | None], metadata_keys_direct_map_write
-            ),
+            metadata_keys_direct_map_read=metadata_keys_direct_map_read,
+            metadata_keys_direct_map_write=metadata_keys_direct_map_write,
             rating_write_profile=RatingWriteProfile.BASE_255_NON_PROPORTIONAL,
             normalized_rating_max_value=normalized_rating_max_value,
         )
@@ -326,7 +323,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         raw_metadata_id3: ID3 = cast(ID3, raw_mutagen_metadata)
         result: RawMetadataDict = {}
 
-        for frame_key in self.Id3TextFrame:
+        for frame_key in self.Id3TextFrame.__members__.values():
             if frame_key == self.Id3TextFrame.RATING:
                 for raw_mutagen_frame in raw_mutagen_metadata.items():
                     popm_key = raw_mutagen_frame[0]
@@ -335,7 +332,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                         popm_key_without_prefixes = popm_key.replace(f"{self.Id3TextFrame.RATING}:", "")
                         result[self.Id3TextFrame.RATING] = [
                             popm_key_without_prefixes,
-                            popm.rating,
+                            getattr(popm, "rating", 0),
                         ]
                         break
             elif frame_key == self.Id3TextFrame.COMMENT:
@@ -374,14 +371,16 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             if raw_mutagen_frame[0].startswith("TXXX"):
                 txxx_frame = raw_mutagen_frame[1]
                 if hasattr(txxx_frame, "desc") and txxx_frame.desc == "REPLAYGAIN":
-                    result["REPLAYGAIN"] = txxx_frame.text
+                    result[self.Id3TextFrame.REPLAYGAIN] = txxx_frame.text
                     break
 
         # Special handling for release date: if TDRC is not present, try to construct from TYER + TDAT
         # Only do this for ID3v2 files (not ID3v1) and only when both TYER and TDAT are present
         if self.Id3TextFrame.RECORDING_TIME not in result:
-            tyer_value = result.get(self.Id3TextFrame.YEAR)
-            tdat_value = result.get(self.Id3TextFrame.DATE)
+            year_key: RawMetadataKey = self.Id3TextFrame.YEAR
+            date_key: RawMetadataKey = self.Id3TextFrame.DATE
+            tyer_value = result[year_key] if year_key in result else None
+            tdat_value = result[date_key] if date_key in result else None
             if tyer_value and tdat_value:
                 # Parse TDAT (DDMM) and TYER to construct YYYY-MM-DD
                 try:
@@ -412,7 +411,10 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         return None, False
 
     def _update_undirectly_mapped_metadata(
-        self, raw_mutagen_metadata: ID3, app_metadata_value: AppMetadataValue, unified_metadata_key: UnifiedMetadataKey
+        self,
+        raw_mutagen_metadata: ID3,
+        app_metadata_value: AppMetadataValue,
+        unified_metadata_key: UnifiedMetadataKey,
     ) -> None:
         if unified_metadata_key == UnifiedMetadataKey.REPLAYGAIN:
             # Remove existing TXXX:REPLAYGAIN frames
@@ -423,23 +425,34 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
                 raw_mutagen_metadata.add(TXXX(encoding=3, desc="REPLAYGAIN", text=str(app_metadata_value)))
         else:
-            super()._update_undirectly_mapped_metadata(raw_mutagen_metadata, app_metadata_value, unified_metadata_key)
+            super()._update_undirectly_mapped_metadata(
+                cast(Any, raw_mutagen_metadata), app_metadata_value, unified_metadata_key
+            )
 
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
-        self, unified_metadata_key: UnifiedMetadataKey, raw_clean_metadata: RawMetadataDict
+        self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
     ) -> AppMetadataValue:
         if unified_metadata_key == UnifiedMetadataKey.REPLAYGAIN:
-            return raw_clean_metadata.get("REPLAYGAIN", [None])[0]
+            replaygain_key = self.Id3TextFrame.REPLAYGAIN
+            if replaygain_key not in raw_clean_metadata:
+                return None
+            replaygain_value = raw_clean_metadata[replaygain_key]
+            if replaygain_value is None:
+                return None
+            if len(replaygain_value) == 0:
+                return None
+            first_value = replaygain_value[0]
+            return cast(AppMetadataValue, first_value)
         else:
             raise MetadataFieldNotSupportedByMetadataFormatError(f"Metadata key not handled: {unified_metadata_key}")
 
     def _update_formatted_value_in_raw_mutagen_metadata(
         self,
-        raw_mutagen_metadata: RawMetadataDict,
+        raw_mutagen_metadata: ID3,
         raw_metadata_key: RawMetadataKey,
         app_metadata_value: AppMetadataValue,
     ) -> None:
-        raw_mutagen_metadata_id3: ID3 = cast(ID3, raw_mutagen_metadata)
+        raw_mutagen_metadata_id3: ID3 = raw_mutagen_metadata
         raw_mutagen_metadata_id3.delall(raw_metadata_key)
 
         # If value is None, don't add any frames (field is removed)
@@ -449,8 +462,9 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         # Handle multiple values by creating separate frames for multi-value fields
         if isinstance(app_metadata_value, list) and all(isinstance(item, str) for item in app_metadata_value):
             # Get the corresponding UnifiedMetadataKey
-            assert self.metadata_keys_direct_map_write is not None
             unified_metadata_key = None
+            if self.metadata_keys_direct_map_write is None:
+                return
             for key, raw_key in self.metadata_keys_direct_map_write.items():
                 if raw_key == raw_metadata_key:
                     unified_metadata_key = key
@@ -557,9 +571,10 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             file_path: Path to the audio file
             id3v1_data: The 128-byte ID3v1 tag data to preserve, or None
         """
-        if self.raw_mutagen_metadata is not None:
+        if self.raw_mutagen_metadata is not None:  # type: ignore[has-type]
             # Extract the major version number from the tuple (2, 3, 0) -> 3
             version_major = self.id3v2_version[1]
+            id3_metadata: ID3 = cast(ID3, self.raw_mutagen_metadata)  # type: ignore[has-type]
 
             if id3v1_data:
                 # Save to a temporary file first
@@ -570,7 +585,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
                 try:
                     # Save ID3v2 to temp file
-                    self.raw_mutagen_metadata.save(temp_path, v2_version=version_major)
+                    id3_metadata.save(temp_path, v2_version=version_major)
 
                     # Read the temp file and append ID3v1 data
                     with open(temp_path, "rb") as f:
@@ -593,11 +608,11 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                         pass
             else:
                 # No ID3v1 data to preserve, save normally
-                self.raw_mutagen_metadata.save(file_path, v2_version=version_major)
+                id3_metadata.save(file_path, v2_version=version_major)
 
     def _save_with_version(self, file_path: str) -> None:
         """Save ID3 tags with the specified version, preserving existing ID3v1 metadata."""
-        if self.raw_mutagen_metadata is not None:
+        if self.raw_mutagen_metadata is not None:  # type: ignore[has-type]
             # Preserve existing ID3v1 metadata before saving ID3v2
             id3v1_data = self._preserve_id3v1_metadata(file_path)
 
@@ -649,6 +664,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             return
 
         if not self.metadata_keys_direct_map_write:
+            # noqa: F823
             raise MetadataFieldNotSupportedByMetadataFormatError("This format does not support metadata modification")
 
         self._validate_and_process_rating(unified_metadata)
@@ -657,12 +673,16 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         id3v1_data = self._preserve_id3v1_metadata(self.audio_file.file_path)
 
         # Update the raw mutagen metadata (without saving yet)
-        if self.raw_mutagen_metadata is None:
-            self.raw_mutagen_metadata = self._extract_mutagen_metadata()
+        if self.raw_mutagen_metadata is None:  # type: ignore[has-type]
+            self.raw_mutagen_metadata = cast(MutagenMetadata, self._extract_mutagen_metadata())
+
+        id3_metadata: ID3 = cast(ID3, self.raw_mutagen_metadata)
 
         for unified_metadata_key in list(unified_metadata.keys()):
             app_metadata_value = unified_metadata[unified_metadata_key]
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
+                from ...exceptions import MetadataFieldNotSupportedByMetadataFormatError
+
                 raise MetadataFieldNotSupportedByMetadataFormatError(
                     f"{unified_metadata_key} metadata not supported by this format"
                 )
@@ -670,13 +690,13 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
                 if raw_metadata_key:
                     self._update_formatted_value_in_raw_mutagen_metadata(
-                        raw_mutagen_metadata=self.raw_mutagen_metadata,
+                        raw_mutagen_metadata=id3_metadata,
                         raw_metadata_key=raw_metadata_key,
                         app_metadata_value=app_metadata_value,
                     )
                 else:
                     self._update_undirectly_mapped_metadata(
-                        raw_mutagen_metadata=self.raw_mutagen_metadata,
+                        raw_mutagen_metadata=id3_metadata,
                         app_metadata_value=app_metadata_value,
                         unified_metadata_key=unified_metadata_key,
                     )
@@ -817,32 +837,34 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
     def get_header_info(self) -> dict:
         try:
             if self.raw_mutagen_metadata is None:
-                self.raw_mutagen_metadata = self._extract_mutagen_metadata()
+                self.raw_mutagen_metadata = cast(MutagenMetadata, self._extract_mutagen_metadata())
 
             if not self.raw_mutagen_metadata:
                 return {"present": False, "version": None, "header_size_bytes": 0, "flags": {}, "extended_header": {}}
 
+            id3_metadata: ID3 = cast(ID3, self.raw_mutagen_metadata)
+
             # Get ID3v2 version
-            version = getattr(self.raw_mutagen_metadata, "version", None)
+            version = getattr(id3_metadata, "version", None)
             version_str = f"{version[0]}.{version[1]}.{version[2]}" if version else None
 
             # Get header size
-            header_size = getattr(self.raw_mutagen_metadata, "size", 0)
+            header_size = getattr(id3_metadata, "size", 0)
 
             # Get flags
             flags = {}
-            if hasattr(self.raw_mutagen_metadata, "flags"):
+            if hasattr(id3_metadata, "flags"):
                 flags = {
-                    "unsync": bool(self.raw_mutagen_metadata.flags & 0x80),
-                    "extended_header": bool(self.raw_mutagen_metadata.flags & 0x40),
-                    "experimental": bool(self.raw_mutagen_metadata.flags & 0x20),
-                    "footer": bool(self.raw_mutagen_metadata.flags & 0x10),
+                    "unsync": bool(id3_metadata.flags & 0x80),
+                    "extended_header": bool(id3_metadata.flags & 0x40),
+                    "experimental": bool(id3_metadata.flags & 0x20),
+                    "footer": bool(id3_metadata.flags & 0x10),
                 }
 
             # Get extended header info
             extended_header = {}
-            if hasattr(self.raw_mutagen_metadata, "extended_header"):
-                ext_header = self.raw_mutagen_metadata.extended_header
+            if hasattr(id3_metadata, "extended_header"):
+                ext_header = id3_metadata.extended_header
                 if ext_header:
                     extended_header = {
                         "size": getattr(ext_header, "size", 0),
@@ -863,10 +885,12 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
     def get_raw_metadata_info(self) -> dict:
         try:
             if self.raw_mutagen_metadata is None:
-                self.raw_mutagen_metadata = self._extract_mutagen_metadata()
+                self.raw_mutagen_metadata = cast(MutagenMetadata, self._extract_mutagen_metadata())
 
             if not self.raw_mutagen_metadata:
                 return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
+
+            id3_metadata: ID3 = cast(ID3, self.raw_mutagen_metadata)
 
             # Get raw frames (exclude binary frames like APIC)
             frames = {}
@@ -898,7 +922,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 "ASPI:",
             }
 
-            for frame_id, frame in self.raw_mutagen_metadata.items():
+            for frame_id, frame in id3_metadata.items():
                 # Skip binary frames to avoid including large image/audio data
                 if frame_id in binary_frame_types:
                     frames[frame_id] = {

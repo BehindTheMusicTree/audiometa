@@ -1,6 +1,6 @@
 import contextlib
 import os
-from typing import cast
+from typing import Any, cast
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.wave import WAVE
@@ -93,7 +93,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
         if audio_file.file_extension != ".wav":
             raise FileTypeNotSupportedError(f"RiffManager only supports WAV files, got {audio_file.file_extension}")
 
-        metadata_keys_direct_map_read = {
+        metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
             UnifiedMetadataKey.ARTISTS: self.RiffTagKey.ARTIST,
             UnifiedMetadataKey.ALBUM: self.RiffTagKey.ALBUM,
@@ -127,12 +127,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
         }
         super().__init__(
             audio_file=audio_file,
-            metadata_keys_direct_map_read=cast(
-                dict[UnifiedMetadataKey, RawMetadataKey | None], metadata_keys_direct_map_read
-            ),
-            metadata_keys_direct_map_write=cast(
-                dict[UnifiedMetadataKey, RawMetadataKey | None], metadata_keys_direct_map_write
-            ),
+            metadata_keys_direct_map_read=metadata_keys_direct_map_read,
+            metadata_keys_direct_map_write=metadata_keys_direct_map_write,
             rating_write_profile=RatingWriteProfile.BASE_255_NON_PROPORTIONAL,
             normalized_rating_max_value=normalized_rating_max_value,
             update_using_mutagen_metadata=False,
@@ -204,7 +200,10 @@ class _RiffManager(_RatingSupportingMetadataManager):
                                 # Split on null byte and take first part if exists
                                 field_value = field_value.split("\x00")[0].strip()
                                 # Compare field_id with enum member values (FourCC strings)
-                                if any(field_id == member.value for member in self.RiffTagKey) and field_value:
+                                if (
+                                    any(field_id == member.value for member in self.RiffTagKey.__members__.values())
+                                    and field_value
+                                ):
                                     if field_id not in info_tags:
                                         info_tags[field_id] = []
                                     info_tags[field_id].append(field_value)
@@ -221,7 +220,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
         return info_tags
 
     @contextlib.contextmanager
-    def _suppress_output(self):
+    def _suppress_output(self) -> Any:
         """Context manager to suppress all output including direct prints."""
         with open(os.devnull, "w") as devnull:
             with contextlib.redirect_stdout(devnull), contextlib.redirect_stderr(devnull):
@@ -275,7 +274,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             info_tags = getattr(raw_mutagen_metadata_wav, "info")
             for key, value in info_tags.items():
                 # key is a FourCC string; check against enum member values
-                if any(key == member.value for member in self.RiffTagKey):
+                if any(key == member.value for member in self.RiffTagKey.__members__.values()):
                     # info_tags now contains lists of values, so we can pass them directly
                     raw_metadata_dict[key] = value
 
@@ -283,28 +282,29 @@ class _RiffManager(_RatingSupportingMetadataManager):
 
     def _get_raw_rating_by_traktor_or_not(self, raw_clean_metadata: RawMetadataDict) -> tuple[int | None, bool]:
         # raw_clean_metadata uses FourCC string keys; compare using enum .value
-        if self.RiffTagKey.RATING.value not in raw_clean_metadata:
+        rating_key = self.RiffTagKey.RATING
+        if rating_key not in raw_clean_metadata:
             return None, False
 
-        raw_ratings = raw_clean_metadata.get(self.RiffTagKey.RATING.value)
+        raw_ratings = raw_clean_metadata[rating_key]
         if not raw_ratings or len(raw_ratings) == 0:
             return None, False
 
         raw_rating = raw_ratings[0]
-        if raw_rating is None:
-            return None, False
-
         # It is a Traktor rating if it's an integer
         if isinstance(raw_rating, str):
             return int(raw_rating), False
         return cast(int, raw_rating), True
 
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
-        self, unified_metadata_key: UnifiedMetadataKey, raw_clean_metadata: RawMetadataDict
+        self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
     ) -> AppMetadataValue:
         if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
-            return self._get_genres_from_raw_clean_metadata_uppercase_keys(
-                raw_clean_metadata, self.RiffTagKey.GENRES_NAMES_OR_CODES
+            return cast(
+                AppMetadataValue,
+                self._get_genres_from_raw_clean_metadata_uppercase_keys(
+                    raw_clean_metadata, self.RiffTagKey.GENRES_NAMES_OR_CODES
+                ),
             )
         else:
             raise MetadataFieldNotSupportedByMetadataFormatError(f"Metadata key not handled: {unified_metadata_key}")
@@ -312,8 +312,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
     def _update_not_using_mutagen_metadata(self, unified_metadata: UnifiedMetadata) -> None:
         """Update metadata fields in the RIFF INFO chunk using an optimized chunk-based approach.
 
-        This implementation maintains RIFF specification compliance while providing better
-        performance and reliability for metadata updates.
+        This implementation
+        maintains RIFF specification compliance while providing better performance and reliability for metadata updates.
 
         Note: While TinyTag is excellent for reading metadata, it doesn't support writing.
         Therefore, we implement our own RIFF chunk writer following the specification.
@@ -374,12 +374,11 @@ class _RiffManager(_RatingSupportingMetadataManager):
         existing_metadata = self._extract_riff_metadata_directly(bytes(riff_data))
 
         # Convert existing metadata to unified format for merging
-        existing_unified_metadata = {}
-        assert self.metadata_keys_direct_map_write is not None
-        for riff_key, values in existing_metadata.items():
+        existing_unified_metadata: UnifiedMetadata = {}
+        for existing_riff_key, values in existing_metadata.items():
             # Find the corresponding unified metadata key
             for unified_key, mapped_riff_key in self.metadata_keys_direct_map_write.items():
-                if mapped_riff_key and mapped_riff_key.value == riff_key:
+                if mapped_riff_key and mapped_riff_key.value == existing_riff_key:
                     if len(values) == 1:
                         existing_unified_metadata[unified_key] = values[0]
                     else:
@@ -387,8 +386,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
                     break
 
         # Merge existing metadata with new metadata (new metadata takes precedence)
-        merged_metadata = existing_unified_metadata.copy()
-        merged_metadata.update(unified_metadata)
+        merged_metadata: UnifiedMetadata = {**existing_unified_metadata, **unified_metadata}
 
         # Build new tags data
         new_tags_data = bytearray()
@@ -397,7 +395,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 continue
 
             # Get corresponding RIFF tag
-            riff_key = self._get_riff_key_for_metadata(app_key, value)
+            riff_key: RawMetadataKey | None = self._get_riff_key_for_metadata(app_key, value)
             if not riff_key:
                 continue
 
@@ -407,15 +405,16 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 if value:
                     # Use smart separator to concatenate multiple values
                     separator = self.find_safe_separator(value)
-                    concatenated_value = separator.join(value)
+                    concatenated_value: str = separator.join(value)
                     value_bytes = self._prepare_tag_value(concatenated_value, app_key)
                     if value_bytes:
                         new_tags_data.extend(self._create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
             else:
-                # Single value
-                value_bytes = self._prepare_tag_value(value, app_key)
-                if value_bytes:
-                    new_tags_data.extend(self._create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
+                # Single value - ensure it's not None before processing
+                if isinstance(value, (int, float, str)):
+                    value_bytes = self._prepare_tag_value(value, app_key)
+                    if value_bytes:
+                        new_tags_data.extend(self._create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
 
         # Create new INFO chunk
         new_info_chunk = bytearray()
@@ -525,17 +524,20 @@ class _RiffManager(_RatingSupportingMetadataManager):
         file_data[insert_pos:insert_pos] = info_chunk
         return insert_pos
 
-    def _get_riff_key_for_metadata(self, app_key: UnifiedMetadataKey, value: AppMetadataValue) -> str | None:
+    def _get_riff_key_for_metadata(self, app_key: UnifiedMetadataKey, value: AppMetadataValue) -> RawMetadataKey | None:
         """Get the appropriate RIFF tag key for the metadata."""
         if not self.metadata_keys_direct_map_write:
             return None
 
-        riff_key = self.metadata_keys_direct_map_write.get(app_key)
+        if app_key not in self.metadata_keys_direct_map_write:
+            riff_key = None
+        else:
+            riff_key = self.metadata_keys_direct_map_write[app_key]
         if not riff_key:
             if app_key == UnifiedMetadataKey.GENRES_NAMES:
-                return self.RiffTagKey.GENRES_NAMES_OR_CODES
+                return cast(RawMetadataKey | None, self.RiffTagKey.GENRES_NAMES_OR_CODES)
             elif app_key == UnifiedMetadataKey.RATING:
-                return self.RiffTagKey.RATING
+                return cast(RawMetadataKey | None, self.RiffTagKey.RATING)
         return riff_key
 
     def _prepare_tag_value(self, value: AppMetadataValue, app_key: UnifiedMetadataKey) -> bytes | None:
@@ -563,7 +565,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
 
         return str(value).encode("utf-8")
 
-    def _create_aligned_metadata_with_proper_padding(self, metadata_id: str, value_bytes: bytes) -> bytes:
+    def _create_aligned_metadata_with_proper_padding(self, metadata_id: RawMetadataKey, value_bytes: bytes) -> bytes:
         # Add null terminator
         value_bytes = value_bytes + b"\x00"
         # Pad to even length if needed
@@ -576,8 +578,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
         genre_name_lower = genre_name.lower()
         for code, name in ID3V1_GENRE_CODE_MAP.items():
             if name and name.lower() == genre_name_lower:
-                return code
-        return 12  # Default to 'Other' genre if not found
+                return cast(int | None, code)
+        return cast(int | None, 12)  # Default to 'Other' genre if not found
 
     def _should_preserve_id3v2_tags(self) -> bool:
         """Determine if ID3v2 tags should be preserved based on the calling context and file state.
@@ -621,14 +623,13 @@ class _RiffManager(_RatingSupportingMetadataManager):
                         from ...utils.MetadataWritingStrategy import MetadataWritingStrategy
 
                         # Preserve ID3v2 tags when:
-                        # 1. PRESERVE strategy and target format is RIFF
-                        #    (preserve existing ID3v2 tags)
+                        # 1. PRESERVE strategy and target format is RIFF (preserve existing ID3v2 tags)
                         # 2. SYNC strategy and target format is RIFF
                         #    (preserve ID3v2 tags that were written by other managers)
                         if strategy == MetadataWritingStrategy.PRESERVE:
-                            return target_format == MetadataFormat.RIFF
+                            return bool(target_format == MetadataFormat.RIFF)
                         elif strategy == MetadataWritingStrategy.SYNC:
-                            return target_format == MetadataFormat.RIFF
+                            return bool(target_format == MetadataFormat.RIFF)
                         else:
                             return False
                 frame = frame.f_back
@@ -731,17 +732,20 @@ class _RiffManager(_RatingSupportingMetadataManager):
         except Exception:
             return {"present": False, "chunk_info": {}}
 
-    def get_raw_metadata_info(self) -> dict:
+    def get_raw_metadata_info(self) -> dict[str, Any]:
         try:
-            if self.raw_clean_metadata is None:
-                self.raw_clean_metadata = self._extract_cleaned_raw_metadata_from_file()
+            if self.raw_clean_metadata is None:  # type: ignore[has-type]
+                extracted_metadata: RawMetadataDict = self._extract_cleaned_raw_metadata_from_file()
+                self.raw_clean_metadata = extracted_metadata
 
             if not self.raw_clean_metadata:
                 return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
 
+            raw_clean_metadata: RawMetadataDict = self.raw_clean_metadata
+
             # Get parsed fields
             parsed_fields = {}
-            for key, value in self.raw_clean_metadata.items():
+            for key, value in raw_clean_metadata.items():
                 parsed_fields[key] = value[0] if value else ""
 
             return {

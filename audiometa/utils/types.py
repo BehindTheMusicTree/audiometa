@@ -5,7 +5,7 @@ values.
 """
 
 from enum import Enum
-from typing import Any, TypedDict
+from typing import Any, MutableMapping, TypedDict
 
 from .UnifiedMetadataKey import UnifiedMetadataKey
 
@@ -25,7 +25,7 @@ names).
 AppMetadataValue = int | float | str | list[str] | None
 RawMetadataValue = list[int] | list[float] | list[str] | None
 RawMetadataDict = dict[RawMetadataKey, RawMetadataValue]
-UnifiedMetadata = dict[UnifiedMetadataKey, AppMetadataValue]
+UnifiedMetadata = MutableMapping[UnifiedMetadataKey, AppMetadataValue]
 
 
 class FormatPriorities(TypedDict):

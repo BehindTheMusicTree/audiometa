@@ -1,9 +1,10 @@
+"""ID3v1 raw metadata handling."""
 import struct
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from mutagen._file import FileType  # type: ignore[import-not-found]
+from mutagen._file import FileType
 
 from .Id3v1RawMetadataKey import Id3v1RawMetadataKey
 
@@ -16,7 +17,7 @@ class Id3v1RawMetadata(FileType):
     """
 
     @dataclass
-    class Id3v1Tag:
+    class Id3v1Tag:  # noqa: D106
         title: str = ""
         artists_names_str: str = ""
         album_name: str = ""
@@ -25,7 +26,7 @@ class Id3v1RawMetadata(FileType):
         track_number: int | None = None
         genre_code: int = 255  # 255 is undefined genre
 
-    def __init__(self, fileobj: Any):
+    def __init__(self, fileobj: Any):  # noqa: D107
         self.fileobj = fileobj
         object.__setattr__(self, "tags", None)
         self._load_tags()
@@ -129,9 +130,8 @@ class Id3v1RawMetadata(FileType):
     def _create_id3v1_tag_data(self) -> bytes:
         """Create 128-byte ID3v1 tag data from current tags."""
         from typing import cast as type_cast
-        tags: dict[Id3v1RawMetadataKey, list[str]] = type_cast(
-            dict[Id3v1RawMetadataKey, list[str]], self.tags
-        )
+
+        tags: dict[Id3v1RawMetadataKey, list[str]] = type_cast(dict[Id3v1RawMetadataKey, list[str]], self.tags)
         if not tags:
             raise ValueError("Tags must be loaded before creating tag data")
         # Initialize with null bytes
