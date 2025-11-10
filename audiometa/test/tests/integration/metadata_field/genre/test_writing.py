@@ -11,7 +11,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestGenreWriting:
-
     def test_id3v1(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
             test_genre = "Rock"

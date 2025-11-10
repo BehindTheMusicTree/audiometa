@@ -11,7 +11,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestDeleteAllMetadataFormatSpecificWAV:
-
     def test_delete_all_metadata_formats_wav(self):
         with temp_file_with_metadata({"title": "ID3v1 Title", "artist": "ID3v1 Artist"}, "id3v1") as test_file_path:
             # Verify ID3v1 has metadata before adding ID3v2

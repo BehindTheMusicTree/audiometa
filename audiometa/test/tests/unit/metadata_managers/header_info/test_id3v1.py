@@ -8,7 +8,6 @@ from audiometa.manager.id3v1._Id3v1Manager import _Id3v1Manager as Id3v1Manager
 
 @pytest.mark.unit
 class TestId3v1HeaderMethods:
-
     def test_id3v1_manager_header_info(self, sample_mp3_file: Path):
         audio_file = AudioFile(sample_mp3_file)
         manager = Id3v1Manager(audio_file)

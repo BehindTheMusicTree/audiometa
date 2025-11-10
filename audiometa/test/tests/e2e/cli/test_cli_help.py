@@ -6,7 +6,6 @@ import pytest
 
 @pytest.mark.e2e
 class TestCLIHelp:
-
     def test_cli_help(self):
         result = subprocess.run([sys.executable, "-m", "audiometa"], capture_output=True, text=True)
         assert result.returncode == 1  # Should exit with error

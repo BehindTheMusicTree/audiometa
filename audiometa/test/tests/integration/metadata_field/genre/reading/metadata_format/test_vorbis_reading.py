@@ -8,7 +8,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestVorbisGenreReading:
-
     def test_vorbis_single_genre(self):
         with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
             VorbisMetadataSetter.set_genre(test_file_path, "Rock")

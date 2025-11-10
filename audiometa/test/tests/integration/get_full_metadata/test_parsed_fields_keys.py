@@ -8,7 +8,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestParsedFieldsKeys:
-
     def test_id3v1_parsed_fields_use_unified_keys(self, sample_mp3_file: Path):
         result = get_full_metadata(sample_mp3_file)
 

@@ -21,7 +21,7 @@ class TestPublisherReading:
     def test_vorbis(self):
         with temp_file_with_metadata({"title": "Test Song", "publisher": "Test Publisher"}, "flac") as test_file_path:
             raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file_path)
-            assert f"PUBLISHER=Test Publisher" in raw_metadata
+            assert "PUBLISHER=Test Publisher" in raw_metadata
 
             publisher = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.PUBLISHER)
             assert publisher == "Test Publisher"

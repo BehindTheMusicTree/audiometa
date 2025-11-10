@@ -8,7 +8,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.e2e
 class TestCLIMultipleFilesErrors:
-
     def test_cli_multiple_files_mixed_success_failure_continue_on_error(
         self, sample_mp3_file, sample_wav_file, tmp_path
     ):
@@ -85,7 +84,6 @@ class TestCLIMultipleFilesErrors:
 
     def test_cli_multiple_files_write_mixed_success_failure(self, tmp_path):
         with temp_file_with_metadata({}, "mp3") as temp_mp3_path, temp_file_with_metadata({}, "flac") as temp_flac_path:
-
             # Create unsupported file type
             unsupported_file = tmp_path / "unsupported.txt"
             unsupported_file.write_text("not audio")
@@ -121,7 +119,6 @@ class TestCLIMultipleFilesErrors:
 
     def test_cli_multiple_files_delete_mixed_success_failure(self, tmp_path):
         with temp_file_with_metadata({}, "mp3") as temp_mp3_path, temp_file_with_metadata({}, "wav") as temp_wav_path:
-
             # Create unsupported file type
             unsupported_file = tmp_path / "unsupported.txt"
             unsupported_file.write_text("not audio")

@@ -7,7 +7,6 @@ from audiometa._audio_file import _AudioFile as AudioFile
 
 @pytest.mark.unit
 class TestAudioFileChannels:
-
     def test_get_channels_mp3(self, sample_mp3_file: Path):
         audio_file = AudioFile(sample_mp3_file)
         channels = audio_file.get_channels()

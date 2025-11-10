@@ -12,7 +12,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestDeleteAllMetadataFormatSpecificFLAC:
-
     def test_flac(self):
         with temp_file_with_metadata({}, "flac") as test_file_path:
             # Add ID3v1 metadata using external tools for proper test isolation

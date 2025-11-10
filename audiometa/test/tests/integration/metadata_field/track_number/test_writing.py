@@ -8,7 +8,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestTrackNumberWriting:
-
     @pytest.mark.parametrize(
         "input_value,expected",
         [

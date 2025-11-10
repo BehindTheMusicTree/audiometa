@@ -13,7 +13,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.integration
 class TestGetFullMetadataEdgeCases:
-
     def test_get_full_metadata_empty_file(self):
         with temp_file_with_metadata({}, "mp3") as temp_file_path:
             # Should handle gracefully and return structure with minimal data

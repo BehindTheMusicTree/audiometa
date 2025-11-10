@@ -7,7 +7,6 @@ from audiometa.cli import expand_file_patterns
 
 @pytest.mark.unit
 class TestExpandFilePatterns:
-
     def test_single_file_exists(self, tmp_path):
         test_file = tmp_path / "test.mp3"
         test_file.write_text("fake mp3 content")

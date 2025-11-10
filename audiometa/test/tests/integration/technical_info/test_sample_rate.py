@@ -8,7 +8,6 @@ from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspect
 
 @pytest.mark.integration
 class TestGetSampleRate:
-
     def test_get_sample_rate_works_with_path_string(self, sample_mp3_file: Path):
         sample_rate = get_sample_rate(str(sample_mp3_file))
         assert isinstance(sample_rate, int)

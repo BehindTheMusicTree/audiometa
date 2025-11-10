@@ -8,7 +8,6 @@ from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspect
 
 @pytest.mark.integration
 class TestGetDurationInSec:
-
     def test_get_duration_in_sec_works_with_path_string(self, sample_mp3_file: Path):
         duration = get_duration_in_sec(str(sample_mp3_file))
         assert isinstance(duration, float)

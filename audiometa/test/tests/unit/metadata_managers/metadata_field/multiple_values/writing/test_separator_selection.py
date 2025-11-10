@@ -5,7 +5,6 @@ from audiometa.manager._MetadataManager import _MetadataManager as MetadataManag
 
 @pytest.mark.unit
 class TestSeparatorSelection:
-
     @pytest.mark.parametrize(
         "values, expected_separator",
         [

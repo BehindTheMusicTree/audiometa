@@ -7,7 +7,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.integration
 class TestDeleteAllMetadataErrorHandling:
-
     def test_delete_all_metadata_unsupported_file_type(self):
         # Create a file with unsupported extension
         with temp_file_with_metadata({}, "mp3") as temp_audio_file_path:

@@ -20,7 +20,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestSyncStrategy:
-
     def test_sync_strategy_wav(self):
         # Create WAV file with initial RIFF metadata
         with temp_file_with_metadata(

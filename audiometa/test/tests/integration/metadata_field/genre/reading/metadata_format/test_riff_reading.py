@@ -8,7 +8,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestRiffGenreParsing:
-
     def test_riff_genre_codes_only_semicolon(self):
         with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file_path:
             RIFFMetadataSetter.set_genre_text(test_file_path, "17; 20; 131")

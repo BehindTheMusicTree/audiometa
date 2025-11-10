@@ -22,7 +22,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.e2e
 class TestCoreWorkflows:
-
     def test_complete_metadata_editing_workflow(self):
         # This is an e2e test - it tests the entire user journey
         # 1. Load a file

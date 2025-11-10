@@ -10,7 +10,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.integration
 class TestFlacMd5Functions:
-
     def test_is_flac_md5_valid_works_with_path_string(self, sample_flac_file: Path):
         is_valid = is_flac_md5_valid(str(sample_flac_file))
         assert isinstance(is_valid, bool)

@@ -7,7 +7,6 @@ from audiometa._audio_file import _AudioFile as AudioFile
 
 @pytest.mark.unit
 class TestAudioFileSampleRate:
-
     def test_get_sample_rate_mp3(self, sample_mp3_file: Path):
         audio_file = AudioFile(sample_mp3_file)
         sample_rate = audio_file.get_sample_rate()

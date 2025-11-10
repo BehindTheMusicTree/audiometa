@@ -7,7 +7,6 @@ from audiometa.cli import format_as_table, format_output
 
 @pytest.mark.e2e
 class TestCLIFormatting:
-
     def test_format_output_json(self):
         data = {"title": "Test Song", "artist": "Test Artist"}
         result = format_output(data, "json")

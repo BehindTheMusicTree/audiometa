@@ -8,7 +8,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.e2e
 class TestCLIDelete:
-
     def test_cli_delete_metadata(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
             result = subprocess.run(

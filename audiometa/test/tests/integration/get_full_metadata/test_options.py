@@ -9,7 +9,6 @@ from audiometa import get_full_metadata
 
 @pytest.mark.integration
 class TestGetFullMetadataOptions:
-
     def test_get_full_metadata_exclude_headers(self, sample_mp3_file: Path):
         result = get_full_metadata(sample_mp3_file, include_headers=False)
 

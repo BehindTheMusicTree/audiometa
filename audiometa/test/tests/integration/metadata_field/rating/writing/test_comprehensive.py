@@ -8,7 +8,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestComprehensiveRatingWriting:
-
     def test_write_read_with_different_max_values(self):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
 

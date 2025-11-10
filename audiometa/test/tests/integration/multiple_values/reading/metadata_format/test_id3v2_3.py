@@ -11,7 +11,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestId3v23:
-
     def test_semicolon_separated_artists(self):
         with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file_path:
             ID3v2MetadataSetter.set_artists(

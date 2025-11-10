@@ -13,7 +13,6 @@ from audiometa.exceptions import (
 
 @pytest.mark.unit
 class TestAudioFileTechnicalInfoErrorHandling:
-
     def test_file_byte_mismatch_error_corrupted_flac(self, tmp_path):
         corrupted_flac = tmp_path / "corrupted.flac"
         corrupted_flac.write_bytes(b"fake file")

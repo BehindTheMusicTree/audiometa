@@ -10,7 +10,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestTitleErrorHandling:
-
     def test_title_unsupported_file_type(self):
         with temp_file_with_metadata({}, "mp3") as temp_file_path:
             temp_file_path.write_bytes(b"fake audio content")

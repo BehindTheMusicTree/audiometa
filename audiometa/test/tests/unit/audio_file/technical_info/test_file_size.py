@@ -8,7 +8,6 @@ from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspect
 
 @pytest.mark.unit
 class TestFileSizeFunctions:
-
     def test_file_size_mp3(self, sample_mp3_file: Path):
         external_tool_size = TechnicalInfoInspector.get_file_size(sample_mp3_file)
         assert external_tool_size == 17307

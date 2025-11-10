@@ -16,7 +16,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestCleanupStrategy:
-
     def test_cleanup_strategy_wav(self):
         with temp_file_with_metadata(
             {"title": "Basic Title", "artist": "Basic Artist", "album": "Basic Album"}, "wav"

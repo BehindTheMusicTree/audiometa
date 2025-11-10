@@ -8,7 +8,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestEncoding:
-
     def test_id3v2_3_encoding_support(self):
         with temp_file_with_metadata({}, "id3v2.3") as test_file_path:
             metadata_dict = {

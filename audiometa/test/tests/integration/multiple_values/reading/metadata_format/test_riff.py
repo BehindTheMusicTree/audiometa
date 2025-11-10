@@ -10,7 +10,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestRiff:
-
     def test_semicolon_separated_artists(self):
         with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file_path:
             RIFFMetadataSetter.set_artists(

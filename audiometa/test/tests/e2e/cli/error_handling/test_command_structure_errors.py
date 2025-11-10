@@ -8,7 +8,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.e2e
 class TestCLICommandStructureErrors:
-
     def test_cli_unified_with_no_headers_technical_flags(self):
         with temp_file_with_metadata({}, "mp3") as temp_file_path:
             result = subprocess.run(

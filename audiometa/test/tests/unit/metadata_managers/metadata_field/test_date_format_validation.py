@@ -1,13 +1,12 @@
 import pytest
 
+from audiometa import _validate_unified_metadata_types
 from audiometa.exceptions import InvalidMetadataFieldFormatError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa import _validate_unified_metadata_types
 
 
 @pytest.mark.unit
 class TestReleaseDateFormatValidation:
-
     def test_valid_yyyy_format(self):
         valid_years = ["2024", "1900", "0000", "9999", "1970"]
         for year in valid_years:

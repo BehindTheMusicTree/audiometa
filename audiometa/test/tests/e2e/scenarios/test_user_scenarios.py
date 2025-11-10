@@ -15,7 +15,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.e2e
 class TestUserScenarios:
-
     def test_music_library_organization(self, sample_mp3_file, sample_flac_file, sample_wav_file):
         # Simulate a user organizing their music library
 

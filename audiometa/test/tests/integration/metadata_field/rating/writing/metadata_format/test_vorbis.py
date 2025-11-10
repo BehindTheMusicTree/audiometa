@@ -8,7 +8,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestVorbisRatingWriting:
-
     @pytest.mark.parametrize(
         "star_rating,expected_normalized_rating",
         [

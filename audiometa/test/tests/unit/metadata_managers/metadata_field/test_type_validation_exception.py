@@ -5,7 +5,6 @@ from audiometa.exceptions import InvalidMetadataFieldTypeError
 
 @pytest.mark.unit
 class TestExceptionClasses:
-
     def test_invalid_metadata_field_type_error_attributes(self):
         error = InvalidMetadataFieldTypeError("title", "str", 123)
         assert error.field == "title"

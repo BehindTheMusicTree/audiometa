@@ -10,7 +10,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestVorbis:
-
     def test_null_value_separated_artists(self):
         with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
             VorbisMetadataSetter.set_artists(

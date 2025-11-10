@@ -13,7 +13,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestMetadataWriting:
-
     # Note: delete_all_metadata tests have been moved to test_delete_all_metadata.py
 
     def test_write_metadata_partial_update(self):

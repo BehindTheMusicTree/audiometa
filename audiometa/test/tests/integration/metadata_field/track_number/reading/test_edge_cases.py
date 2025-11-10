@@ -7,7 +7,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestTrackNumberReadingEdgeCases:
-
     def test_trailing_slash(self):
         with temp_file_with_metadata({"track_number": "5/"}, "mp3") as test_file_path:
             track_number = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.TRACK_NUMBER)

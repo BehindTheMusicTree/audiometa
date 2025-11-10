@@ -8,7 +8,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.unit
 class TestContextManager:
-
     def test_context_manager(self, sample_mp3_file: Path):
         with AudioFile(sample_mp3_file) as audio_file:
             assert isinstance(audio_file, AudioFile)

@@ -7,7 +7,6 @@ from audiometa.manager._MetadataManager import _MetadataManager as MetadataManag
 
 @pytest.mark.unit
 class TestSmartParsing:
-
     @pytest.mark.parametrize(
         "values, expected_should_parse",
         [

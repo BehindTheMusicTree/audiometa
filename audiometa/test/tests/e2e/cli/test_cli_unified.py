@@ -9,7 +9,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.e2e
 class TestCLIUnified:
-
     def test_cli_unified_output(self, sample_mp3_file):
         result = subprocess.run(
             [sys.executable, "-m", "audiometa", "unified", str(sample_mp3_file), "--format", "json"],

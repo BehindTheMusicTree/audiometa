@@ -8,7 +8,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.e2e
 class TestCLIInputValidationErrors:
-
     def test_cli_invalid_rating_value_negative(self):
         with temp_file_with_metadata({}, "mp3") as temp_file_path:
             result = subprocess.run(

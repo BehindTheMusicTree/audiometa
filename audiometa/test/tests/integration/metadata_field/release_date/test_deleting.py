@@ -10,7 +10,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 class TestReleaseDateDeleting:
     def test_delete_release_date_id3v2(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(
                 test_file_path, {UnifiedMetadataKey.RELEASE_DATE: "2023-01-01"}, metadata_format=MetadataFormat.ID3V2
             )
@@ -23,7 +22,6 @@ class TestReleaseDateDeleting:
 
     def test_delete_release_date_id3v1(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(
                 test_file_path, {UnifiedMetadataKey.RELEASE_DATE: "2023"}, metadata_format=MetadataFormat.ID3V1
             )
@@ -36,7 +34,6 @@ class TestReleaseDateDeleting:
 
     def test_delete_release_date_riff(self):
         with temp_file_with_metadata({}, "wav") as test_file_path:
-
             update_metadata(
                 test_file_path, {UnifiedMetadataKey.RELEASE_DATE: "2023-01-01"}, metadata_format=MetadataFormat.RIFF
             )
@@ -49,7 +46,6 @@ class TestReleaseDateDeleting:
 
     def test_delete_release_date_vorbis(self):
         with temp_file_with_metadata({}, "flac") as test_file_path:
-
             update_metadata(
                 test_file_path, {UnifiedMetadataKey.RELEASE_DATE: "2023-01-01"}, metadata_format=MetadataFormat.VORBIS
             )
@@ -62,7 +58,6 @@ class TestReleaseDateDeleting:
 
     def test_delete_release_date_preserves_other_fields(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(
                 test_file_path,
                 {
@@ -80,13 +75,11 @@ class TestReleaseDateDeleting:
 
     def test_delete_release_date_already_none(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(test_file_path, {UnifiedMetadataKey.RELEASE_DATE: None})
             assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RELEASE_DATE) is None
 
     def test_delete_release_date_empty_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(test_file_path, {UnifiedMetadataKey.RELEASE_DATE: ""})
             update_metadata(test_file_path, {UnifiedMetadataKey.RELEASE_DATE: None})
             assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RELEASE_DATE) is None

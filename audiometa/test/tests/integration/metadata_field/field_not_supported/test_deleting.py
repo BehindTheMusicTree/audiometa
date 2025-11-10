@@ -31,7 +31,6 @@ class TestFieldNotSupportedDeleting:
 
     def test_delete_field_not_supported_riff(self):
         with temp_file_with_metadata({}, "wav") as test_file_path:
-
             with pytest.raises(
                 MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ):
@@ -39,7 +38,6 @@ class TestFieldNotSupportedDeleting:
 
     def test_delete_field_not_supported_vorbis(self):
         with temp_file_with_metadata({}, "flac") as test_file_path:
-
             with pytest.raises(
                 MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ):

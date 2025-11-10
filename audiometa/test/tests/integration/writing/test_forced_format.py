@@ -20,7 +20,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestForcedFormat:
-
     def test_forced_format_writes_only_to_specified_format(self):
         # Create WAV file with initial RIFF metadata
         initial_metadata = {"title": "Original RIFF Title", "artist": "Original RIFF Artist"}

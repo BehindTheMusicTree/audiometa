@@ -8,7 +8,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestId3v1GenreReading:
-
     def test_id3v1_genre_code_17_rock(self):
         with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file_path:
             ID3v1MetadataSetter.set_genre(test_file_path, "17")

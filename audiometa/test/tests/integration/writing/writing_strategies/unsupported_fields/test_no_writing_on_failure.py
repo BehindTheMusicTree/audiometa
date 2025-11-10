@@ -8,7 +8,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestNoWritingOnFailure:
-
     def test_fail_on_unsupported_field_no_changes_wav_only(self):
         initial_metadata = {"title": "Original Title", "artist": "Original Artist"}
         with temp_file_with_metadata(initial_metadata, "wav") as test_file_path:

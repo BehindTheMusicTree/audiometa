@@ -9,7 +9,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestAudioFileIntegration:
-
     def test_functional_api_with_file_path(self, sample_mp3_file: Path):
         # Test that functional APIs work with file paths (string)
         metadata = get_unified_metadata(str(sample_mp3_file))

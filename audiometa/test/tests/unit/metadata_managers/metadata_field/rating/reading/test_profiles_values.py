@@ -5,7 +5,6 @@ from audiometa.utils.rating_profiles import RatingReadProfile
 
 @pytest.mark.unit
 class TestRatingProfileValues:
-
     @pytest.mark.parametrize(
         "profile_enum, expected_values",
         [

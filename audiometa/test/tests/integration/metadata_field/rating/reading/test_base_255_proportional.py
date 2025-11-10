@@ -8,7 +8,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestBase255Proportional:
-
     @pytest.mark.parametrize(
         "star_rating,expected_normalized_rating",
         [

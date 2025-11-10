@@ -10,7 +10,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestWritingErrorHandling:
-
     def test_unsupported_file_type_raises_error(self):
         # Create a file with unsupported extension using temp_file_with_metadata
         with temp_file_with_metadata({}, "mp3") as temp_file_path:

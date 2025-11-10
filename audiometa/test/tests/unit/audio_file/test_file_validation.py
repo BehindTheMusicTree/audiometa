@@ -9,7 +9,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.unit
 class TestAudioFileFileTypeValidation:
-
     def test_extension_mp3_then_ok(self, sample_mp3_file: Path):
         audio_file = AudioFile(sample_mp3_file)
         assert audio_file.file_extension == ".mp3"

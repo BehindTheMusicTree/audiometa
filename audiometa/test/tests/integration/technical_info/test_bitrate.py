@@ -8,7 +8,6 @@ from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspect
 
 @pytest.mark.integration
 class TestGetBitrate:
-
     def test_get_bitrate_works_with_path_string(self, sample_mp3_file: Path):
         bitrate = get_bitrate(str(sample_mp3_file))
         assert isinstance(bitrate, int)

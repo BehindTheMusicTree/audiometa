@@ -16,10 +16,8 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestMultipleFormatPreservation:
-
     def test_id3v1_preserves_id3v2(self):
         with temp_file_with_metadata({"title": "ID3v2 Title", "artist": "ID3v2 Artist"}, "mp3") as test_file_path:
-
             ID3v2MetadataSetter.set_metadata(test_file_path, {"title": "ID3v2 Title"})
             ID3v2MetadataSetter.set_metadata(test_file_path, {"artist": "ID3v2 Artist"})
 

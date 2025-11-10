@@ -14,7 +14,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.e2e
 class TestRatingWorkflows:
-
     def test_metadata_with_different_rating_normalizations(self):
         # Use external script to set initial metadata
         initial_metadata = {"title": "Initial Rating Test", "artist": "Initial Artist"}

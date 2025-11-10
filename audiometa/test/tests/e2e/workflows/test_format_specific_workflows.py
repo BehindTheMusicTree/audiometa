@@ -13,7 +13,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.e2e
 class TestFormatSpecificWorkflows:
-
     def test_complete_metadata_workflow_mp3(self):
         # Use external script to set initial metadata
         initial_metadata = {"title": "Initial MP3 Title", "artist": "Initial MP3 Artist", "album": "Initial MP3 Album"}

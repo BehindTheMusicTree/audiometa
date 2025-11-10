@@ -10,7 +10,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 class TestPublisherDeleting:
     def test_delete_publisher_id3v2(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(
                 test_file_path, {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}, metadata_format=MetadataFormat.ID3V2
             )
@@ -51,7 +50,6 @@ class TestPublisherDeleting:
 
     def test_delete_publisher_vorbis(self):
         with temp_file_with_metadata({}, "flac") as test_file_path:
-
             update_metadata(
                 test_file_path, {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}, metadata_format=MetadataFormat.VORBIS
             )
@@ -62,7 +60,6 @@ class TestPublisherDeleting:
 
     def test_delete_publisher_preserves_other_fields(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(
                 test_file_path,
                 {
@@ -80,13 +77,11 @@ class TestPublisherDeleting:
 
     def test_delete_publisher_already_none(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(test_file_path, {UnifiedMetadataKey.PUBLISHER: None})
             assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.PUBLISHER) is None
 
     def test_delete_publisher_empty_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(test_file_path, {UnifiedMetadataKey.PUBLISHER: ""})
             update_metadata(test_file_path, {UnifiedMetadataKey.PUBLISHER: None})
             assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.PUBLISHER) is None

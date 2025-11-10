@@ -7,7 +7,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.unit
 class TestUnifiedMetadataTypeValidation:
-
     def test_track_number_invalid_types(self):
         invalid_values = [
             [],  # Empty list

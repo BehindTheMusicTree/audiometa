@@ -9,7 +9,6 @@ from audiometa._audio_file import _AudioFile as AudioFile
 
 @pytest.mark.unit
 class TestAudioFileFormatName:
-
     def test_get_format_name_mp3(self, sample_mp3_file: Path):
         audio_file = AudioFile(sample_mp3_file)
         audio_format_name = audio_file.get_audio_format_name()

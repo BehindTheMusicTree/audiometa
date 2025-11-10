@@ -8,7 +8,6 @@ from audiometa.test.helpers.technical_info_inspector import TechnicalInfoInspect
 
 @pytest.mark.integration
 class TestGetChannels:
-
     def test_get_channels_works_with_path_string(self, sample_mp3_file: Path):
         channels = get_channels(str(sample_mp3_file))
         assert isinstance(channels, int)

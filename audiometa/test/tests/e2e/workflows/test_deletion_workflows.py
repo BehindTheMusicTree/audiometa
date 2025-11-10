@@ -14,7 +14,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.e2e
 class TestDeletionWorkflows:
-
     def test_complete_metadata_deletion_workflow_mp3(self):
         # Complete e2e deletion workflow for MP3
         initial_metadata = {

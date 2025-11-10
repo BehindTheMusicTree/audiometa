@@ -6,7 +6,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.unit
 class TestAudioFileOperations:
-
     def test_file_operations(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
             audio_file = AudioFile(test_file_path)

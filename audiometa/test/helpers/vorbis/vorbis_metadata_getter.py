@@ -7,7 +7,6 @@ from mutagen.flac import FLAC
 
 
 class VorbisMetadataGetter:
-
     @staticmethod
     def get_raw_metadata(file_path: Path) -> str:
         result = subprocess.run(["metaflac", "--list", str(file_path)], capture_output=True, text=True, check=True)

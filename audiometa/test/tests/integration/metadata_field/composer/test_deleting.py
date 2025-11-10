@@ -32,7 +32,6 @@ class TestComposerDeleting:
 
     def test_delete_composer_riff(self):
         with temp_file_with_metadata({}, "wav") as test_file_path:
-
             update_metadata(
                 test_file_path, {UnifiedMetadataKey.COMPOSERS: ["Test Composer"]}, metadata_format=MetadataFormat.RIFF
             )
@@ -43,7 +42,6 @@ class TestComposerDeleting:
 
     def test_delete_composer_vorbis(self):
         with temp_file_with_metadata({}, "flac") as test_file_path:
-
             update_metadata(
                 test_file_path, {UnifiedMetadataKey.COMPOSERS: ["Test Composer"]}, metadata_format=MetadataFormat.VORBIS
             )
@@ -54,7 +52,6 @@ class TestComposerDeleting:
 
     def test_delete_composer_preserves_other_fields(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(
                 test_file_path,
                 {
@@ -72,13 +69,11 @@ class TestComposerDeleting:
 
     def test_delete_composer_already_none(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(test_file_path, {UnifiedMetadataKey.COMPOSERS: None})
             assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.COMPOSERS) is None
 
     def test_delete_composer_empty_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(test_file_path, {UnifiedMetadataKey.COMPOSERS: [""]})
             update_metadata(test_file_path, {UnifiedMetadataKey.COMPOSERS: None})
             assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.COMPOSERS) is None

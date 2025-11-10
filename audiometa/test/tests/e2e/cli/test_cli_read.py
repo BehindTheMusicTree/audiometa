@@ -9,7 +9,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.e2e
 class TestCLIRead:
-
     def test_cli_read_nonexistent_file(self, tmp_path):
         nonexistent_file = tmp_path / "nonexistent.mp3"
         result = subprocess.run(

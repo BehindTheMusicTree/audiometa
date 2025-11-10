@@ -8,7 +8,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestAudioFormatReadableAfterUpdate:
-
     def test_mp3_playable_after_id3v1_and_id3v2_updates(self):
         """Test that MP3 file remains playable after updating with ID3v1 and ID3v2 tags."""
         sf = pytest.importorskip("soundfile")

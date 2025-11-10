@@ -10,7 +10,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestFailBehavior:
-
     def test_fail_on_unsupported_field_enabled(self):
         with temp_file_with_metadata({"title": "Test"}, "wav") as test_file_path:
             test_metadata = {

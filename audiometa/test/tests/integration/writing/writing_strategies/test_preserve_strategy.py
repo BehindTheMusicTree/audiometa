@@ -17,7 +17,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestPreserveStrategy:
-
     def test_preserve_strategy_wav(self):
         with temp_file_with_metadata(
             {"title": "ID3v2 Title", "artist": "ID3v2 Artist", "album": "ID3v2 Album"}, "wav"

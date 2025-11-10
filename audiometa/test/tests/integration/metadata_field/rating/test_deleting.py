@@ -11,7 +11,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 class TestRatingDeleting:
     def test_delete_rating_id3v2(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(
                 test_file_path,
                 {UnifiedMetadataKey.RATING: 50},
@@ -41,7 +40,6 @@ class TestRatingDeleting:
 
     def test_delete_rating_riff(self):
         with temp_file_with_metadata({}, "wav") as test_file_path:
-
             update_metadata(
                 test_file_path,
                 {UnifiedMetadataKey.RATING: 50},
@@ -61,7 +59,6 @@ class TestRatingDeleting:
 
     def test_delete_rating_vorbis(self):
         with temp_file_with_metadata({}, "flac") as test_file_path:
-
             update_metadata(
                 test_file_path,
                 {UnifiedMetadataKey.RATING: 50},
@@ -81,7 +78,6 @@ class TestRatingDeleting:
 
     def test_delete_rating_preserves_other_fields(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(
                 test_file_path,
                 {
@@ -103,7 +99,6 @@ class TestRatingDeleting:
 
     def test_delete_rating_already_none(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(test_file_path, {UnifiedMetadataKey.RATING: None})
             assert (
                 get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
@@ -112,7 +107,6 @@ class TestRatingDeleting:
 
     def test_delete_rating_zero(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
-
             update_metadata(test_file_path, {UnifiedMetadataKey.RATING: 0}, normalized_rating_max_value=100)
             update_metadata(test_file_path, {UnifiedMetadataKey.RATING: None})
             assert (

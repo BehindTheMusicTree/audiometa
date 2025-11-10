@@ -8,7 +8,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestReleaseDateErrorHandling:
-
     def test_invalid_format_wrong_separator_mp3(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
             invalid_dates = [

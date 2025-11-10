@@ -6,7 +6,6 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.integration
 class TestDeleteAllMetadataBasic:
-
     def test_delete_all_metadata_file_with_no_metadata(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
             # Delete metadata from file that has no metadata

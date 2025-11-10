@@ -7,7 +7,6 @@ from audiometa._audio_file import _AudioFile as AudioFile
 
 @pytest.mark.unit
 class TestAudioFilePathHandling:
-
     def test_audio_file_with_string_path(self, sample_mp3_file: Path):
         sample_mp3_file_str = str(sample_mp3_file)
         audio_file = AudioFile(sample_mp3_file_str)

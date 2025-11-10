@@ -10,7 +10,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestMultipleMetadata:
-
     def test_id3v1(self):
         with temp_file_with_metadata({}, "mp3") as test_file_path:
             # First set ID3v1 metadata using external tools

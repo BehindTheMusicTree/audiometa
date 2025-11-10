@@ -14,7 +14,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.e2e
 class TestErrorHandlingWorkflows:
-
     def test_error_recovery_workflow(self):
         # E2E test for error scenarios
         # Use external script to set initial metadata
