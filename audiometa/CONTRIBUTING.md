@@ -56,9 +56,9 @@ Currently, this project has a solo maintainer, but the role may expand as the pr
 ## 💡 Contributing Code
 
 1. Fork the repository
-1. Create a `feature/` branch
-1. Run tests locally
-1. Open a Pull Request with a clear description
+2. Create a `feature/` branch
+3. Run tests locally
+4. Open a Pull Request with a clear description
 
 ## 📦 Environment Setup
 
@@ -269,23 +269,23 @@ Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
 
 **Pre-commit hooks include (in execution order):**
 
-1. **autoflake**: Removes unused imports and variables from Python files
-1. **isort**: Sorts and organizes import statements according to PEP 8
-1. **ruff-format**: Formats Python code (replaces black) - handles code formatting but not comments/docstrings
-1. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
-1. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
-1. **ruff**: Auto-fixes linting issues (code style, unused variables, etc.) - does not fix line length violations
-1. **mypy**: Static type checking - reports type errors but does not auto-fix
-1. **flake8**: Lints code for style issues (PEP 8 compliance) - reports errors but does not auto-fix
-1. **mdformat**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, handles tables, GitHub-flavored markdown, and markdown syntax
-1. **Assert check**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
+01. **autoflake**: Removes unused imports and variables from Python files
+02. **isort**: Sorts and organizes import statements according to PEP 8
+03. **ruff-format**: Formats Python code (replaces black) - handles code formatting but not comments/docstrings
+04. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
+05. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
+06. **ruff**: Auto-fixes linting issues (code style, unused variables, etc.) - does not fix line length violations
+07. **mypy**: Static type checking - reports type errors but does not auto-fix
+08. **flake8**: Lints code for style issues (PEP 8 compliance) - reports errors but does not auto-fix
+09. **mdformat**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, handles tables, GitHub-flavored markdown, and markdown syntax
+10. **Assert check**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
 
 **Known Linting Issues:**
 
 - **Ruff F823 False Positive**: Ruff may incorrectly report `F823: Local variable referenced before assignment` when an imported exception class is:
 
   1. Referenced in a docstring's `Raises:` section
-  1. Used later in the code with `raise`
+  2. Used later in the code with `raise`
 
   This is a known limitation of ruff's static analysis. When this occurs, it's acceptable to suppress the false positive with `# noqa: F823` on the line where the exception is raised.
 
@@ -487,14 +487,14 @@ pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=85
 Releases are created from the `main` branch.
 
 1. Bump your version (increment the version number, e.g., from 1.2.2 to 1.2.3) using bump2version (which automatically finds and updates version references in your project files) or manually editing **version**
-1. Update the changelog (`CHANGELOG.md`) with the new release version and changes
+2. Update the changelog (`CHANGELOG.md`) with the new release version and changes
    - Contributors should not modify the changelog; this is maintained by maintainers during releases
-1. Tag the release (create a Git tag to mark this specific commit as the release point):
+3. Tag the release (create a Git tag to mark this specific commit as the release point):
    ```bash
    git tag v1.2.3
    git push origin v1.2.3
    ```
-1. CI/CD will:
+4. CI/CD will:
    - Run tests
    - Build a package
    - Upload to PyPI (if configured)
