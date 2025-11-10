@@ -8,3 +8,4 @@ alwaysApply: true
 
 - Use `list`, `dict`, `tuple`, `|` instead of `List`, `Dict`, `Tuple`, `Union`
 - Only add type hints when necessary for clarity
+- Use `Any` sparingly and only when truly needed

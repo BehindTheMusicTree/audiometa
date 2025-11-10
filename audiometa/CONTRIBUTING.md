@@ -144,16 +144,16 @@ Scopes are optional but encouraged for clarity.
 
 ##### Common Scopes
 
-| Scope  | Example                                             | Description                  |
-| ------ | --------------------------------------------------- | ---------------------------- |
-| core   | refactor(core): simplify metadata interface         | Core metadata handling logic |
-| id3v1  | fix(id3v1): handle encoding issues                  | ID3v1 tag format             |
-| id3v2  | feat(id3v2): add custom text frame support          | ID3v2 tag format             |
-| vorbis | fix(vorbis): improve comment parsing                | Vorbis comment format        |
-| riff   | feat(riff): detect and write INFO chunks            | RIFF metadata format         |
-| test   | refactor(test): reorganize test fixtures            | Testing infrastructure       |
-| deps   | chore(deps): update mutagen dependency              | Dependency management        |
-| docs   | docs: improve README example                        | Documentation updates        |
+| Scope  | Example                                     | Description                  |
+| ------ | ------------------------------------------- | ---------------------------- |
+| core   | refactor(core): simplify metadata interface | Core metadata handling logic |
+| id3v1  | fix(id3v1): handle encoding issues          | ID3v1 tag format             |
+| id3v2  | feat(id3v2): add custom text frame support  | ID3v2 tag format             |
+| vorbis | fix(vorbis): improve comment parsing        | Vorbis comment format        |
+| riff   | feat(riff): detect and write INFO chunks    | RIFF metadata format         |
+| test   | refactor(test): reorganize test fixtures    | Testing infrastructure       |
+| deps   | chore(deps): update mutagen dependency      | Dependency management        |
+| docs   | docs: improve README example                | Documentation updates        |
 
 ##### Test Commits Best Practices
 
@@ -266,15 +266,38 @@ black . && isort . && docformatter --in-place --wrap-summaries=120 --wrap-descri
 
 Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
 
+**Pre-commit hooks include:**
+
+- **Code formatting**: `autoflake`, `isort`, `ruff-format`, `docformatter`, `ruff`
+- **Type checking**: `mypy`
+- **Linting**: `flake8`
+- **Assert check**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
+
 **Type Checking Behavior:**
 
 - **Pre-commit hooks**: `mypy` checks only **staged files** for faster feedback during development
 - **CI/CD**: `mypy` checks the **entire codebase** to ensure type consistency across all files
 
+**Type Checking Rules:**
+
+- **Production code** (`audiometa/` excluding `audiometa/test/`): Strict type checking
+
+  - All functions must have type annotations
+  - No untyped function definitions
+  - Strict type compatibility checks
+  - Missing type stubs for external libraries are ignored with `# type: ignore[import-not-found]`
+
+- **Test code** (`audiometa/test/`): Relaxed type checking
+  - Functions can be untyped (no type annotations required)
+  - Missing type annotations for variables are allowed
+  - This allows test code to be more flexible while maintaining type safety in production code
+
 This means:
+
 - You can commit individual files even if other files have type errors
 - Before opening a PR, run `pre-commit run --all-files` or `mypy audiometa` to check the entire codebase
 - CI will catch any type errors in the full codebase before merging
+- Test code type errors are acceptable as long as they don't prevent tests from running
 
 CI will automatically test all pushes and PRs using GitHub Actions.
 
@@ -300,6 +323,7 @@ Before submitting a Pull Request (contributors) or merging to `main` (maintainer
 **3. Code Cleanup**
 
 - ✅ Remove all debug print statements (`print()`, `pdb`, etc.)
+- ✅ Remove all `assert` statements from production code (assert statements are allowed in test code)
 - ✅ Remove commented-out code
 - ✅ Remove temporary files and test artifacts
 - ✅ No hardcoded credentials, API keys, or secrets

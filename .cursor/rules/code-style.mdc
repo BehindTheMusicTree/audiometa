@@ -4,6 +4,28 @@ alwaysApply: true
 
 # Code Style and Comments
 
+## No Assert Statements in Production Code
+
+- **Never use `assert` statements in production code** (test code is allowed to use assert)
+- Replace `assert` statements with proper error handling using exceptions:
+  - Use `ValueError` for invalid values
+  - Use `TypeError` for type mismatches
+  - Use `AttributeError` for missing attributes
+  - Use custom exceptions from `audiometa.exceptions` when appropriate
+- The pre-commit hook will fail if assert statements are found
+- Example:
+  ```python
+  # ❌ Bad
+  assert value is not None
+  assert isinstance(value, str)
+  
+  # ✅ Good
+  if value is None:
+      raise ValueError("value cannot be None")
+  if not isinstance(value, str):
+      raise TypeError(f"expected str, got {type(value).__name__}")
+  ```
+
 ## Avoid Unnecessary Comments
 
 Do NOT add comments for functions, classes, or modules that are self-explanatory. The function name, class name, and parameters should clearly indicate what they do.

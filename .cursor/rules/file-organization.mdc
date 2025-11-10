@@ -4,6 +4,12 @@ alwaysApply: true
 
 # File Organization
 
+## Cursor Rules File Location
+
+**All Cursor rules must be written in `.cursor/rules/` directory, not `.cursorrules` file.**
+
+The `.cursorrules` file is deprecated. Use `.cursor/rules/` directory with `.mdc` files instead.
+
 ## Module Structure
 
 - Keep related functionality together
@@ -15,3 +21,13 @@ alwaysApply: true
 - Group imports logically
 - Use absolute imports when possible
 - Keep imports clean and minimal
+
+## Pre-commit Hooks
+
+All code must pass pre-commit hooks before committing:
+- Code formatting (autoflake, isort, ruff-format, docformatter, ruff)
+- Type checking (mypy)
+- Linting (flake8)
+- Assert statement check (custom hook - will fail if asserts are found)
+
+Run `pre-commit run --all-files` before committing to ensure all checks pass.

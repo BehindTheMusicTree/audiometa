@@ -57,6 +57,7 @@ interpretation regardless of the source profile.
 Luckily, Traktor ratings are written with special tags making them easy to distinguish.
 """
 
+from collections.abc import Iterator
 from enum import Enum
 
 
@@ -67,16 +68,17 @@ class RatingReadProfile(Enum):
     BASE_255_PROPORTIONAL_TRAKTOR = [None, None, 51, None, 102, None, 153, None, 204, None, 255]
     BASE_100_PROPORTIONAL = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
-    def __getitem__(self, index):
-        return self.value[index]
+    def __getitem__(self, index: int) -> int | None:
+        result = self.value[index]
+        return result if isinstance(result, (int, type(None))) else int(result)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.value)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[int | None]:
         return iter(self.value)
 
-    def __contains__(self, item):
+    def __contains__(self, item: object) -> bool:
         return item in self.value
 
 
@@ -94,14 +96,15 @@ class RatingWriteProfile(Enum):
     BASE_255_NON_PROPORTIONAL = RatingReadProfile.BASE_255_NON_PROPORTIONAL.value
     BASE_100_PROPORTIONAL = RatingReadProfile.BASE_100_PROPORTIONAL.value
 
-    def __getitem__(self, index):
-        return self.value[index]
+    def __getitem__(self, index: int) -> int | None:
+        result = self.value[index]
+        return result if isinstance(result, (int, type(None))) else int(result)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.value)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[int | None]:
         return iter(self.value)
 
-    def __contains__(self, item):
+    def __contains__(self, item: object) -> bool:
         return item in self.value

@@ -5,11 +5,11 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import TypeAlias, Union, cast
+from typing import Any, TypeAlias, Union, cast
 
-from mutagen.flac import FLAC, StreamInfo  # type: ignore[import]
-from mutagen.mp3 import MP3  # type: ignore[import]
-from mutagen.wave import WAVE  # type: ignore[import]
+from mutagen.flac import FLAC, StreamInfo  # type: ignore[import-not-found]
+from mutagen.mp3 import MP3  # type: ignore[import-not-found]
+from mutagen.wave import WAVE  # type: ignore[import-not-found]
 
 from .exceptions import (
     AudioFileMetadataParseError,
@@ -217,10 +217,10 @@ class _AudioFile:
         if hasattr(self.file, "close"):
             self.file.close()
 
-    def __enter__(self) -> "AudioFile":
+    def __enter__(self) -> "_AudioFile":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: Any) -> None:
         self.close()
 
     def get_file_path_or_object(self) -> str:

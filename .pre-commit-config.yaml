@@ -19,6 +19,15 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
 
+  - repo: local
+    hooks:
+      - id: no-assert
+        name: Check for assert statements in production code
+        entry: bash -c '.pre-commit-hooks/no-assert.sh "$@"' --
+        language: system
+        files: ^audiometa/.*\.py$
+        exclude: ^(audiometa/test/|scripts/)
+
   # Code formatters and linters - order matters!
   # 1. autoflake: Remove unused imports/variables first
   # 2. isort: Sort imports (configured to work with ruff-format/black)
@@ -74,7 +83,7 @@ repos:
         additional_dependencies: []
         args: ["--follow-imports=normal"]
         files: ^audiometa/
-        exclude: ^(audiometa/test/|scripts/)
+        exclude: ^scripts/
         pass_filenames: true
 
   - repo: https://github.com/pycqa/flake8

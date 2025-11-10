@@ -11,7 +11,7 @@ For detailed metadata support information, see the README.md file.
 
 import re
 import warnings
-from typing import Any, TypeAlias, Union, cast
+from typing import Any, Type, TypeAlias, Union, cast
 
 from ._audio_file import _AudioFile
 from .exceptions import (
@@ -37,7 +37,7 @@ from .utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 FILE_EXTENSION_NOT_HANDLED_MESSAGE = "The file's format is not handled by the service."
 
-METADATA_FORMAT_MANAGER_CLASS_MAP = {
+METADATA_FORMAT_MANAGER_CLASS_MAP: dict[MetadataFormat, type] = {
     MetadataFormat.ID3V1: _Id3v1Manager,
     MetadataFormat.ID3V2: _Id3v2Manager,
     MetadataFormat.VORBIS: _VorbisManager,
@@ -67,28 +67,26 @@ def _get_metadata_manager(
                 f"Tag format {metadata_format} not supported for file extension {audio_file.file_extension}"
             )
 
-    manager_class = cast(Any, METADATA_FORMAT_MANAGER_CLASS_MAP[metadata_format])
+    manager_class: Type[_MetadataManager] = cast(Any, METADATA_FORMAT_MANAGER_CLASS_MAP[metadata_format])
     if issubclass(manager_class, _RatingSupportingMetadataManager):
-        if manager_class == _Id3v2Manager:
+        if manager_class is _Id3v2Manager:
             # Determine ID3v2 version based on provided version or use default
             if id3v2_version is not None:
                 version = id3v2_version
             else:
                 version = (2, 3, 0)  # Default to ID3v2.3
+            id3v2_manager_class = cast(Type[_Id3v2Manager], manager_class)
             return cast(
                 _MetadataManager,
-                manager_class(
+                id3v2_manager_class(
                     audio_file=audio_file,
                     normalized_rating_max_value=normalized_rating_max_value,
                     id3v2_version=version,
                 ),
             )
         else:
-            return cast(
-                _MetadataManager,
-                manager_class(audio_file=audio_file, normalized_rating_max_value=normalized_rating_max_value),
-            )
-    return cast(_MetadataManager, manager_class(audio_file=audio_file))
+            return manager_class(audio_file=audio_file, normalized_rating_max_value=normalized_rating_max_value)  # type: ignore[call-arg]
+    return manager_class(audio_file=audio_file)  # type: ignore[call-arg]
 
 
 def _get_metadata_managers(
@@ -182,7 +180,7 @@ def get_unified_metadata(
             normalized_rating_max_value=normalized_rating_max_value,
             id3v2_version=id3v2_version,
         )
-        return cast(UnifiedMetadata, manager.get_unified_metadata())
+        return manager.get_unified_metadata()
 
     # Get all available managers for this file type
     all_managers = _get_metadata_managers(
@@ -654,7 +652,7 @@ def _handle_metadata_strategy(
             try:
                 existing_metadata = manager.get_unified_metadata()
                 if existing_metadata:
-                    preserved_metadata[fmt] = cast(UnifiedMetadata, existing_metadata)
+                    preserved_metadata[fmt] = existing_metadata
             except Exception:
                 pass
 

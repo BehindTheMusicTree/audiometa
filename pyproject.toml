@@ -104,6 +104,21 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 
+# Relaxed rules for test code
+[[tool.mypy.overrides]]
+module = "audiometa.test.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_decorators = false
+warn_unused_ignores = false
+allow_untyped_defs = true
+allow_incomplete_defs = true
+no_implicit_optional = false
+warn_unreachable = false
+warn_no_return = false
+allow_untyped_calls = true
+warn_return_any = false
+
 [tool.pytest.ini_options]
 testpaths = ["audiometa/test"]
 python_files = ["test_*.py"]
