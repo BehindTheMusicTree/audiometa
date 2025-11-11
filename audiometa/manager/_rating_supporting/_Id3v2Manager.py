@@ -1,3 +1,7 @@
+import os
+import shutil
+import subprocess
+import tempfile
 from typing import Any, Type, cast
 
 from mutagen._file import FileType as MutagenMetadata
@@ -23,6 +27,7 @@ from mutagen.id3._frames import (
     TPUB,
     TRCK,
     TSRC,
+    TXXX,
     TYER,
     USLT,
     WOAR,
@@ -32,9 +37,10 @@ from mutagen.id3._util import ID3NoHeaderError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 from ..._audio_file import _AudioFile
-from ...exceptions import MetadataFieldNotSupportedByMetadataFormatError
+from ...exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey, UnifiedMetadata
+from .._MetadataManager import _MetadataManager as MetadataManager
 from ._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
 
 
@@ -423,8 +429,6 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             raw_mutagen_metadata.delall("TXXX:REPLAYGAIN")
             if app_metadata_value is not None:
                 # Add new TXXX frame with desc 'REPLAYGAIN'
-                from mutagen.id3._frames import TXXX
-
                 raw_mutagen_metadata.add(TXXX(encoding=3, desc="REPLAYGAIN", text=str(app_metadata_value)))
         else:
             super()._update_undirectly_mapped_metadata(
@@ -489,16 +493,12 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                     return
 
                 # For ID3v2.3, use concatenation with separators (ID3v2.3 doesn't support null-separated values)
-                from .._MetadataManager import _MetadataManager as MetadataManager
-
                 # Find a separator that doesn't appear in any of the values and concatenate
                 separator = MetadataManager.find_safe_separator(app_metadata_value)
                 app_metadata_value = separator.join(app_metadata_value)
                 # Continue to handle as single value
             else:
                 # For non-multi-value fields, concatenate with separators as fallback
-                from .._MetadataManager import _MetadataManager as MetadataManager
-
                 # Find a separator that doesn't appear in any of the values and concatenate
                 separator = MetadataManager.find_safe_separator(app_metadata_value)
                 app_metadata_value = separator.join(app_metadata_value)
@@ -580,13 +580,14 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
             if id3v1_data:
                 # Save to a temporary file first
-                import tempfile
-
                 with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as temp_file:
                     temp_path = temp_file.name
 
                 try:
-                    # Save ID3v2 to temp file
+                    # Copy the original file to temp file first
+                    shutil.copy2(file_path, temp_path)
+
+                    # Save ID3v2 to temp file (this will overwrite ID3v2 tags in the copy)
                     id3_metadata.save(temp_path, v2_version=version_major)
 
                     # Read the temp file and append ID3v1 data
@@ -602,8 +603,6 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
                 finally:
                     # Clean up temp file
-                    import os
-
                     try:
                         os.unlink(temp_path)
                     except OSError:
@@ -712,8 +711,6 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
         # Use external tools to write ID3v2 metadata to FLAC files
         # This avoids the file corruption that occurs with mutagen's ID3 class
-        import subprocess
-
         # Determine the tool and version based on the configured ID3v2 version
         if self.id3v2_version[1] == 3:
             tool = "id3v2"
@@ -802,12 +799,8 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         try:
             subprocess.run(cmd, check=True, capture_output=True)
         except subprocess.CalledProcessError as e:
-            from ...exceptions import FileCorruptedError
-
             raise FileCorruptedError(f"Failed to write ID3v2 metadata with {tool}: {e}")
         except FileNotFoundError:
-            from ...exceptions import FileCorruptedError
-
             raise FileCorruptedError(
                 f"External tool {tool} not found. Please install it to write ID3v2 metadata to FLAC files."
             )
