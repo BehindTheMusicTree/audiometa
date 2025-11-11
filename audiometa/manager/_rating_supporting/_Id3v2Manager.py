@@ -925,7 +925,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 # Skip binary frames to avoid including large image/audio data
                 if frame_id in binary_frame_types:
                     frames[frame_id] = {
-                        "text": f'<Binary data: {getattr(frame, "size", 0)} bytes>',
+                        "text": f"<Binary data: {getattr(frame, 'size', 0)} bytes>",
                         "size": getattr(frame, "size", 0),
                         "flags": getattr(frame, "flags", 0),
                     }
