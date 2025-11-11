@@ -6,11 +6,11 @@ alwaysApply: true
 
 All code must pass pre-commit hooks before committing:
 
-- Code formatting (isort, ruff-format, docformatter, ruff)
+- Code formatting (trailing-whitespace, isort, ruff-format, docformatter, ruff)
 - Type checking (mypy)
 - Linting (ruff - replaces autoflake and flake8)
 - Assert statement check (custom hook - will fail if asserts are found)
 
-**Note:** Ruff handles unused imports/variables (replaces autoflake) and most linting rules (replaces flake8). Ruff-format automatically handles trailing whitespace and EOF newlines.
+**Note:** Ruff handles unused imports/variables (replaces autoflake) and most linting rules (replaces flake8). The trailing-whitespace hook automatically removes trailing whitespace without failing. Ruff-format handles code formatting and EOF newlines automatically.
 
 Run `pre-commit run --all-files` before committing to ensure all checks pass.
