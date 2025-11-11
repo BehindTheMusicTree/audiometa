@@ -267,39 +267,60 @@ pre-commit run
 The following hooks run in execution order:
 
 01. **check-yaml**: Validates YAML file syntax
+
+    - Manual: `pre-commit run check-yaml --all-files`
+
 02. **check-added-large-files**: Prevents committing files larger than 10MB
+
+    - Manual: `pre-commit run check-added-large-files --all-files`
+
 03. **check-json**: Validates JSON file syntax
+
+    - Manual: `pre-commit run check-json --all-files`
+
 04. **check-toml**: Validates TOML file syntax
+
+    - Manual: `pre-commit run check-toml --all-files`
+
 05. **check-merge-conflict**: Detects merge conflict markers
+
+    - Manual: `pre-commit run check-merge-conflict --all-files`
+
 06. **debug-statements**: Detects debug statements (pdb, ipdb, etc.)
+
+    - Manual: `pre-commit run debug-statements --all-files`
+
 07. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
+
+    - Manual: `pre-commit run no-assert --all-files`
+
 08. **isort**: Sorts and organizes import statements according to PEP 8
+
+    - Manual: `isort .` or `pre-commit run isort --all-files`
+
 09. **ruff-format**: Formats Python code (replaces black) - handles code formatting, trailing whitespace, and EOF newlines automatically
+
+    - Manual: `ruff format .` or `pre-commit run ruff-format --all-files`
+
 10. **ruff**: Auto-fixes linting issues (unused imports/variables, code style, line length, etc.) - replaces autoflake and flake8
+
+    - Manual: `ruff check --fix .` or `pre-commit run ruff --all-files`
+
 11. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
+
+    - Manual: `docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 .` or `pre-commit run docformatter --all-files`
+
 12. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
+
+    - Manual: `pre-commit run fix-long-comments --all-files`
+
 13. **mypy**: Static type checking - reports type errors but does not auto-fix
+
+    - Manual: `mypy audiometa` or `pre-commit run mypy --all-files`
+
 14. **mdformat**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, handles tables, GitHub-flavored markdown, and markdown syntax
 
-##### Auto-fix Formatting
-
-Pre-commit will auto-fix formatting issues for most tools. You can also run formatters manually:
-
-```bash
-# Using ruff-format (replaces black)
-ruff format .
-
-# Sort imports
-isort .
-
-# Format docstrings
-docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 --make-summary-multi-line .
-
-# Auto-fix linting issues with ruff (replaces autoflake and flake8)
-ruff check --fix .
-```
-
-Note: `mypy` requires manual fixes as it doesn't auto-format.
+    - Manual: `mdformat .` or `pre-commit run mdformat --all-files`
 
 ##### Type Checking
 
