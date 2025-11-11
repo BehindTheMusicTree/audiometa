@@ -233,16 +233,19 @@ Integration tests should verify **integration** (component interactions), not du
 - Test component interactions
 - Verify non trivial wrapper functions work correctly
 - Use external tools for verification
-- Test different input types (str, Path, \_AudioFile)
+- Test different input types (str, Path)
 - Don't duplicate unit test coverage
 
 #### When Integration Tests ARE Needed
 
 ```python
 # ✅ Good - Tests that wrapper correctly handles different input types
-def test_get_duration_in_sec_works_with_audio_file_object(self, sample_mp3_file: Path):
-    audio_file = _AudioFile(sample_mp3_file)
-    duration = get_duration_in_sec(audio_file)  # Passing _AudioFile directly
+def test_get_duration_in_sec_works_with_string_path(self, sample_mp3_file: Path):
+    duration = get_duration_in_sec(str(sample_mp3_file))  # Passing string path
+    assert duration > 0
+
+def test_get_duration_in_sec_works_with_path_object(self, sample_mp3_file: Path):
+    duration = get_duration_in_sec(sample_mp3_file)  # Passing Path object
     assert duration > 0
 
 # ✅ Good - Tests external tool verification
