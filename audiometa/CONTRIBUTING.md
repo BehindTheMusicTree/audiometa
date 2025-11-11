@@ -266,61 +266,47 @@ pre-commit run
 
 The following hooks run in execution order:
 
-01. **check-yaml**: Validates YAML file syntax
+1. **check-yaml**: Validates YAML file syntax
+   - Manual: `pre-commit run check-yaml --all-files`
 
-    - Manual: `pre-commit run check-yaml --all-files`
+2. **check-added-large-files**: Prevents committing files larger than 10MB
+   - Manual: `pre-commit run check-added-large-files --all-files`
 
-02. **check-added-large-files**: Prevents committing files larger than 10MB
+3. **check-json**: Validates JSON file syntax
+   - Manual: `pre-commit run check-json --all-files`
 
-    - Manual: `pre-commit run check-added-large-files --all-files`
+4. **check-toml**: Validates TOML file syntax
+   - Manual: `pre-commit run check-toml --all-files`
 
-03. **check-json**: Validates JSON file syntax
+5. **check-merge-conflict**: Detects merge conflict markers
+   - Manual: `pre-commit run check-merge-conflict --all-files`
 
-    - Manual: `pre-commit run check-json --all-files`
+6. **debug-statements**: Detects debug statements (pdb, ipdb, etc.)
+   - Manual: `pre-commit run debug-statements --all-files`
 
-04. **check-toml**: Validates TOML file syntax
+7. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
+   - Manual: `pre-commit run no-assert --all-files`
 
-    - Manual: `pre-commit run check-toml --all-files`
+8. **isort**: Sorts and organizes import statements according to PEP 8
+   - Manual: `isort .`
 
-05. **check-merge-conflict**: Detects merge conflict markers
-
-    - Manual: `pre-commit run check-merge-conflict --all-files`
-
-06. **debug-statements**: Detects debug statements (pdb, ipdb, etc.)
-
-    - Manual: `pre-commit run debug-statements --all-files`
-
-07. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
-
-    - Manual: `pre-commit run no-assert --all-files`
-
-08. **isort**: Sorts and organizes import statements according to PEP 8
-
-    - Manual: `isort .` or `pre-commit run isort --all-files`
-
-09. **ruff-format**: Formats Python code (replaces black) - handles code formatting, trailing whitespace, and EOF newlines automatically
-
-    - Manual: `ruff format .` or `pre-commit run ruff-format --all-files`
+9. **ruff-format**: Formats Python code (replaces black) - handles code formatting, trailing whitespace, and EOF newlines automatically
+   - Manual: `ruff format .`
 
 10. **ruff**: Auto-fixes linting issues (unused imports/variables, code style, line length, etc.) - replaces autoflake and flake8
-
-    - Manual: `ruff check --fix .` or `pre-commit run ruff --all-files`
+    - Manual: `ruff check --fix .`
 
 11. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
-
-    - Manual: `docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 .` or `pre-commit run docformatter --all-files`
+    - Manual: `docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 .`
 
 12. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
-
     - Manual: `pre-commit run fix-long-comments --all-files`
 
 13. **mypy**: Static type checking - reports type errors but does not auto-fix
+    - Manual: `mypy audiometa`
 
-    - Manual: `mypy audiometa` or `pre-commit run mypy --all-files`
-
-14. **mdformat**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, handles tables, GitHub-flavored markdown, and markdown syntax
-
-    - Manual: `mdformat .` or `pre-commit run mdformat --all-files`
+14. **prettier**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, preserves list numbering
+    - Manual: `prettier --write "**/*.md"`
 
 ##### Type Checking
 
@@ -336,7 +322,6 @@ The following hooks run in execution order:
 **Type Checking Rules:**
 
 - **Production code** (`audiometa/` excluding `audiometa/test/`): Strict type checking
-
   - All functions must have type annotations
   - No untyped function definitions
   - Strict type compatibility checks
@@ -344,7 +329,6 @@ The following hooks run in execution order:
   - **Note**: Do not add `# type: ignore[import-not-found]` comments for libraries that already have mypy overrides configured, as mypy will report them as unused
 
 - **Test code** (`audiometa/test/`): Relaxed type checking
-
   - Functions can be untyped (no type annotations required)
   - Missing type annotations for variables are allowed
   - This allows test code to be more flexible while maintaining type safety in production code
@@ -362,7 +346,6 @@ CI will automatically test all pushes and PRs using GitHub Actions.
 ##### Known Linting Issues
 
 - **Ruff F823 False Positive**: Ruff may incorrectly report `F823: Local variable referenced before assignment` when an imported exception class is:
-
   1. Referenced in a docstring's `Raises:` section
   2. Used later in the code with `raise`
 
