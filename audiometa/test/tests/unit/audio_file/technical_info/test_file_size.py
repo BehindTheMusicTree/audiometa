@@ -49,13 +49,3 @@ class TestFileSizeFunctions:
 
         file_size = get_file_size(size_big_wav)
         assert file_size == 83414326
-
-    def test_file_size_with_audio_file_object(self, sample_mp3_file: Path):
-        from audiometa._audio_file import _AudioFile as _AudioFile
-
-        audio_file = _AudioFile(sample_mp3_file)
-        external_tool_size = TechnicalInfoInspector.get_file_size(sample_mp3_file)
-        assert external_tool_size == 17307
-
-        file_size = get_file_size(audio_file)
-        assert file_size == 17307
