@@ -11,6 +11,7 @@ For detailed metadata support information, see the README.md file.
 
 import re
 import warnings
+from pathlib import Path
 from typing import Any, Type, TypeAlias, Union, cast
 
 from ._audio_file import _AudioFile
@@ -44,7 +45,7 @@ METADATA_FORMAT_MANAGER_CLASS_MAP: dict[MetadataFormat, type] = {
     MetadataFormat.RIFF: _RiffManager,
 }
 
-FILE_TYPE: TypeAlias = Union[str, "_AudioFile"]
+FILE_TYPE: TypeAlias = Union[str, Path, "_AudioFile"]
 
 
 def _get_metadata_manager(
@@ -130,7 +131,7 @@ def get_unified_metadata(
     format, returning data from that format only.
 
     Args:
-        file: Audio file path
+        file: Audio file path (str, Path, or _AudioFile)
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             When provided, ratings are normalized to this scale. Defaults to None (raw values).
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
@@ -221,7 +222,7 @@ def get_unified_metadata_field(
     """Get a specific unified metadata field from an audio file.
 
     Args:
-        file: Audio file path
+        file: Audio file path (str, Path, or _AudioFile)
         unified_metadata_key: The metadata field to retrieve
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             Only used when unified_metadata_key is RATING. For other metadata fields,
@@ -348,19 +349,19 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
             # Value must be a list and all items must be of the expected inner type
             if not isinstance(value, list):
                 raise InvalidMetadataFieldTypeError(
-                    key.value, f'list[{getattr(item_type, "__name__", str(item_type))}]', value
+                    key.value, f"list[{getattr(item_type, '__name__', str(item_type))}]", value
                 )
             # Allow None values in lists - they will be filtered out automatically during writing
             if not all(item is None or isinstance(item, item_type) for item in value):
                 raise InvalidMetadataFieldTypeError(
-                    key.value, f'list[{getattr(item_type, "__name__", str(item_type))}]', value
+                    key.value, f"list[{getattr(item_type, '__name__', str(item_type))}]", value
                 )
         elif origin == Union:
             # Handle Union types (e.g., Union[int, str])
             arg_types = get_args(expected_type)
             if not isinstance(value, arg_types):
                 raise InvalidMetadataFieldTypeError(
-                    key.value, f'Union[{", ".join(getattr(t, "__name__", str(t)) for t in arg_types)}]', value
+                    key.value, f"Union[{', '.join(getattr(t, '__name__', str(t)) for t in arg_types)}]", value
                 )
         else:
             # expected_type is a plain type like str or int
@@ -394,7 +395,7 @@ def update_metadata(
     format manager. It supports multiple writing strategies and format selection.
 
     Args:
-        file: Audio file path
+        file: Audio file path (str, Path, or _AudioFile)
         unified_metadata: Dictionary containing metadata to write
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             When provided, ratings are normalized to this scale. Defaults to None (raw values).
@@ -705,7 +706,7 @@ def delete_all_metadata(
     metadata headers entirely, not just the content.
 
     Args:
-        file: Audio file path
+        file: Audio file path (str, Path, or _AudioFile)
         metadata_format: Specific format to delete metadata from. If None, deletes from ALL supported formats.
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
 
@@ -772,7 +773,7 @@ def get_bitrate(file: FILE_TYPE) -> int:
     """Get the bitrate of an audio file.
 
     Args:
-        file: Audio file path
+        file: Audio file path (str, Path, or _AudioFile)
 
     Returns:
         Bitrate in bits per second
@@ -793,7 +794,7 @@ def get_channels(file: FILE_TYPE) -> int:
     """Get the number of channels in an audio file.
 
     Args:
-        file: Audio file path
+        file: Audio file path (str, Path, or _AudioFile)
 
     Returns:
         Number of audio channels (e.g., 1 for mono, 2 for stereo)
@@ -814,7 +815,7 @@ def get_file_size(file: FILE_TYPE) -> int:
     """Get the file size of an audio file in bytes.
 
     Args:
-        file: Audio file path
+        file: Audio file path (str, Path, or _AudioFile)
 
     Returns:
         File size in bytes
@@ -835,7 +836,7 @@ def get_sample_rate(file: FILE_TYPE) -> int:
     """Get the sample rate of an audio file in Hz.
 
     Args:
-        file: Audio file path
+        file: Audio file path (str, Path, or _AudioFile)
 
     Returns:
         Sample rate in Hz
@@ -856,7 +857,7 @@ def get_duration_in_sec(file: FILE_TYPE) -> float:
     """Get the duration of an audio file in seconds.
 
     Args:
-        file: Audio file path
+        file: Audio file path (str, Path, or _AudioFile)
 
     Returns:
         Duration in seconds as a float
@@ -884,7 +885,7 @@ def is_flac_md5_valid(file: FILE_TYPE) -> bool:
     Only works with FLAC files.
 
     Args:
-        file: Audio file path (must be FLAC)
+        file: Audio file path (str, Path, or _AudioFile; must be FLAC)
 
     Returns:
         True if MD5 signature is valid, False otherwise
@@ -912,7 +913,7 @@ def fix_md5_checking(file: FILE_TYPE) -> str:
     """Return a temporary file with corrected MD5 signature.
 
     Args:
-        file: The file to fix MD5 for. Can be _AudioFile or str path.
+        file: Audio file path (str, Path, or _AudioFile)
 
     Returns:
         str: Path to a temporary file containing the corrected audio data.
@@ -938,7 +939,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
     - Raw metadata details from each format
 
     Args:
-        file: Audio file path
+        file: Audio file path (str, Path, or _AudioFile)
         include_headers: Whether to include format-specific header information (default: True)
         include_technical: Whether to include technical audio information (default: True)
 
