@@ -2,12 +2,12 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from audiometa._audio_file import _AudioFile as AudioFile
+from audiometa._audio_file import _AudioFile as _AudioFile
 
 
 @pytest.fixture
 def mock_audio_file_mp3():
-    mock_audio_file = MagicMock(spec=AudioFile)
+    mock_audio_file = MagicMock(spec=_AudioFile)
     mock_audio_file.file_path = "/path/to/test.mp3"
     mock_audio_file.file_extension = ".mp3"
     return mock_audio_file
@@ -15,7 +15,7 @@ def mock_audio_file_mp3():
 
 @pytest.fixture
 def mock_audio_file_wav():
-    mock_audio_file = MagicMock(spec=AudioFile)
+    mock_audio_file = MagicMock(spec=_AudioFile)
     mock_audio_file.file_path = "/path/to/test.wav"
     mock_audio_file.file_extension = ".wav"
     return mock_audio_file
@@ -23,7 +23,7 @@ def mock_audio_file_wav():
 
 @pytest.fixture
 def mock_audio_file_flac():
-    mock_audio_file = MagicMock(spec=AudioFile)
+    mock_audio_file = MagicMock(spec=_AudioFile)
     mock_audio_file.file_path = "/path/to/test.flac"
     mock_audio_file.file_extension = ".flac"
     return mock_audio_file
