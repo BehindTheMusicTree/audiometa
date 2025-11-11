@@ -266,23 +266,23 @@ pre-commit run
 
 The following hooks run in execution order:
 
-01. **trailing-whitespace**: Removes trailing whitespace (excludes markdown files)
-02. **end-of-file-fixer**: Ensures files end with a newline (excludes markdown files)
-03. **check-yaml**: Validates YAML file syntax
-04. **check-added-large-files**: Prevents committing files larger than 10MB
-05. **check-json**: Validates JSON file syntax
-06. **check-toml**: Validates TOML file syntax
-07. **check-merge-conflict**: Detects merge conflict markers
-08. **debug-statements**: Detects debug statements (pdb, ipdb, etc.)
-09. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
-10. **autoflake**: Removes unused imports and variables from Python files
-11. **isort**: Sorts and organizes import statements according to PEP 8
-12. **ruff-format**: Formats Python code (replaces black) - handles code formatting but not comments/docstrings
-13. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
-14. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
-15. **ruff**: Auto-fixes linting issues (code style, unused variables, etc.)
-16. **mypy**: Static type checking - reports type errors but does not auto-fix
-17. **flake8**: Lints code for style issues (PEP 8 compliance) - reports errors but does not auto-fix
+01. **check-yaml**: Validates YAML file syntax
+02. **check-added-large-files**: Prevents committing files larger than 10MB
+03. **check-json**: Validates JSON file syntax
+04. **check-toml**: Validates TOML file syntax
+05. **check-merge-conflict**: Detects merge conflict markers
+06. **debug-statements**: Detects debug statements (pdb, ipdb, etc.)
+07. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
+08. **autoflake**: Removes unused imports and variables from Python files
+09. **isort**: Sorts and organizes import statements according to PEP 8
+10. **ruff-format**: Formats Python code (replaces black) - handles code formatting but not comments/docstrings
+11. **ruff**: Auto-fixes linting issues (code style, unused variables, etc.)
+12. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
+13. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
+14. **mypy**: Static type checking - reports type errors but does not auto-fix
+15. **flake8**: Lints code for style issues (PEP 8 compliance) - reports errors but does not auto-fix
+16. **trailing-whitespace**: Removes trailing whitespace (excludes markdown files)
+17. **end-of-file-fixer**: Ensures files end with a newline (excludes markdown files)
 18. **mdformat**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, handles tables, GitHub-flavored markdown, and markdown syntax
 
 ##### Auto-fix Formatting
