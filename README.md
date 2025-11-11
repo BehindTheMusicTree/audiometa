@@ -1385,19 +1385,16 @@ For each metadata format present in the file, the library first extracts all ind
 **Step 2b - Else If One Entry: Apply Smart Multi-Value Logic**
 
 - **Multiple instances found**: Uses all instances as-is (no separator parsing)
-
   - Raw data: `["Artist One", "Artist; with; semicolons", "Artist Three"]`
   - Result: `["Artist One", "Artist; with; semicolons", "Artist Three"]`
   - ✅ Preserves separators within individual entries
 
 - **Single instance found**: Applies smart separator parsing
-
   - Raw data: `["Artist One;Artist Two;Artist Three"]`
   - Result: `["Artist One", "Artist Two", "Artist Three"]`
   - ✅ Parses concatenated values using separator detection
 
 - **Mixed instances found**: Uses all instances as-is (no separator parsing)
-
   - Raw data: `["Artist One", "Artist Two;Artist Three", "Artist Four"]`
   - Result: `["Artist One", "Artist Two;Artist Three", "Artist Four"]`
   - ✅ Preserves all entries exactly as found, including separators within values
@@ -1896,13 +1893,11 @@ rating = metadata.get('rating')  # Returns 0-10 scale: 0, 2, 4, 6, 8, 10, etc.
 AudioMeta uses two write profiles to ensure maximum compatibility across different audio players:
 
 - **BASE_255_NON_PROPORTIONAL** (Profile A): Used for ID3v2 (MP3) and RIFF (WAV)
-
   - Values: `[0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255]`
   - Most widely supported profile
   - Full half-star support (0.5, 1.5, 2.5, 3.5, 4.5 stars)
 
 - **BASE_100_PROPORTIONAL** (Profile B): Used for Vorbis (FLAC)
-
   - Values: `[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]`
   - Standard for FLAC files
   - Full half-star support (0.5, 1.5, 2.5, 3.5, 4.5 stars)
