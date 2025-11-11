@@ -6,7 +6,7 @@ import taglib  # type: ignore[import-not-found]
 from ..._audio_file import _AudioFile
 from ...exceptions import FileCorruptedError, InvalidRatingValueError, MetadataFieldNotSupportedByMetadataFormatError
 from ...utils.rating_profiles import RatingWriteProfile
-from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey, UnifiedMetadata
+from ...utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 from .._MetadataManager import UnifiedMetadataKey
 from ._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
 
@@ -257,7 +257,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         self,
         raw_mutagen_metadata: dict,
         raw_metadata_key: RawMetadataKey,
-        app_metadata_value: AppMetadataValue,
+        app_metadata_value: UnifiedMetadataValue,
     ) -> None:
         if app_metadata_value is not None:
             if isinstance(app_metadata_value, list):
@@ -315,6 +315,14 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         # Update metadata dict
         for unified_metadata_key in list(unified_metadata.keys()):
             app_metadata_value = unified_metadata[unified_metadata_key]
+
+            # Filter out empty values for list-type metadata before processing
+            if isinstance(app_metadata_value, list):
+                app_metadata_value = self._filter_valid_values(cast(list[str | None], app_metadata_value))
+                # If all values were filtered out, set to None to remove the field
+                if not app_metadata_value:
+                    app_metadata_value = None
+
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 raise MetadataFieldNotSupportedByMetadataFormatError(
                     f"{unified_metadata_key} metadata not supported by this format"
@@ -476,13 +484,13 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
         self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
-    ) -> AppMetadataValue:
+    ) -> UnifiedMetadataValue:
         raise MetadataFieldNotSupportedByMetadataFormatError(f"Metadata key not handled: {unified_metadata_key}")
 
     def _update_undirectly_mapped_metadata(
         self,
         raw_mutagen_metadata: dict,
-        app_metadata_value: AppMetadataValue,
+        app_metadata_value: UnifiedMetadataValue,
         unified_metadata_key: UnifiedMetadataKey,
     ) -> None:
         if unified_metadata_key == UnifiedMetadataKey.RATING:

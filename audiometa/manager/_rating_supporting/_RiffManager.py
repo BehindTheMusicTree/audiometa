@@ -9,7 +9,7 @@ from ..._audio_file import _AudioFile
 from ...exceptions import ConfigurationError, FileTypeNotSupportedError, MetadataFieldNotSupportedByMetadataFormatError
 from ...utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 from ...utils.rating_profiles import RatingWriteProfile
-from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey, UnifiedMetadata
+from ...utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 from .._MetadataManager import UnifiedMetadataKey
 from ._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
 
@@ -298,7 +298,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
 
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
         self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
-    ) -> AppMetadataValue:
+    ) -> UnifiedMetadataValue:
         if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             return self._get_genres_from_raw_clean_metadata_uppercase_keys(
                 raw_clean_metadata, self.RiffTagKey.GENRES_NAMES_OR_CODES
@@ -521,7 +521,9 @@ class _RiffManager(_RatingSupportingMetadataManager):
         file_data[insert_pos:insert_pos] = info_chunk
         return insert_pos
 
-    def _get_riff_key_for_metadata(self, app_key: UnifiedMetadataKey, value: AppMetadataValue) -> RawMetadataKey | None:
+    def _get_riff_key_for_metadata(
+        self, app_key: UnifiedMetadataKey, value: UnifiedMetadataValue
+    ) -> RawMetadataKey | None:
         """Get the appropriate RIFF tag key for the metadata."""
         if not self.metadata_keys_direct_map_write:
             return None
@@ -537,7 +539,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 return cast(RawMetadataKey | None, self.RiffTagKey.RATING)
         return riff_key
 
-    def _prepare_tag_value(self, value: AppMetadataValue, app_key: UnifiedMetadataKey) -> bytes | None:
+    def _prepare_tag_value(self, value: UnifiedMetadataValue, app_key: UnifiedMetadataKey) -> bytes | None:
         """Prepare the tag value for writing, handling special cases."""
         # Handle list values (should not happen in this method anymore due to upstream processing)
         if isinstance(value, list):

@@ -33,7 +33,7 @@ from .manager._rating_supporting._VorbisManager import _VorbisManager
 from .manager.id3v1._Id3v1Manager import _Id3v1Manager
 from .utils.MetadataFormat import MetadataFormat
 from .utils.MetadataWritingStrategy import MetadataWritingStrategy
-from .utils.types import AppMetadataValue, UnifiedMetadata
+from .utils.types import UnifiedMetadata, UnifiedMetadataValue
 from .utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 FILE_EXTENSION_NOT_HANDLED_MESSAGE = "The file's format is not handled by the service."
@@ -193,7 +193,7 @@ def get_unified_metadata(
         if format_type in all_managers:
             managers_by_precedence.append((format_type, all_managers[format_type]))
 
-    result: dict[UnifiedMetadataKey, AppMetadataValue] = {}
+    result: dict[UnifiedMetadataKey, UnifiedMetadataValue] = {}
     for unified_metadata_key in UnifiedMetadataKey:
         for format_type, manager in managers_by_precedence:
             try:
@@ -215,7 +215,7 @@ def get_unified_metadata_field(
     normalized_rating_max_value: int | None = None,
     id3v2_version: tuple[int, int, int] | None = None,
     metadata_format: MetadataFormat | None = None,
-) -> AppMetadataValue:
+) -> UnifiedMetadataValue:
     """Get a specific unified metadata field from an audio file.
 
     Args:

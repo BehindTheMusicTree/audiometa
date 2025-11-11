@@ -6,7 +6,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 from ..._audio_file import _AudioFile
 from ...exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError
-from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey, UnifiedMetadata
+from ...utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 from .._MetadataManager import _MetadataManager
 from .Id3v1RawMetadata import Id3v1RawMetadata
 from .Id3v1RawMetadataKey import Id3v1RawMetadataKey
@@ -142,7 +142,7 @@ class _Id3v1Manager(_MetadataManager):
 
     def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
         self, raw_clean_metadata_uppercase_keys: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
-    ) -> AppMetadataValue:
+    ) -> UnifiedMetadataValue:
         if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             return self._get_genre_name_from_raw_clean_metadata_id3v1(
                 raw_clean_metadata=raw_clean_metadata_uppercase_keys,
@@ -155,7 +155,7 @@ class _Id3v1Manager(_MetadataManager):
     def _update_undirectly_mapped_metadata(
         self,
         raw_mutagen_metadata: MutagenMetadata,
-        app_metadata_value: AppMetadataValue,
+        app_metadata_value: UnifiedMetadataValue,
         unified_metadata_key: UnifiedMetadataKey,
     ) -> None:
         # Ensure tags exist
@@ -183,7 +183,7 @@ class _Id3v1Manager(_MetadataManager):
         self,
         raw_mutagen_metadata: MutagenMetadata,
         raw_metadata_key: RawMetadataKey,
-        app_metadata_value: AppMetadataValue,
+        app_metadata_value: UnifiedMetadataValue,
     ) -> None:
         # Ensure tags exist
         if not hasattr(raw_mutagen_metadata, "tags") or raw_mutagen_metadata.tags is None:

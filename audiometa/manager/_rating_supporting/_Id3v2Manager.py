@@ -39,7 +39,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ..._audio_file import _AudioFile
 from ...exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError
 from ...utils.rating_profiles import RatingWriteProfile
-from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey, UnifiedMetadata
+from ...utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 from .._MetadataManager import _MetadataManager as MetadataManager
 from ._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
 
@@ -421,7 +421,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
     def _update_undirectly_mapped_metadata(
         self,
         raw_mutagen_metadata: ID3,
-        app_metadata_value: AppMetadataValue,
+        app_metadata_value: UnifiedMetadataValue,
         unified_metadata_key: UnifiedMetadataKey,
     ) -> None:
         if unified_metadata_key == UnifiedMetadataKey.REPLAYGAIN:
@@ -437,7 +437,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
         self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
-    ) -> AppMetadataValue:
+    ) -> UnifiedMetadataValue:
         if unified_metadata_key == UnifiedMetadataKey.REPLAYGAIN:
             replaygain_key = self.Id3TextFrame.REPLAYGAIN
             if replaygain_key not in raw_clean_metadata:
@@ -448,7 +448,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             if len(replaygain_value) == 0:
                 return None
             first_value = replaygain_value[0]
-            return cast(AppMetadataValue, first_value)
+            return cast(UnifiedMetadataValue, first_value)
         else:
             raise MetadataFieldNotSupportedByMetadataFormatError(f"Metadata key not handled: {unified_metadata_key}")
 
@@ -456,7 +456,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         self,
         raw_mutagen_metadata: ID3,
         raw_metadata_key: RawMetadataKey,
-        app_metadata_value: AppMetadataValue,
+        app_metadata_value: UnifiedMetadataValue,
     ) -> None:
         raw_mutagen_metadata_id3: ID3 = raw_mutagen_metadata
         raw_mutagen_metadata_id3.delall(raw_metadata_key)
@@ -464,6 +464,12 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         # If value is None, don't add any frames (field is removed)
         if app_metadata_value is None:
             return
+
+        # Defensive check: if list contains None values, filter them out (should not happen after base class filtering)
+        if isinstance(app_metadata_value, list):
+            app_metadata_value = [v for v in app_metadata_value if v is not None and v != ""]
+            if not app_metadata_value:
+                return
 
         # Handle multiple values by creating separate frames for multi-value fields
         if isinstance(app_metadata_value, list) and all(isinstance(item, str) for item in app_metadata_value):
@@ -512,7 +518,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         raw_mutagen_metadata_id3: ID3,
         text_frame_class: Type[Any],
         raw_metadata_key: RawMetadataKey,
-        app_metadata_value: AppMetadataValue,
+        app_metadata_value: UnifiedMetadataValue,
     ) -> None:
         """Add a single ID3 frame with proper encoding and format handling."""
         # Determine encoding based on ID3v2 version

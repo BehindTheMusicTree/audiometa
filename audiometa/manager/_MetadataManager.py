@@ -9,7 +9,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from .._audio_file import _AudioFile
 from ..exceptions import MetadataFieldNotSupportedByMetadataFormatError
 from ..utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
-from ..utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey, UnifiedMetadata
+from ..utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 
 # Separators in order of priority for multi-value metadata fields
 # Note: null bytes (\x00) are only used in ID3v2.4, not included in generic priority list
@@ -60,14 +60,14 @@ class _MetadataManager:
         return METADATA_MULTI_VALUE_SEPARATORS_PRIORITIZED[-1]
 
     @staticmethod
-    def _filter_valid_values(values: list[str]) -> list[str]:
+    def _filter_valid_values(values: list[str | None]) -> list[str]:
         """Filter out None and empty values from a list of strings.
 
         This is a generic function used by all metadata managers to ensure
         consistent filtering of empty strings and whitespace.
 
         Args:
-            values: List of string values to filter
+            values: List of string or None values to filter
 
         Returns:
             List of valid (non-empty) values
@@ -87,14 +87,14 @@ class _MetadataManager:
     @abstractmethod
     def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
         self, raw_clean_metadata_uppercase_keys: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
-    ) -> AppMetadataValue:
+    ) -> UnifiedMetadataValue:
         raise NotImplementedError()
 
     @abstractmethod
     def _update_undirectly_mapped_metadata(
         self,
         raw_mutagen_metadata: MutagenMetadata,
-        app_metadata_value: AppMetadataValue,
+        app_metadata_value: UnifiedMetadataValue,
         unified_metadata_key: UnifiedMetadataKey,
     ) -> None:
         raise NotImplementedError()
@@ -104,7 +104,7 @@ class _MetadataManager:
         self,
         raw_mutagen_metadata: MutagenMetadata,
         raw_metadata_key: RawMetadataKey,
-        app_metadata_value: AppMetadataValue,
+        app_metadata_value: UnifiedMetadataValue,
     ) -> None:
         raise NotImplementedError()
 
@@ -224,7 +224,7 @@ class _MetadataManager:
 
     def _get_genre_name_from_raw_clean_metadata_id3v1(
         self, raw_clean_metadata: RawMetadataDict, raw_metadata_ket: RawMetadataKey
-    ) -> AppMetadataValue:
+    ) -> UnifiedMetadataValue:
         """RIFF and ID3v1 files typically contain a genre code.
 
         that corresponds to the ID3v1 genre list. This method converts the code to a human-readable genre name.
@@ -246,7 +246,7 @@ class _MetadataManager:
 
     def _get_genres_from_raw_clean_metadata_uppercase_keys(
         self, raw_clean_metadata: RawMetadataDict, raw_metadata_key: RawMetadataKey
-    ) -> AppMetadataValue:
+    ) -> UnifiedMetadataValue:
         """Extract and process genre entries from raw metadata according to the intelligent genre reading logic.
 
         This method implements the comprehensive genre reading strategy that handles:
@@ -408,7 +408,7 @@ class _MetadataManager:
                 unified_metadata[metadata_key] = unified_metadata_value
         return unified_metadata
 
-    def get_unified_metadata_field(self, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
+    def get_unified_metadata_field(self, unified_metadata_key: UnifiedMetadataKey) -> UnifiedMetadataValue:
         if unified_metadata_key not in self.metadata_keys_direct_map_read:
             raise MetadataFieldNotSupportedByMetadataFormatError(
                 f"{unified_metadata_key} metadata not supported by this format"
@@ -465,7 +465,7 @@ class _MetadataManager:
 
     def _get_value_from_multi_values_data(
         self, unified_metadata_key: UnifiedMetadataKey, value: list[str], raw_metadata_key: RawMetadataKey
-    ) -> AppMetadataValue:
+    ) -> UnifiedMetadataValue:
         if not value:
             return None
         values_list_str = value
@@ -534,7 +534,7 @@ class _MetadataManager:
 
                 # Filter out empty values for list-type metadata before processing
                 if isinstance(app_metadata_value, list):
-                    app_metadata_value = self._filter_valid_values(app_metadata_value)
+                    app_metadata_value = self._filter_valid_values(cast(list[str | None], app_metadata_value))
                     # If all values were filtered out, set to None to remove the field
                     if not app_metadata_value:
                         app_metadata_value = None

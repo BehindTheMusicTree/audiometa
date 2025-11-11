@@ -5,7 +5,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ..._audio_file import _AudioFile
 from ...exceptions import ConfigurationError, InvalidRatingValueError, MetadataFieldNotSupportedByMetadataFormatError
 from ...utils.rating_profiles import RatingReadProfile, RatingWriteProfile
-from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey, UnifiedMetadata
+from ...utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 from .._MetadataManager import _MetadataManager
 
 
@@ -41,12 +41,12 @@ class _RatingSupportingMetadataManager(_MetadataManager):
     @abstractmethod
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
         self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
-    ) -> AppMetadataValue:
+    ) -> UnifiedMetadataValue:
         raise NotImplementedError()
 
     def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
         self, raw_clean_metadata_uppercase_keys: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
-    ) -> AppMetadataValue | None:
+    ) -> UnifiedMetadataValue | None:
         if unified_metadata_key == UnifiedMetadataKey.RATING:
             return self._get_potentially_normalized_rating_from_raw(raw_clean_metadata_uppercase_keys)
         else:
