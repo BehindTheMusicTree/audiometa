@@ -7,7 +7,7 @@ real-world scenarios.
 import pytest
 
 from audiometa import delete_all_metadata, get_bitrate, get_duration_in_sec, get_unified_metadata, update_metadata
-from audiometa.exceptions import InvalidMetadataFieldFormatError
+from audiometa.exceptions import InvalidMetadataFieldFormatError, InvalidRatingValueError
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
@@ -15,21 +15,31 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.e2e
 class TestErrorHandlingWorkflows:
     def test_error_recovery_workflow(self):
-        # E2E test for error scenarios
-        # Use external script to set initial metadata
+        # E2E test for error scenarios and recovery
         initial_metadata = {"title": "Original Title", "artist": "Original Artist"}
         with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
-            # Test invalid operations - try to update with rating without normalized_rating_max_value
-            with pytest.raises(Exception):  # ConfigurationError
-                update_metadata(test_file, {UnifiedMetadataKey.RATING: 75})  # Missing normalized_rating_max_value
+            # 1. Verify initial metadata exists
+            initial_metadata_result = get_unified_metadata(test_file)
+            assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Original Title"
 
-            # Test recovery after errors
-            test_metadata = {UnifiedMetadataKey.TITLE: "Recovery Test"}
-            update_metadata(test_file, test_metadata)
+            # 2. Test invalid rating operation - should raise InvalidRatingValueError
+            # Using normalized mode with invalid value (37 is not a tenth ratio of 100)
+            with pytest.raises(InvalidRatingValueError) as exc_info:
+                update_metadata(test_file, {UnifiedMetadataKey.RATING: 37}, normalized_rating_max_value=100)
+            assert "not a valid tenth ratio" in str(exc_info.value)
 
-            # Verify the file is still usable
-            metadata = get_unified_metadata(test_file)
-            assert metadata.get(UnifiedMetadataKey.TITLE) == "Recovery Test"
+            # 3. Test recovery after error - verify the file is still usable
+            # The file should still have its original metadata intact
+            metadata_after_error = get_unified_metadata(test_file)
+            assert metadata_after_error.get(UnifiedMetadataKey.TITLE) == "Original Title"
+
+            # 4. Test successful operation after error - should work normally
+            recovery_metadata = {UnifiedMetadataKey.TITLE: "Recovery Test"}
+            update_metadata(test_file, recovery_metadata)
+
+            # 5. Verify recovery worked - file is fully functional
+            final_metadata = get_unified_metadata(test_file)
+            assert final_metadata.get(UnifiedMetadataKey.TITLE) == "Recovery Test"
 
     def test_error_handling_workflow(self):
         # Create a file with unsupported extension
