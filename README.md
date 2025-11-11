@@ -1944,15 +1944,16 @@ update_metadata("song.mp3", {UnifiedMetadataKey.RATING: -1}, metadata_format=Met
 
 **When `normalized_rating_max_value` is provided (normalized mode)**:
 
-The rating value is normalized and must be a "tenth ratio" of the max value. This means `(rating * 10) % max_value == 0`.
+The rating value is normalized and must map to a valid profile value. AudioMeta calculates `(value / max) * 100` and `(value / max) * 255`, then checks if at least one of these rounded values exists in a supported writing profile (BASE_100_PROPORTIONAL or BASE_255_NON_PROPORTIONAL).
 
 ```python
-# Valid: 50 is a tenth ratio of 100 (50 * 10 % 100 == 0)
+# Valid: 50/100 * 100 = 50, which is in BASE_100_PROPORTIONAL profile
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 50}, normalized_rating_max_value=100)
 
-# Invalid: 37 is not a tenth ratio of 100 (37 * 10 % 100 == 70 != 0)
+# Invalid: 37/100 * 100 = 37 (not in BASE_100_PROPORTIONAL)
+# 37/100 * 255 = 94 (not in BASE_255_NON_PROPORTIONAL)
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 37}, normalized_rating_max_value=100)
-# Error: Rating value 37 is not a valid tenth ratio of max value 100
+# Error: Rating value 37 is not valid for max value 100. Calculated output values (37 for 100-scale, 94 for 255-scale) do not exist in any supported writing profile.
 
 # Invalid: negative values are rejected
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: -1}, normalized_rating_max_value=100)
@@ -1962,11 +1963,13 @@ update_metadata("song.mp3", {UnifiedMetadataKey.RATING: -1}, normalized_rating_m
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 101}, normalized_rating_max_value=100)
 # Error: Rating value 101 is out of range. Value must be between 0 and 100 (inclusive)
 
-# With max=10, any integer 0-10 is valid (all are tenth ratios)
+# With max=10, any integer 0-10 is valid (all map to valid profile values)
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 7}, normalized_rating_max_value=10)
 
-# With max=255, valid values are multiples of 25.5 (0, 51, 102, 153, 204, 255)
-update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 51}, normalized_rating_max_value=255)
+# With max=255, valid values include those that map to BASE_255_NON_PROPORTIONAL or BASE_100_PROPORTIONAL
+# Examples: 0, 1, 13, 25, 50, 54, 64, 76, 102, 118, 128, 153, 178, 186, 196, 204, 229, 242, 255
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 128}, normalized_rating_max_value=255)  # Valid: maps to 128 in BASE_255_NON_PROPORTIONAL
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 50}, normalized_rating_max_value=255)   # Valid: maps to 20 in BASE_100_PROPORTIONAL
 ```
 
 #### Half-Star Rating Support
@@ -1984,9 +1987,9 @@ update_metadata("song.flac", {"rating": 5})  # 2.5 stars
 update_metadata("song.wav", {"rating": 9})   # 4.5 stars
 ```
 
-**Why tenth ratio validation?**
+**Why profile-based validation?**
 
-When normalization is enabled, ratings are converted to a 0-10 star scale using the formula: `star_rating = int((rating * 10) / max_value)`. Only values that are exact multiples of `max_value / 10` map cleanly to integer star ratings without precision loss. Values that don't satisfy this condition would lose precision during conversion.
+When normalization is enabled, ratings are converted to file-specific values using the writing profiles (BASE_100_PROPORTIONAL for Vorbis, BASE_255_NON_PROPORTIONAL for ID3v2/RIFF). The validation ensures that the normalized value maps to an actual profile value that can be written to the file. This guarantees that the rating will be correctly interpreted by audio players that follow these standard profiles.
 
 **Error Handling**:
 

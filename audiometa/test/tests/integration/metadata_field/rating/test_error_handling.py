@@ -90,9 +90,9 @@ class TestRatingErrorHandling:
                     test_file_flac_path, {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.VORBIS
                 )
 
-    def test_rating_with_normalized_max_validates_tenth_ratio(self):
+    def test_rating_with_normalized_max_validates_profile_values(self):
         with temp_file_with_metadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
-            # Valid tenth ratio of 100 (50 * 10 % 100 == 0)
+            # Valid: 50/100 * 100 = 50, which is in BASE_100_PROPORTIONAL profile
             update_metadata(
                 test_file,
                 {UnifiedMetadataKey.RATING: 50},
@@ -100,7 +100,8 @@ class TestRatingErrorHandling:
                 metadata_format=MetadataFormat.ID3V2,
             )
 
-            # Invalid - not a tenth ratio (37 * 10 % 100 == 70 != 0)
+            # Invalid: 37/100 * 100 = 37 (not in BASE_100_PROPORTIONAL)
+            # 37/100 * 255 = 94 (not in BASE_255_NON_PROPORTIONAL)
             with pytest.raises(InvalidRatingValueError) as exc_info:
                 update_metadata(
                     test_file,
@@ -108,7 +109,7 @@ class TestRatingErrorHandling:
                     normalized_rating_max_value=100,
                     metadata_format=MetadataFormat.ID3V2,
                 )
-            assert "not a valid tenth ratio" in str(exc_info.value)
+            assert "do not exist in any supported writing profile" in str(exc_info.value)
 
     def test_invalid_rating_value_error_non_numeric_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file:

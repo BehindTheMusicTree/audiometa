@@ -23,10 +23,10 @@ class TestErrorHandlingWorkflows:
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Original Title"
 
             # 2. Test invalid rating operation - should raise InvalidRatingValueError
-            # Using normalized mode with invalid value (37 is not a tenth ratio of 100)
+            # Using normalized mode with invalid value (37 doesn't map to any profile value)
             with pytest.raises(InvalidRatingValueError) as exc_info:
                 update_metadata(test_file, {UnifiedMetadataKey.RATING: 37}, normalized_rating_max_value=100)
-            assert "not a valid tenth ratio" in str(exc_info.value)
+            assert "do not exist in any supported writing profile" in str(exc_info.value)
 
             # 3. Test recovery after error - verify the file is still usable
             # The file should still have its original metadata intact
