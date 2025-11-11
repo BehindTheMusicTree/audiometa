@@ -284,28 +284,31 @@ The following hooks run in execution order:
 6. **debug-statements**: Detects debug statements (pdb, ipdb, etc.)
    - Manual: `pre-commit run debug-statements --all-files`
 
-7. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
+7. **trailing-whitespace**: Automatically removes trailing whitespace from all files (fixes without failing)
+   - Manual: `pre-commit run trailing-whitespace --all-files`
+
+8. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
    - Manual: `pre-commit run no-assert --all-files`
 
-8. **isort**: Sorts and organizes import statements according to PEP 8
+9. **isort**: Sorts and organizes import statements according to PEP 8
    - Manual: `isort .`
 
-9. **ruff-format**: Formats Python code (replaces black) - handles code formatting, trailing whitespace, and EOF newlines automatically
-   - Manual: `ruff format .`
+10. **ruff-format**: Formats Python code (replaces black) - handles code formatting and EOF newlines automatically
+    - Manual: `ruff format .`
 
-10. **ruff**: Auto-fixes linting issues (unused imports/variables, code style, line length, etc.) - replaces autoflake and flake8
+11. **ruff**: Auto-fixes linting issues (unused imports/variables, code style, line length, etc.) - replaces autoflake and flake8
     - Manual: `ruff check --fix .`
 
-11. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
+12. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
     - Manual: `docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 .`
 
-12. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
+13. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
     - Manual: `pre-commit run fix-long-comments --all-files`
 
-13. **mypy**: Static type checking - reports type errors but does not auto-fix
+14. **mypy**: Static type checking - reports type errors but does not auto-fix
     - Manual: `mypy audiometa`
 
-14. **prettier**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, preserves list numbering
+15. **prettier**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, preserves list numbering
     - Manual: `prettier --write "**/*.md"`
 
 ##### Type Checking
