@@ -276,13 +276,13 @@ The following hooks run in execution order:
 08. **autoflake**: Removes unused imports and variables from Python files
 09. **isort**: Sorts and organizes import statements according to PEP 8
 10. **ruff-format**: Formats Python code (replaces black) - handles code formatting but not comments/docstrings
-11. **ruff**: Auto-fixes linting issues (code style, unused variables, etc.)
-12. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
-13. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
-14. **mypy**: Static type checking - reports type errors but does not auto-fix
-15. **flake8**: Lints code for style issues (PEP 8 compliance) - reports errors but does not auto-fix
-16. **trailing-whitespace**: Removes trailing whitespace (excludes markdown files)
-17. **end-of-file-fixer**: Ensures files end with a newline (excludes markdown files)
+11. **trailing-whitespace**: Removes trailing whitespace (excludes markdown files) - runs after formatting, before linting
+12. **end-of-file-fixer**: Ensures files end with a newline (excludes markdown files) - runs after formatting, before linting
+13. **ruff**: Auto-fixes linting issues (code style, unused variables, etc.)
+14. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
+15. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
+16. **mypy**: Static type checking - reports type errors but does not auto-fix
+17. **flake8**: Lints code for style issues (PEP 8 compliance) - reports errors but does not auto-fix
 18. **mdformat**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, handles tables, GitHub-flavored markdown, and markdown syntax
 
 ##### Auto-fix Formatting

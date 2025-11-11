@@ -11,12 +11,12 @@
 # 3. autoflake: Remove unused imports/variables first
 # 4. isort: Sort imports (configured to work with ruff-format/black)
 # 5. ruff-format: Format code (replaces black, must run before linting)
-# 6. ruff: Auto-fix linting issues (including line length)
-# 7. docformatter: Format docstrings (after code formatting)
-# 8. fix-long-comments: Fix long comment lines (custom hook)
-# 9. mypy: Type checking on formatted code
-# 10. flake8: Lint already-formatted code
-# 11. pre-commit-hooks: Text fixes (trailing-whitespace, end-of-file-fixer, excludes .md files)
+# 6. pre-commit-hooks: Text fixes (trailing-whitespace, end-of-file-fixer, excludes .md files) - runs after formatting, before linting
+# 7. ruff: Auto-fix linting issues (including line length)
+# 8. docformatter: Format docstrings (after code formatting)
+# 9. fix-long-comments: Fix long comment lines (custom hook)
+# 10. mypy: Type checking on formatted code
+# 11. flake8: Lint already-formatted code
 # 12. mdformat: Format markdown files (runs after basic text fixes, which exclude .md files)
 
 repos:
@@ -65,6 +65,18 @@ repos:
       - id: ruff-format
         args: ["--line-length=120"]
         files: ^audiometa/
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: \.(md|markdown)$
+      - id: end-of-file-fixer
+        exclude: \.(md|markdown)$
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.15
+    hooks:
       - id: ruff
         args: ["--fix", "--line-length=120"]
         files: ^audiometa/
@@ -107,14 +119,6 @@ repos:
         args: ["--max-line-length=120", "--extend-ignore=E203,W503"]
         additional_dependencies: [flake8-docstrings]
         files: ^audiometa/
-
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
-    hooks:
-      - id: trailing-whitespace
-        exclude: \.(md|markdown)$
-      - id: end-of-file-fixer
-        exclude: \.(md|markdown)$
 
   - repo: https://github.com/hukkin/mdformat
     rev: 0.7.21
