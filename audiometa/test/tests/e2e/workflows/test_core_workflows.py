@@ -82,13 +82,13 @@ class TestCoreWorkflows:
 
     def test_audio_file_context_manager(self, sample_mp3_file: Path):
         with _AudioFile(sample_mp3_file) as audio_file:
-            # Test that we can read metadata within context
-            metadata = get_unified_metadata(audio_file)
+            # Test that we can read metadata within context using file path
+            metadata = get_unified_metadata(audio_file.file_path)
             assert isinstance(metadata, dict)
 
-            # Test that we can get technical info within context
-            bitrate = get_bitrate(audio_file)
-            duration = get_duration_in_sec(audio_file)
+            # Test that we can get technical info within context using file path
+            bitrate = get_bitrate(audio_file.file_path)
+            duration = get_duration_in_sec(audio_file.file_path)
             assert isinstance(bitrate, int)
             assert isinstance(duration, float)
 
