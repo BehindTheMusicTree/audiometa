@@ -78,7 +78,7 @@ class TestRatingDeleting:
             update_metadata(
                 test_file,
                 {
-                    UnifiedMetadataKey.RATING: 75,
+                    UnifiedMetadataKey.RATING: 70,
                     UnifiedMetadataKey.TITLE: "Test Title",
                     UnifiedMetadataKey.ARTISTS: ["Test Artist"],
                 },
