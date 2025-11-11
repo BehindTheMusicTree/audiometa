@@ -62,12 +62,16 @@ class VorbisMetadataSetter:
             "publisher": "PUBLISHER",
         }
 
+        metadata_added = False
         for key, value in metadata.items():
             if key.lower() in key_mapping:
                 cmd.extend([f"--set-tag={key_mapping[key.lower()]}={value}"])
+                metadata_added = True
 
-        cmd.append(str(file_path))
-        run_external_tool(cmd, "metaflac")
+        # Only run metaflac if metadata was actually added
+        if metadata_added:
+            cmd.append(str(file_path))
+            run_external_tool(cmd, "metaflac")
 
     @staticmethod
     def set_genre(file_path: Path, genre_text: str) -> None:

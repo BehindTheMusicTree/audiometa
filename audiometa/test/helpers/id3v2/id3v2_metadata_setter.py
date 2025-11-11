@@ -27,7 +27,6 @@ class ID3v2MetadataSetter:
                 "artist": "--artist",
                 "album": "--album",
                 "year": "--year",
-                "genre": "--genre",
                 "comment": "--comment",
                 "track": "--track",
                 "track_number": "--TRCK",
@@ -38,7 +37,6 @@ class ID3v2MetadataSetter:
                 "language": "--TLAN",
                 "rating": "--POPM",
                 "album_artist": "--TPE2",
-                "genre": "--TCON",
                 "encoder": "--TENC",
                 "url": "--WOAR",
                 "isrc": "--TSRC",
@@ -74,12 +72,16 @@ class ID3v2MetadataSetter:
                 "bpm": "--TBPM",
             }
 
+        metadata_added = False
         for key, value in metadata.items():
             if key.lower() in key_mapping:
                 cmd.extend([key_mapping[key.lower()], str(value)])
+                metadata_added = True
 
-        cmd.append(str(file_path))
-        run_external_tool(cmd, tool)
+        # Only run the tool if metadata was actually added
+        if metadata_added:
+            cmd.append(str(file_path))
+            run_external_tool(cmd, tool)
 
     @staticmethod
     def set_max_metadata(file_path: Path) -> None:

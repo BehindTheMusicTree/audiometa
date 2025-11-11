@@ -31,17 +31,22 @@ class RIFFMetadataSetter:
             "rating": "--IRTD",
         }
 
+        metadata_added = False
         for key, value in metadata.items():
             if key.lower() in key_mapping:
                 if key.lower() == "bpm":
                     from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
 
                     ManualRIFFMetadataCreator.create_bpm_field(file_path, str(value))
+                    metadata_added = True
                 else:
                     cmd.extend([f"{key_mapping[key.lower()]}={value}"])
+                    metadata_added = True
 
-        cmd.append(str(file_path))
-        run_external_tool(cmd, "bwfmetaedit")
+        # Only run bwfmetaedit if metadata was actually added
+        if metadata_added:
+            cmd.append(str(file_path))
+            run_external_tool(cmd, "bwfmetaedit")
 
     @staticmethod
     def set_comment(file_path: Path, comment: str) -> None:

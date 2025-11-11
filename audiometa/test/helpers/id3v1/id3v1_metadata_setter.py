@@ -70,9 +70,13 @@ class ID3v1MetadataSetter:
             "track": "--track",
         }
 
+        metadata_added = False
         for key, value in metadata.items():
             if key.lower() in key_mapping:
                 cmd.extend([key_mapping[key.lower()], str(value)])
+                metadata_added = True
 
-        cmd.append(str(file_path))
-        run_external_tool(cmd, "id3v2")
+        # Only run id3v2 if metadata was actually added
+        if metadata_added:
+            cmd.append(str(file_path))
+            run_external_tool(cmd, "id3v2")
