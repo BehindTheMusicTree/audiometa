@@ -38,7 +38,7 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.ALBUM] == "Bootie Top 10 – November/December 2018"
         assert metadata[UnifiedMetadataKey.ALBUM_ARTISTS] == ["A Plus D"]
         assert metadata[UnifiedMetadataKey.RELEASE_DATE] == "2018-11-30"
-        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == "9"
+        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == "9/10"
         assert metadata[UnifiedMetadataKey.BPM] == 99
         assert metadata[UnifiedMetadataKey.PUBLISHER] == "[no label]"
         assert metadata[UnifiedMetadataKey.COMMENT] == "BootieMashup.com"
@@ -56,7 +56,7 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.RATING] == 10
         assert metadata[UnifiedMetadataKey.LANGUAGE] == "French"
         assert metadata[UnifiedMetadataKey.RELEASE_DATE] == "2016"
-        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == "1"
+        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == "01"
 
     def test_recording_kemar_france_metadata(self, assets_dir: Path):
         file_path = assets_dir / "recording=Kemar - France.mp3"
