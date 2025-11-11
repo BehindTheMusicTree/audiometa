@@ -28,7 +28,8 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "mutagen>=1.45.0",
+    "mutagen==1.45.0",
+    "pytaglib==3.0.1",
 ]
 
 [project.scripts]
@@ -38,6 +39,7 @@ audiometa = "audiometa.cli:main"
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
     "black>=22.0.0",
     "isort>=5.0.0",
     "mypy>=1.0.0",
@@ -46,9 +48,10 @@ dev = [
     "autoflake>=2.0.0",
     "docformatter>=1.7.0",
     "soundfile>=0.10.0",
+    "numpy>=1.20.0",
 ]
 yaml = [
-    "PyYAML>=6.0",
+    "PyYAML==6.0",
 ]
 
 [project.urls]
