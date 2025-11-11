@@ -64,6 +64,5 @@ class TestCommentDeleting:
 
     def test_delete_comment_empty_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
-            ID3v2MetadataSetter.set_metadata(test_file, {"comment": ""})
-            update_metadata(test_file, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file, {UnifiedMetadataKey.COMMENT: ""}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COMMENT) is None

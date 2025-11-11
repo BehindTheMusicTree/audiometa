@@ -82,6 +82,5 @@ class TestPublisherDeleting:
 
     def test_delete_publisher_empty_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
-            update_metadata(test_file, {UnifiedMetadataKey.PUBLISHER: ""})
-            update_metadata(test_file, {UnifiedMetadataKey.PUBLISHER: None})
+            update_metadata(test_file, {UnifiedMetadataKey.PUBLISHER: ""}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.PUBLISHER) is None

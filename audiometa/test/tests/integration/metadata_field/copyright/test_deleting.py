@@ -75,6 +75,5 @@ class TestCopyrightDeleting:
 
     def test_delete_copyright_empty_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
-            update_metadata(test_file, {UnifiedMetadataKey.COPYRIGHT: ""})
-            update_metadata(test_file, {UnifiedMetadataKey.COPYRIGHT: None})
+            update_metadata(test_file, {UnifiedMetadataKey.COPYRIGHT: ""}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COPYRIGHT) is None

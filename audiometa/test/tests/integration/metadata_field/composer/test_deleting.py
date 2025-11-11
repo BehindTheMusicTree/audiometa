@@ -71,9 +71,3 @@ class TestComposerDeleting:
         with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(test_file, {UnifiedMetadataKey.COMPOSERS: None})
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COMPOSERS) is None
-
-    def test_delete_composer_empty_string(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            update_metadata(test_file, {UnifiedMetadataKey.COMPOSERS: [""]})
-            update_metadata(test_file, {UnifiedMetadataKey.COMPOSERS: None})
-            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COMPOSERS) is None

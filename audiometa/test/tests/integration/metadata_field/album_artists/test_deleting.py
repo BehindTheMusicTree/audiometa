@@ -74,7 +74,7 @@ class TestAlbumArtistsDeleting:
             update_metadata(test_file, {UnifiedMetadataKey.ALBUM_ARTISTS: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.ALBUM_ARTISTS) is None
 
-    def test_delete_album_artists_empty_list(self):
+    def test_delete_album_artists_with_existing_metadata(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
             # Set metadata using max metadata method (includes album artists)
             ID3v2MetadataSetter.set_max_metadata(test_file)

@@ -69,7 +69,5 @@ class TestAlbumDeleting:
 
     def test_delete_album_empty_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
-            ID3v2MetadataSetter.set_album(test_file, "")
-            # Delete the empty album using library API
-            update_metadata(test_file, {UnifiedMetadataKey.ALBUM: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file, {UnifiedMetadataKey.ALBUM: ""}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.ALBUM) is None

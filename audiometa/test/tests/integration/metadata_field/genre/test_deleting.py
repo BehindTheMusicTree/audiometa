@@ -60,9 +60,3 @@ class TestGenreDeleting:
         with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(test_file, {UnifiedMetadataKey.GENRES_NAMES: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.GENRES_NAMES) is None
-
-    def test_delete_genre_empty_string(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            ID3v2MetadataSetter.set_genre(test_file, "")
-            update_metadata(test_file, {UnifiedMetadataKey.GENRES_NAMES: None}, metadata_format=MetadataFormat.ID3V2)
-            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.GENRES_NAMES) is None

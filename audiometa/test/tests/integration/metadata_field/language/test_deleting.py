@@ -69,7 +69,5 @@ class TestLanguageDeleting:
 
     def test_delete_language_empty_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
-            ID3v2MetadataSetter.set_language(test_file, "")
-            # Delete the empty language using library API
-            update_metadata(test_file, {UnifiedMetadataKey.LANGUAGE: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file, {UnifiedMetadataKey.LANGUAGE: ""}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.LANGUAGE) is None

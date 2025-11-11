@@ -105,6 +105,9 @@ class TestRatingDeleting:
     def test_delete_rating_zero(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(test_file, {UnifiedMetadataKey.RATING: 0}, normalized_rating_max_value=100)
+            assert (
+                get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100) == 0
+            )
             update_metadata(test_file, {UnifiedMetadataKey.RATING: None})
             assert (
                 get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)

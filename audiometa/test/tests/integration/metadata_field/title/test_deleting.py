@@ -69,7 +69,5 @@ class TestTitleDeleting:
 
     def test_delete_title_empty_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
-            ID3v2MetadataSetter.set_title(test_file, "")
-            # Delete the empty title using library API
-            update_metadata(test_file, {UnifiedMetadataKey.TITLE: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file, {UnifiedMetadataKey.TITLE: ""}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE) is None

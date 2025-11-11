@@ -67,6 +67,7 @@ class TestBpmDeleting:
     def test_delete_bpm_zero(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
             ID3v2MetadataSetter.set_bpm(test_file, 0)
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.BPM) == 0
 
             update_metadata(test_file, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.BPM) is None
