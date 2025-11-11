@@ -137,7 +137,7 @@ class ManualID3v2FrameCreator:
     def _synchsafe_int(value: int) -> bytes:
         """Convert integer to ID3v2 synchsafe integer (7 bits per byte)."""
         # Split into 7-bit chunks, most significant first
-        result = []
+        result: list[int] = []
         for i in range(4):
             result.insert(0, value & 0x7F)
             value >>= 7
@@ -205,9 +205,9 @@ def manual_multiple_frames_test():
 
     def run_test_for_version(version: str):
         """Test a specific ID3v2 version."""
-        print(f"\n{'='*50}")
+        print(f"\n{'=' * 50}")
         print(f"TESTING ID3v{version}")
-        print(f"{'='*50}")
+        print(f"{'=' * 50}")
 
         # Create a temporary MP3 file
         with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
