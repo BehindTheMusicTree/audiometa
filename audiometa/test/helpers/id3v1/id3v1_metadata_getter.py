@@ -36,7 +36,7 @@ class ID3v1MetadataGetter:
         else:
             field_info["comment"] = (97, 127, 30)  # bytes 97-126, 30 chars max (ID3v1)
 
-        metadata = {}
+        metadata: dict[str, str | int | None] = {}
         for field, (start, end, max_chars) in field_info.items():
             raw_bytes = data[start:end]
             if field in ["title", "artist", "album", "year", "comment"]:
@@ -49,7 +49,7 @@ class ID3v1MetadataGetter:
         # Handle ID3v1 track number stored in comment field (non-standard but common)
         if "track" not in metadata or metadata["track"] is None:
             comment = metadata.get("comment", "")
-            if len(comment) == 30 and comment[-1] != "\x00":
+            if isinstance(comment, str) and len(comment) == 30 and comment[-1] != "\x00":
                 metadata["track"] = ord(comment[-1])
                 metadata["comment"] = comment[:-1].rstrip("\x00")
 

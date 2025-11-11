@@ -30,8 +30,8 @@ def temp_file_with_metadata(metadata: dict, format_type: str) -> Generator[Path,
         Path to the created test file with metadata
 
     Example:
-        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file_path:
-            metadata = get_unified_metadata(test_file_path)
+        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
+            metadata = get_unified_metadata(test_file)
     """
     target_file = _create_test_file_with_metadata(metadata, format_type)
     try:
