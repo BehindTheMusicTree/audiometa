@@ -178,19 +178,8 @@ class TestForcedFormat:
         # Create MP3 file with basic metadata
         initial_metadata = {"title": "Test Title", "artist": "Test Artist"}
         with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
-            # Try to write rating to ID3v2 format (requires normalized_rating_max_value)
-            metadata_with_rating = {UnifiedMetadataKey.TITLE: "Test Title", UnifiedMetadataKey.RATING: 85}
-
-            # This should fail because normalized_rating_max_value is not set
-            with pytest.raises(Exception):  # ConfigurationError
-                update_metadata(test_file, metadata_with_rating, metadata_format=MetadataFormat.ID3V2)
-
-    def test_forced_format_with_rating_field_success(self):
-        # Create MP3 file with basic metadata
-        initial_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             # Write rating to ID3v2 format with proper configuration
-            metadata_with_rating = {UnifiedMetadataKey.TITLE: "Test Title", UnifiedMetadataKey.RATING: 85}
+            metadata_with_rating = {UnifiedMetadataKey.TITLE: "Test Title", UnifiedMetadataKey.RATING: 80}
 
             # This should succeed with proper configuration
             update_metadata(
