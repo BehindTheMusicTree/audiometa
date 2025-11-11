@@ -284,8 +284,10 @@ The following hooks run in execution order:
 6. **debug-statements**: Detects debug statements (pdb, ipdb, etc.)
    - Manual: `pre-commit run debug-statements --all-files`
 
-7. **trailing-whitespace**: Automatically removes trailing whitespace from all files (fixes without failing)
+7. **trailing-whitespace**: Automatically removes trailing whitespace from all files
    - Manual: `pre-commit run trailing-whitespace --all-files`
+   - Note: Like all file-modifying hooks, commits will fail if this hook makes changes (see "How File-Modifying Hooks Work" section below)
+   - Note: For Python files, `ruff-format` also removes trailing whitespace, making this hook redundant for Python files. However, it's kept because it handles non-Python files (markdown, YAML, etc.) that `ruff-format` cannot process.
 
 8. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
    - Manual: `pre-commit run no-assert --all-files`
@@ -310,6 +312,40 @@ The following hooks run in execution order:
 
 15. **prettier**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, preserves list numbering
     - Manual: `prettier --write "**/*.md"`
+
+##### How File-Modifying Hooks Work
+
+**Important**: All hooks that modify files (formatting, sorting, fixing) will cause your commit to fail if they make changes. This is intentional and is a safety feature built into pre-commit.
+
+**Hooks that modify files:**
+
+- `trailing-whitespace` - Removes trailing whitespace
+- `isort` - Sorts imports
+- `ruff-format` - Formats code
+- `ruff` (with `--fix`) - Auto-fixes linting issues
+- `docformatter` - Formats docstrings
+- `fix-long-comments` - Wraps long comment lines
+
+**Why commits fail:**
+When a hook modifies a file, it updates the file in your working directory but not in the staging area. Git detects this mismatch (staged version ≠ working directory version) and refuses to commit to prevent committing code that doesn't match what's on disk.
+
+**The workflow:**
+
+```bash
+git add file.py
+git commit -m "message"  # Hook modifies file → commit fails
+git add file.py          # Re-stage the fixed file
+git commit -m "message"  # Now succeeds ✓
+```
+
+**Why this design:**
+
+- Forces you to review what the hook changed
+- Prevents accidental commits of unexpected modifications
+- Ensures you explicitly approve the changes before committing
+- Maintains consistency between staged and working directory
+
+**Note**: This applies to ALL file-modifying hooks, including built-in hooks, third-party hooks, and custom hooks. There are no exceptions - this is a universal pre-commit safety feature.
 
 ##### Type Checking
 
