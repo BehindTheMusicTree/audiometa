@@ -20,7 +20,7 @@ class TestWavWriting:
             title = RIFFMetadataGetter.get_title(test_file)
             assert title == "Test Title Default"
 
-    def test_riff_metadata_writing_wav(self, temp_wav_file):
+    def test_riff_metadata_writing_wav(self):
         with temp_file_with_metadata({}, "wav") as test_file:
             metadata = {UnifiedMetadataKey.TITLE: "Test Title RIFF"}
             update_metadata(test_file, metadata, metadata_format=MetadataFormat.RIFF)
