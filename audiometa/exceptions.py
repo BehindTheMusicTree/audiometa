@@ -160,7 +160,7 @@ class InvalidMetadataFieldFormatError(ValueError):
             expected_format: Human-readable expected format.
             actual_value: The actual value that was passed.
         """
-        message = f"Invalid format for metadata field '{field}': expected {expected_format}, " f"got {actual_value!r}"
+        message = f"Invalid format for metadata field '{field}': expected {expected_format}, got {actual_value!r}"
         super().__init__(message)
         self.field = field
         self.expected_format = expected_format
