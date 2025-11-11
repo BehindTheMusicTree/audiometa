@@ -6,15 +6,18 @@ alwaysApply: true
 
 ## Numbered Lists
 
-**Use zero-padded list numbers** (e.g., `01.`, `02.`, `03.`) instead of standard numbering (e.g., `1.`, `2.`, `3.`).
+**Use standard markdown numbering** (e.g., `1.`, `2.`, `3.`). This follows standard markdown practice where you can use `1.` for all list items, and renderers will auto-number them sequentially.
 
 **Rationale:**
 
-- Consistent visual alignment in source code
-- Easier to scan and maintain
-- Clearer structure for longer lists
+- Standard markdown practice - renderers auto-number lists correctly
+- More readable source code
+- Easier to maintain and reorder items
+- Consistent with common markdown style guides
 
 **Configuration:**
 
-- `.mdformat.toml` has `number = true` to preserve sequential numbering
-- **Note**: mdformat does not natively support zero-padding, so zero-padded numbers (01., 02., 03.) should be used manually when writing markdown files
+- Uses **Prettier** for markdown formatting
+- **Behavior**: Prettier preserves sequential list numbering (1., 2., 3.) without adding zero-padding
+- **Usage**: Use sequential numbering (1., 2., 3.) for list items - Prettier will preserve this numbering
+- **Note**: Prettier may reformat tables. If you need to preserve specific table formatting, use `<!-- prettier-ignore -->` before the table
