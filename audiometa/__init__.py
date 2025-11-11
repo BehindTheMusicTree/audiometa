@@ -45,17 +45,16 @@ METADATA_FORMAT_MANAGER_CLASS_MAP: dict[MetadataFormat, type] = {
     MetadataFormat.RIFF: _RiffManager,
 }
 
-FILE_TYPE: TypeAlias = Union[str, Path, "_AudioFile"]
+# Public API: only accepts standard file path types (not _AudioFile)
+PublicFileType: TypeAlias = Union[str, Path]
 
 
 def _get_metadata_manager(
-    file: FILE_TYPE,
+    audio_file: _AudioFile,
     metadata_format: MetadataFormat | None = None,
     normalized_rating_max_value: int | None = None,
     id3v2_version: tuple[int, int, int] | None = None,
 ) -> _MetadataManager:
-    audio_file = _AudioFile(file)
-
     audio_file_prioritized_tag_formats = MetadataFormat.get_priorities().get(audio_file.file_extension)
     if not audio_file_prioritized_tag_formats:
         raise FileTypeNotSupportedError(FILE_EXTENSION_NOT_HANDLED_MESSAGE)
@@ -91,13 +90,11 @@ def _get_metadata_manager(
 
 
 def _get_metadata_managers(
-    file: FILE_TYPE,
+    audio_file: _AudioFile,
     tag_formats: list[MetadataFormat] | None = None,
     normalized_rating_max_value: int | None = None,
     id3v2_version: tuple[int, int, int] | None = None,
 ) -> dict[MetadataFormat, _MetadataManager]:
-    audio_file = _AudioFile(file)
-
     managers = {}
 
     if not tag_formats:
@@ -107,7 +104,7 @@ def _get_metadata_managers(
 
     for metadata_format in tag_formats:
         managers[metadata_format] = _get_metadata_manager(
-            file=file,
+            audio_file=audio_file,
             metadata_format=metadata_format,
             normalized_rating_max_value=normalized_rating_max_value,
             id3v2_version=id3v2_version,
@@ -116,7 +113,7 @@ def _get_metadata_managers(
 
 
 def get_unified_metadata(
-    file: FILE_TYPE,
+    file: PublicFileType,
     normalized_rating_max_value: int | None = None,
     id3v2_version: tuple[int, int, int] | None = None,
     metadata_format: MetadataFormat | None = None,
@@ -131,7 +128,7 @@ def get_unified_metadata(
     format, returning data from that format only.
 
     Args:
-        file: Audio file path (str, Path, or _AudioFile)
+        file: Audio file path (str or Path)
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             When provided, ratings are normalized to this scale. Defaults to None (raw values).
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
@@ -176,7 +173,7 @@ def get_unified_metadata(
     # If specific format requested, return data from that format only
     if metadata_format is not None:
         manager = _get_metadata_manager(
-            file=file,
+            audio_file=audio_file,
             metadata_format=metadata_format,
             normalized_rating_max_value=normalized_rating_max_value,
             id3v2_version=id3v2_version,
@@ -185,7 +182,7 @@ def get_unified_metadata(
 
     # Get all available managers for this file type
     all_managers = _get_metadata_managers(
-        file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version
+        audio_file=audio_file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version
     )
 
     # Get file-specific format priorities
@@ -213,7 +210,7 @@ def get_unified_metadata(
 
 
 def get_unified_metadata_field(
-    file: FILE_TYPE,
+    file: PublicFileType,
     unified_metadata_key: UnifiedMetadataKey,
     normalized_rating_max_value: int | None = None,
     id3v2_version: tuple[int, int, int] | None = None,
@@ -222,7 +219,7 @@ def get_unified_metadata_field(
     """Get a specific unified metadata field from an audio file.
 
     Args:
-        file: Audio file path (str, Path, or _AudioFile)
+        file: Audio file path (str or Path)
         unified_metadata_key: The metadata field to retrieve
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             Only used when unified_metadata_key is RATING. For other metadata fields,
@@ -268,12 +265,12 @@ def get_unified_metadata_field(
     if not isinstance(unified_metadata_key, UnifiedMetadataKey):
         raise MetadataFieldNotSupportedByLib(f"{unified_metadata_key} metadata not supported by the library.")
 
-    _AudioFile(file)
+    audio_file = _AudioFile(file)
 
     if metadata_format is not None:
         # Get metadata from specific format
         manager = _get_metadata_manager(
-            file=file,
+            audio_file=audio_file,
             metadata_format=metadata_format,
             normalized_rating_max_value=normalized_rating_max_value,
             id3v2_version=id3v2_version,
@@ -288,7 +285,7 @@ def get_unified_metadata_field(
     else:
         # Use priority order across all formats
         managers_prioritized = _get_metadata_managers(
-            file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version
+            audio_file=audio_file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version
         )
 
         # Try each manager in priority order until we find a value
@@ -381,7 +378,7 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
 
 
 def update_metadata(
-    file: FILE_TYPE,
+    file: PublicFileType,
     unified_metadata: UnifiedMetadata,
     normalized_rating_max_value: int | None = None,
     id3v2_version: tuple[int, int, int] | None = None,
@@ -395,7 +392,7 @@ def update_metadata(
     format manager. It supports multiple writing strategies and format selection.
 
     Args:
-        file: Audio file path (str, Path, or _AudioFile)
+        file: Audio file path (str or Path)
         unified_metadata: Dictionary containing metadata to write
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             When provided, ratings are normalized to this scale. Defaults to None (raw values).
@@ -471,7 +468,7 @@ def update_metadata(
         # Results in: ["Artist 1", "Artist 2"] - empty strings and None filtered out
         update_metadata("song.mp3", metadata)
     """
-    _AudioFile(file)
+    audio_file = _AudioFile(file)
 
     # Validate that both parameters are not specified simultaneously
     if metadata_strategy is not None and metadata_format is not None:
@@ -491,7 +488,7 @@ def update_metadata(
     _validate_unified_metadata_types(unified_metadata)
 
     _handle_metadata_strategy(
-        file,
+        audio_file,
         unified_metadata,
         metadata_strategy,
         normalized_rating_max_value,
@@ -502,7 +499,7 @@ def update_metadata(
 
 
 def _handle_metadata_strategy(
-    file: FILE_TYPE,
+    audio_file: _AudioFile,
     unified_metadata: UnifiedMetadata,
     strategy: MetadataWritingStrategy,
     normalized_rating_max_value: int | None,
@@ -511,7 +508,6 @@ def _handle_metadata_strategy(
     fail_on_unsupported_field: bool = False,
 ) -> None:
     """Handle metadata strategy-specific behavior for all strategies."""
-    audio_file = _AudioFile(file)
 
     # Get the target format (specified format or native format)
     if target_format:
@@ -525,7 +521,7 @@ def _handle_metadata_strategy(
     # When a specific format is forced, ignore strategy and write only to that format
     if target_format:
         all_managers = _get_metadata_managers(
-            file=file,
+            audio_file=audio_file,
             tag_formats=[target_format_actual],
             normalized_rating_max_value=normalized_rating_max_value,
             id3v2_version=id3v2_version,
@@ -536,7 +532,7 @@ def _handle_metadata_strategy(
 
     # Get all available managers for this file type
     all_managers = _get_metadata_managers(
-        file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version
+        audio_file=audio_file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version
     )
 
     # Get other formats (non-target)
@@ -697,7 +693,9 @@ def _handle_metadata_strategy(
 
 
 def delete_all_metadata(
-    file: FILE_TYPE, metadata_format: MetadataFormat | None = None, id3v2_version: tuple[int, int, int] | None = None
+    file: PublicFileType,
+    metadata_format: MetadataFormat | None = None,
+    id3v2_version: tuple[int, int, int] | None = None,
 ) -> bool:
     """Delete all metadata from an audio file, including metadata headers.
 
@@ -706,7 +704,7 @@ def delete_all_metadata(
     metadata headers entirely, not just the content.
 
     Args:
-        file: Audio file path (str, Path, or _AudioFile)
+        file: Audio file path (str or Path)
         metadata_format: Specific format to delete metadata from. If None, deletes from ALL supported formats.
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
 
@@ -743,17 +741,20 @@ def delete_all_metadata(
 
         For selective field removal, use update_metadata with None values instead.
     """
-    if not isinstance(file, _AudioFile):
-        file = _AudioFile(file)
+    audio_file = _AudioFile(file)
 
     # If specific format requested, delete only that format
     if metadata_format:
-        manager = _get_metadata_manager(file, metadata_format=metadata_format, id3v2_version=id3v2_version)
+        manager = _get_metadata_manager(
+            audio_file=audio_file, metadata_format=metadata_format, id3v2_version=id3v2_version
+        )
         result: bool = manager.delete_metadata()
         return result
 
     # Delete from all supported formats for this file type
-    all_managers = _get_metadata_managers(file, normalized_rating_max_value=None, id3v2_version=id3v2_version)
+    all_managers = _get_metadata_managers(
+        audio_file=audio_file, normalized_rating_max_value=None, id3v2_version=id3v2_version
+    )
     success_count = 0
 
     for format_type, manager in all_managers.items():
@@ -769,11 +770,11 @@ def delete_all_metadata(
     return success_count > 0
 
 
-def get_bitrate(file: FILE_TYPE) -> int:
+def get_bitrate(file: PublicFileType) -> int:
     """Get the bitrate of an audio file.
 
     Args:
-        file: Audio file path (str, Path, or _AudioFile)
+        file: Audio file path (str or Path)
 
     Returns:
         Bitrate in bits per second
@@ -790,11 +791,11 @@ def get_bitrate(file: FILE_TYPE) -> int:
     return audio_file.get_bitrate()
 
 
-def get_channels(file: FILE_TYPE) -> int:
+def get_channels(file: PublicFileType) -> int:
     """Get the number of channels in an audio file.
 
     Args:
-        file: Audio file path (str, Path, or _AudioFile)
+        file: Audio file path (str or Path)
 
     Returns:
         Number of audio channels (e.g., 1 for mono, 2 for stereo)
@@ -811,11 +812,11 @@ def get_channels(file: FILE_TYPE) -> int:
     return audio_file.get_channels()
 
 
-def get_file_size(file: FILE_TYPE) -> int:
+def get_file_size(file: PublicFileType) -> int:
     """Get the file size of an audio file in bytes.
 
     Args:
-        file: Audio file path (str, Path, or _AudioFile)
+        file: Audio file path (str or Path)
 
     Returns:
         File size in bytes
@@ -832,11 +833,11 @@ def get_file_size(file: FILE_TYPE) -> int:
     return audio_file.get_file_size()
 
 
-def get_sample_rate(file: FILE_TYPE) -> int:
+def get_sample_rate(file: PublicFileType) -> int:
     """Get the sample rate of an audio file in Hz.
 
     Args:
-        file: Audio file path (str, Path, or _AudioFile)
+        file: Audio file path (str or Path)
 
     Returns:
         Sample rate in Hz
@@ -853,11 +854,11 @@ def get_sample_rate(file: FILE_TYPE) -> int:
     return audio_file.get_sample_rate()
 
 
-def get_duration_in_sec(file: FILE_TYPE) -> float:
+def get_duration_in_sec(file: PublicFileType) -> float:
     """Get the duration of an audio file in seconds.
 
     Args:
-        file: Audio file path (str, Path, or _AudioFile)
+        file: Audio file path (str or Path)
 
     Returns:
         Duration in seconds as a float
@@ -878,14 +879,14 @@ def get_duration_in_sec(file: FILE_TYPE) -> float:
     return audio_file.get_duration_in_sec()
 
 
-def is_flac_md5_valid(file: FILE_TYPE) -> bool:
+def is_flac_md5_valid(file: PublicFileType) -> bool:
     """Check if a FLAC file's MD5 signature is valid.
 
     This function verifies the integrity of a FLAC file by checking its MD5 signature.
     Only works with FLAC files.
 
     Args:
-        file: Audio file path (str, Path, or _AudioFile; must be FLAC)
+        file: Audio file path (str or Path; must be FLAC)
 
     Returns:
         True if MD5 signature is valid, False otherwise
@@ -909,11 +910,11 @@ def is_flac_md5_valid(file: FILE_TYPE) -> bool:
         return False
 
 
-def fix_md5_checking(file: FILE_TYPE) -> str:
+def fix_md5_checking(file: PublicFileType) -> str:
     """Return a temporary file with corrected MD5 signature.
 
     Args:
-        file: Audio file path (str, Path, or _AudioFile)
+        file: Audio file path (str or Path)
 
     Returns:
         str: Path to a temporary file containing the corrected audio data.
@@ -927,7 +928,9 @@ def fix_md5_checking(file: FILE_TYPE) -> str:
     return audio_file.get_file_with_corrected_md5(delete_original=True)
 
 
-def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_technical: bool = True) -> dict[str, Any]:
+def get_full_metadata(
+    file: PublicFileType, include_headers: bool = True, include_technical: bool = True
+) -> dict[str, Any]:
     """Get comprehensive metadata including all available information from a file.
 
     Includes headers and technical details even when no metadata is present.
@@ -939,7 +942,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
     - Raw metadata details from each format
 
     Args:
-        file: Audio file path (str, Path, or _AudioFile)
+        file: Audio file path (str or Path)
         include_headers: Whether to include format-specific header information (default: True)
         include_technical: Whether to include technical audio information (default: True)
 
@@ -972,7 +975,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
     audio_file = _AudioFile(file)
 
     # Get all available managers for this file type
-    all_managers = _get_metadata_managers(file=file, normalized_rating_max_value=None, id3v2_version=None)
+    all_managers = _get_metadata_managers(audio_file=audio_file, normalized_rating_max_value=None, id3v2_version=None)
 
     # Get file-specific format priorities
     available_formats = MetadataFormat.get_priorities().get(audio_file.file_extension, [])
