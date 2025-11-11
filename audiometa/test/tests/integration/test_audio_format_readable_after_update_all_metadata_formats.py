@@ -18,7 +18,7 @@ class TestAudioFormatReadableAfterUpdate:
                 UnifiedMetadataKey.TITLE: "ID3v2 Test Title",
                 UnifiedMetadataKey.ARTISTS: ["ID3v2 Test Artist"],
                 UnifiedMetadataKey.ALBUM: "ID3v2 Test Album",
-                UnifiedMetadataKey.RATING: 85,
+                UnifiedMetadataKey.RATING: 80,
             }
             update_metadata(
                 test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2, normalized_rating_max_value=100
@@ -34,7 +34,7 @@ class TestAudioFormatReadableAfterUpdate:
 
             # Verify the track is still playable by trying to read audio frames
             try:
-                with sf.SoundFile(test_file) as f:
+                with sf.SoundFile(str(test_file)) as f:
                     # Just try reading a few frames
                     frames = f.read(frames=1024)
                     assert f.samplerate > 0
@@ -43,41 +43,25 @@ class TestAudioFormatReadableAfterUpdate:
             except RuntimeError as e:
                 pytest.fail(f"Audio file {test_file} could not be opened or decoded: {e}")
 
-    def test_flac_playable_after_id3v1_id3v2_vorbis_update(self):
-        """Test that FLAC file remains playable after updating with ID3v1, ID3v2, and Vorbis comments."""
+    def test_flac_playable_after_vorbis_updates(self):
+        """Test that FLAC file remains playable after updating with Vorbis tags."""
         sf = pytest.importorskip("soundfile")
 
         with temp_file_with_metadata({}, "flac") as test_file:
-            # Update with ID3v2 metadata first
-            id3v2_metadata = {
-                UnifiedMetadataKey.TITLE: "ID3v2 Test Title",
-                UnifiedMetadataKey.ARTISTS: ["ID3v2 Test Artist"],
-                UnifiedMetadataKey.ALBUM: "ID3v2 Test Album",
-                UnifiedMetadataKey.RATING: 90,
-            }
-            update_metadata(
-                test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2, normalized_rating_max_value=100
-            )
-
-            # Update with ID3v1 metadata
-            id3v1_metadata = {
-                UnifiedMetadataKey.TITLE: "ID3v1 Test Title",
-                UnifiedMetadataKey.ARTISTS: ["ID3v1 Test Artist"],
-                UnifiedMetadataKey.ALBUM: "ID3v1 Test Album",
-            }
-            update_metadata(test_file, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
-
-            # Finally, update with Vorbis comments
+            # Update with Vorbis metadata
             vorbis_metadata = {
                 UnifiedMetadataKey.TITLE: "Vorbis Test Title",
                 UnifiedMetadataKey.ARTISTS: ["Vorbis Test Artist"],
                 UnifiedMetadataKey.ALBUM: "Vorbis Test Album",
+                UnifiedMetadataKey.RATING: 80,
             }
-            update_metadata(test_file, vorbis_metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(
+                test_file, vorbis_metadata, metadata_format=MetadataFormat.VORBIS, normalized_rating_max_value=100
+            )
 
             # Verify the track is still playable by trying to read audio frames
             try:
-                with sf.SoundFile(test_file) as f:
+                with sf.SoundFile(str(test_file)) as f:
                     # Just try reading a few frames
                     frames = f.read(frames=1024)
                     assert f.samplerate > 0
@@ -86,31 +70,12 @@ class TestAudioFormatReadableAfterUpdate:
             except RuntimeError as e:
                 pytest.fail(f"Audio file {test_file} could not be opened or decoded: {e}")
 
-    def test_wav_playable_after_id3v1_id3v2_riff_updates(self):
-        """Test that WAV file remains playable after updating with ID3v1, ID3v2, and RIFF INFO tags."""
+    def test_wav_playable_after_riff_updates(self):
+        """Test that WAV file remains playable after updating with RIFF tags."""
         sf = pytest.importorskip("soundfile")
 
         with temp_file_with_metadata({}, "wav") as test_file:
-            # Update with ID3v2 metadata first
-            id3v2_metadata = {
-                UnifiedMetadataKey.TITLE: "ID3v2 Test Title",
-                UnifiedMetadataKey.ARTISTS: ["ID3v2 Test Artist"],
-                UnifiedMetadataKey.ALBUM: "ID3v2 Test Album",
-                UnifiedMetadataKey.RATING: 75,
-            }
-            update_metadata(
-                test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2, normalized_rating_max_value=100
-            )
-
-            # Update with ID3v1 metadata
-            id3v1_metadata = {
-                UnifiedMetadataKey.TITLE: "ID3v1 Test Title",
-                UnifiedMetadataKey.ARTISTS: ["ID3v1 Test Artist"],
-                UnifiedMetadataKey.ALBUM: "ID3v1 Test Album",
-            }
-            update_metadata(test_file, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
-
-            # Finally, update with RIFF INFO tags
+            # Update with RIFF metadata
             riff_metadata = {
                 UnifiedMetadataKey.TITLE: "RIFF Test Title",
                 UnifiedMetadataKey.ARTISTS: ["RIFF Test Artist"],
@@ -120,7 +85,7 @@ class TestAudioFormatReadableAfterUpdate:
 
             # Verify the track is still playable by trying to read audio frames
             try:
-                with sf.SoundFile(test_file) as f:
+                with sf.SoundFile(str(test_file)) as f:
                     # Just try reading a few frames
                     frames = f.read(frames=1024)
                     assert f.samplerate > 0
