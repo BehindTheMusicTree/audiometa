@@ -11,7 +11,7 @@ class TestTrackNumberDeleting:
     def test_delete_track_number_id3v2(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(test_file, {UnifiedMetadataKey.TRACK_NUMBER: 5}, metadata_format=MetadataFormat.ID3V2)
-            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER) == 5
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER) == "5"
 
             update_metadata(test_file, {UnifiedMetadataKey.TRACK_NUMBER: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER) is None
@@ -19,7 +19,7 @@ class TestTrackNumberDeleting:
     def test_delete_track_number_id3v1(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(test_file, {UnifiedMetadataKey.TRACK_NUMBER: 3}, metadata_format=MetadataFormat.ID3V1)
-            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER) == 3
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER) == "3"
 
             update_metadata(test_file, {UnifiedMetadataKey.TRACK_NUMBER: None}, metadata_format=MetadataFormat.ID3V1)
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER) is None

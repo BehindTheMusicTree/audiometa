@@ -366,8 +366,8 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
         else:
             # expected_type is a plain type like str or int
             if not isinstance(value, expected_type):
-                # Special case for TRACK_NUMBER: allow str in addition to int
-                if key == UnifiedMetadataKey.TRACK_NUMBER and isinstance(value, str):
+                # Special case for TRACK_NUMBER: allow int for writing convenience (returns string when reading)
+                if key == UnifiedMetadataKey.TRACK_NUMBER and isinstance(value, (int, str)):
                     continue
                 raise InvalidMetadataFieldTypeError(
                     key.value, getattr(expected_type, "__name__", str(expected_type)), value

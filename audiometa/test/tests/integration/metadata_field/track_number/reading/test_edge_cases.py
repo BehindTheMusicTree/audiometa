@@ -10,7 +10,7 @@ class TestTrackNumberReadingEdgeCases:
     def test_trailing_slash(self):
         with temp_file_with_metadata({"track_number": "5/"}, "mp3") as test_file:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
-            assert track_number == 5
+            assert track_number == "5/"
 
     def test_leading_slash_no_track(self):
         with temp_file_with_metadata({"track_number": "/12"}, "mp3") as test_file:
@@ -35,4 +35,4 @@ class TestTrackNumberReadingEdgeCases:
     def test_different_separator(self):
         with temp_file_with_metadata({"track_number": "5-12"}, "mp3") as test_file:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
-            assert track_number == 5
+            assert track_number == "5-12"

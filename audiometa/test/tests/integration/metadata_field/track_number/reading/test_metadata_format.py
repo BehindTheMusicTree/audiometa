@@ -14,17 +14,17 @@ class TestTrackNumberReading:
             assert raw_metadata.get("track") == 99
 
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
-            assert track_number == 99
+            assert track_number == "99"
 
     def test_id3v2(self):
         with temp_file_with_metadata({"title": "Test Song", "track_number": "99/99"}, "mp3") as test_file:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
-            assert track_number == 99
+            assert track_number == "99/99"
 
     def test_vorbis(self):
         with temp_file_with_metadata({"title": "Test Song", "track_number": "99"}, "flac") as test_file:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
-            assert track_number == 99
+            assert track_number == "99"
 
     def test_riff(self):
         with temp_file_with_metadata({"title": "Test Song", "track_number": None}, "wav") as test_file:

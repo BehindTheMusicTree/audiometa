@@ -22,7 +22,7 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.ALBUM] == "Les Années 80-90-2000, C'Etait Mieux Avant"
         assert metadata[UnifiedMetadataKey.GENRES_NAMES] == ["Variétés Internationales"]
         assert metadata[UnifiedMetadataKey.RELEASE_DATE] == "2018-09-28"
-        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == 39
+        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == "39"
         assert metadata[UnifiedMetadataKey.BPM] == 139
         assert metadata[UnifiedMetadataKey.COMPOSERS] == ["Pascal Obispo", "Pierre Jaconelli"]
         assert metadata[UnifiedMetadataKey.PUBLISHER] == ""
@@ -38,7 +38,7 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.ALBUM] == "Bootie Top 10 – November/December 2018"
         assert metadata[UnifiedMetadataKey.ALBUM_ARTISTS] == ["A Plus D"]
         assert metadata[UnifiedMetadataKey.RELEASE_DATE] == "2018-11-30"
-        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == 9
+        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == "9"
         assert metadata[UnifiedMetadataKey.BPM] == 99
         assert metadata[UnifiedMetadataKey.PUBLISHER] == "[no label]"
         assert metadata[UnifiedMetadataKey.COMMENT] == "BootieMashup.com"
@@ -56,7 +56,7 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.RATING] == 10
         assert metadata[UnifiedMetadataKey.LANGUAGE] == "French"
         assert metadata[UnifiedMetadataKey.RELEASE_DATE] == "2016"
-        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == 1
+        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == "1"
 
     def test_recording_kemar_france_metadata(self, assets_dir: Path):
         file_path = assets_dir / "recording=Kemar - France.mp3"
@@ -100,7 +100,7 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.ALBUM_ARTISTS] == ["Various"]
         assert metadata[UnifiedMetadataKey.GENRES_NAMES] == ["Pop Rock", "Euro House"]
         assert metadata[UnifiedMetadataKey.RELEASE_DATE] == "2010"
-        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == 1
+        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == "1"
         assert metadata[UnifiedMetadataKey.BPM] == 125
         assert (
             metadata[UnifiedMetadataKey.COPYRIGHT]
@@ -118,7 +118,7 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.ALBUM_ARTISTS] == ["Massano"]
         assert metadata[UnifiedMetadataKey.GENRES_NAMES] == ["Techno"]
         assert metadata[UnifiedMetadataKey.RELEASE_DATE] == "2022"
-        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == 2
+        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == "2"
         assert metadata[UnifiedMetadataKey.BPM] == 122
 
     def test_recording_juan_hansen_drown_mp3_metadata(self, assets_dir: Path):
@@ -132,6 +132,6 @@ class TestRealAudioFilesReading:
         assert metadata[UnifiedMetadataKey.ALBUM_ARTISTS] == ["Massano"]
         assert metadata[UnifiedMetadataKey.GENRES_NAMES] == ["Electro"]
         assert metadata[UnifiedMetadataKey.RELEASE_DATE] == "2022-04-15"
-        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == 2
+        assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == "2"
         assert metadata[UnifiedMetadataKey.BPM] == 122
         assert metadata[UnifiedMetadataKey.PUBLISHER] == "Afterlife"

@@ -11,10 +11,10 @@ class TestTrackNumberWriting:
     @pytest.mark.parametrize(
         "input_value,expected",
         [
-            (5, 5),
-            ("5", 5),
-            ("5/12", 5),
-            ("99/99", 99),
+            (5, "5"),
+            ("5", "5"),
+            ("5/12", "5"),
+            ("99/99", "99"),
         ],
     )
     def test_id3v1_track_number_writing(self, input_value, expected):
@@ -27,10 +27,10 @@ class TestTrackNumberWriting:
     @pytest.mark.parametrize(
         "input_value,expected",
         [
-            (5, 5),
-            ("5", 5),
-            ("5/12", 5),
-            ("99/99", 99),
+            (5, "5"),
+            ("5", "5"),
+            ("5/12", "5/12"),
+            ("99/99", "99/99"),
         ],
     )
     def test_id3v2_track_number_writing(self, input_value, expected):
@@ -43,10 +43,10 @@ class TestTrackNumberWriting:
     @pytest.mark.parametrize(
         "input_value,expected",
         [
-            (5, 5),
-            ("5", 5),
-            ("5/12", 5),
-            ("99/99", 99),
+            (5, "5"),
+            ("5", "5"),
+            ("5/12", "5/12"),
+            ("99/99", "99/99"),
         ],
     )
     def test_riff_track_number_writing(self, input_value, expected):
@@ -59,10 +59,10 @@ class TestTrackNumberWriting:
     @pytest.mark.parametrize(
         "input_value,expected",
         [
-            (5, 5),
-            ("5", 5),
-            ("5/12", 5),
-            ("99/99", 99),
+            (5, "5"),
+            ("5", "5"),
+            ("5/12", "5/12"),
+            ("99/99", "99/99"),
         ],
     )
     def test_vorbis_track_number_writing(self, input_value, expected):

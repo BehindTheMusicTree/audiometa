@@ -2001,54 +2001,48 @@ The library handles different track number formats across audio metadata standar
 ID3v1 does not natively support track numbers. The library supports storing track numbers in the comment field since ID3v1.1 format.
 
 - **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
-- **Parsing**: Direct conversion to integer
+- **Parsing**: Returns as string
 - **Examples**:
-  - `"5"` → Track number: `5`
-  - `"12"` → Track number: `12`
+  - `"5"` → Track number: `"5"`
+  - `"12"` → Track number: `"12"`
 
 #### ID3v2 Track Number Format
 
-- **Format**: `"track/total"` (e.g., `"5/12"`, `"99/99"`)
-- **Parsing**: Library extracts only the track number (first part before `/`)
-- **Why extract only the track number?**
-  - **Industry Standard**: This is the standard practice used by Mutagen, eyed3, and most audio players
-  - **ID3v2 Specification**: The specification allows both simple (`"5"`) and complex (`"5/12"`) formats
-  - **User Experience**: Users typically care about "track 5" rather than "track 5 of 12"
-  - **Compatibility**: Works consistently across different tagging software and players
-  - **Consistency**: Provides uniform behavior regardless of how the file was originally tagged
+- **Format**: `"track/total"` (e.g., `"5/12"`, `"99/99"`) or simple `"track"` (e.g., `"5"`, `"1"`)
+- **Parsing**: Returns the full track number string as stored
 - **Examples**:
-  - `"5/12"` → Track number: `5`
-  - `"99/99"` → Track number: `99`
-  - `"1"` → Track number: `1` (simple format also supported)
+  - `"5/12"` → Track number: `"5/12"`
+  - `"99/99"` → Track number: `"99/99"`
+  - `"1"` → Track number: `"1"` (simple format also supported)
 
 #### Vorbis Track Number Format
 
 - **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
-- **Parsing**: Direct conversion to integer
+- **Parsing**: Returns as string
 - **Examples**:
-  - `"5"` → Track number: `5`
-  - `"12"` → Track number: `12`
+  - `"5"` → Track number: `"5"`
+  - `"12"` → Track number: `"12"`
 
 #### RIFF Track Number Format
 
 - **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
-- **Parsing**: Direct conversion to integer
+- **Parsing**: Returns as string
 - **Examples**:
-  - `"5"` → Track number: `5`
-  - `"12"` → Track number: `12`
+  - `"5"` → Track number: `"5"`
+  - `"12"` → Track number: `"12"`
 
 #### Reading And Writing Track Number
 
 ##### Reading Track Number
 
-The library handles common edge cases:
+The library returns track numbers as strings. The library handles common edge cases:
 
-- `"5/"` → Track number: `5` (trailing slash ignored)
+- `"5/"` → Track number: `"5/"` (trailing slash preserved)
 - `"/12"` → Track number: `None` (no track number before slash)
 - `"abc/def"` → Track number: `None` (non-numeric values)
 - `""` → Track number: `None` (empty string)
-- `"5/12/15"` → Track number: 'None' (multiple slashes, no track number)
-- `"5-12"` → Track number: `5` (different separator, no slash)
+- `"5/12/15"` → Track number: `None` (multiple slashes, invalid format)
+- `"5-12"` → Track number: `"5-12"` (different separator preserved)
 
 ##### Writing Track Number
 

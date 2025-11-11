@@ -445,10 +445,7 @@ class _MetadataManager:
         if unified_metadata_key == UnifiedMetadataKey.TRACK_NUMBER:
             track_str = str(value[0])
             if re.match(r"^\d+([-/]\d*)?$", track_str):
-                track_match = re.match(r"(\d+)", track_str)
-                if track_match is None:
-                    return None
-                return int(track_match.group(1))
+                return track_str
             else:
                 return None
 

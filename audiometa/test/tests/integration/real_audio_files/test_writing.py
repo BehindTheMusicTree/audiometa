@@ -19,7 +19,7 @@ class TestRealAudioFilesWriting:
         UnifiedMetadataKey.ARTISTS: ["Test Writing Artist"],
         UnifiedMetadataKey.ALBUM: "Test Writing Album",
         UnifiedMetadataKey.RELEASE_DATE: "2023-01-01",
-        UnifiedMetadataKey.TRACK_NUMBER: 1,
+        UnifiedMetadataKey.TRACK_NUMBER: 1,  # Can write as int, but returns string
         UnifiedMetadataKey.BPM: 120,
     }
 
@@ -37,7 +37,7 @@ class TestRealAudioFilesWriting:
             assert read_back[UnifiedMetadataKey.ARTISTS] == ["Test Writing Artist"]
             assert read_back[UnifiedMetadataKey.ALBUM] == "Test Writing Album"
             assert read_back[UnifiedMetadataKey.RELEASE_DATE] == "2023-01-01"
-            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == 1
+            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == "1"
             assert read_back[UnifiedMetadataKey.BPM] == 120
         finally:
             if temp_audio_file_path.exists():
@@ -57,7 +57,7 @@ class TestRealAudioFilesWriting:
             assert read_back[UnifiedMetadataKey.ARTISTS] == ["Test Writing Artist"]
             assert read_back[UnifiedMetadataKey.ALBUM] == "Test Writing Album"
             assert read_back[UnifiedMetadataKey.RELEASE_DATE] == "2023-01-01"
-            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == 1
+            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == "1"
             assert read_back[UnifiedMetadataKey.BPM] == 120
 
     def test_writing_dans_la_legende(self, assets_dir: Path):
@@ -74,7 +74,7 @@ class TestRealAudioFilesWriting:
             assert read_back[UnifiedMetadataKey.ARTISTS] == ["Test Writing Artist"]
             assert read_back[UnifiedMetadataKey.ALBUM] == "Test Writing Album"
             assert read_back[UnifiedMetadataKey.RELEASE_DATE] == "2023-01-01"
-            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == 1
+            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == "1"
             assert read_back[UnifiedMetadataKey.BPM] == 120
 
     def test_writing_kemar_france(self, assets_dir: Path):
@@ -91,7 +91,7 @@ class TestRealAudioFilesWriting:
             assert read_back[UnifiedMetadataKey.ARTISTS] == ["Test Writing Artist"]
             assert read_back[UnifiedMetadataKey.ALBUM] == "Test Writing Album"
             assert read_back[UnifiedMetadataKey.RELEASE_DATE] == "2023-01-01"
-            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == 1
+            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == "1"
             assert read_back[UnifiedMetadataKey.BPM] == 120
 
     def test_writing_tokyo_drift(self, assets_dir: Path):
@@ -108,7 +108,7 @@ class TestRealAudioFilesWriting:
             assert read_back[UnifiedMetadataKey.ARTISTS] == ["Test Writing Artist"]
             assert read_back[UnifiedMetadataKey.ALBUM] == "Test Writing Album"
             assert read_back[UnifiedMetadataKey.RELEASE_DATE] == "2023-01-01"
-            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == 1
+            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == "1"
             assert read_back[UnifiedMetadataKey.BPM] == 120
 
     def test_writing_y_do_i_carmina_burana_mp3(self, assets_dir: Path):
@@ -125,7 +125,7 @@ class TestRealAudioFilesWriting:
             assert read_back[UnifiedMetadataKey.ARTISTS] == ["Test Writing Artist"]
             assert read_back[UnifiedMetadataKey.ALBUM] == "Test Writing Album"
             assert read_back[UnifiedMetadataKey.RELEASE_DATE] == "2023-01-01"
-            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == 1
+            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == "1"
             assert read_back[UnifiedMetadataKey.BPM] == 120
 
     def test_writing_y_do_i_carmina_burana_wav(self, assets_dir: Path):
@@ -142,7 +142,7 @@ class TestRealAudioFilesWriting:
             assert read_back[UnifiedMetadataKey.ARTISTS] == ["Test Writing Artist"]
             assert read_back[UnifiedMetadataKey.ALBUM] == "Test Writing Album"
             assert read_back[UnifiedMetadataKey.RELEASE_DATE] == "2023-01-01"
-            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == 1
+            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == "1"
             assert read_back[UnifiedMetadataKey.BPM] == 120
 
     def test_writing_california_gurls(self, assets_dir: Path):
@@ -159,7 +159,7 @@ class TestRealAudioFilesWriting:
             assert read_back[UnifiedMetadataKey.ARTISTS] == ["Test Writing Artist"]
             assert read_back[UnifiedMetadataKey.ALBUM] == "Test Writing Album"
             assert read_back[UnifiedMetadataKey.RELEASE_DATE] == "2023-01-01"
-            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == 1
+            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == "1"
             assert read_back[UnifiedMetadataKey.BPM] == 120
 
     def test_writing_juan_hansen_drown_flac(self, assets_dir: Path):
@@ -176,7 +176,7 @@ class TestRealAudioFilesWriting:
             assert read_back[UnifiedMetadataKey.ARTISTS] == ["Test Writing Artist"]
             assert read_back[UnifiedMetadataKey.ALBUM] == "Test Writing Album"
             assert read_back[UnifiedMetadataKey.RELEASE_DATE] == "2023-01-01"
-            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == 1
+            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == "1"
             assert read_back[UnifiedMetadataKey.BPM] == 120
 
     def test_writing_juan_hansen_drown_mp3(self, assets_dir: Path):
@@ -193,5 +193,5 @@ class TestRealAudioFilesWriting:
             assert read_back[UnifiedMetadataKey.ARTISTS] == ["Test Writing Artist"]
             assert read_back[UnifiedMetadataKey.ALBUM] == "Test Writing Album"
             assert read_back[UnifiedMetadataKey.RELEASE_DATE] == "2023-01-01"
-            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == 1
+            assert read_back[UnifiedMetadataKey.TRACK_NUMBER] == "1"
             assert read_back[UnifiedMetadataKey.BPM] == 120
