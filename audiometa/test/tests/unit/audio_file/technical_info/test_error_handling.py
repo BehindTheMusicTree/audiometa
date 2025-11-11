@@ -55,7 +55,7 @@ class TestAudioFileTechnicalInfoErrorHandling:
                     raise InvalidChunkDecodeError(f"Failed to decode FLAC chunks: {error_str}")
                 raise
 
-        monkeypatch.setattr("audiometa.audio_file._AudioFile.get_duration_in_sec", mock_get_duration_in_sec)
+        monkeypatch.setattr("audiometa._audio_file._AudioFile.get_duration_in_sec", mock_get_duration_in_sec)
 
         flac_file = "audiometa/test/assets/sample.flac"
 
