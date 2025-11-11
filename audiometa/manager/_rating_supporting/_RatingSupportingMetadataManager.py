@@ -94,13 +94,13 @@ class _RatingSupportingMetadataManager(_MetadataManager):
             # Rating is written as-is - must be non-negative
             if rating_value < 0:
                 raise InvalidRatingValueError(
-                    f"Rating value {rating_value} is invalid. " f"Rating values must be non-negative (>= 0)."
+                    f"Rating value {rating_value} is invalid. Rating values must be non-negative (>= 0)."
                 )
         else:
             # Value is normalized - must be non-negative, within max, and a tenth ratio of max
             if rating_value < 0:
                 raise InvalidRatingValueError(
-                    f"Rating value {rating_value} is invalid. " f"Rating values must be non-negative (>= 0)."
+                    f"Rating value {rating_value} is invalid. Rating values must be non-negative (>= 0)."
                 )
             if rating_value > self.normalized_rating_max_value:
                 raise InvalidRatingValueError(
