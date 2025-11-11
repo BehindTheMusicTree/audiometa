@@ -7,7 +7,7 @@ from audiometa.manager._rating_supporting._Id3v2Manager import _Id3v2Manager as 
 
 @pytest.mark.unit
 class TestId3v2HeaderMethods:
-    @patch("audiometa.manager._rating_supporting.Id3v2Manager.ID3")
+    @patch("audiometa.manager._rating_supporting._Id3v2Manager.ID3")
     def test_id3v2_manager_header_info(self, mock_id3_class, mock_audio_file_mp3, mock_id3_with_metadata):
         mock_id3_class.return_value = mock_id3_with_metadata
 
@@ -27,7 +27,7 @@ class TestId3v2HeaderMethods:
         assert isinstance(header_info["flags"], dict)
         assert isinstance(header_info["extended_header"], dict)
 
-    @patch("audiometa.manager._rating_supporting.Id3v2Manager.ID3")
+    @patch("audiometa.manager._rating_supporting._Id3v2Manager.ID3")
     def test_id3v2_manager_header_info_empty(self, mock_id3_class, mock_audio_file_mp3, mock_id3_empty):
         mock_id3_class.return_value = mock_id3_empty
 
@@ -46,7 +46,7 @@ class TestId3v2HeaderMethods:
         assert isinstance(header_info["flags"], dict)
         assert isinstance(header_info["extended_header"], dict)
 
-    @patch("audiometa.manager._rating_supporting.Id3v2Manager.ID3")
+    @patch("audiometa.manager._rating_supporting._Id3v2Manager.ID3")
     def test_id3v2_manager_raw_metadata_info(self, mock_id3_class, mock_audio_file_mp3, mock_id3_empty):
         mock_id3_class.return_value = mock_id3_empty
 
