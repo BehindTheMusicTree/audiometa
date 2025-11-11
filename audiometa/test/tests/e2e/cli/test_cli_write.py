@@ -16,9 +16,9 @@ class TestCLIWrite:
         assert "no metadata fields specified" in result.stderr.lower()
 
     def test_cli_write_basic_metadata(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             result = subprocess.run(
-                [sys.executable, "-m", "audiometa", "write", str(test_file_path), "--title", "CLI Test Title"],
+                [sys.executable, "-m", "audiometa", "write", str(test_file), "--title", "CLI Test Title"],
                 capture_output=True,
                 text=True,
             )
@@ -26,14 +26,14 @@ class TestCLIWrite:
             assert "Updated metadata" in result.stdout
 
     def test_cli_with_spaces_in_filename_write(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             result = subprocess.run(
                 [
                     sys.executable,
                     "-m",
                     "audiometa",
                     "write",
-                    str(test_file_path),
+                    str(test_file),
                     "--title",
                     "Test Title",
                     "--artist",

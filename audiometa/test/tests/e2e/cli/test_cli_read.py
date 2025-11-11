@@ -59,9 +59,9 @@ class TestCLIRead:
         assert isinstance(data, dict)
 
     def test_cli_with_spaces_in_filename(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             result = subprocess.run(
-                [sys.executable, "-m", "audiometa", "read", str(test_file_path), "--format", "json"],
+                [sys.executable, "-m", "audiometa", "read", str(test_file), "--format", "json"],
                 capture_output=True,
                 text=True,
             )
