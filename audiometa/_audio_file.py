@@ -7,9 +7,9 @@ import tempfile
 from pathlib import Path
 from typing import Any, TypeAlias, Union, cast
 
-from mutagen.flac import FLAC, StreamInfo  # type: ignore[import-not-found]
-from mutagen.mp3 import MP3  # type: ignore[import-not-found]
-from mutagen.wave import WAVE  # type: ignore[import-not-found]
+from mutagen.flac import FLAC, StreamInfo
+from mutagen.mp3 import MP3
+from mutagen.wave import WAVE
 
 from .exceptions import (
     AudioFileMetadataParseError,

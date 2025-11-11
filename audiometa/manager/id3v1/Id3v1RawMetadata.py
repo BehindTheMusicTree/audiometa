@@ -1,10 +1,11 @@
 """ID3v1 raw metadata handling."""
+
 import struct
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from mutagen._file import FileType  # type: ignore[import-not-found]
+from mutagen._file import FileType
 
 from .Id3v1RawMetadataKey import Id3v1RawMetadataKey
 
