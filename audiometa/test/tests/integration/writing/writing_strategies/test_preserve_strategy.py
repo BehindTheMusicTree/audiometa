@@ -20,15 +20,15 @@ class TestPreserveStrategy:
     def test_preserve_strategy_wav(self):
         with temp_file_with_metadata(
             {"title": "ID3v2 Title", "artist": "ID3v2 Artist", "album": "ID3v2 Album"}, "wav"
-        ) as test_file_path:
+        ) as test_file:
             ID3v2MetadataSetter.set_metadata(
-                test_file_path,
+                test_file,
                 {"title": "ID3v2 Title", "artist": "ID3v2 Artist", "album": "ID3v2 Album"},
                 version="2.3",
             )
 
             # Verify ID3v2 metadata was written
-            id3v2_result = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.ID3V2)
+            id3v2_result = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
 
             # Now write RIFF metadata with PRESERVE strategy (default)
@@ -38,20 +38,20 @@ class TestPreserveStrategy:
                 UnifiedMetadataKey.ARTISTS: ["RIFF Artist"],
                 UnifiedMetadataKey.ALBUM: "RIFF Album",
             }
-            update_metadata(test_file_path, riff_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
+            update_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
 
             # Merged metadata should prefer RIFF (WAV native format has higher precedence)
-            merged = get_unified_metadata(test_file_path)
+            merged = get_unified_metadata(test_file)
             assert merged.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
 
     def test_preserve_strategy_mp3_id3v1_not_preserved(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             ID3v1MetadataSetter.set_metadata(
-                test_file_path, {"title": "ID3v1 Title", "artist": "ID3v1 Artist", "album": "ID3v1 Album"}
+                test_file, {"title": "ID3v1 Title", "artist": "ID3v1 Artist", "album": "ID3v1 Album"}
             )
 
             # Verify ID3v1 metadata was written
-            id3v1_result = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.ID3V1)
+            id3v1_result = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V1)
             assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
 
             # Now write ID3v2 metadata with PRESERVE strategy
@@ -60,17 +60,17 @@ class TestPreserveStrategy:
                 UnifiedMetadataKey.ARTISTS: ["ID3v2 Artist"],
                 UnifiedMetadataKey.ALBUM: "ID3v2 Album",
             }
-            update_metadata(test_file_path, metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
+            update_metadata(test_file, metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
 
             # Verify ID3v1 metadata behavior with PRESERVE strategy
             # ID3v1 should be preserved (not overwritten) with PRESERVE strategy
-            id3v1_after = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.ID3V1)
+            id3v1_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V1)
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"  # ID3v1 was preserved
 
             # Verify ID3v2 metadata was written
-            id3v2_after = get_unified_metadata(test_file_path, metadata_format=MetadataFormat.ID3V2)
+            id3v2_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
 
             # Merged metadata should prefer ID3v2 (higher precedence)
-            merged = get_unified_metadata(test_file_path)
+            merged = get_unified_metadata(test_file)
             assert merged.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"

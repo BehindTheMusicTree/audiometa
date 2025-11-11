@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa._audio_file import _AudioFile as AudioFile
+from audiometa._audio_file import _AudioFile as _AudioFile
 from audiometa.manager._rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
 from audiometa.manager._rating_supporting._RiffManager import _RiffManager as RiffManager
 from audiometa.manager._rating_supporting._VorbisManager import _VorbisManager as VorbisManager
@@ -13,8 +13,8 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.unit
 class TestMetadataFormatManagersWriteAndRead:
     def test_id3v1_manager_write_and_read(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
-            audio_file = AudioFile(test_file_path)
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            audio_file = _AudioFile(test_file)
             manager = Id3v1Manager(audio_file)
 
             manager.update_metadata(
@@ -27,8 +27,8 @@ class TestMetadataFormatManagersWriteAndRead:
             assert raw_metadata.tags.get(Id3v1RawMetadataKey.ARTISTS_NAMES_STR) == ["Test Artist"]
 
     def test_id3v2_manager_write_and_read(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
-            audio_file = AudioFile(test_file_path)
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            audio_file = _AudioFile(test_file)
             manager = Id3v2Manager(audio_file)
 
             manager.update_metadata(
@@ -44,8 +44,8 @@ class TestMetadataFormatManagersWriteAndRead:
             assert "Test Artist" in artists_text
 
     def test_riff_manager_write_and_read(self):
-        with temp_file_with_metadata({}, "wav") as test_file_path:
-            audio_file = AudioFile(test_file_path)
+        with temp_file_with_metadata({}, "wav") as test_file:
+            audio_file = _AudioFile(test_file)
             manager = RiffManager(audio_file)
 
             manager.update_metadata(
@@ -60,8 +60,8 @@ class TestMetadataFormatManagersWriteAndRead:
             assert info_tags.get(RiffManager.RiffTagKey.ARTIST) == ["Test Artist"]
 
     def test_vorbis_manager_write_and_read(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
-            audio_file = AudioFile(test_file_path)
+        with temp_file_with_metadata({}, "flac") as test_file:
+            audio_file = _AudioFile(test_file)
             manager = VorbisManager(audio_file)
 
             manager.update_metadata(

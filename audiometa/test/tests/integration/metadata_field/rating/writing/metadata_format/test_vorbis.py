@@ -27,12 +27,12 @@ class TestVorbisRatingWriting:
     def test_write_star_rating(self, star_rating, expected_normalized_rating):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
 
-        with temp_file_with_metadata(basic_metadata, "flac") as test_file_path:
+        with temp_file_with_metadata(basic_metadata, "flac") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: expected_normalized_rating}
             update_metadata(
-                test_file_path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS
+                test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS
             )
-            metadata = get_unified_metadata(test_file_path, normalized_rating_max_value=100)
+            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
             assert rating == expected_normalized_rating
@@ -43,17 +43,17 @@ class TestVorbisRatingWriting:
         # Test values that correspond to BASE_100_PROPORTIONAL profile
         test_values = [0, 20, 40, 60, 80, 100]  # 0, 1, 2, 3, 4, 5 stars in base 100
 
-        with temp_file_with_metadata(basic_metadata, "flac") as test_file_path:
+        with temp_file_with_metadata(basic_metadata, "flac") as test_file:
             for value in test_values:
                 test_metadata = {UnifiedMetadataKey.RATING: value}
                 update_metadata(
-                    test_file_path,
+                    test_file,
                     test_metadata,
                     normalized_rating_max_value=100,
                     metadata_format=MetadataFormat.VORBIS,
                 )
                 rating = get_unified_metadata_field(
-                    test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100
+                    test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100
                 )
                 assert rating is not None
                 assert rating == value
@@ -61,24 +61,20 @@ class TestVorbisRatingWriting:
     def test_write_none_removes_rating(self):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
 
-        with temp_file_with_metadata(basic_metadata, "flac") as test_file_path:
+        with temp_file_with_metadata(basic_metadata, "flac") as test_file:
             # First write a rating
             test_metadata = {UnifiedMetadataKey.RATING: 80}
             update_metadata(
-                test_file_path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS
+                test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS
             )
-            rating = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100
-            )
+            rating = get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating == 80
 
             # Then remove it with None
             test_metadata = {UnifiedMetadataKey.RATING: None}
             update_metadata(
-                test_file_path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS
+                test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS
             )
-            rating = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100
-            )
+            rating = get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             # Rating removal behavior may vary - check if it's None or 0
             assert rating is None or rating == 0

@@ -25,9 +25,9 @@ class TestDeletionWorkflows:
             "comment": "Original comment",
         }
 
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             # 1. Verify initial metadata exists
-            initial_metadata_result = get_unified_metadata(test_file_path)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Original Title"
             assert initial_metadata_result.get(UnifiedMetadataKey.ARTISTS) == ["Original Artist"]
             assert initial_metadata_result.get(UnifiedMetadataKey.ALBUM) == "Original Album"
@@ -38,19 +38,19 @@ class TestDeletionWorkflows:
                 UnifiedMetadataKey.BPM: 120,
                 UnifiedMetadataKey.COMMENT: "Updated comment",
             }
-            update_metadata(test_file_path, additional_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file, additional_metadata, normalized_rating_max_value=100)
 
             # 3. Verify metadata was added
-            updated_metadata = get_unified_metadata(test_file_path, normalized_rating_max_value=100)
+            updated_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert updated_metadata.get(UnifiedMetadataKey.RATING) == 80
             assert updated_metadata.get(UnifiedMetadataKey.BPM) == 120
 
             # 4. Delete all metadata
-            delete_result = delete_all_metadata(test_file_path)
+            delete_result = delete_all_metadata(test_file)
             assert delete_result is True
 
             # 5. Verify all metadata was deleted
-            deleted_metadata = get_unified_metadata(test_file_path)
+            deleted_metadata = get_unified_metadata(test_file)
             assert (
                 deleted_metadata.get(UnifiedMetadataKey.TITLE) is None
                 or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Original Title"
@@ -73,9 +73,9 @@ class TestDeletionWorkflows:
             "album": "FLAC Original Album",
         }
 
-        with temp_file_with_metadata(initial_metadata, "flac") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "flac") as test_file:
             # 1. Verify initial metadata exists
-            initial_metadata_result = get_unified_metadata(test_file_path)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "FLAC Original Title"
 
             # 2. Add more metadata
@@ -84,14 +84,14 @@ class TestDeletionWorkflows:
                 UnifiedMetadataKey.BPM: 140,
                 UnifiedMetadataKey.COMMENT: "FLAC comment",
             }
-            update_metadata(test_file_path, additional_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file, additional_metadata, normalized_rating_max_value=100)
 
             # 3. Delete all metadata
-            delete_result = delete_all_metadata(test_file_path)
+            delete_result = delete_all_metadata(test_file)
             assert delete_result is True
 
             # 4. Verify all metadata was deleted
-            deleted_metadata = get_unified_metadata(test_file_path)
+            deleted_metadata = get_unified_metadata(test_file)
             assert (
                 deleted_metadata.get(UnifiedMetadataKey.TITLE) is None
                 or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "FLAC Original Title"
@@ -106,21 +106,21 @@ class TestDeletionWorkflows:
             "album": "WAV Original Album",
         }
 
-        with temp_file_with_metadata(initial_metadata, "wav") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "wav") as test_file:
             # 1. Verify initial metadata exists
-            initial_metadata_result = get_unified_metadata(test_file_path)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "WAV Original Title"
 
             # 2. Add more metadata (WAV doesn't support rating/BPM)
             additional_metadata = {UnifiedMetadataKey.COMMENT: "WAV comment"}
-            update_metadata(test_file_path, additional_metadata)
+            update_metadata(test_file, additional_metadata)
 
             # 3. Delete all metadata
-            delete_result = delete_all_metadata(test_file_path)
+            delete_result = delete_all_metadata(test_file)
             assert delete_result is True
 
             # 4. Verify all metadata was deleted
-            deleted_metadata = get_unified_metadata(test_file_path)
+            deleted_metadata = get_unified_metadata(test_file)
             assert (
                 deleted_metadata.get(UnifiedMetadataKey.TITLE) is None
                 or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "WAV Original Title"
@@ -136,19 +136,19 @@ class TestDeletionWorkflows:
             "genre": "Jazz",
         }
 
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             # 1. Verify initial metadata
-            initial_metadata_result = get_unified_metadata(test_file_path)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Partial Deletion Title"
             assert initial_metadata_result.get(UnifiedMetadataKey.ARTISTS) == ["Partial Deletion Artist"]
             assert initial_metadata_result.get(UnifiedMetadataKey.ALBUM) == "Partial Deletion Album"
 
             # 2. Delete specific fields by setting them to None
             deletion_metadata = {UnifiedMetadataKey.TITLE: None, UnifiedMetadataKey.ARTISTS: None}
-            update_metadata(test_file_path, deletion_metadata)
+            update_metadata(test_file, deletion_metadata)
 
             # 3. Verify specific fields were deleted while others remain
-            updated_metadata = get_unified_metadata(test_file_path)
+            updated_metadata = get_unified_metadata(test_file)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) is None
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) is None
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "Partial Deletion Album"  # Should remain
@@ -159,10 +159,10 @@ class TestDeletionWorkflows:
                 UnifiedMetadataKey.RELEASE_DATE: None,
                 UnifiedMetadataKey.GENRES_NAMES: None,
             }
-            update_metadata(test_file_path, remaining_deletion)
+            update_metadata(test_file, remaining_deletion)
 
             # 5. Verify all metadata is now deleted
-            final_metadata = get_unified_metadata(test_file_path)
+            final_metadata = get_unified_metadata(test_file)
             assert final_metadata.get(UnifiedMetadataKey.ALBUM) is None
             assert final_metadata.get(UnifiedMetadataKey.RELEASE_DATE) is None
             assert final_metadata.get(UnifiedMetadataKey.GENRES_NAMES) is None
@@ -180,20 +180,20 @@ class TestDeletionWorkflows:
         for file_path, format_type in sample_files:
             # Set up metadata using external script
             initial_metadata = {"title": "Original Title", "artist": "Original Artist"}
-            with temp_file_with_metadata(initial_metadata, format_type) as test_file_path:
+            with temp_file_with_metadata(initial_metadata, format_type) as test_file:
                 # Add metadata using app's function
-                update_metadata(test_file_path, test_metadata)
+                update_metadata(test_file, test_metadata)
 
                 # Verify metadata was added
-                added_metadata = get_unified_metadata(test_file_path)
+                added_metadata = get_unified_metadata(test_file)
                 assert added_metadata.get(UnifiedMetadataKey.TITLE) == "Cross Format Deletion Test"
 
                 # Delete all metadata
-                delete_result = delete_all_metadata(test_file_path)
+                delete_result = delete_all_metadata(test_file)
                 assert delete_result is True
 
                 # Verify metadata was deleted consistently across formats
-                deleted_metadata = get_unified_metadata(test_file_path)
+                deleted_metadata = get_unified_metadata(test_file)
                 assert (
                     deleted_metadata.get(UnifiedMetadataKey.TITLE) is None
                     or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Cross Format Deletion Test"
@@ -203,25 +203,25 @@ class TestDeletionWorkflows:
         # E2e test for deleting specific metadata formats
         initial_metadata = {"title": "Format Specific Deletion", "artist": "Format Specific Artist"}
 
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             # 1. Add metadata in different formats
             id3v2_metadata = {UnifiedMetadataKey.TITLE: "ID3v2 Title", UnifiedMetadataKey.ARTISTS: ["ID3v2 Artist"]}
-            update_metadata(test_file_path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
 
             id3v1_metadata = {UnifiedMetadataKey.ALBUM: "ID3v1 Album"}
-            update_metadata(test_file_path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
 
             # 2. Verify both formats have metadata
-            combined_metadata = get_unified_metadata(test_file_path)
+            combined_metadata = get_unified_metadata(test_file)
             assert combined_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             assert combined_metadata.get(UnifiedMetadataKey.ALBUM) == "ID3v1 Album"
 
             # 3. Delete only ID3v2 metadata
             id3v2_deletion = {UnifiedMetadataKey.TITLE: None, UnifiedMetadataKey.ARTISTS: None}
-            update_metadata(test_file_path, id3v2_deletion, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file, id3v2_deletion, metadata_format=MetadataFormat.ID3V2)
 
             # 4. Verify ID3v2 metadata is deleted but ID3v1 remains
-            after_id3v2_deletion = get_unified_metadata(test_file_path)
+            after_id3v2_deletion = get_unified_metadata(test_file)
             assert (
                 after_id3v2_deletion.get(UnifiedMetadataKey.TITLE) is None
                 or after_id3v2_deletion.get(UnifiedMetadataKey.TITLE) != "ID3v2 Title"
@@ -230,10 +230,10 @@ class TestDeletionWorkflows:
 
             # 5. Delete ID3v1 metadata
             id3v1_deletion = {UnifiedMetadataKey.ALBUM: None}
-            update_metadata(test_file_path, id3v1_deletion, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file, id3v1_deletion, metadata_format=MetadataFormat.ID3V1)
 
             # 6. Verify all metadata is now deleted
-            final_metadata = get_unified_metadata(test_file_path)
+            final_metadata = get_unified_metadata(test_file)
             assert final_metadata.get(UnifiedMetadataKey.ALBUM) is None
 
     def test_deletion_error_handling_workflow(self):
@@ -254,21 +254,21 @@ class TestDeletionWorkflows:
         # E2e test for deletion with rating normalization
         initial_metadata = {"title": "Rating Deletion Test", "artist": "Rating Artist"}
 
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             # 1. Add rating with normalization
             rating_metadata = {UnifiedMetadataKey.RATING: 80}
-            update_metadata(test_file_path, rating_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file, rating_metadata, normalized_rating_max_value=100)
 
             # 2. Verify rating was added
-            metadata_with_rating = get_unified_metadata(test_file_path, normalized_rating_max_value=100)
+            metadata_with_rating = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert metadata_with_rating.get(UnifiedMetadataKey.RATING) == 80
 
             # 3. Delete rating
             rating_deletion = {UnifiedMetadataKey.RATING: None}
-            update_metadata(test_file_path, rating_deletion, normalized_rating_max_value=100)
+            update_metadata(test_file, rating_deletion, normalized_rating_max_value=100)
 
             # 4. Verify rating was deleted
-            metadata_after_deletion = get_unified_metadata(test_file_path, normalized_rating_max_value=100)
+            metadata_after_deletion = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert metadata_after_deletion.get(UnifiedMetadataKey.RATING) is None
 
     def test_batch_deletion_workflow(self, sample_mp3_file, sample_flac_file, sample_wav_file):
@@ -281,24 +281,24 @@ class TestDeletionWorkflows:
             try:
                 # Set up metadata using external script
                 initial_metadata = {"title": f"Batch Deletion Test {format_type.upper()}", "artist": "Batch Artist"}
-                with temp_file_with_metadata(initial_metadata, format_type) as test_file_path:
+                with temp_file_with_metadata(initial_metadata, format_type) as test_file:
                     # Add more metadata using app's function
                     additional_metadata = {
                         UnifiedMetadataKey.ALBUM: f"Batch Album {format_type.upper()}",
                         UnifiedMetadataKey.COMMENT: f"Batch comment for {format_type}",
                     }
-                    update_metadata(test_file_path, additional_metadata)
+                    update_metadata(test_file, additional_metadata)
 
                     # Verify metadata was added
-                    added_metadata = get_unified_metadata(test_file_path)
+                    added_metadata = get_unified_metadata(test_file)
                     assert added_metadata.get(UnifiedMetadataKey.TITLE) == f"Batch Deletion Test {format_type.upper()}"
 
                     # Delete all metadata
-                    delete_result = delete_all_metadata(test_file_path)
+                    delete_result = delete_all_metadata(test_file)
                     assert delete_result is True
 
                     # Verify deletion worked
-                    deleted_metadata = get_unified_metadata(test_file_path)
+                    deleted_metadata = get_unified_metadata(test_file)
                     assert (
                         deleted_metadata.get(UnifiedMetadataKey.TITLE) is None
                         or deleted_metadata.get(UnifiedMetadataKey.TITLE)

@@ -9,26 +9,26 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestVorbisGenreReading:
     def test_vorbis_single_genre(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_genre(test_file_path, "Rock")
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file:
+            VorbisMetadataSetter.set_genre(test_file, "Rock")
 
-            genres = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file, UnifiedMetadataKey.GENRES_NAMES)
 
             assert genres == ["Rock"]
 
     def test_vorbis_multiple_genres_separate_entries(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_genre(test_file_path, "Rock; Alternative; Indie")
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file:
+            VorbisMetadataSetter.set_genre(test_file, "Rock; Alternative; Indie")
 
-            genres = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file, UnifiedMetadataKey.GENRES_NAMES)
 
             assert genres == ["Rock", "Alternative", "Indie"]
 
     def test_vorbis_genre_with_double_backslash_separator(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_genre(test_file_path, "Rock\\\\Alternative\\\\Indie")
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file:
+            VorbisMetadataSetter.set_genre(test_file, "Rock\\\\Alternative\\\\Indie")
 
-            genres = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file, UnifiedMetadataKey.GENRES_NAMES)
 
             assert genres == ["Rock", "Alternative", "Indie"]
 
@@ -52,10 +52,10 @@ class TestVorbisGenreReading:
         ]
 
         for genre in custom_genres:
-            with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
-                VorbisMetadataSetter.set_genre(test_file_path, genre)
+            with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file:
+                VorbisMetadataSetter.set_genre(test_file, genre)
 
-                metadata = get_unified_metadata(test_file_path)
+                metadata = get_unified_metadata(test_file)
                 genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
 
                 assert genres == [genre]

@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from audiometa import (
-    AudioFile,
+    _AudioFile,
     delete_all_metadata,
     get_bitrate,
     get_duration_in_sec,
@@ -33,7 +33,7 @@ class TestCoreWorkflows:
         # Use external script to set initial metadata
         initial_metadata = {"title": "Original Title", "artist": "Original Artist", "album": "Original Album"}
 
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             # Edit metadata using app's function (this is what we're testing)
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "New Title",
@@ -44,10 +44,10 @@ class TestCoreWorkflows:
             }
 
             # Save changes
-            update_metadata(test_file_path, test_metadata)
+            update_metadata(test_file, test_metadata)
 
             # Verify persistence by reloading
-            metadata = get_unified_metadata(test_file_path)
+            metadata = get_unified_metadata(test_file)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "New Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["New Artist"]
             assert metadata.get(UnifiedMetadataKey.ALBUM) == "New Album"
@@ -64,13 +64,13 @@ class TestCoreWorkflows:
             try:
                 # Set initial metadata using external script
                 initial_metadata = {"title": "Batch Test Title", "artist": "Batch Test Artist"}
-                with temp_file_with_metadata(initial_metadata, format_type) as test_file_path:
+                with temp_file_with_metadata(initial_metadata, format_type) as test_file:
                     # Update metadata using functional API (this is what we're testing)
                     test_metadata = {
                         UnifiedMetadataKey.ALBUM: "Batch Album",
                         UnifiedMetadataKey.COMMENT: "Batch processing test",
                     }
-                    update_metadata(test_file_path, test_metadata)
+                    update_metadata(test_file, test_metadata)
                     results.append(("success", file_path))
             except Exception as e:
                 results.append(("error", file_path, str(e)))
@@ -81,7 +81,7 @@ class TestCoreWorkflows:
         assert success_count > 0
 
     def test_audio_file_context_manager(self, sample_mp3_file: Path):
-        with AudioFile(sample_mp3_file) as audio_file:
+        with _AudioFile(sample_mp3_file) as audio_file:
             # Test that we can read metadata within context
             metadata = get_unified_metadata(audio_file)
             assert isinstance(metadata, dict)
@@ -105,20 +105,20 @@ class TestCoreWorkflows:
         for file_path, format_type in sample_files:
             # Set up metadata using external script
             initial_metadata = {"title": "Original Title", "artist": "Original Artist"}
-            with temp_file_with_metadata(initial_metadata, format_type) as test_file_path:
+            with temp_file_with_metadata(initial_metadata, format_type) as test_file:
                 # Add metadata using app's function
-                update_metadata(test_file_path, test_metadata)
+                update_metadata(test_file, test_metadata)
 
                 # Verify metadata was added
-                added_metadata = get_unified_metadata(test_file_path)
+                added_metadata = get_unified_metadata(test_file)
                 assert added_metadata.get(UnifiedMetadataKey.TITLE) == "Cross Format Deletion"
 
                 # Delete all metadata
-                delete_result = delete_all_metadata(test_file_path)
+                delete_result = delete_all_metadata(test_file)
                 assert delete_result is True
 
                 # Verify metadata was deleted
-                deleted_metadata = get_unified_metadata(test_file_path)
+                deleted_metadata = get_unified_metadata(test_file)
                 assert (
                     deleted_metadata.get(UnifiedMetadataKey.TITLE) is None
                     or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Cross Format Deletion"
@@ -134,9 +134,9 @@ class TestCoreWorkflows:
             "genre": "Electronic",
         }
 
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             # 1. Verify initial metadata exists
-            initial_metadata_result = get_unified_metadata(test_file_path)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Cleanup Test Title"
 
             # 2. Add more metadata
@@ -145,19 +145,19 @@ class TestCoreWorkflows:
                 UnifiedMetadataKey.BPM: 128,
                 UnifiedMetadataKey.COMMENT: "Cleanup test comment",
             }
-            update_metadata(test_file_path, additional_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file, additional_metadata, normalized_rating_max_value=100)
 
             # 3. Verify all metadata exists
-            full_metadata = get_unified_metadata(test_file_path, normalized_rating_max_value=100)
+            full_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert full_metadata.get(UnifiedMetadataKey.RATING) == 80
             assert full_metadata.get(UnifiedMetadataKey.BPM) == 128
 
             # 4. Complete cleanup - delete all metadata
-            delete_result = delete_all_metadata(test_file_path)
+            delete_result = delete_all_metadata(test_file)
             assert delete_result is True
 
             # 5. Verify complete cleanup
-            cleaned_metadata = get_unified_metadata(test_file_path)
+            cleaned_metadata = get_unified_metadata(test_file)
             assert (
                 cleaned_metadata.get(UnifiedMetadataKey.TITLE) is None
                 or cleaned_metadata.get(UnifiedMetadataKey.TITLE) != "Cleanup Test Title"

@@ -19,16 +19,16 @@ class TestMetadataWriting:
         # Use external script to set initial metadata
         initial_metadata = {"title": "Original Title", "artist": "Original Artist", "album": "Original Album"}
 
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             # Get original metadata
-            original_metadata = get_unified_metadata(test_file_path)
+            original_metadata = get_unified_metadata(test_file)
             original_album = original_metadata.get(UnifiedMetadataKey.ALBUM)
 
             # Update only title using app's function (this is what we're testing)
             test_metadata = {UnifiedMetadataKey.TITLE: "Partial Update Title"}
 
-            update_metadata(test_file_path, test_metadata)
-            updated_metadata = get_unified_metadata(test_file_path)
+            update_metadata(test_file, test_metadata)
+            updated_metadata = get_unified_metadata(test_file)
 
             # Title should be updated
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Partial Update Title"

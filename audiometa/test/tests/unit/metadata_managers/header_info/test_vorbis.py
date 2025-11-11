@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from audiometa._audio_file import _AudioFile as AudioFile
+from audiometa._audio_file import _AudioFile as _AudioFile
 from audiometa.manager._rating_supporting._VorbisManager import _VorbisManager as VorbisManager
 
 
@@ -14,7 +14,7 @@ class TestVorbisHeaderMethods:
 
     def test_vorbis_manager_header_info(self, sample_flac_file: Path):
         """Test VorbisManager header info method."""
-        audio_file = AudioFile(sample_flac_file)
+        audio_file = _AudioFile(sample_flac_file)
         manager = VorbisManager(audio_file)
 
         header_info = manager.get_header_info()
@@ -33,7 +33,7 @@ class TestVorbisHeaderMethods:
 
     def test_vorbis_manager_raw_metadata_info(self, sample_flac_file: Path):
         """Test VorbisManager raw metadata info method."""
-        audio_file = AudioFile(sample_flac_file)
+        audio_file = _AudioFile(sample_flac_file)
         manager = VorbisManager(audio_file)
 
         raw_info = manager.get_raw_metadata_info()

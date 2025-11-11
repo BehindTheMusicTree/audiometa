@@ -23,15 +23,15 @@ class TestFlacMd5Functions:
             is_flac_md5_valid(sample_mp3_file)
 
     def test_fix_md5_checking_flac(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
+        with temp_file_with_metadata({}, "flac") as test_file:
             # Truncate the file to corrupt it and ensure MD5 is invalid
-            with open(test_file_path, "r+b") as f:
-                f.truncate(os.path.getsize(test_file_path) - 100)  # Remove last 100 bytes
+            with open(test_file, "r+b") as f:
+                f.truncate(os.path.getsize(test_file) - 100)  # Remove last 100 bytes
 
             # Ensure we're testing with a FLAC file that has invalid MD5
-            assert not is_flac_md5_valid(test_file_path), "Test file should have invalid MD5 for fix_md5_checking test"
+            assert not is_flac_md5_valid(test_file), "Test file should have invalid MD5 for fix_md5_checking test"
 
-            fixed_file_path = fix_md5_checking(test_file_path)
+            fixed_file_path = fix_md5_checking(test_file)
             assert is_flac_md5_valid(fixed_file_path), "Fixed file should have valid MD5"
 
             # Clean up

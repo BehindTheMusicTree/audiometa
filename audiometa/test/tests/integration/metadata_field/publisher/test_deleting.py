@@ -9,26 +9,26 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestPublisherDeleting:
     def test_delete_publisher_id3v2(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(
-                test_file_path, {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}, metadata_format=MetadataFormat.ID3V2
+                test_file, {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}, metadata_format=MetadataFormat.ID3V2
             )
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.PUBLISHER) == "Test Publisher"
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.PUBLISHER) == "Test Publisher"
 
-            update_metadata(test_file_path, {UnifiedMetadataKey.PUBLISHER: None}, metadata_format=MetadataFormat.ID3V2)
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.PUBLISHER) is None
+            update_metadata(test_file, {UnifiedMetadataKey.PUBLISHER: None}, metadata_format=MetadataFormat.ID3V2)
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.PUBLISHER) is None
 
     def test_delete_publisher_id3v1(self):
         from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
 
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             # ID3v1 format raises exception for unsupported metadata
             with pytest.raises(
                 MetadataFieldNotSupportedByMetadataFormatError,
                 match="UnifiedMetadataKey.PUBLISHER metadata not supported by this format",
             ):
                 update_metadata(
-                    test_file_path,
+                    test_file,
                     {UnifiedMetadataKey.PUBLISHER: "Test Publisher"},
                     metadata_format=MetadataFormat.ID3V1,
                 )
@@ -36,32 +36,32 @@ class TestPublisherDeleting:
     def test_delete_publisher_riff(self):
         from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
 
-        with temp_file_with_metadata({}, "wav") as test_file_path:
+        with temp_file_with_metadata({}, "wav") as test_file:
             # RIFF format raises exception for unsupported metadata
             with pytest.raises(
                 MetadataFieldNotSupportedByMetadataFormatError,
                 match="UnifiedMetadataKey.PUBLISHER metadata not supported by RIFF format",
             ):
                 update_metadata(
-                    test_file_path,
+                    test_file,
                     {UnifiedMetadataKey.PUBLISHER: "Test Publisher"},
                     metadata_format=MetadataFormat.RIFF,
                 )
 
     def test_delete_publisher_vorbis(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
+        with temp_file_with_metadata({}, "flac") as test_file:
             update_metadata(
-                test_file_path, {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}, metadata_format=MetadataFormat.VORBIS
+                test_file, {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}, metadata_format=MetadataFormat.VORBIS
             )
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.PUBLISHER) == "Test Publisher"
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.PUBLISHER) == "Test Publisher"
 
-            update_metadata(test_file_path, {UnifiedMetadataKey.PUBLISHER: None}, metadata_format=MetadataFormat.VORBIS)
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.PUBLISHER) is None
+            update_metadata(test_file, {UnifiedMetadataKey.PUBLISHER: None}, metadata_format=MetadataFormat.VORBIS)
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.PUBLISHER) is None
 
     def test_delete_publisher_preserves_other_fields(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(
-                test_file_path,
+                test_file,
                 {
                     UnifiedMetadataKey.PUBLISHER: "Test Publisher",
                     UnifiedMetadataKey.TITLE: "Test Title",
@@ -69,19 +69,19 @@ class TestPublisherDeleting:
                 },
             )
 
-            update_metadata(test_file_path, {UnifiedMetadataKey.PUBLISHER: None})
+            update_metadata(test_file, {UnifiedMetadataKey.PUBLISHER: None})
 
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.PUBLISHER) is None
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.TITLE) == "Test Title"
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.PUBLISHER) is None
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE) == "Test Title"
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
 
     def test_delete_publisher_already_none(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
-            update_metadata(test_file_path, {UnifiedMetadataKey.PUBLISHER: None})
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.PUBLISHER) is None
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            update_metadata(test_file, {UnifiedMetadataKey.PUBLISHER: None})
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.PUBLISHER) is None
 
     def test_delete_publisher_empty_string(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
-            update_metadata(test_file_path, {UnifiedMetadataKey.PUBLISHER: ""})
-            update_metadata(test_file_path, {UnifiedMetadataKey.PUBLISHER: None})
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.PUBLISHER) is None
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            update_metadata(test_file, {UnifiedMetadataKey.PUBLISHER: ""})
+            update_metadata(test_file, {UnifiedMetadataKey.PUBLISHER: None})
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.PUBLISHER) is None

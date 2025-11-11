@@ -12,27 +12,27 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestAlbumArtistsReading:
     def test_id3v1(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "id3v1") as test_file_path:
-            album_artists = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.ALBUM_ARTISTS)
+        with temp_file_with_metadata({"title": "Test Song"}, "id3v1") as test_file:
+            album_artists = get_unified_metadata_field(test_file, UnifiedMetadataKey.ALBUM_ARTISTS)
             assert album_artists is None
 
     def test_id3v2(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file_path:
-            ID3v2MetadataSetter.set_max_metadata(test_file_path)
-            album_artists = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.ALBUM_ARTISTS)
+        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_max_metadata(test_file)
+            album_artists = get_unified_metadata_field(test_file, UnifiedMetadataKey.ALBUM_ARTISTS)
             assert album_artists == ["a" * 1000]
 
     def test_vorbis(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_max_metadata(test_file_path)
-            album_artists = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.ALBUM_ARTISTS)
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file:
+            VorbisMetadataSetter.set_max_metadata(test_file)
+            album_artists = get_unified_metadata_field(test_file, UnifiedMetadataKey.ALBUM_ARTISTS)
             assert album_artists == ["a" * 1000]
 
     def test_riff(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file_path:
-            RIFFMetadataSetter.set_multiple_album_artists(test_file_path, ["Test Album Artist"])
-            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file_path)
+        with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file:
+            RIFFMetadataSetter.set_multiple_album_artists(test_file, ["Test Album Artist"])
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file)
             assert "TAG:IAAR=Test Album Artist" in raw_metadata
 
-            album_artists = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.ALBUM_ARTISTS)
+            album_artists = get_unified_metadata_field(test_file, UnifiedMetadataKey.ALBUM_ARTISTS)
             assert album_artists == ["Test Album Artist"]

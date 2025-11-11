@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from audiometa._audio_file import _AudioFile as AudioFile
+from audiometa._audio_file import _AudioFile as _AudioFile
 from audiometa.manager._rating_supporting._RiffManager import _RiffManager as RiffManager
 
 
@@ -14,7 +14,7 @@ class TestRiffHeaderMethods:
 
     def test_riff_manager_header_info(self, sample_wav_file: Path):
         """Test RiffManager header info method."""
-        audio_file = AudioFile(sample_wav_file)
+        audio_file = _AudioFile(sample_wav_file)
         manager = RiffManager(audio_file)
 
         header_info = manager.get_header_info()
@@ -37,7 +37,7 @@ class TestRiffHeaderMethods:
 
     def test_riff_manager_raw_metadata_info(self, sample_wav_file: Path):
         """Test RiffManager raw metadata info method."""
-        audio_file = AudioFile(sample_wav_file)
+        audio_file = _AudioFile(sample_wav_file)
         manager = RiffManager(audio_file)
 
         raw_info = manager.get_raw_metadata_info()

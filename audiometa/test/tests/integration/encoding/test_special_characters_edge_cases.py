@@ -12,13 +12,13 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestSpecialCharactersEdgeCases:
     def test_read_unicode_characters(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_artists(test_file_path, ["François", "José", "Müller", "北京"])
-            VorbisMetadataSetter.add_title(test_file_path, "Café Music 音乐")
-            metadata_title = VorbisMetadataGetter.get_title(test_file_path)
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_artists(test_file, ["François", "José", "Müller", "北京"])
+            VorbisMetadataSetter.add_title(test_file, "Café Music 音乐")
+            metadata_title = VorbisMetadataGetter.get_title(test_file)
             assert metadata_title == "Café Music 音乐"
 
-            unified_metadata = get_unified_metadata(test_file_path)
+            unified_metadata = get_unified_metadata(test_file)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
 
@@ -33,13 +33,11 @@ class TestSpecialCharactersEdgeCases:
             assert title == "Café Music 音乐"
 
     def test_read_special_punctuation(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_artists(
-                test_file_path, ["Artist & Co.", "Band (feat. Singer)", "Group - The Band"]
-            )
-            VorbisMetadataSetter.add_title(test_file_path, "Song (Remix) - Special Edition")
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_artists(test_file, ["Artist & Co.", "Band (feat. Singer)", "Group - The Band"])
+            VorbisMetadataSetter.add_title(test_file, "Song (Remix) - Special Edition")
 
-            unified_metadata = get_unified_metadata(test_file_path)
+            unified_metadata = get_unified_metadata(test_file)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
 
@@ -53,11 +51,11 @@ class TestSpecialCharactersEdgeCases:
             assert title == "Song (Remix) - Special Edition"
 
     def test_read_quotes_and_apostrophes(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_artists(test_file_path, ["Artist's Band", 'The "Quoted" Band', "It's a Band"])
-            VorbisMetadataSetter.add_title(test_file_path, 'Don\'t Stop "Believing"')
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_artists(test_file, ["Artist's Band", 'The "Quoted" Band', "It's a Band"])
+            VorbisMetadataSetter.add_title(test_file, 'Don\'t Stop "Believing"')
 
-            unified_metadata = get_unified_metadata(test_file_path)
+            unified_metadata = get_unified_metadata(test_file)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
 
@@ -71,13 +69,13 @@ class TestSpecialCharactersEdgeCases:
             assert title == 'Don\'t Stop "Believing"'
 
     def test_read_control_characters(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
+        with temp_file_with_metadata({}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(
-                test_file_path, ["Artist\twith\ttabs", "Band\nwith\nnewlines", "Group\rwith\rcarriage"]
+                test_file, ["Artist\twith\ttabs", "Band\nwith\nnewlines", "Group\rwith\rcarriage"]
             )
-            VorbisMetadataSetter.add_title(test_file_path, "Song\twith\ttabs")
+            VorbisMetadataSetter.add_title(test_file, "Song\twith\ttabs")
 
-            unified_metadata = get_unified_metadata(test_file_path)
+            unified_metadata = get_unified_metadata(test_file)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
 
@@ -92,11 +90,11 @@ class TestSpecialCharactersEdgeCases:
 
     def test_read_very_long_strings(self):
         long_string = "A" * 1000
-        with temp_file_with_metadata({}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_artists(test_file_path, [long_string, "Short Artist"])
-            VorbisMetadataSetter.add_title(test_file_path, "B" * 500)
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_artists(test_file, [long_string, "Short Artist"])
+            VorbisMetadataSetter.add_title(test_file, "B" * 500)
 
-            unified_metadata = get_unified_metadata(test_file_path)
+            unified_metadata = get_unified_metadata(test_file)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
 
@@ -109,11 +107,11 @@ class TestSpecialCharactersEdgeCases:
             assert title == "B" * 500
 
     def test_read_mixed_encodings(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_artists(test_file_path, ["ASCII Artist", "Français", "Русский", "العربية", "中文"])
-            VorbisMetadataSetter.add_title(test_file_path, "Mixed 编码 Title")
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_artists(test_file, ["ASCII Artist", "Français", "Русский", "العربية", "中文"])
+            VorbisMetadataSetter.add_title(test_file, "Mixed 编码 Title")
 
-            unified_metadata = get_unified_metadata(test_file_path)
+            unified_metadata = get_unified_metadata(test_file)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
 
@@ -129,13 +127,13 @@ class TestSpecialCharactersEdgeCases:
             assert title == "Mixed 编码 Title"
 
     def test_read_special_separator_characters(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
+        with temp_file_with_metadata({}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(
-                test_file_path, ["Artist; with; semicolons", "Band, with, commas", "Group|with|pipes"]
+                test_file, ["Artist; with; semicolons", "Band, with, commas", "Group|with|pipes"]
             )
-            VorbisMetadataSetter.add_title(test_file_path, "Song; with; separators")
+            VorbisMetadataSetter.add_title(test_file, "Song; with; separators")
 
-            unified_metadata = get_unified_metadata(test_file_path)
+            unified_metadata = get_unified_metadata(test_file)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
 
@@ -149,11 +147,11 @@ class TestSpecialCharactersEdgeCases:
             assert title == "Song; with; separators"
 
     def test_read_html_xml_characters(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_artists(test_file_path, ["Artist <tag>", "Band &amp; Co.", "Group &lt;test&gt;"])
-            VorbisMetadataSetter.add_title(test_file_path, "Song &amp; Title")
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_artists(test_file, ["Artist <tag>", "Band &amp; Co.", "Group &lt;test&gt;"])
+            VorbisMetadataSetter.add_title(test_file, "Song &amp; Title")
 
-            unified_metadata = get_unified_metadata(test_file_path)
+            unified_metadata = get_unified_metadata(test_file)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
 
@@ -167,11 +165,11 @@ class TestSpecialCharactersEdgeCases:
             assert title == "Song &amp; Title"
 
     def test_read_emoji_characters(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_artists(test_file_path, ["Artist 🎵", "Band 🎸", "Group 🎤"])
-            VorbisMetadataSetter.add_title(test_file_path, "Song 🎶 with 🎵 emojis")
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_artists(test_file, ["Artist 🎵", "Band 🎸", "Group 🎤"])
+            VorbisMetadataSetter.add_title(test_file, "Song 🎶 with 🎵 emojis")
 
-            unified_metadata = get_unified_metadata(test_file_path)
+            unified_metadata = get_unified_metadata(test_file)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
 
@@ -185,18 +183,18 @@ class TestSpecialCharactersEdgeCases:
             assert title == "Song 🎶 with 🎵 emojis"
 
     def test_read_mixed_special_characters(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
+        with temp_file_with_metadata({}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(
-                test_file_path,
+                test_file,
                 [
                     "François & Co. (feat. Müller) 🎵",
                     'The "Quoted" Band - Special Characters',
                     "Artist with\nnewlines\tand\ttabs",
                 ],
             )
-            VorbisMetadataSetter.add_title(test_file_path, 'Mixed Special 🎵 Characters & "Quotes"')
+            VorbisMetadataSetter.add_title(test_file, 'Mixed Special 🎵 Characters & "Quotes"')
 
-            unified_metadata = get_unified_metadata(test_file_path)
+            unified_metadata = get_unified_metadata(test_file)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
 

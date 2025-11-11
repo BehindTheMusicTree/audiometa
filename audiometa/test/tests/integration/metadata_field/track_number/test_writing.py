@@ -18,10 +18,10 @@ class TestTrackNumberWriting:
         ],
     )
     def test_id3v1_track_number_writing(self, input_value, expected):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.TRACK_NUMBER: input_value}
-            update_metadata(test_file_path, test_metadata, metadata_format=MetadataFormat.ID3V1)
-            track_number = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.TRACK_NUMBER)
+            update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V1)
+            track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number == expected
 
     @pytest.mark.parametrize(
@@ -34,10 +34,10 @@ class TestTrackNumberWriting:
         ],
     )
     def test_id3v2_track_number_writing(self, input_value, expected):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.TRACK_NUMBER: input_value}
-            update_metadata(test_file_path, test_metadata, metadata_format=MetadataFormat.ID3V2)
-            track_number = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.TRACK_NUMBER)
+            update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V2)
+            track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number == expected
 
     @pytest.mark.parametrize(
@@ -50,10 +50,10 @@ class TestTrackNumberWriting:
         ],
     )
     def test_riff_track_number_writing(self, input_value, expected):
-        with temp_file_with_metadata({}, "wav") as test_file_path:
+        with temp_file_with_metadata({}, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.TRACK_NUMBER: input_value}
-            update_metadata(test_file_path, test_metadata, metadata_format=MetadataFormat.RIFF)
-            track_number = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.TRACK_NUMBER)
+            update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.RIFF)
+            track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number == expected
 
     @pytest.mark.parametrize(
@@ -66,8 +66,8 @@ class TestTrackNumberWriting:
         ],
     )
     def test_vorbis_track_number_writing(self, input_value, expected):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
+        with temp_file_with_metadata({}, "flac") as test_file:
             test_metadata = {UnifiedMetadataKey.TRACK_NUMBER: input_value}
-            update_metadata(test_file_path, test_metadata, metadata_format=MetadataFormat.VORBIS)
-            track_number = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.TRACK_NUMBER)
+            update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
+            track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number == expected

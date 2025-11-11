@@ -27,38 +27,32 @@ class TestRiffRatingWriting:
     def test_write_star_rating(self, star_rating, expected_normalized_rating):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
 
-        with temp_file_with_metadata(basic_metadata, "wav") as test_file_path:
+        with temp_file_with_metadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: expected_normalized_rating}
             update_metadata(
-                test_file_path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF
+                test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF
             )
-            rating = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100
-            )
+            rating = get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == expected_normalized_rating
 
     def test_write_none_removes_rating(self):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
 
-        with temp_file_with_metadata(basic_metadata, "wav") as test_file_path:
+        with temp_file_with_metadata(basic_metadata, "wav") as test_file:
             # First write a rating
             test_metadata = {UnifiedMetadataKey.RATING: 80}
             update_metadata(
-                test_file_path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF
+                test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF
             )
-            rating = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100
-            )
+            rating = get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating == 80
 
             # Then remove it with None
             test_metadata = {UnifiedMetadataKey.RATING: None}
             update_metadata(
-                test_file_path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF
+                test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF
             )
-            rating = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100
-            )
+            rating = get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             # Rating removal behavior may vary - check if it's None or 0
             assert rating is None or rating == 0

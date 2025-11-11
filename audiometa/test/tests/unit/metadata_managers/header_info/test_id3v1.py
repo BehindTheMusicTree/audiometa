@@ -2,14 +2,14 @@ from pathlib import Path
 
 import pytest
 
-from audiometa._audio_file import _AudioFile as AudioFile
+from audiometa._audio_file import _AudioFile as _AudioFile
 from audiometa.manager.id3v1._Id3v1Manager import _Id3v1Manager as Id3v1Manager
 
 
 @pytest.mark.unit
 class TestId3v1HeaderMethods:
     def test_id3v1_manager_header_info(self, sample_mp3_file: Path):
-        audio_file = AudioFile(sample_mp3_file)
+        audio_file = _AudioFile(sample_mp3_file)
         manager = Id3v1Manager(audio_file)
 
         header_info = manager.get_header_info()
@@ -29,7 +29,7 @@ class TestId3v1HeaderMethods:
         assert isinstance(header_info["has_track_number"], bool)
 
     def test_id3v1_manager_raw_metadata_info(self, sample_mp3_file: Path):
-        audio_file = AudioFile(sample_mp3_file)
+        audio_file = _AudioFile(sample_mp3_file)
         manager = Id3v1Manager(audio_file)
 
         raw_info = manager.get_raw_metadata_info()

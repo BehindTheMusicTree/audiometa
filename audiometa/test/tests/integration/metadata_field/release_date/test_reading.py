@@ -15,45 +15,45 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestReleaseDateReading:
     def test_id3v1(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "id3v1") as test_file_path:
-            ID3v1MetadataSetter.set_max_metadata(test_file_path)
+        with temp_file_with_metadata({"title": "Test Song"}, "id3v1") as test_file:
+            ID3v1MetadataSetter.set_max_metadata(test_file)
 
-            release_date = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RELEASE_DATE)
+            release_date = get_unified_metadata_field(test_file, UnifiedMetadataKey.RELEASE_DATE)
             assert release_date == "9999"
 
     def test_id3v2_3(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file_path:
-            ID3v2MetadataSetter.set_release_date(test_file_path, "9999-12-31", version="2.3")
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file_path, version="2.3")
+        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_release_date(test_file, "9999-12-31", version="2.3")
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
             assert ["3112"] == raw_metadata["TDAT"]
             assert ["9999"] == raw_metadata["TYER"]
 
-            release_date = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RELEASE_DATE)
+            release_date = get_unified_metadata_field(test_file, UnifiedMetadataKey.RELEASE_DATE)
             assert release_date == "9999-12-31"
 
     def test_id3v2_4(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file_path:
-            ID3v2MetadataSetter.set_release_date(test_file_path, "9999-12-31", version="2.4")
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file_path, version="2.4")
+        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_release_date(test_file, "9999-12-31", version="2.4")
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.4")
             assert ["9999-12-31"] == raw_metadata["TDRC"]
 
-            release_date = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RELEASE_DATE)
+            release_date = get_unified_metadata_field(test_file, UnifiedMetadataKey.RELEASE_DATE)
             assert release_date == "9999-12-31"
 
     def test_vorbis(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_release_date(test_file_path, "9999-12-31")
-            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file_path)
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file:
+            VorbisMetadataSetter.set_release_date(test_file, "9999-12-31")
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file)
             assert "DATE=9999-12-31" in raw_metadata
 
-            release_date = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RELEASE_DATE)
+            release_date = get_unified_metadata_field(test_file, UnifiedMetadataKey.RELEASE_DATE)
             assert release_date == "9999-12-31"
 
     def test_riff(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file_path:
-            RIFFMetadataSetter.set_release_date(test_file_path, "9999-12-31")
-            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file_path)
+        with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file:
+            RIFFMetadataSetter.set_release_date(test_file, "9999-12-31")
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file)
             assert "TAG:date=9999-12-31" in raw_metadata
 
-            release_date = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RELEASE_DATE)
+            release_date = get_unified_metadata_field(test_file, UnifiedMetadataKey.RELEASE_DATE)
             assert release_date == "9999-12-31"

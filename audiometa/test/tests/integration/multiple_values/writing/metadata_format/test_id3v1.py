@@ -12,26 +12,26 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 class TestMultipleValuesId3v1:
     def test_id3v1_artists_concatenation_default_comma(self):
         initial_metadata = {"title": "Test Song"}
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             metadata = {UnifiedMetadataKey.ARTISTS: ["Artist 1", "Artist 2"]}
 
-            update_metadata(test_file_path, metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file, metadata, metadata_format=MetadataFormat.ID3V1)
 
             # Use helper to check the created ID3v1 artist field directly
-            raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file_path)
+            raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file)
             artists = raw_metadata.get("artist", "")
             assert "Artist 1,Artist 2" in artists or "Artist 2,Artist 1" in artists
 
     def test_with_existing_artists_field(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
-            ID3v1MetadataSetter.set_artist(test_file_path, "Existing 1; Existing 2")
-            raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file_path)
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            ID3v1MetadataSetter.set_artist(test_file, "Existing 1; Existing 2")
+            raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file)
             assert "Existing 1; Existing 2" in raw_metadata.get("artist", "")
 
             # Now update with multiple artists
             metadata = {UnifiedMetadataKey.ARTISTS: ["Existing 1", "New 2"]}
-            update_metadata(test_file_path, metadata, metadata_format=MetadataFormat.ID3V1)
-            raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file_path)
+            update_metadata(test_file, metadata, metadata_format=MetadataFormat.ID3V1)
+            raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file)
             artists = raw_metadata.get("artist", "")
             assert "Existing 1" in artists
             assert "New 2" in artists
@@ -49,10 +49,10 @@ class TestMultipleValuesId3v1:
         ]
         for values, expected_sep in test_cases:
             initial_metadata = {"title": "Test Song"}
-            with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+            with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
                 metadata = {UnifiedMetadataKey.ARTISTS: values}
-                update_metadata(test_file_path, metadata, metadata_format=MetadataFormat.ID3V1)
-                raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file_path)
+                update_metadata(test_file, metadata, metadata_format=MetadataFormat.ID3V1)
+                raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file)
                 artists = raw_metadata.get("artist", "")
 
                 # Check that the expected separator is used

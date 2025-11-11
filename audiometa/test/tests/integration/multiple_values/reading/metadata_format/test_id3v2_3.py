@@ -12,18 +12,18 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestId3v23:
     def test_semicolon_separated_artists(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file_path:
+        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
             ID3v2MetadataSetter.set_artists(
-                test_file_path, ["Artist One;Artist Two;Artist Three"], in_separate_frames=False, version="2.3"
+                test_file, ["Artist One;Artist Two;Artist Three"], in_separate_frames=False, version="2.3"
             )
 
-            assert ID3v2HeaderVerifier.get_id3v2_version(test_file_path) == (2, 3, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file) == (2, 3, 0)
 
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file_path, version="2.3")
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
             assert ["Artist One;Artist Two;Artist Three"] == raw_metadata["TPE1"]
 
             artists = get_unified_metadata_field(
-                test_file_path,
+                test_file,
                 unified_metadata_key=UnifiedMetadataKey.ARTISTS,
                 metadata_format=MetadataFormat.ID3V2,
                 id3v2_version=(2, 3, 0),
@@ -36,18 +36,16 @@ class TestId3v23:
             assert "Artist Three" in artists
 
     def test_multiple_entries(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file_path:
-            ID3v2MetadataSetter.set_artists(
-                test_file_path, ["One", "Two", "Three"], version="2.3", in_separate_frames=True
-            )
+        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_artists(test_file, ["One", "Two", "Three"], version="2.3", in_separate_frames=True)
 
-            assert ID3v2HeaderVerifier.get_id3v2_version(test_file_path) == (2, 3, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file) == (2, 3, 0)
 
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file_path, version="2.3")
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
             assert ["One", "Two", "Three"] == raw_metadata["TPE1"]
 
             artists = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2
+                test_file, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2
             )
 
             assert isinstance(artists, list)
@@ -57,18 +55,18 @@ class TestId3v23:
             assert "Three" in artists
 
     def test_mixed_separators_and_multiple_entries(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "id3v2.3") as test_file_path:
+        with temp_file_with_metadata({"title": "Test Song"}, "id3v2.3") as test_file:
             ID3v2MetadataSetter.set_artists(
-                test_file_path, ["Artist 1;Artist 2", "Artist 3"], version="2.3", in_separate_frames=True
+                test_file, ["Artist 1;Artist 2", "Artist 3"], version="2.3", in_separate_frames=True
             )
 
-            assert ID3v2HeaderVerifier.get_id3v2_version(test_file_path) == (2, 3, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file) == (2, 3, 0)
 
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file_path, version="2.3")
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
             assert ["Artist 1;Artist 2", "Artist 3"] == raw_metadata["TPE1"]
 
             artists = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2
+                test_file, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2
             )
             assert isinstance(artists, list)
             assert len(artists) == 2
@@ -76,18 +74,18 @@ class TestId3v23:
             assert "Artist 3" in artists
 
     def test_multiple_title_entries_then_first_one(self):
-        with temp_file_with_metadata({"title": "Initial Title"}, "mp3") as test_file_path:
+        with temp_file_with_metadata({"title": "Initial Title"}, "mp3") as test_file:
             ID3v2MetadataSetter.set_titles(
-                test_file_path, ["Title One", "Title Two", "Title Three"], version="2.3", in_separate_frames=True
+                test_file, ["Title One", "Title Two", "Title Three"], version="2.3", in_separate_frames=True
             )
 
-            assert ID3v2HeaderVerifier.get_id3v2_version(test_file_path) == (2, 3, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file) == (2, 3, 0)
 
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file_path, version="2.3")
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
             assert ["Title One", "Title Two", "Title Three"] == raw_metadata["TIT2"]
 
             title = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2
+                test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2
             )
 
             assert isinstance(title, str)

@@ -32,10 +32,10 @@ class TestWritingErrorHandling:
         # Note: delete_all_metadata error handling tests have been moved to test_delete_all_metadata.py
 
     def test_metadata_writing_conflict_parameters_error_both_strategy_and_format(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             with pytest.raises(MetadataWritingConflictParametersError) as exc_info:
                 update_metadata(
-                    test_file_path,
+                    test_file,
                     {UnifiedMetadataKey.TITLE: "Test"},
                     metadata_strategy=MetadataWritingStrategy.SYNC,
                     metadata_format=MetadataFormat.ID3V2,

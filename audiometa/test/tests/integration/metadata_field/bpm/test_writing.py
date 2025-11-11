@@ -9,34 +9,34 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestBpmWriting:
     def test_id3v2(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             test_bpm = 128
             test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
-            update_metadata(test_file_path, test_metadata, metadata_format=MetadataFormat.ID3V2)
-            bpm = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.BPM)
+            update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V2)
+            bpm = get_unified_metadata_field(test_file, UnifiedMetadataKey.BPM)
             assert bpm == test_bpm
 
     def test_riff(self):
-        with temp_file_with_metadata({}, "wav") as test_file_path:
+        with temp_file_with_metadata({}, "wav") as test_file:
             test_bpm = 120
             test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
-            update_metadata(test_file_path, test_metadata, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.RIFF)
 
-            raw_metadata = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.BPM)
+            raw_metadata = get_unified_metadata_field(test_file, UnifiedMetadataKey.BPM)
             assert raw_metadata == test_bpm
 
     def test_vorbis(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
+        with temp_file_with_metadata({}, "flac") as test_file:
             test_bpm = 140
             test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
-            update_metadata(test_file_path, test_metadata, metadata_format=MetadataFormat.VORBIS)
-            bpm = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.BPM)
+            update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
+            bpm = get_unified_metadata_field(test_file, UnifiedMetadataKey.BPM)
             assert bpm == test_bpm
 
     def test_id3v1(self):
         from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
 
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             test_bpm = 128
             test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
 
@@ -45,12 +45,12 @@ class TestBpmWriting:
                 MetadataFieldNotSupportedByMetadataFormatError,
                 match="UnifiedMetadataKey.BPM metadata not supported by this format",
             ):
-                update_metadata(test_file_path, test_metadata, metadata_format=MetadataFormat.ID3V1)
+                update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V1)
 
     def test_invalid_type_raises(self):
         from audiometa.exceptions import InvalidMetadataFieldTypeError
 
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             bad_metadata = {UnifiedMetadataKey.BPM: "not-an-int"}
             with pytest.raises(InvalidMetadataFieldTypeError):
-                update_metadata(test_file_path, bad_metadata)
+                update_metadata(test_file, bad_metadata)

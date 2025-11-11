@@ -10,76 +10,73 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestRatingDeleting:
     def test_delete_rating_id3v2(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(
-                test_file_path,
+                test_file,
                 {UnifiedMetadataKey.RATING: 50},
                 metadata_format=MetadataFormat.ID3V2,
                 normalized_rating_max_value=100,
             )
             assert (
-                get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
-                == 50
+                get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100) == 50
             )
 
-            update_metadata(test_file_path, {UnifiedMetadataKey.RATING: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file, {UnifiedMetadataKey.RATING: None}, metadata_format=MetadataFormat.ID3V2)
             assert (
-                get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
                 is None
             )
 
     def test_delete_rating_id3v1(self):
-        with temp_file_with_metadata({}, "id3v1") as test_file_path:
+        with temp_file_with_metadata({}, "id3v1") as test_file:
             with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
                 update_metadata(
-                    test_file_path,
+                    test_file,
                     {UnifiedMetadataKey.RATING: 50},
                     metadata_format=MetadataFormat.ID3V1,
                     normalized_rating_max_value=100,
                 )
 
     def test_delete_rating_riff(self):
-        with temp_file_with_metadata({}, "wav") as test_file_path:
+        with temp_file_with_metadata({}, "wav") as test_file:
             update_metadata(
-                test_file_path,
+                test_file,
                 {UnifiedMetadataKey.RATING: 50},
                 metadata_format=MetadataFormat.RIFF,
                 normalized_rating_max_value=100,
             )
             assert (
-                get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
-                == 50
+                get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100) == 50
             )
 
-            update_metadata(test_file_path, {UnifiedMetadataKey.RATING: None}, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file, {UnifiedMetadataKey.RATING: None}, metadata_format=MetadataFormat.RIFF)
             assert (
-                get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
                 is None
             )
 
     def test_delete_rating_vorbis(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
+        with temp_file_with_metadata({}, "flac") as test_file:
             update_metadata(
-                test_file_path,
+                test_file,
                 {UnifiedMetadataKey.RATING: 50},
                 metadata_format=MetadataFormat.VORBIS,
                 normalized_rating_max_value=100,
             )
             assert (
-                get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
-                == 50
+                get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100) == 50
             )
 
-            update_metadata(test_file_path, {UnifiedMetadataKey.RATING: None}, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file, {UnifiedMetadataKey.RATING: None}, metadata_format=MetadataFormat.VORBIS)
             assert (
-                get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
                 is None
             )
 
     def test_delete_rating_preserves_other_fields(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(
-                test_file_path,
+                test_file,
                 {
                     UnifiedMetadataKey.RATING: 75,
                     UnifiedMetadataKey.TITLE: "Test Title",
@@ -88,28 +85,28 @@ class TestRatingDeleting:
                 normalized_rating_max_value=100,
             )
 
-            update_metadata(test_file_path, {UnifiedMetadataKey.RATING: None})
+            update_metadata(test_file, {UnifiedMetadataKey.RATING: None})
 
             assert (
-                get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
                 is None
             )
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.TITLE) == "Test Title"
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE) == "Test Title"
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
 
     def test_delete_rating_already_none(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
-            update_metadata(test_file_path, {UnifiedMetadataKey.RATING: None})
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            update_metadata(test_file, {UnifiedMetadataKey.RATING: None})
             assert (
-                get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
                 is None
             )
 
     def test_delete_rating_zero(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
-            update_metadata(test_file_path, {UnifiedMetadataKey.RATING: 0}, normalized_rating_max_value=100)
-            update_metadata(test_file_path, {UnifiedMetadataKey.RATING: None})
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            update_metadata(test_file, {UnifiedMetadataKey.RATING: 0}, normalized_rating_max_value=100)
+            update_metadata(test_file, {UnifiedMetadataKey.RATING: None})
             assert (
-                get_unified_metadata_field(test_file_path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
                 is None
             )

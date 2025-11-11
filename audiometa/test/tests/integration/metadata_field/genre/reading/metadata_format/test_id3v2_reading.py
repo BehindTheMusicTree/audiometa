@@ -9,17 +9,17 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestId3v2GenreReading:
     def test_id3v2_single_genre(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file_path:
-            ID3v2MetadataSetter.set_genre(test_file_path, "Rock")
+        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_genre(test_file, "Rock")
 
-            genres = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file, UnifiedMetadataKey.GENRES_NAMES)
 
             assert genres == ["Rock"]
 
     def test_id3v2_multiple_genres_separate_frames(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file_path:
-            ID3v2MetadataSetter.set_genres(test_file_path, ["Rock", "Alternative", "Indie"])
+        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_genres(test_file, ["Rock", "Alternative", "Indie"])
 
-            genres = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file, UnifiedMetadataKey.GENRES_NAMES)
 
             assert genres == ["Rock", "Alternative", "Indie"]

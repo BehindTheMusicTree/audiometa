@@ -60,8 +60,8 @@ class TestFlacWriting:
             assert title == "Test Title ID3v1"
 
     def test_riff_metadata_writing_flac(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
+        with temp_file_with_metadata({}, "flac") as test_file:
             with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
                 update_metadata(
-                    test_file_path, {UnifiedMetadataKey.TITLE: "Test Title RIFF"}, metadata_format=MetadataFormat.RIFF
+                    test_file, {UnifiedMetadataKey.TITLE: "Test Title RIFF"}, metadata_format=MetadataFormat.RIFF
                 )

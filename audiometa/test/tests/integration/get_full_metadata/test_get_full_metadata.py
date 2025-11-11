@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from audiometa import get_full_metadata
-from audiometa._audio_file import _AudioFile as AudioFile
+from audiometa._audio_file import _AudioFile as _AudioFile
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
@@ -200,12 +200,12 @@ class TestGetFullMetadata:
         assert full_result["unified_metadata"] == merged_result
 
     def test_get_full_metadata_technical_info_accuracy(self, sample_mp3_file: Path):
-        audio_file = AudioFile(sample_mp3_file)
+        audio_file = _AudioFile(sample_mp3_file)
         result = get_full_metadata(sample_mp3_file)
 
         tech_info = result["technical_info"]
 
-        # Compare with direct AudioFile methods
+        # Compare with direct _AudioFile methods
         assert tech_info["duration_seconds"] == audio_file.get_duration_in_sec()
         assert tech_info["bitrate_kbps"] == audio_file.get_bitrate()
         assert tech_info["sample_rate_hz"] == audio_file.get_sample_rate()

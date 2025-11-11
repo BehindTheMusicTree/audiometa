@@ -14,46 +14,42 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestWavReading:
     def test_all_metadata_format_reading_wav(self):
-        with temp_file_with_metadata({}, "wav") as test_file_path:
-            ID3v1MetadataSetter.set_metadata(test_file_path, {"title": "Title ID3v1"})
+        with temp_file_with_metadata({}, "wav") as test_file:
+            ID3v1MetadataSetter.set_metadata(test_file, {"title": "Title ID3v1"})
 
-            title = get_unified_metadata_field(test_file_path, UnifiedMetadataKey.TITLE)
+            title = get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE)
             assert title == "Title ID3v1"
 
     def test_riff_metadata_reading_wav(self, metadata_riff_small_wav):
-        with temp_file_with_metadata({}, "wav") as test_file_path:
-            RIFFMetadataSetter.set_title(test_file_path, "RIFF Small Title")
+        with temp_file_with_metadata({}, "wav") as test_file:
+            RIFFMetadataSetter.set_title(test_file, "RIFF Small Title")
 
-            title = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF
-            )
+            title = get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF)
             assert title == "RIFF Small Title"
 
     def test_id3v2_3_metadata_reading_wav(self):
-        with temp_file_with_metadata({}, "id3v2.3") as test_file_path:
-            ID3v2MetadataSetter.set_title(test_file_path, "ID3v2.3 Long Title That Exceeds RIFF Limits", version="2.3")
+        with temp_file_with_metadata({}, "id3v2.3") as test_file:
+            ID3v2MetadataSetter.set_title(test_file, "ID3v2.3 Long Title That Exceeds RIFF Limits", version="2.3")
 
-            assert ID3v2HeaderVerifier.get_id3v2_version(test_file_path) == (2, 3, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file) == (2, 3, 0)
 
             title = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0)
+                test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0)
             )
             assert title == "ID3v2.3 Long Title That Exceeds RIFF Limits"
 
     def test_id3v2_4_metadata_reading_wav(self):
-        with temp_file_with_metadata({}, "id3v2.4") as test_file_path:
-            ID3v2MetadataSetter.set_metadata(test_file_path, {"title": "ID3v2.4 Long Title That Exceeds RIFF Limits"})
+        with temp_file_with_metadata({}, "id3v2.4") as test_file:
+            ID3v2MetadataSetter.set_metadata(test_file, {"title": "ID3v2.4 Long Title That Exceeds RIFF Limits"})
 
-            assert ID3v2HeaderVerifier.get_id3v2_version(test_file_path) == (2, 4, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file) == (2, 4, 0)
 
             title = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0)
+                test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0)
             )
             assert title == "ID3v2.4 Long Title That Exceeds RIFF Limits"
 
     def test_vorbis_metadata_reading_wav(self):
-        with temp_file_with_metadata({}, "wav") as test_file_path:
+        with temp_file_with_metadata({}, "wav") as test_file:
             with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                get_unified_metadata_field(
-                    test_file_path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.VORBIS
-                )
+                get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.VORBIS)

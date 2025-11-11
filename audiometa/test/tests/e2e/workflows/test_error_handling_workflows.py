@@ -18,17 +18,17 @@ class TestErrorHandlingWorkflows:
         # E2E test for error scenarios
         # Use external script to set initial metadata
         initial_metadata = {"title": "Original Title", "artist": "Original Artist"}
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             # Test invalid operations - try to update with rating without normalized_rating_max_value
             with pytest.raises(Exception):  # ConfigurationError
-                update_metadata(test_file_path, {UnifiedMetadataKey.RATING: 75})  # Missing normalized_rating_max_value
+                update_metadata(test_file, {UnifiedMetadataKey.RATING: 75})  # Missing normalized_rating_max_value
 
             # Test recovery after errors
             test_metadata = {UnifiedMetadataKey.TITLE: "Recovery Test"}
-            update_metadata(test_file_path, test_metadata)
+            update_metadata(test_file, test_metadata)
 
             # Verify the file is still usable
-            metadata = get_unified_metadata(test_file_path)
+            metadata = get_unified_metadata(test_file)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Recovery Test"
 
     def test_error_handling_workflow(self):
@@ -58,30 +58,30 @@ class TestErrorHandlingWorkflows:
         # E2E test for deletion error scenarios and recovery
         initial_metadata = {"title": "Deletion Error Test", "artist": "Deletion Error Artist"}
 
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             # 1. Verify initial metadata exists
-            initial_metadata_result = get_unified_metadata(test_file_path)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Deletion Error Test"
 
             # 2. Test deletion on file that doesn't exist
-            non_existent_file = test_file_path.parent / "non_existent.mp3"
+            non_existent_file = test_file.parent / "non_existent.mp3"
             with pytest.raises(Exception):  # FileNotFoundError
                 delete_all_metadata(str(non_existent_file))
 
             # 3. Test deletion on directory instead of file
             with pytest.raises(Exception):  # IsADirectoryError or similar
-                delete_all_metadata(str(test_file_path.parent))
+                delete_all_metadata(str(test_file.parent))
 
             # 4. Verify original file is still usable after errors
-            metadata_after_errors = get_unified_metadata(test_file_path)
+            metadata_after_errors = get_unified_metadata(test_file)
             assert metadata_after_errors.get(UnifiedMetadataKey.TITLE) == "Deletion Error Test"
 
             # 5. Successfully delete metadata from original file
-            delete_result = delete_all_metadata(test_file_path)
+            delete_result = delete_all_metadata(test_file)
             assert delete_result is True
 
             # 6. Verify deletion worked
-            deleted_metadata = get_unified_metadata(test_file_path)
+            deleted_metadata = get_unified_metadata(test_file)
             assert (
                 deleted_metadata.get(UnifiedMetadataKey.TITLE) is None
                 or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Deletion Error Test"
@@ -91,17 +91,17 @@ class TestErrorHandlingWorkflows:
         # E2E test for deletion when metadata might be corrupted
         initial_metadata = {"title": "Corrupted Metadata Test", "artist": "Corrupted Artist"}
 
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             # 1. Verify initial metadata exists
-            initial_metadata_result = get_unified_metadata(test_file_path)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Corrupted Metadata Test"
 
             # 2. Try to delete metadata - should work even if some metadata is corrupted
-            delete_result = delete_all_metadata(test_file_path)
+            delete_result = delete_all_metadata(test_file)
             assert delete_result is True
 
             # 3. Verify deletion worked
-            deleted_metadata = get_unified_metadata(test_file_path)
+            deleted_metadata = get_unified_metadata(test_file)
             assert (
                 deleted_metadata.get(UnifiedMetadataKey.TITLE) is None
                 or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Corrupted Metadata Test"
@@ -110,18 +110,18 @@ class TestErrorHandlingWorkflows:
             # 4. Verify file is still usable after deletion
             # Try to add new metadata
             new_metadata = {UnifiedMetadataKey.TITLE: "New Title After Deletion"}
-            update_metadata(test_file_path, new_metadata)
+            update_metadata(test_file, new_metadata)
 
             # 5. Verify new metadata was added successfully
-            new_metadata_result = get_unified_metadata(test_file_path)
+            new_metadata_result = get_unified_metadata(test_file)
             assert new_metadata_result.get(UnifiedMetadataKey.TITLE) == "New Title After Deletion"
 
     def test_date_format_validation_workflow(self):
         initial_metadata = {"title": "Date Validation Test", "artist": "Date Test Artist"}
 
-        with temp_file_with_metadata(initial_metadata, "mp3") as test_file_path:
+        with temp_file_with_metadata(initial_metadata, "mp3") as test_file:
             # 1. Verify initial metadata exists
-            initial_metadata_result = get_unified_metadata(test_file_path)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Date Validation Test"
 
             # 2. Test invalid date formats - should raise InvalidMetadataFieldFormatError
@@ -134,17 +134,17 @@ class TestErrorHandlingWorkflows:
 
             for invalid_date in invalid_dates:
                 with pytest.raises(InvalidMetadataFieldFormatError) as exc_info:
-                    update_metadata(test_file_path, {UnifiedMetadataKey.RELEASE_DATE: invalid_date})
+                    update_metadata(test_file, {UnifiedMetadataKey.RELEASE_DATE: invalid_date})
                 error = exc_info.value
                 assert error.field == UnifiedMetadataKey.RELEASE_DATE.value
                 assert error.value == invalid_date
 
             # 3. Verify file is still usable after validation errors (validation happens before file write)
-            metadata_after_errors = get_unified_metadata(test_file_path)
+            metadata_after_errors = get_unified_metadata(test_file)
             assert metadata_after_errors.get(UnifiedMetadataKey.TITLE) == "Date Validation Test"
 
             # 4. Test valid date format - should succeed
             # Update with valid YYYY-MM-DD format
-            update_metadata(test_file_path, {UnifiedMetadataKey.RELEASE_DATE: "2024-01-01"})
-            updated_metadata = get_unified_metadata(test_file_path)
+            update_metadata(test_file, {UnifiedMetadataKey.RELEASE_DATE: "2024-01-01"})
+            updated_metadata = get_unified_metadata(test_file)
             assert updated_metadata.get(UnifiedMetadataKey.RELEASE_DATE) == "2024-01-01"

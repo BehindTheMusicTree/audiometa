@@ -10,11 +10,11 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestId3v1:
     def test_semicolon_separated_artists(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file_path:
-            ID3v1MetadataSetter.set_artist(test_file_path, "Artist One;Artist Two")
+        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
+            ID3v1MetadataSetter.set_artist(test_file, "Artist One;Artist Two")
 
             artists = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V1
+                test_file, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V1
             )
 
             assert isinstance(artists, list)

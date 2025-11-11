@@ -10,11 +10,11 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestUnicodeHandling:
     def test_unicode_characters(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file_path:
-            VorbisMetadataSetter.set_artists(test_file_path, ["Artist Café", "Artist 音乐", "Artist 🎵"])
+        with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file:
+            VorbisMetadataSetter.set_artists(test_file, ["Artist Café", "Artist 音乐", "Artist 🎵"])
 
             artists = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS
+                test_file, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS
             )
 
             assert isinstance(artists, list)

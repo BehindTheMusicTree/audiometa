@@ -11,16 +11,14 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestRiff:
     def test_semicolon_separated_artists(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file_path:
-            RIFFMetadataSetter.set_artists(
-                test_file_path, ["Artist One;Artist Two;Artist Three"], in_separate_frames=False
-            )
+        with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file:
+            RIFFMetadataSetter.set_artists(test_file, ["Artist One;Artist Two;Artist Three"], in_separate_frames=False)
 
-            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file_path)
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file)
             assert "TAG:artist=Artist One;Artist Two;Artist Three" in raw_metadata
 
             artists = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF
+                test_file, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF
             )
 
             assert isinstance(artists, list)
@@ -30,16 +28,16 @@ class TestRiff:
             assert "Artist Three" in artists
 
     def test_multiple_artists_in_multiple_entries(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file_path:
-            RIFFMetadataSetter.set_artists(test_file_path, ["One", "Two", "Three"], in_separate_frames=True)
+        with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file:
+            RIFFMetadataSetter.set_artists(test_file, ["One", "Two", "Three"], in_separate_frames=True)
 
-            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file_path)
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file)
             # ffprobe only shows the last field when multiple fields with the same tag exist
             assert "TAG:artist=Three" in raw_metadata
 
             # Get RIFF metadata specifically to read the artists
             artists = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF
+                test_file, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF
             )
 
             assert isinstance(artists, list)
@@ -49,18 +47,18 @@ class TestRiff:
             assert "Three" in artists
 
     def test_mixed_separators_and_multiple_entries(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file_path:
+        with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_artists(
-                test_file_path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"], in_separate_frames=True
+                test_file, ["Artist 1;Artist 2", "Artist 3", "Artist 4"], in_separate_frames=True
             )
 
-            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file_path)
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file)
             # ffprobe only shows the last field when multiple fields with the same tag exist
             assert "TAG:artist=Artist 4" in raw_metadata
 
             # Get RIFF metadata specifically to read the artists
             artists = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF
+                test_file, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF
             )
             assert isinstance(artists, list)
 
@@ -72,17 +70,15 @@ class TestRiff:
             assert "Artist 4" in artists
 
     def test_multiple_title_entries_then_first_one(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file_path:
+        with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_multiple_titles(
-                test_file_path, ["Title One", "Title Two", "Title Three"], in_separate_frames=True
+                test_file, ["Title One", "Title Two", "Title Three"], in_separate_frames=True
             )
 
-            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file_path)
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file)
             # ffprobe only shows the last field when multiple fields with the same tag exist
             assert "TAG:title=Title Three" in raw_metadata
 
-            title = get_unified_metadata_field(
-                test_file_path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF
-            )
+            title = get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF)
             assert isinstance(title, str)
             assert title == "Title One"

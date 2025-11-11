@@ -61,9 +61,9 @@ class TestGetFullMetadataBinaryDataFiltering:
 
     def test_id3v2_manager_binary_filtering(self, sample_mp3_file):
         """Test Id3v2Manager directly filters binary frames."""
-        from audiometa._audio_file import _AudioFile as AudioFile
+        from audiometa._audio_file import _AudioFile as _AudioFile
 
-        audio_file = AudioFile(sample_mp3_file)
+        audio_file = _AudioFile(sample_mp3_file)
         manager = Id3v2Manager(audio_file)
         raw_info = manager.get_raw_metadata_info()
 
@@ -181,9 +181,9 @@ class TestGetFullMetadataBinaryDataFiltering:
 
     def test_binary_frame_size_preserved(self, sample_mp3_file):
         """Test that binary frame sizes are still reported correctly."""
-        from audiometa._audio_file import _AudioFile as AudioFile
+        from audiometa._audio_file import _AudioFile as _AudioFile
 
-        audio_file = AudioFile(sample_mp3_file)
+        audio_file = _AudioFile(sample_mp3_file)
         manager = Id3v2Manager(audio_file)
         raw_info = manager.get_raw_metadata_info()
 
@@ -229,9 +229,9 @@ class TestGetFullMetadataBinaryDataFiltering:
 
     def test_text_frames_unchanged(self, sample_mp3_file):
         """Test that text frames are not affected by binary filtering."""
-        from audiometa._audio_file import _AudioFile as AudioFile
+        from audiometa._audio_file import _AudioFile as _AudioFile
 
-        audio_file = AudioFile(sample_mp3_file)
+        audio_file = _AudioFile(sample_mp3_file)
         manager = Id3v2Manager(audio_file)
         raw_info = manager.get_raw_metadata_info()
 

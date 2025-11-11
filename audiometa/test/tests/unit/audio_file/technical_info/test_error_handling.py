@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa._audio_file import _AudioFile as AudioFile
+from audiometa._audio_file import _AudioFile as _AudioFile
 from audiometa.exceptions import (
     AudioFileMetadataParseError,
     DurationNotFoundError,
@@ -18,7 +18,7 @@ class TestAudioFileTechnicalInfoErrorHandling:
         corrupted_flac.write_bytes(b"fake file")
 
         try:
-            audio_file = AudioFile(corrupted_flac)
+            audio_file = _AudioFile(corrupted_flac)
             audio_file.get_duration_in_sec()
             pytest.fail("Should have raised FileByteMismatchError or FileCorruptedError")
         except (FileByteMismatchError, FileCorruptedError):
@@ -37,7 +37,7 @@ class TestAudioFileTechnicalInfoErrorHandling:
         flac_file = "audiometa/test/assets/sample.flac"
 
         try:
-            audio_file = AudioFile(flac_file)
+            audio_file = _AudioFile(flac_file)
             audio_file.is_flac_file_md5_valid()
             pytest.fail("Should have raised FlacMd5CheckFailedError")
         except FlacMd5CheckFailedError:
@@ -55,12 +55,12 @@ class TestAudioFileTechnicalInfoErrorHandling:
                     raise InvalidChunkDecodeError(f"Failed to decode FLAC chunks: {error_str}")
                 raise
 
-        monkeypatch.setattr("audiometa.audio_file.AudioFile.get_duration_in_sec", mock_get_duration_in_sec)
+        monkeypatch.setattr("audiometa.audio_file._AudioFile.get_duration_in_sec", mock_get_duration_in_sec)
 
         flac_file = "audiometa/test/assets/sample.flac"
 
         try:
-            audio_file = AudioFile(flac_file)
+            audio_file = _AudioFile(flac_file)
             audio_file.get_duration_in_sec()
             pytest.fail("Should have raised InvalidChunkDecodeError")
         except InvalidChunkDecodeError:
@@ -79,7 +79,7 @@ class TestAudioFileTechnicalInfoErrorHandling:
         wav_file = "audiometa/test/assets/sample.wav"
 
         try:
-            audio_file = AudioFile(wav_file)
+            audio_file = _AudioFile(wav_file)
             audio_file.get_duration_in_sec()
             pytest.fail("Should have raised DurationNotFoundError")
         except DurationNotFoundError:
@@ -98,7 +98,7 @@ class TestAudioFileTechnicalInfoErrorHandling:
         wav_file = "audiometa/test/assets/sample.wav"
 
         try:
-            audio_file = AudioFile(wav_file)
+            audio_file = _AudioFile(wav_file)
             audio_file.get_duration_in_sec()
             pytest.fail("Should have raised AudioFileMetadataParseError")
         except AudioFileMetadataParseError:
@@ -109,7 +109,7 @@ class TestAudioFileTechnicalInfoErrorHandling:
         invalid_wav.write_bytes(b"not a valid wav file")
 
         try:
-            audio_file = AudioFile(invalid_wav)
+            audio_file = _AudioFile(invalid_wav)
             audio_file.get_duration_in_sec()
             pytest.fail("Should have raised FileCorruptedError")
         except (FileCorruptedError, RuntimeError):

@@ -1,14 +1,14 @@
 import pytest
 
-from audiometa._audio_file import _AudioFile as AudioFile
+from audiometa._audio_file import _AudioFile as _AudioFile
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 
 
 @pytest.mark.unit
 class TestAudioFileOperations:
     def test_file_operations(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
-            audio_file = AudioFile(test_file_path)
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            audio_file = _AudioFile(test_file)
 
             # Test write
             test_data = b"test audio data"

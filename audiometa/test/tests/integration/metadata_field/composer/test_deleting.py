@@ -11,49 +11,49 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestComposerDeleting:
     def test_delete_composer_id3v1(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             with pytest.raises(
                 MetadataFieldNotSupportedByMetadataFormatError,
                 match="UnifiedMetadataKey.COMPOSERS metadata not supported by this format",
             ):
                 update_metadata(
-                    test_file_path,
+                    test_file,
                     {UnifiedMetadataKey.COMPOSERS: ["Test Composer"]},
                     metadata_format=MetadataFormat.ID3V1,
                 )
 
     def test_delete_composer_id3v2(self):
-        with temp_file_with_metadata({"composer": "Test Composer"}, "id3v2.4") as test_file_path:
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file_path, version="2.4")
+        with temp_file_with_metadata({"composer": "Test Composer"}, "id3v2.4") as test_file:
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.4")
             assert raw_metadata["TCOM"] == ["Test Composer"]
 
-            update_metadata(test_file_path, {UnifiedMetadataKey.COMPOSERS: None}, metadata_format=MetadataFormat.ID3V2)
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.COMPOSERS) is None
+            update_metadata(test_file, {UnifiedMetadataKey.COMPOSERS: None}, metadata_format=MetadataFormat.ID3V2)
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COMPOSERS) is None
 
     def test_delete_composer_riff(self):
-        with temp_file_with_metadata({}, "wav") as test_file_path:
+        with temp_file_with_metadata({}, "wav") as test_file:
             update_metadata(
-                test_file_path, {UnifiedMetadataKey.COMPOSERS: ["Test Composer"]}, metadata_format=MetadataFormat.RIFF
+                test_file, {UnifiedMetadataKey.COMPOSERS: ["Test Composer"]}, metadata_format=MetadataFormat.RIFF
             )
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.COMPOSERS) == ["Test Composer"]
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COMPOSERS) == ["Test Composer"]
 
-            update_metadata(test_file_path, {UnifiedMetadataKey.COMPOSERS: None}, metadata_format=MetadataFormat.RIFF)
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.COMPOSERS) is None
+            update_metadata(test_file, {UnifiedMetadataKey.COMPOSERS: None}, metadata_format=MetadataFormat.RIFF)
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COMPOSERS) is None
 
     def test_delete_composer_vorbis(self):
-        with temp_file_with_metadata({}, "flac") as test_file_path:
+        with temp_file_with_metadata({}, "flac") as test_file:
             update_metadata(
-                test_file_path, {UnifiedMetadataKey.COMPOSERS: ["Test Composer"]}, metadata_format=MetadataFormat.VORBIS
+                test_file, {UnifiedMetadataKey.COMPOSERS: ["Test Composer"]}, metadata_format=MetadataFormat.VORBIS
             )
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.COMPOSERS) == ["Test Composer"]
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COMPOSERS) == ["Test Composer"]
 
-            update_metadata(test_file_path, {UnifiedMetadataKey.COMPOSERS: None}, metadata_format=MetadataFormat.VORBIS)
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.COMPOSERS) is None
+            update_metadata(test_file, {UnifiedMetadataKey.COMPOSERS: None}, metadata_format=MetadataFormat.VORBIS)
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COMPOSERS) is None
 
     def test_delete_composer_preserves_other_fields(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
+        with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(
-                test_file_path,
+                test_file,
                 {
                     UnifiedMetadataKey.COMPOSERS: ["Test Composer"],
                     UnifiedMetadataKey.TITLE: "Test Title",
@@ -61,19 +61,19 @@ class TestComposerDeleting:
                 },
             )
 
-            update_metadata(test_file_path, {UnifiedMetadataKey.COMPOSERS: None})
+            update_metadata(test_file, {UnifiedMetadataKey.COMPOSERS: None})
 
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.COMPOSERS) is None
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.TITLE) == "Test Title"
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COMPOSERS) is None
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE) == "Test Title"
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
 
     def test_delete_composer_already_none(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
-            update_metadata(test_file_path, {UnifiedMetadataKey.COMPOSERS: None})
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.COMPOSERS) is None
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            update_metadata(test_file, {UnifiedMetadataKey.COMPOSERS: None})
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COMPOSERS) is None
 
     def test_delete_composer_empty_string(self):
-        with temp_file_with_metadata({}, "mp3") as test_file_path:
-            update_metadata(test_file_path, {UnifiedMetadataKey.COMPOSERS: [""]})
-            update_metadata(test_file_path, {UnifiedMetadataKey.COMPOSERS: None})
-            assert get_unified_metadata_field(test_file_path, UnifiedMetadataKey.COMPOSERS) is None
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            update_metadata(test_file, {UnifiedMetadataKey.COMPOSERS: [""]})
+            update_metadata(test_file, {UnifiedMetadataKey.COMPOSERS: None})
+            assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COMPOSERS) is None
