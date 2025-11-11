@@ -64,7 +64,7 @@ class ID3v2MetadataGetter:
                 if len(tag_data) != tag_size:
                     return "Incomplete ID3v2 tag"
 
-                metadata = {}
+                metadata: dict[str, list[str]] = {}
                 pos = 0
                 while pos < len(tag_data) - 10:
                     # Parse frame header (10 bytes)
@@ -80,7 +80,6 @@ class ID3v2MetadataGetter:
                         frame_size = ID3v2MetadataGetter._syncsafe_decode(tag_data[pos + 4 : pos + 8])
                     else:
                         frame_size = int.from_bytes(tag_data[pos + 4 : pos + 8], "big")
-                    frame_flags = tag_data[pos + 8 : pos + 10]
 
                     if pos + 10 + frame_size > len(tag_data):
                         break
@@ -129,8 +128,8 @@ class ID3v2MetadataGetter:
         metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
         if not isinstance(metadata, dict) or not metadata:
             return None
-        tpe1_values = metadata.get("TPE1", [])
-        return tpe1_values[0] if tpe1_values else None @ staticmethod
+        tpe1_values: list[str] = metadata.get("TPE1", [])
+        return tpe1_values[0] if tpe1_values else None
 
     @staticmethod
     def get_title(file_path, version=None):
