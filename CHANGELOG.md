@@ -53,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Format-specific headers and structure information
   - Raw metadata details from each format
   - Format priority information
+- **GitHub Sponsors Support**: Added FUNDING.yml to enable GitHub Sponsors button on repository
 
 ### Changed
 
