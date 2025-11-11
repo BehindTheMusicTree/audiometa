@@ -14,7 +14,7 @@
 # 6. docformatter: Format docstrings (after code formatting)
 # 7. fix-long-comments: Fix long comment lines (custom hook)
 # 8. mypy: Type checking on formatted code
-# 9. mdformat: Format markdown files
+# 9. prettier: Format markdown files (preserves list numbering without zero-padding)
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -84,11 +84,10 @@ repos:
         exclude: ^scripts/
         pass_filenames: true
 
-  - repo: https://github.com/hukkin/mdformat
-    rev: 0.7.21
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
     hooks:
-      - id: mdformat
+      - id: prettier
+        types_or: [markdown]
         additional_dependencies:
-          - mdformat-gfm
-          - mdformat-tables
-        files: \.(md|markdown)$
+          - prettier@^3.0.0
