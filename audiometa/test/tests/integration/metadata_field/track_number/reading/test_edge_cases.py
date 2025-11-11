@@ -36,3 +36,8 @@ class TestTrackNumberReadingEdgeCases:
         with temp_file_with_metadata({"track_number": "5-12"}, "mp3") as test_file:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number == "5-12"
+
+    def test_leading_zeros_preserved(self):
+        with temp_file_with_metadata({"track_number": "01"}, "mp3") as test_file:
+            track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
+            assert track_number == "01"
