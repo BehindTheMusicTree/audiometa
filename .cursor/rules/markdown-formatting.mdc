@@ -1,0 +1,20 @@
+---
+alwaysApply: true
+---
+
+# Markdown Formatting
+
+## Numbered Lists
+
+**Use zero-padded list numbers** (e.g., `01.`, `02.`, `03.`) instead of standard numbering (e.g., `1.`, `2.`, `3.`).
+
+**Rationale:**
+
+- Consistent visual alignment in source code
+- Easier to scan and maintain
+- Clearer structure for longer lists
+
+**Configuration:**
+
+- `.mdformat.toml` has `number = true` to preserve sequential numbering
+- **Note**: mdformat does not natively support zero-padding, so zero-padded numbers (01., 02., 03.) should be used manually when writing markdown files
