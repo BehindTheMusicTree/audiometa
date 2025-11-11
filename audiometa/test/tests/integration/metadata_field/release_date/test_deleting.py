@@ -71,5 +71,4 @@ class TestReleaseDateDeleting:
     def test_delete_release_date_empty_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(test_file, {UnifiedMetadataKey.RELEASE_DATE: ""})
-            update_metadata(test_file, {UnifiedMetadataKey.RELEASE_DATE: None})
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.RELEASE_DATE) is None

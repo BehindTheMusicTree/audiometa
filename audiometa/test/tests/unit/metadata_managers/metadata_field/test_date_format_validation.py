@@ -84,7 +84,6 @@ class TestReleaseDateFormatValidation:
             "abcd-01-01",
             "2024-01-abc",
             "2024a",
-            "",
         ]
         for date in invalid_dates:
             with pytest.raises(InvalidMetadataFieldFormatError) as exc_info:
@@ -109,6 +108,9 @@ class TestReleaseDateFormatValidation:
 
     def test_none_value_allowed(self):
         _validate_unified_metadata_types({UnifiedMetadataKey.RELEASE_DATE: None})
+
+    def test_empty_string_allowed(self):
+        _validate_unified_metadata_types({UnifiedMetadataKey.RELEASE_DATE: ""})
 
     def test_format_validation_after_type_validation(self):
         invalid_type = {UnifiedMetadataKey.RELEASE_DATE: 2024}

@@ -46,7 +46,6 @@ class TestReleaseDateErrorHandling:
                 "not-a-date",
                 "2024-abc-01",
                 "abcd-01-01",
-                "",
             ]
             for invalid_date in invalid_dates:
                 with pytest.raises(InvalidMetadataFieldFormatError):

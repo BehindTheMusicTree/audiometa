@@ -372,8 +372,8 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
 
         # Format validation for specific fields
         if key == UnifiedMetadataKey.RELEASE_DATE and isinstance(value, str):
-            # Accept YYYY (4 digits) or YYYY-MM-DD (ISO-like format)
-            if not (re.match(r"^\d{4}$", value) or re.match(r"^\d{4}-\d{2}-\d{2}$", value)):
+            # Accept empty string (represents no date), YYYY (4 digits) or YYYY-MM-DD (ISO-like format)
+            if value and not (re.match(r"^\d{4}$", value) or re.match(r"^\d{4}-\d{2}-\d{2}$", value)):
                 raise InvalidMetadataFieldFormatError(key.value, "YYYY (4 digits) or YYYY-MM-DD format", value)
 
 
