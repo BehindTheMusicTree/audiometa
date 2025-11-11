@@ -60,10 +60,13 @@ class AudioFileCreator:
             "lavfi",
             "-i",
             "anullsrc=duration=1",
-            "-acodec",
-            format_type.lower(),
-            "-y",
-            str(file_path),
         ]
+
+        # For WAV, don't specify -acodec as ffmpeg will use the default PCM codec
+        # For other formats, specify the codec
+        if format_type.lower() != "wav":
+            cmd.extend(["-acodec", format_type.lower()])
+
+        cmd.extend(["-y", str(file_path)])
 
         subprocess.run(cmd, check=True, capture_output=True)
