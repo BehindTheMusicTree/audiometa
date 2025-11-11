@@ -2046,6 +2046,7 @@ The library returns track numbers as strings. The library handles common edge ca
 - `""` → Track number: `None` (empty string)
 - `"5/12/15"` → Track number: `None` (multiple slashes, invalid format)
 - `"5-12"` → Track number: `"5-12"` (different separator preserved)
+- `"01"` → Track number: `"01"` (leading zeros preserved)
 
 ##### Writing Track Number
 
