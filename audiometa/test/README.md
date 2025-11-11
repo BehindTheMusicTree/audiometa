@@ -367,9 +367,9 @@ with temp_file_with_metadata({
     "album": "Test Album",
     "year": "2023",
     "genre": "Rock"
-}, "mp3") as test_file_path:
-    # Use test_file_path directly for testing
-    metadata = get_unified_metadata(test_file_path)
+}, "mp3") as test_file:
+    # Use test_file directly for testing
+    metadata = get_unified_metadata(test_file)
     assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
 ```
 
@@ -394,15 +394,15 @@ def test_write_metadata_using_temp_file():
     with temp_file_with_metadata(
         {"title": "Original Title", "artist": "Original Artist"},
         "mp3"
-    ) as test_file_path:
+    ) as test_file:
         # Now test our application's writing functionality
         new_metadata = {
             UnifiedMetadataKey.TITLE: "New Title"
         }
-        update_metadata(test_file_path, new_metadata)
+        update_metadata(test_file, new_metadata)
 
         # Verify by reading back
-        metadata = get_unified_metadata(test_file_path)
+        metadata = get_unified_metadata(test_file)
         assert metadata.get(UnifiedMetadataKey.TITLE) == ["New Title"]
 ```
 
@@ -429,9 +429,9 @@ def test_specific_metadata_combination():
             "genre": "Custom Genre"
         },
         "mp3"
-    ) as test_file_path:
-        # Use test_file_path for testing
-        metadata = get_unified_metadata(test_file_path)
+    ) as test_file:
+        # Use test_file for testing
+        metadata = get_unified_metadata(test_file)
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Custom Genre"]
 ```
 
