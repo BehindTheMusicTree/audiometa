@@ -1,6 +1,6 @@
 # AudioMeta Python
 
-A comprehensive Python library for reading and writing audio metadata across multiple formats including ID3v1, ID3v2, Vorbis (FLAC), and RIFF (WAV) metadata formats.
+A powerful, unified Python library for reading and writing audio metadata across multiple formats. AudioMeta supports MP3, FLAC, and WAV audio files, working seamlessly with ID3v1, ID3v2, Vorbis, and RIFF metadata formats through a single, consistent API.
 
 **Author**: [Andreas Garcia](https://github.com/Andreas-Garcia)
 
@@ -153,16 +153,28 @@ A comprehensive Python library for reading and writing audio metadata across mul
 
 ## Features
 
-- **Multi-format Support**: ID3v1, ID3v2, Vorbis (FLAC), and RIFF (WAV) metadata formats
-- **Comprehensive Metadata Fields**: Support for 15+ metadata fields including title, artist, album, rating, BPM, and more
+- **Unified API**: A single, consistent API for reading and writing metadata across all supported formats. Use the same functions (`get_unified_metadata()`, `update_metadata()`, etc.) regardless of whether you're working with MP3, FLAC, or WAV files. The library automatically handles format-specific differences, normalizes field names, and intelligently merges metadata from multiple formats when reading.
+
+- **Multi-format Support**: ID3v1, ID3v2, Vorbis (FLAC), and RIFF (WAV) metadata formats. Many audio files can contain multiple metadata formats simultaneously (e.g., MP3 files with both ID3v1 and ID3v2 tags, FLAC files with ID3v1, ID3v2, and Vorbis comments). AudioMeta intelligently handles these scenarios with automatic format detection and priority-based reading.
+
+- **Format Control**: Force specific metadata formats when reading or writing for precise control. Read only ID3v1 tags from an MP3 file that contains both ID3v1 and ID3v2, or write metadata exclusively to the Vorbis format in a FLAC file. Essential for format-specific operations, migration tasks, or working with legacy metadata formats.
+
+- **Technical Information**: Access to technical information about audio files, including duration, bitrate, sample rate, channels, and file size. This technical data is extracted directly from audio file headers, so you can get comprehensive file analysis even when no metadata tags are present.
+
+- **Comprehensive Metadata Fields**: Support for 15+ metadata fields including title, artist, album, rating, BPM, and more. More fields are planned to be supported soon.
+
 - **Read/Write Operations**: Full read and write support for most formats
+
 - **Rating Support**: Normalized rating handling across different formats
-- **Technical Information**: Access to bitrate, duration, sample rate, channels, and more
+
 - **Complete File Analysis**: Get full metadata including headers and technical details even when no metadata is present
+
 - **Error Handling**: Robust error handling with specific exception types
+
 - **Type Hints**: Full type annotation support for better IDE integration
+
 - **Cross-platform**: Works on Windows, macOS, and Linux (requires ffprobe and flac tools for full functionality)
-- **Performance Optimized**: Efficient batch operations and memory management
+
 - **Extensive Testing**: Comprehensive test coverage with 500+ tests
 
 **Note**: OGG file support is planned but not yet implemented.
