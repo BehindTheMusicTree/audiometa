@@ -1,5 +1,5 @@
 import struct
-from typing import TypeVar, cast
+from typing import Any, TypeVar, cast
 
 import taglib  # type: ignore[import-not-found]
 
@@ -192,6 +192,53 @@ class _VorbisManager(_RatingSupportingMetadataManager):
     ) -> RawMetadataDict:
         # _extract_mutagen_metadata already returns metadata with list values
         return raw_mutagen_metadata
+
+    def _extract_raw_clean_metadata_uppercase_keys_from_file(self) -> None:
+        if self.raw_clean_metadata is None:
+            self.raw_clean_metadata = self._extract_cleaned_raw_metadata_from_file()
+
+        # Merge case variants of keys (e.g., "ARTIST" and "artist" -> "ARTIST")
+        # Vorbis comments preserve original key case, so we need to merge them
+        # Use a temporary dict with string keys for merging, then convert to RawMetadataDict
+        # Use Any for values since we're merging different list types and will convert back
+        temp_dict: dict[str, list[Any]] = {}
+        for key, values in self.raw_clean_metadata.items():
+            if values is None:
+                continue
+            uppercase_key = str(key).upper()
+            # Merge values from all case variants
+            if isinstance(values, list):
+                # values is guaranteed to be a list here (not None)
+                if uppercase_key not in temp_dict:
+                    # First occurrence: use the list as-is (preserves type)
+                    temp_dict[uppercase_key] = list(values)
+                else:
+                    # Subsequent occurrence: merge while avoiding duplicates
+                    existing_list = temp_dict[uppercase_key]
+                    for val in values:
+                        if val not in existing_list:
+                            existing_list.append(val)
+
+        # Convert to RawMetadataDict format
+        # Since RawMetadataKey is str, Enum, we can use string keys directly at runtime
+        # Use cast to satisfy type checker since RawMetadataKey is str, Enum
+        result_dict: dict[str | RawMetadataKey, list[str] | list[int] | list[float]] = {}
+        for key_str, values_list in temp_dict.items():
+            # Try to find matching enum member, otherwise use string as key
+            # RawMetadataKey is str, Enum so string keys work at runtime
+            final_key: RawMetadataKey | str = key_str
+            for enum_class in RawMetadataKey.__subclasses__():
+                for member in enum_class.__members__.values():
+                    if str(member.value).upper() == key_str:
+                        final_key = member
+                        break
+                if isinstance(final_key, RawMetadataKey):
+                    break
+            # values_list is guaranteed to be a list (not empty, not None)
+            result_dict[final_key] = values_list
+
+        # Cast to RawMetadataDict since RawMetadataKey is str, Enum and string keys work
+        self.raw_clean_metadata_uppercase_keys = cast(RawMetadataDict, result_dict)
 
     def _get_raw_rating_by_traktor_or_not(self, raw_clean_metadata: RawMetadataDict) -> tuple[int | None, bool]:
         if self.VorbisKey.RATING in raw_clean_metadata:

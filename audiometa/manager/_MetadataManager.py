@@ -124,6 +124,8 @@ class _MetadataManager:
             self.raw_clean_metadata = self._extract_cleaned_raw_metadata_from_file()
 
         # raw_clean_metadata is RawMetadataDict, so all keys are RawMetadataKey enum members
+        # Note: VorbisManager overrides this method to handle case-insensitive key merging
+        # since Vorbis comments preserve original key case as strings
         self.raw_clean_metadata_uppercase_keys = dict(self.raw_clean_metadata)
 
     def _should_apply_smart_parsing(self, values_list_str: list[str]) -> bool:
