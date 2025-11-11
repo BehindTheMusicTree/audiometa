@@ -23,7 +23,7 @@ def wrap_comment_line(line: str, max_length: int = 120, indent: int = 0) -> list
     """
     # Remove leading whitespace and comment marker
     stripped = line.lstrip()
-    if not stripped.startswith('#'):
+    if not stripped.startswith("#"):
         return [line]
 
     # Extract the comment content (everything after #)
@@ -41,21 +41,21 @@ def wrap_comment_line(line: str, max_length: int = 120, indent: int = 0) -> list
     # Split into words
     words = comment_content.split()
     wrapped_lines = []
-    current_line = ' ' * indent + '#'
+    current_line = " " * indent + "#"
 
     for word in words:
         # Check if adding this word would exceed the limit
-        potential_line = current_line + (' ' if current_line.strip() != '#' else '') + word
+        potential_line = current_line + (" " if current_line.strip() != "#" else "") + word
         if len(potential_line) <= max_length:
             current_line = potential_line
         else:
             # Start a new line
-            if current_line.strip() != '#':
+            if current_line.strip() != "#":
                 wrapped_lines.append(current_line)
-            current_line = ' ' * indent + '# ' + word
+            current_line = " " * indent + "# " + word
 
     # Add the last line
-    if current_line.strip() != '#':
+    if current_line.strip() != "#":
         wrapped_lines.append(current_line)
 
     return wrapped_lines if wrapped_lines else [line]
@@ -68,7 +68,7 @@ def process_file(file_path: Path, max_length: int = 120) -> bool:
         True if file was modified, False otherwise
     """
     try:
-        content = file_path.read_text(encoding='utf-8')
+        content = file_path.read_text(encoding="utf-8")
         lines = content.splitlines()
         new_lines = []
         modified = False
@@ -78,7 +78,7 @@ def process_file(file_path: Path, max_length: int = 120) -> bool:
             indent = len(line) - len(line.lstrip())
 
             # Check if line is too long and is a comment
-            if len(line) > max_length and line.strip().startswith('#'):
+            if len(line) > max_length and line.strip().startswith("#"):
                 wrapped = wrap_comment_line(line, max_length, indent)
                 if len(wrapped) > 1:
                     new_lines.extend(wrapped)
@@ -89,7 +89,7 @@ def process_file(file_path: Path, max_length: int = 120) -> bool:
                 new_lines.append(line)
 
         if modified:
-            file_path.write_text('\n'.join(new_lines) + '\n', encoding='utf-8')
+            file_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
             return True
 
         return False
@@ -109,7 +109,7 @@ def main():
 
     for file_path_str in sys.argv[1:]:
         file_path = Path(file_path_str)
-        if file_path.exists() and file_path.suffix == '.py':
+        if file_path.exists() and file_path.suffix == ".py":
             if process_file(file_path, max_length):
                 modified_files.append(file_path)
 
@@ -120,5 +120,5 @@ def main():
     sys.exit(0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
