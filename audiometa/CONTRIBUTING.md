@@ -273,17 +273,13 @@ The following hooks run in execution order:
 05. **check-merge-conflict**: Detects merge conflict markers
 06. **debug-statements**: Detects debug statements (pdb, ipdb, etc.)
 07. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
-08. **autoflake**: Removes unused imports and variables from Python files
-09. **isort**: Sorts and organizes import statements according to PEP 8
-10. **ruff-format**: Formats Python code (replaces black) - handles code formatting but not comments/docstrings
-11. **trailing-whitespace**: Removes trailing whitespace (excludes markdown files) - runs after formatting, before linting
-12. **end-of-file-fixer**: Ensures files end with a newline (excludes markdown files) - runs after formatting, before linting
-13. **ruff**: Auto-fixes linting issues (code style, unused variables, etc.)
-14. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
-15. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
-16. **mypy**: Static type checking - reports type errors but does not auto-fix
-17. **flake8**: Lints code for style issues (PEP 8 compliance) - reports errors but does not auto-fix
-18. **mdformat**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, handles tables, GitHub-flavored markdown, and markdown syntax
+08. **isort**: Sorts and organizes import statements according to PEP 8
+09. **ruff-format**: Formats Python code (replaces black) - handles code formatting, trailing whitespace, and EOF newlines automatically
+10. **ruff**: Auto-fixes linting issues (unused imports/variables, code style, line length, etc.) - replaces autoflake and flake8
+11. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
+12. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
+13. **mypy**: Static type checking - reports type errors but does not auto-fix
+14. **mdformat**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, handles tables, GitHub-flavored markdown, and markdown syntax
 
 ##### Auto-fix Formatting
 
@@ -299,11 +295,11 @@ isort .
 # Format docstrings
 docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 --make-summary-multi-line .
 
-# Auto-fix linting issues with ruff
+# Auto-fix linting issues with ruff (replaces autoflake and flake8)
 ruff check --fix .
 ```
 
-Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
+Note: `mypy` requires manual fixes as it doesn't auto-format.
 
 ##### Type Checking
 
@@ -375,7 +371,7 @@ Before submitting a Pull Request (contributors) or merging to `main` (maintainer
 **1. Code Quality Checks**
 
 - ✅ Run pre-commit hooks: `pre-commit run --all-files`
-- ✅ All linting checks pass (ruff-format, isort, docformatter, ruff, mypy, flake8)
+- ✅ All linting checks pass (ruff-format, isort, docformatter, ruff, mypy)
 - ✅ Code is properly formatted
 
 **2. Tests**
