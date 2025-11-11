@@ -6,10 +6,10 @@
 # To run on staged files only: pre-commit run
 #
 # Pre-commit hooks execution order - order matters!
-# 1. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements)
+# 1. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
 # 2. no-assert: Check for assert statements in production code
 # 3. isort: Sort imports (configured to work with ruff-format/black)
-# 4. ruff-format: Format code (replaces black, handles trailing whitespace and EOF newlines automatically)
+# 4. ruff-format: Format code (replaces black, handles EOF newlines automatically)
 # 5. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
 # 6. docformatter: Format docstrings (after code formatting)
 # 7. fix-long-comments: Fix long comment lines (custom hook)
@@ -27,6 +27,7 @@ repos:
       - id: check-toml
       - id: check-merge-conflict
       - id: debug-statements
+      - id: trailing-whitespace
 
   - repo: local
     hooks:
