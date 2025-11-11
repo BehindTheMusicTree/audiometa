@@ -33,7 +33,7 @@ class TestComprehensiveRatingWriting:
 
     def test_cross_metadata_format_rating_consistency(self):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        test_rating = 75
+        test_rating = 70
 
         # Test ID3v2 metadata format
         with temp_file_with_metadata(basic_metadata, "mp3") as test_file:
