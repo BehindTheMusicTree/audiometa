@@ -1799,20 +1799,20 @@ from audiometa import get_unified_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 
-# Raw mode (no normalization)
+# Reading without normalization (raw values)
 metadata = get_unified_metadata("song.mp3")
 rating = metadata.get(UnifiedMetadataKey.RATING)  # Returns: 128, 60, 153, etc. (raw profile values)
 
-# Normalized mode (0-10 scale)
+# Reading with normalization
 metadata = get_unified_metadata("song.mp3", normalized_rating_max_value=10)
 rating = metadata.get(UnifiedMetadataKey.RATING)  # Returns: 0, 2, 4, 6, 8, 10 (normalized)
+
+# Writing without normalization (raw values)
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.ID3V2)  # Direct raw value
 
 # Writing with normalization
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 6}, normalized_rating_max_value=10)  # Writes 128 (Profile A)
 update_metadata("song.flac", {UnifiedMetadataKey.RATING: 6}, normalized_rating_max_value=10)  # Writes 60 (Profile B)
-
-# Writing without normalization (raw values)
-update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.ID3V2)  # Direct raw value
 ```
 
 **Normalization Formula**:
