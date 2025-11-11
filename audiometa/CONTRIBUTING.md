@@ -19,6 +19,11 @@ This project is currently maintained by a solo developer, but contributions, sug
       - [Running Tests Without Coverage](#running-tests-without-coverage)
       - [Viewing Coverage Reports](#viewing-coverage-reports)
     - [Lint Code for Style Consistency](#lint-code-for-style-consistency)
+      - [Setup and Usage](#setup-and-usage)
+      - [Pre-commit Hooks](#pre-commit-hooks)
+      - [Auto-fix Formatting](#auto-fix-formatting)
+      - [Type Checking](#type-checking)
+      - [Known Linting Issues](#known-linting-issues)
   - [📝 Commit Message Convention](#-commit-message-convention)
   - [✅ Pre-PR / Pre-Merge Checklist](#-pre-pr--pre-merge-checklist)
   - [🚀 Releasing _(For Maintainers)_](#releasing-for-maintainers)
@@ -235,6 +240,8 @@ For detailed test documentation, including test principles, markers, and advance
 
 We use [pre-commit](https://pre-commit.com/) hooks to automatically check code quality before commits.
 
+##### Setup and Usage
+
 **First-time setup:**
 
 ```bash
@@ -244,8 +251,6 @@ pip install -e ".[dev]"
 # Install the git hooks
 pre-commit install
 ```
-
-**Usage:**
 
 Once installed, pre-commit will automatically run on every commit. You can also run it manually:
 
@@ -257,30 +262,87 @@ pre-commit run --all-files
 pre-commit run
 ```
 
-**Auto-fix formatting:**
+##### Pre-commit Hooks
 
-Pre-commit will auto-fix black, isort, and docformatter issues. You can also run manually:
+The following hooks run in execution order:
+
+01. **trailing-whitespace**: Removes trailing whitespace (excludes markdown files)
+02. **end-of-file-fixer**: Ensures files end with a newline (excludes markdown files)
+03. **check-yaml**: Validates YAML file syntax
+04. **check-added-large-files**: Prevents committing files larger than 10MB
+05. **check-json**: Validates JSON file syntax
+06. **check-toml**: Validates TOML file syntax
+07. **check-merge-conflict**: Detects merge conflict markers
+08. **debug-statements**: Detects debug statements (pdb, ipdb, etc.)
+09. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
+10. **autoflake**: Removes unused imports and variables from Python files
+11. **isort**: Sorts and organizes import statements according to PEP 8
+12. **ruff-format**: Formats Python code (replaces black) - handles code formatting but not comments/docstrings
+13. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
+14. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
+15. **ruff**: Auto-fixes linting issues (code style, unused variables, etc.)
+16. **mypy**: Static type checking - reports type errors but does not auto-fix
+17. **flake8**: Lints code for style issues (PEP 8 compliance) - reports errors but does not auto-fix
+18. **mdformat**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, handles tables, GitHub-flavored markdown, and markdown syntax
+
+##### Auto-fix Formatting
+
+Pre-commit will auto-fix formatting issues for most tools. You can also run formatters manually:
 
 ```bash
-black . && isort . && docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 --make-summary-multi-line .
+# Using ruff-format (replaces black)
+ruff format .
+
+# Sort imports
+isort .
+
+# Format docstrings
+docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 --make-summary-multi-line .
+
+# Auto-fix linting issues with ruff
+ruff check --fix .
 ```
 
 Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
 
-**Pre-commit hooks include (in execution order):**
+##### Type Checking
 
-01. **autoflake**: Removes unused imports and variables from Python files
-02. **isort**: Sorts and organizes import statements according to PEP 8
-03. **ruff-format**: Formats Python code (replaces black) - handles code formatting but not comments/docstrings
-04. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
-05. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
-06. **ruff**: Auto-fixes linting issues (code style, unused variables, etc.) - does not fix line length violations
-07. **mypy**: Static type checking - reports type errors but does not auto-fix
-08. **flake8**: Lints code for style issues (PEP 8 compliance) - reports errors but does not auto-fix
-09. **mdformat**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, handles tables, GitHub-flavored markdown, and markdown syntax
-10. **Assert check**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
+**Type Checking Behavior:**
 
-**Known Linting Issues:**
+- **Pre-commit hooks**: `mypy` checks staged files with `--follow-imports=normal`, which means:
+  - Staged files are checked along with their imports
+  - This ensures type consistency across the codebase
+  - Errors in imported files (even if unstaged) will block your commit
+  - **Exception for large refactorings**: For very large commits (e.g., major refactorings), you can temporarily use `--follow-imports=skip` in `.pre-commit-config.yaml` to allow incremental commits, but this should be reverted immediately after the refactoring is complete
+- **CI/CD**: `mypy` checks the **entire codebase** to ensure type consistency across all files
+
+**Type Checking Rules:**
+
+- **Production code** (`audiometa/` excluding `audiometa/test/`): Strict type checking
+
+  - All functions must have type annotations
+  - No untyped function definitions
+  - Strict type compatibility checks
+  - Missing type stubs for external libraries are handled via mypy overrides in `pyproject.toml` (e.g., `mutagen.*`, `pytest`)
+  - **Note**: Do not add `# type: ignore[import-not-found]` comments for libraries that already have mypy overrides configured, as mypy will report them as unused
+
+- **Test code** (`audiometa/test/`): Relaxed type checking
+
+  - Functions can be untyped (no type annotations required)
+  - Missing type annotations for variables are allowed
+  - This allows test code to be more flexible while maintaining type safety in production code
+  - **Note on pytest type stubs**: Mypy will report "Cannot find implementation or library stub for module named 'pytest'" because pytest type stubs are not available as a separate package. This is expected and acceptable - real import errors are still caught by test execution at runtime. The mypy overrides in `pyproject.toml` relax type checking rules for test files to accommodate this.
+
+This means:
+
+- You can commit individual files even if other files have type errors
+- Before opening a PR, run `pre-commit run --all-files` or `mypy audiometa` to check the entire codebase
+- CI will catch any type errors in the full codebase before merging
+- Test code type errors are acceptable as long as they don't prevent tests from running
+
+CI will automatically test all pushes and PRs using GitHub Actions.
+
+##### Known Linting Issues
 
 - **Ruff F823 False Positive**: Ruff may incorrectly report `F823: Local variable referenced before assignment` when an imported exception class is:
 
@@ -304,40 +366,6 @@ Note: `mypy` and `flake8` require manual fixes as they don't auto-format.
           raise MetadataFieldNotSupportedByMetadataFormatError("message")  # noqa: F823
   ```
 
-**Type Checking Behavior:**
-
-- **Pre-commit hooks**: `mypy` checks staged files with `--follow-imports=normal`, which means:
-  - Staged files are checked along with their imports
-  - This ensures type consistency across the codebase
-  - Errors in imported files (even if unstaged) will block your commit
-  - **Exception for large refactorings**: For very large commits (e.g., major refactorings), you can temporarily use `--follow-imports=skip` in `.pre-commit-config.yaml` to allow incremental commits, but this should be reverted immediately after the refactoring is complete
-- **CI/CD**: `mypy` checks the **entire codebase** to ensure type consistency across all files
-
-**Type Checking Rules:**
-
-- **Production code** (`audiometa/` excluding `audiometa/test/`): Strict type checking
-
-  - All functions must have type annotations
-  - No untyped function definitions
-  - Strict type compatibility checks
-  - Missing type stubs for external libraries are ignored with `# type: ignore[import-not-found]`
-
-- **Test code** (`audiometa/test/`): Relaxed type checking
-
-  - Functions can be untyped (no type annotations required)
-  - Missing type annotations for variables are allowed
-  - This allows test code to be more flexible while maintaining type safety in production code
-  - **Note on pytest type stubs**: Mypy will report "Cannot find implementation or library stub for module named 'pytest'" because pytest type stubs are not available as a separate package. This is expected and acceptable - real import errors are still caught by test execution at runtime. The mypy overrides in `pyproject.toml` relax type checking rules for test files to accommodate this.
-
-This means:
-
-- You can commit individual files even if other files have type errors
-- Before opening a PR, run `pre-commit run --all-files` or `mypy audiometa` to check the entire codebase
-- CI will catch any type errors in the full codebase before merging
-- Test code type errors are acceptable as long as they don't prevent tests from running
-
-CI will automatically test all pushes and PRs using GitHub Actions.
-
 ### ✅ Pre-PR / Pre-Merge Checklist
 
 Before submitting a Pull Request (contributors) or merging to `main` (maintainers), ensure the following checks are completed:
@@ -347,7 +375,7 @@ Before submitting a Pull Request (contributors) or merging to `main` (maintainer
 **1. Code Quality Checks**
 
 - ✅ Run pre-commit hooks: `pre-commit run --all-files`
-- ✅ All linting checks pass (black, isort, docformatter, mypy, flake8)
+- ✅ All linting checks pass (ruff-format, isort, docformatter, ruff, mypy, flake8)
 - ✅ Code is properly formatted
 
 **2. Tests**
