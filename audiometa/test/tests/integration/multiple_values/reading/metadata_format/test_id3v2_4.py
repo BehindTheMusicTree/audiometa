@@ -8,7 +8,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.integration
-class TestId3v2_4Mixed:
+class TestId3v24Mixed:
     def test_null_separated_artists(self):
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             ID3v2MetadataSetter.set_artists(test_file, ["Artist One", "Artist Two", "Artist Three"], version="2.4")
