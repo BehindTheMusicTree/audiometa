@@ -7,6 +7,12 @@ from typing import Any
 
 from mutagen._file import FileType
 
+from ._constants import (
+    ID3V1_MIN_COMMENT_LENGTH_FOR_TRACK_NUMBER,
+    ID3V1_TAG_SIZE,
+    ID3V1_TRACK_NUMBER_POSITION,
+    ID3V1_TRACK_NUMBER_VALUE_POSITION,
+)
 from .Id3v1RawMetadataKey import Id3v1RawMetadataKey
 
 
@@ -35,12 +41,12 @@ class Id3v1RawMetadata(FileType):
     def _load_tags(self) -> None:
         # Handle both file objects and file paths
         if isinstance(self.fileobj, str | Path):
-            with open(self.fileobj, "rb") as f:
-                f.seek(-128, 2)  # Seek from end
-                data = f.read(128)
+            with Path(self.fileobj).open("rb") as f:
+                f.seek(-ID3V1_TAG_SIZE, 2)  # Seek from end
+                data = f.read(ID3V1_TAG_SIZE)
         else:
-            self.fileobj.seek(-128, 2)  # Seek from end
-            data = self.fileobj.read(128)
+            self.fileobj.seek(-ID3V1_TAG_SIZE, 2)  # Seek from end
+            data = self.fileobj.read(ID3V1_TAG_SIZE)
 
         if not data.startswith(b"TAG"):
             self.tags = None
@@ -60,10 +66,14 @@ class Id3v1RawMetadata(FileType):
             comment = data[97:127]
 
             # Check for ID3v1.1 track number format (bytes 125-126)
-            if len(comment) >= 30 and comment[28] == 0 and comment[29] != 0:
+            if (
+                len(comment) >= ID3V1_MIN_COMMENT_LENGTH_FOR_TRACK_NUMBER
+                and comment[ID3V1_TRACK_NUMBER_POSITION] == 0
+                and comment[ID3V1_TRACK_NUMBER_VALUE_POSITION] != 0
+            ):
                 # ID3v1.1 format: track number in last two bytes
-                tag.track_number = comment[29]
-                tag.comment = comment[:28].strip(b"\0").decode("latin1", "replace")
+                tag.track_number = comment[ID3V1_TRACK_NUMBER_VALUE_POSITION]
+                tag.comment = comment[:ID3V1_TRACK_NUMBER_POSITION].strip(b"\0").decode("latin1", "replace")
             else:
                 # Regular ID3v1 format: no track number
                 tag.track_number = None
@@ -97,7 +107,7 @@ class Id3v1RawMetadata(FileType):
         # Read the entire file
         if isinstance(self.fileobj, str | Path):  # type: ignore[unreachable]
             # File path
-            with open(self.fileobj, "rb") as f:
+            with Path(self.fileobj).open("rb") as f:
                 file_data = bytearray(f.read())
         else:
             # File object - use the same pattern as _load_tags
@@ -116,7 +126,7 @@ class Id3v1RawMetadata(FileType):
         # Write back to file
         if isinstance(self.fileobj, str | Path):
             # File path
-            with open(self.fileobj, "wb") as f:
+            with Path(self.fileobj).open("wb") as f:
                 f.write(file_data)
         else:
             # File object
@@ -133,7 +143,7 @@ class Id3v1RawMetadata(FileType):
             msg = "Tags must be loaded before creating tag data"
             raise ValueError(msg)
         # Initialize with null bytes
-        tag_data = bytearray(128)
+        tag_data = bytearray(ID3V1_TAG_SIZE)
 
         # TAG identifier (bytes 0-2)
         tag_data[0:3] = b"TAG"
@@ -186,12 +196,12 @@ class Id3v1RawMetadata(FileType):
         Returns:
             bool: True if a tag was removed, False otherwise
         """
-        if len(file_data) >= 128:
+        if len(file_data) >= ID3V1_TAG_SIZE:
             # Check if last 128 bytes contain ID3v1 tag
-            last_128 = file_data[-128:]
+            last_128 = file_data[-ID3V1_TAG_SIZE:]
             if last_128[:3] == b"TAG":
                 # Remove the last 128 bytes
-                del file_data[-128:]
+                del file_data[-ID3V1_TAG_SIZE:]
                 return True
         return False
 
@@ -215,13 +225,13 @@ class Id3v1RawMetadata(FileType):
         """Remove tags from a file."""
         try:
             # Read the entire file
-            with open(filename, "rb") as f:
+            with Path(filename).open("rb") as f:
                 file_data = bytearray(f.read())
 
             # Remove existing ID3v1 tag if present
             if self._remove_existing_id3v1_tag(file_data):
                 # Write back to file
-                with open(filename, "wb") as f:
+                with Path(filename).open("wb") as f:
                     f.write(file_data)
         except Exception:
             pass  # Ignore errors during deletion

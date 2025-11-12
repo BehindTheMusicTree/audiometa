@@ -1,5 +1,6 @@
 """Audio file handling module."""
 
+import contextlib
 import json
 import os
 import subprocess
@@ -20,6 +21,8 @@ from .exceptions import (
     FlacMd5CheckFailedError,
     InvalidChunkDecodeError,
 )
+from .manager._rating_supporting.id3v2._id3v2_constants import ID3V2_HEADER_SIZE
+from .manager._rating_supporting.riff._riff_constants import RIFF_HEADER_SIZE
 from .utils.MetadataFormat import MetadataFormat
 
 # Type alias for files that can be handled (must be disk-based)
@@ -78,7 +81,7 @@ class _AudioFile:
                 self._validate_wav_file(self.file_path)
         except Exception as e:
             msg = f"The file content is corrupted or not a valid {file_extension.upper()} file: {e!s}"
-            raise FileCorruptedError(msg)
+            raise FileCorruptedError(msg) from e
 
     def get_duration_in_sec(self) -> float:
         path = self.file_path
@@ -220,15 +223,15 @@ class _AudioFile:
             raise FileTypeNotSupportedError(msg)
 
     def read(self, size: int = -1) -> bytes:
-        with open(self.file_path, "rb") as f:
+        with Path(self.file_path).open("rb") as f:
             return f.read(size)
 
     def write(self, data: bytes) -> int:
-        with open(self.file_path, "wb") as f:
+        with Path(self.file_path).open("wb") as f:
             return f.write(data)
 
     def seek(self, offset: int, whence: int = 0) -> int:
-        with open(self.file_path, "rb") as f:
+        with Path(self.file_path).open("rb") as f:
             return f.seek(offset, whence)
 
     def close(self) -> None:
@@ -286,7 +289,7 @@ class _AudioFile:
         success = False
         try:
             # Read the input file and run FLAC command
-            with open(self.file_path, "rb") as f:
+            with Path(self.file_path).open("rb") as f:
                 result = subprocess.run(
                     ["flac", "-f", "--best", "-o", temp_path, "-"],
                     stdin=f,
@@ -334,10 +337,8 @@ class _AudioFile:
         finally:
             # Clean up the temp file only if we failed
             if not success and os.path.exists(temp_path):
-                try:
+                with contextlib.suppress(OSError):
                     os.unlink(temp_path)
-                except OSError:
-                    pass  # Ignore cleanup errors
 
     def get_sample_rate(self) -> int:
         """Get the sample rate of an audio file.
@@ -486,11 +487,11 @@ class _AudioFile:
             # 2 bytes: version
             # 1 byte: flags
             # 4 bytes: size (synchsafe integer)
-            if len(data) < 10:
+            if len(data) < ID3V2_HEADER_SIZE:
                 return data
 
             # Get size from synchsafe integer (7 bits per byte)
-            size_bytes = data[6:10]
+            size_bytes = data[6:ID3V2_HEADER_SIZE]
             size = (
                 ((size_bytes[0] & 0x7F) << 21)
                 | ((size_bytes[1] & 0x7F) << 14)
@@ -499,7 +500,7 @@ class _AudioFile:
             )
 
             # Skip the header (10 bytes) plus the size of the tag
-            return data[10 + size :]
+            return data[ID3V2_HEADER_SIZE + size :]
         return data
 
     def _validate_wav_file(self, file_path: str) -> None:
@@ -508,9 +509,9 @@ class _AudioFile:
         This method performs lightweight validation of the RIFF/WAV structure without relying on mutagen for files that
         have ID3v2 tags.
         """
-        with open(file_path, "rb") as f:
+        with Path(file_path).open("rb") as f:
             # Read enough data to cover potential ID3v2 tags (up to ~1MB for very large tags)
-            header_data = f.read(12)
+            header_data = f.read(RIFF_HEADER_SIZE)
 
             # Skip ID3v2 tags if present
             if header_data.startswith(b"ID3"):
@@ -522,16 +523,16 @@ class _AudioFile:
                 clean_data = self._skip_id3v2_tags(full_data)
 
                 # Check if we have enough data for RIFF header after skipping ID3v2
-                if len(clean_data) < 12:
+                if len(clean_data) < RIFF_HEADER_SIZE:
                     msg = "File too small after skipping ID3v2 tags"
                     raise FileCorruptedError(msg)
 
-                riff_header = clean_data[:12]
+                riff_header = clean_data[:RIFF_HEADER_SIZE]
             else:
                 riff_header = header_data
 
             # Validate RIFF header
-            if len(riff_header) < 12:
+            if len(riff_header) < RIFF_HEADER_SIZE:
                 msg = "File too small to contain RIFF header"
                 raise FileCorruptedError(msg)
 

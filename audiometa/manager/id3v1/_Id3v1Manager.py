@@ -8,6 +8,7 @@ from ..._audio_file import _AudioFile
 from ...exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError
 from ...utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 from .._MetadataManager import _MetadataManager
+from ._constants import ID3V1_MIN_COMMENT_LENGTH_TO_CHECK_TRACK_NUMBER, ID3V1_TAG_SIZE
 from .Id3v1RawMetadata import Id3v1RawMetadata
 from .Id3v1RawMetadataKey import Id3v1RawMetadataKey
 
@@ -355,12 +356,12 @@ class _Id3v1Manager(_MetadataManager):
         Returns:
             bool: True if a tag was removed, False otherwise
         """
-        if len(file_data) >= 128:
+        if len(file_data) >= ID3V1_TAG_SIZE:
             # Check if last 128 bytes contain ID3v1 tag
-            last_128 = file_data[-128:]
+            last_128 = file_data[-ID3V1_TAG_SIZE:]
             if last_128[:3] == b"TAG":
                 # Remove the last 128 bytes
-                del file_data[-128:]
+                del file_data[-ID3V1_TAG_SIZE:]
                 return True
         return False
 
@@ -440,7 +441,11 @@ class _Id3v1Manager(_MetadataManager):
                 # Check if track number is present (ID3v1.1 feature)
                 tags = cast(dict[Any, Any], self.raw_mutagen_metadata.tags)
                 comment = tags.get("COMMENT", [""])[0]
-                if len(comment) >= 2 and comment[-2] == "\x00" and comment[-1] != "\x00":
+                if (
+                    len(comment) >= ID3V1_MIN_COMMENT_LENGTH_TO_CHECK_TRACK_NUMBER
+                    and comment[-2] == "\x00"
+                    and comment[-1] != "\x00"
+                ):
                     version = "1.1"
                     has_track_number = True
 
