@@ -178,24 +178,23 @@ class ManualID3v2FrameCreator:
 
         # Remove any existing ID3v2 tag
         audio_data = original_data
-        if original_data.startswith(b"ID3"):
+        if original_data.startswith(b"ID3") and len(original_data) >= 10:
             # Skip existing ID3v2 tag
-            if len(original_data) >= 10:
-                # Extract version and size from existing tag
-                existing_version = original_data[3]
-                size_bytes = original_data[6:10]
+            # Extract version and size from existing tag
+            existing_version = original_data[3]
+            size_bytes = original_data[6:10]
 
-                if existing_version == 4:
-                    # ID3v2.4 uses synchsafe integers
-                    existing_tag_size = 0
-                    for byte in size_bytes:
-                        existing_tag_size = (existing_tag_size << 7) | (byte & 0x7F)
-                else:
-                    # ID3v2.3 and earlier use regular integers
-                    existing_tag_size = struct.unpack(">I", size_bytes)[0]
+            if existing_version == 4:
+                # ID3v2.4 uses synchsafe integers
+                existing_tag_size = 0
+                for byte in size_bytes:
+                    existing_tag_size = (existing_tag_size << 7) | (byte & 0x7F)
+            else:
+                # ID3v2.3 and earlier use regular integers
+                existing_tag_size = struct.unpack(">I", size_bytes)[0]
 
-                # Audio data starts after header (10 bytes) + tag size
-                audio_data = original_data[10 + existing_tag_size :]
+            # Audio data starts after header (10 bytes) + tag size
+            audio_data = original_data[10 + existing_tag_size :]
 
         # Write new file with our custom ID3v2 tag
         with file_path.open("wb") as f:

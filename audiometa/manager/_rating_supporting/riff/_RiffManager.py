@@ -628,21 +628,24 @@ class _RiffManager(_RatingSupportingMetadataManager):
         try:
             # Look for _handle_metadata_strategy in the call stack
             while frame:
-                if frame.f_code.co_name == "_handle_metadata_strategy":
+                if (
+                    frame.f_code.co_name == "_handle_metadata_strategy"
+                    and "strategy" in frame.f_locals
+                    and "target_format_actual" in frame.f_locals
+                ):
                     # Check if we're in the PRESERVE strategy branch
                     # Look at the local variables to determine the strategy and target format
-                    if "strategy" in frame.f_locals and "target_format_actual" in frame.f_locals:
-                        strategy = frame.f_locals["strategy"]
-                        target_format = frame.f_locals["target_format_actual"]
-                        from ...utils.metadata_format import MetadataFormat
-                        from ...utils.metadata_writing_strategy import MetadataWritingStrategy
+                    strategy = frame.f_locals["strategy"]
+                    target_format = frame.f_locals["target_format_actual"]
+                    from ...utils.metadata_format import MetadataFormat
+                    from ...utils.metadata_writing_strategy import MetadataWritingStrategy
 
-                        # Preserve ID3v2 tags when:
-                        # 1. PRESERVE strategy and target format is RIFF (preserve existing ID3v2 tags)
-                        # 2. SYNC strategy and target format is RIFF
-                        #    (preserve ID3v2 tags that were written by other managers)
-                        if strategy in (MetadataWritingStrategy.PRESERVE, MetadataWritingStrategy.SYNC):
-                            return bool(target_format == MetadataFormat.RIFF)
+                    # Preserve ID3v2 tags when:
+                    # 1. PRESERVE strategy and target format is RIFF (preserve existing ID3v2 tags)
+                    # 2. SYNC strategy and target format is RIFF
+                    #    (preserve ID3v2 tags that were written by other managers)
+                    if strategy in (MetadataWritingStrategy.PRESERVE, MetadataWritingStrategy.SYNC):
+                        return bool(target_format == MetadataFormat.RIFF)
                         return False
                 frame = frame.f_back
         finally:
