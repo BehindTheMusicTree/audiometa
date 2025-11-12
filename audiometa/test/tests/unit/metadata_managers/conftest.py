@@ -35,7 +35,7 @@ def mock_id3_empty():
     mock_id3.version = (2, 3, 0)
     mock_id3.size = 0
     mock_id3.flags = 0
-    mock_id3.__contains__ = lambda self, key: False
+    mock_id3.__contains__ = lambda _self, _key: False
     mock_id3.items.return_value = []
     mock_id3.extended_header = None
     return mock_id3
