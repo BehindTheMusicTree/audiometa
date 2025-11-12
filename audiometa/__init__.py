@@ -260,9 +260,9 @@ def get_unified_metadata_field(
     # (e.g., strings instead of UnifiedMetadataKey enum) would cause confusing errors later.
     # This check provides a clear error message. Mypy flags it as unreachable because the
     # parameter is typed as UnifiedMetadataKey, but this is intentional defensive programming.
-    if not isinstance(unified_metadata_key, UnifiedMetadataKey):  # type: ignore[unreachable]
+    if not isinstance(unified_metadata_key, UnifiedMetadataKey):
         msg = f"{unified_metadata_key} metadata not supported by the library."
-        raise MetadataFieldNotSupportedByLibError(msg)
+        raise MetadataFieldNotSupportedByLibError(msg)  # type: ignore[unreachable]
 
     audio_file = _AudioFile(file)
 
@@ -326,9 +326,9 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
         # (e.g., strings instead of UnifiedMetadataKey enum) would cause confusing errors later.
         # This check provides a clear error message. Mypy flags it as unreachable because the
         # dict is typed as UnifiedMetadata, but this is intentional defensive programming.
-        if not isinstance(key, UnifiedMetadataKey):  # type: ignore[unreachable]
+        if not isinstance(key, UnifiedMetadataKey):
             msg = f"{key} metadata not supported by the library."
-            raise MetadataFieldNotSupportedByLibError(msg)
+            raise MetadataFieldNotSupportedByLibError(msg)  # type: ignore[unreachable]
 
         # Allow None to mean "remove this field"
         if value is None:
