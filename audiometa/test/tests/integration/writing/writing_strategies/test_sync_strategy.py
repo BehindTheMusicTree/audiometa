@@ -4,7 +4,6 @@ This module tests the SYNC strategy which writes to native format and synchroniz
 already present.
 """
 
-from pathlib import Path
 
 import pytest
 
