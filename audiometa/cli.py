@@ -148,7 +148,10 @@ def write_metadata(args) -> None:
         try:
             update_kwargs = {}
             update_metadata(file_path, metadata, **update_kwargs)
-            print("Updated metadata")
+            if len(files) > 1:
+                print(f"Updated metadata for {file_path}")
+            else:
+                print("Updated metadata")
 
         except (FileTypeNotSupportedError, FileNotFoundError) as e:
             error_msg = f"Error: {e}"
