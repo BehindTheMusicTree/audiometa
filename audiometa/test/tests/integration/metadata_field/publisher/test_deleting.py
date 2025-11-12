@@ -21,32 +21,34 @@ class TestPublisherDeleting:
     def test_delete_publisher_id3v1(self):
         from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
 
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            # ID3v1 format raises exception for unsupported metadata
-            with pytest.raises(
+        with (
+            temp_file_with_metadata({}, "mp3") as test_file,
+            pytest.raises(
                 MetadataFieldNotSupportedByMetadataFormatError,
                 match="UnifiedMetadataKey.PUBLISHER metadata not supported by this format",
-            ):
-                update_metadata(
-                    test_file,
-                    {UnifiedMetadataKey.PUBLISHER: "Test Publisher"},
-                    metadata_format=MetadataFormat.ID3V1,
-                )
+            ),
+        ):
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.PUBLISHER: "Test Publisher"},
+                metadata_format=MetadataFormat.ID3V1,
+            )
 
     def test_delete_publisher_riff(self):
         from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
 
-        with temp_file_with_metadata({}, "wav") as test_file:
-            # RIFF format raises exception for unsupported metadata
-            with pytest.raises(
+        with (
+            temp_file_with_metadata({}, "wav") as test_file,
+            pytest.raises(
                 MetadataFieldNotSupportedByMetadataFormatError,
                 match="UnifiedMetadataKey.PUBLISHER metadata not supported by RIFF format",
-            ):
-                update_metadata(
-                    test_file,
-                    {UnifiedMetadataKey.PUBLISHER: "Test Publisher"},
-                    metadata_format=MetadataFormat.RIFF,
-                )
+            ),
+        ):
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.PUBLISHER: "Test Publisher"},
+                metadata_format=MetadataFormat.RIFF,
+            )
 
     def test_delete_publisher_vorbis(self):
         with temp_file_with_metadata({}, "flac") as test_file:

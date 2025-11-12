@@ -28,14 +28,16 @@ class TestRatingDeleting:
             )
 
     def test_delete_rating_id3v1(self):
-        with temp_file_with_metadata({}, "id3v1") as test_file:
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
-                update_metadata(
-                    test_file,
-                    {UnifiedMetadataKey.RATING: 50},
-                    metadata_format=MetadataFormat.ID3V1,
-                    normalized_rating_max_value=100,
-                )
+        with (
+            temp_file_with_metadata({}, "id3v1") as test_file,
+            pytest.raises(MetadataFieldNotSupportedByMetadataFormatError),
+        ):
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.RATING: 50},
+                metadata_format=MetadataFormat.ID3V1,
+                normalized_rating_max_value=100,
+            )
 
     def test_delete_rating_riff(self):
         with temp_file_with_metadata({}, "wav") as test_file:

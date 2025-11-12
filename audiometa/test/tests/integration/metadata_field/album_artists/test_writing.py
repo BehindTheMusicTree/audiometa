@@ -38,13 +38,14 @@ class TestAlbumArtistsWriting:
 
         test_album_artists = ["ID3v1 Album Artist"]
         test_metadata = {UnifiedMetadataKey.ALBUM_ARTISTS: test_album_artists}
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            # ID3v1 format raises exception for unsupported metadata
-            with pytest.raises(
+        with (
+            temp_file_with_metadata({}, "mp3") as test_file,
+            pytest.raises(
                 MetadataFieldNotSupportedByMetadataFormatError,
                 match="UnifiedMetadataKey.ALBUM_ARTISTS metadata not supported by this format",
-            ):
-                update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V1)
+            ),
+        ):
+            update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V1)
 
     def test_invalid_type_raises(self):
         with temp_file_with_metadata({}, "mp3") as test_file, pytest.raises(InvalidMetadataFieldTypeError):

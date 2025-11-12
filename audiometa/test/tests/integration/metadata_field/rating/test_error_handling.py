@@ -32,27 +32,30 @@ class TestRatingErrorHandling:
 
     def test_write_fractional_values(self):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        with temp_file_with_metadata(basic_metadata, "mp3") as test_file:
-            with pytest.raises(InvalidMetadataFieldTypeError):
-                update_metadata(
-                    test_file,
-                    {UnifiedMetadataKey.RATING: 25.5},
-                    normalized_rating_max_value=100,
-                    metadata_format=MetadataFormat.ID3V2,
-                )
+        with temp_file_with_metadata(basic_metadata, "mp3") as test_file, pytest.raises(InvalidMetadataFieldTypeError):
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.RATING: 25.5},
+                normalized_rating_max_value=100,
+                metadata_format=MetadataFormat.ID3V2,
+            )
 
     def test_rating_invalid_string_value(self):
-        with temp_file_with_metadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
-            with pytest.raises(
+        with (
+            temp_file_with_metadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file,
+            pytest.raises(
                 InvalidMetadataFieldTypeError, match="Invalid type for metadata field 'rating': expected int, got str"
-            ):
-                update_metadata(test_file, {UnifiedMetadataKey.RATING: "invalid"}, normalized_rating_max_value=100)
+            ),
+        ):
+            update_metadata(test_file, {UnifiedMetadataKey.RATING: "invalid"}, normalized_rating_max_value=100)
 
     def test_rating_negative_value_rejected_in_normalized_mode(self):
-        with temp_file_with_metadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
-            with pytest.raises(InvalidRatingValueError) as exc_info:
-                update_metadata(test_file, {UnifiedMetadataKey.RATING: -1}, normalized_rating_max_value=100)
-            assert "must be non-negative" in str(exc_info.value)
+        with (
+            temp_file_with_metadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file,
+            pytest.raises(InvalidRatingValueError) as exc_info,
+        ):
+            update_metadata(test_file, {UnifiedMetadataKey.RATING: -1}, normalized_rating_max_value=100)
+        assert "must be non-negative" in str(exc_info.value)
 
     def test_rating_over_max_value_rejected_in_normalized_mode(self):
         with temp_file_with_metadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:

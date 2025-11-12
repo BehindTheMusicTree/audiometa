@@ -23,9 +23,11 @@ class TestBpmDeleting:
     def test_delete_bpm_id3v1(self):
         from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
 
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
-                update_metadata(test_file, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.ID3V1)
+        with (
+            temp_file_with_metadata({}, "mp3") as test_file,
+            pytest.raises(MetadataFieldNotSupportedByMetadataFormatError),
+        ):
+            update_metadata(test_file, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.ID3V1)
 
     def test_delete_bpm_riff(self):
         with temp_file_with_metadata({"bpm": 120}, "wav") as test_file:
