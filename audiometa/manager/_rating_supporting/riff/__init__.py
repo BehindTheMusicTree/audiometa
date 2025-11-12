@@ -1,0 +1,25 @@
+"""RIFF manager and constants."""
+
+from ._riff_constants import (
+    RIFF_AUDIO_FORMAT_IEEE_FLOAT,
+    RIFF_CHUNK_ID_SIZE,
+    RIFF_FORMAT_CHUNK_MIN_SIZE,
+    RIFF_HEADER_SIZE,
+    RIFF_INFO_CHUNK_MIN_SIZE,
+    RIFF_MIN_DATA_SIZE_FOR_ID3V2,
+    RIFF_MIN_VERSION_LENGTH,
+    RIFF_WAVE_FORMAT_POSITION,
+)
+from ._RiffManager import _RiffManager
+
+__all__ = [
+    "_RiffManager",
+    "RIFF_AUDIO_FORMAT_IEEE_FLOAT",
+    "RIFF_CHUNK_ID_SIZE",
+    "RIFF_FORMAT_CHUNK_MIN_SIZE",
+    "RIFF_HEADER_SIZE",
+    "RIFF_INFO_CHUNK_MIN_SIZE",
+    "RIFF_MIN_DATA_SIZE_FOR_ID3V2",
+    "RIFF_MIN_VERSION_LENGTH",
+    "RIFF_WAVE_FORMAT_POSITION",
+]
