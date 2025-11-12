@@ -8,7 +8,7 @@ import pytest
 
 from audiometa import get_unified_metadata_field
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 
 @pytest.mark.integration
@@ -45,7 +45,7 @@ class TestTitleWriting:
 
     def test_id3v1(self):
         from audiometa import update_metadata
-        from audiometa.utils.MetadataFormat import MetadataFormat
+        from audiometa.utils.metadata_format import MetadataFormat
 
         with temp_file_with_metadata({}, "mp3") as test_file:
             test_title = "Test Title ID3v1"

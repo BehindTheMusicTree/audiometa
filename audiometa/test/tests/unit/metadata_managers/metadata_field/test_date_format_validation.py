@@ -2,7 +2,7 @@ import pytest
 
 from audiometa import _validate_unified_metadata_types
 from audiometa.exceptions import InvalidMetadataFieldFormatError, InvalidMetadataFieldTypeError
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 
 @pytest.mark.unit

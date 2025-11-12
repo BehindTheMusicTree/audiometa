@@ -1,4 +1,4 @@
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 from ...utils.types import RawMetadataKey
 

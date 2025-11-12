@@ -36,7 +36,7 @@ from mutagen.id3._frames import (
 )
 from mutagen.id3._util import ID3NoHeaderError
 
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 if TYPE_CHECKING:
     from ...._audio_file import _AudioFile

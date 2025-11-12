@@ -2,15 +2,15 @@ from typing import Any, cast
 
 from mutagen._file import FileType as MutagenMetadata
 
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 from ..._audio_file import _AudioFile
 from ...exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError
 from ...utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 from .._MetadataManager import _MetadataManager
 from ._constants import ID3V1_MIN_COMMENT_LENGTH_TO_CHECK_TRACK_NUMBER, ID3V1_TAG_SIZE
-from .Id3v1RawMetadata import Id3v1RawMetadata
-from .Id3v1RawMetadataKey import Id3v1RawMetadataKey
+from .id3v1_raw_metadata import Id3v1RawMetadata
+from .id3v1_raw_metadata_key import Id3v1RawMetadataKey
 
 
 class _Id3v1Manager(_MetadataManager):

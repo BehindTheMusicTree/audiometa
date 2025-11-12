@@ -8,8 +8,8 @@ import pytest
 
 from audiometa import delete_all_metadata, get_unified_metadata, update_metadata
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
-from audiometa.utils.MetadataFormat import MetadataFormat
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.metadata_format import MetadataFormat
+from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 
 @pytest.mark.e2e

@@ -5,7 +5,7 @@ from audiometa.test.helpers.id3v1 import ID3v1MetadataSetter
 from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
 from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 
 @pytest.mark.integration

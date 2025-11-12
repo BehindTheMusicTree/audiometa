@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from audiometa import get_unified_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 
 @pytest.mark.integration

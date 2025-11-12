@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 if TYPE_CHECKING:
     from ..._audio_file import _AudioFile

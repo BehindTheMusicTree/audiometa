@@ -13,9 +13,9 @@ from audiometa.exceptions import (
     MetadataWritingConflictParametersError,
 )
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
-from audiometa.utils.MetadataFormat import MetadataFormat
-from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.metadata_format import MetadataFormat
+from audiometa.utils.metadata_writing_strategy import MetadataWritingStrategy
+from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 
 @pytest.mark.integration

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 from ....exceptions import FileCorruptedError, InvalidRatingValueError, MetadataFieldNotSupportedByMetadataFormatError
 from ....utils.rating_profiles import RatingWriteProfile
 from ....utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
-from ....utils.UnifiedMetadataKey import UnifiedMetadataKey
+from ....utils.unified_metadata_key import UnifiedMetadataKey
 from .._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
 from ._vorbis_constants import VORBIS_BLOCK_HEADER_SIZE, VORBIS_COMMENT_BLOCK_TYPE, VORBIS_ID3V2_HEADER_SIZE
 

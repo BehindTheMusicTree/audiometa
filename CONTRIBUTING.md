@@ -26,6 +26,7 @@ This project is currently maintained by a solo developer, but contributions, sug
       - [Pre-commit Hooks](#pre-commit-hooks)
       - [Auto-fix Formatting](#auto-fix-formatting)
       - [Type Checking](#type-checking)
+      - [Code Style Conventions](#code-style-conventions)
       - [Known Linting Issues](#known-linting-issues)
   - [📝 Commit Message Convention](#-commit-message-convention)
   - [✅ Pre-PR / Pre-Merge Checklist](#-pre-pr--pre-merge-checklist)
@@ -435,6 +436,33 @@ This means:
 - Test code type errors are acceptable as long as they don't prevent tests from running
 
 CI will automatically test all pushes and PRs using GitHub Actions.
+
+##### Code Style Conventions
+
+**Module Naming:**
+
+All Python module files must follow PEP 8 naming conventions:
+
+- **Use `snake_case` for module names**: Module files should use lowercase with underscores
+  - ✅ Good: `metadata_format.py`, `unified_metadata_key.py`, `id3v1_raw_metadata.py`
+  - ❌ Bad: `MetadataFormat.py`, `UnifiedMetadataKey.py`, `Id3v1RawMetadata.py`
+
+- **Private modules can start with `_`**: Internal/private modules that are not part of the public API can use a leading underscore prefix
+  - ✅ Good: `_MetadataManager.py`, `_Id3v2Manager.py`, `_audio_file.py`
+  - These indicate internal implementation details and are not imported by external users
+
+- **Class names remain PascalCase**: While module files use `snake_case`, the classes they contain still follow Python conventions (PascalCase)
+  - Example: `metadata_format.py` contains the `MetadataFormat` class
+  - Example: `unified_metadata_key.py` contains the `UnifiedMetadataKey` enum
+
+**Why this matters:**
+
+- PEP 8 compliance ensures consistency across the codebase
+- `snake_case` module names are the Python standard and improve readability
+- Leading `_` prefix signals private/internal modules to other developers
+- Consistent naming makes the codebase easier to navigate and understand
+
+**Note:** The `N999` linting rule (invalid module name) is configured to ignore modules starting with `_` since these are intentionally private. However, all public modules must use `snake_case`.
 
 ##### Known Linting Issues
 

@@ -8,7 +8,7 @@ from collections.abc import MutableMapping
 from enum import Enum
 from typing import Any, TypedDict
 
-from .UnifiedMetadataKey import UnifiedMetadataKey
+from .unified_metadata_key import UnifiedMetadataKey
 
 
 class RawMetadataKey(str, Enum):

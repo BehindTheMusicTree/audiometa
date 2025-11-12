@@ -32,10 +32,10 @@ from .manager._rating_supporting.id3v2._Id3v2Manager import _Id3v2Manager
 from .manager._rating_supporting.riff._RiffManager import _RiffManager
 from .manager._rating_supporting.vorbis._VorbisManager import _VorbisManager
 from .manager.id3v1._Id3v1Manager import _Id3v1Manager
-from .utils.MetadataFormat import MetadataFormat
-from .utils.MetadataWritingStrategy import MetadataWritingStrategy
+from .utils.metadata_format import MetadataFormat
+from .utils.metadata_writing_strategy import MetadataWritingStrategy
 from .utils.types import UnifiedMetadata, UnifiedMetadataValue
-from .utils.UnifiedMetadataKey import UnifiedMetadataKey
+from .utils.unified_metadata_key import UnifiedMetadataKey
 
 FILE_EXTENSION_NOT_HANDLED_MESSAGE = "The file's format is not handled by the service."
 

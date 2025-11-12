@@ -23,7 +23,7 @@ from .exceptions import (
 )
 from .manager._rating_supporting.id3v2._id3v2_constants import ID3V2_HEADER_SIZE
 from .manager._rating_supporting.riff._riff_constants import RIFF_HEADER_SIZE
-from .utils.MetadataFormat import MetadataFormat
+from .utils.metadata_format import MetadataFormat
 
 # Type alias for files that can be handled (must be disk-based)
 type DiskBasedFile = str | Path | bytes | object

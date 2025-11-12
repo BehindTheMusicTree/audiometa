@@ -12,7 +12,7 @@ from ....exceptions import ConfigurationError, FileTypeNotSupportedError, Metada
 from ....utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 from ....utils.rating_profiles import RatingWriteProfile
 from ....utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
-from ....utils.UnifiedMetadataKey import UnifiedMetadataKey
+from ....utils.unified_metadata_key import UnifiedMetadataKey
 from .._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
 from ..id3v2._id3v2_constants import ID3V2_HEADER_SIZE
 from ._riff_constants import (
@@ -635,8 +635,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
                     if "strategy" in frame.f_locals and "target_format_actual" in frame.f_locals:
                         strategy = frame.f_locals["strategy"]
                         target_format = frame.f_locals["target_format_actual"]
-                        from ...utils.MetadataFormat import MetadataFormat
-                        from ...utils.MetadataWritingStrategy import MetadataWritingStrategy
+                        from ...utils.metadata_format import MetadataFormat
+                        from ...utils.metadata_writing_strategy import MetadataWritingStrategy
 
                         # Preserve ID3v2 tags when:
                         # 1. PRESERVE strategy and target format is RIFF (preserve existing ID3v2 tags)

@@ -13,7 +13,7 @@ from ._constants import (
     ID3V1_TRACK_NUMBER_POSITION,
     ID3V1_TRACK_NUMBER_VALUE_POSITION,
 )
-from .Id3v1RawMetadataKey import Id3v1RawMetadataKey
+from .id3v1_raw_metadata_key import Id3v1RawMetadataKey
 
 
 class Id3v1RawMetadata(FileType):

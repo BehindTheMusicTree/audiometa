@@ -6,7 +6,7 @@ from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSett
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
 from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 
 @pytest.mark.integration

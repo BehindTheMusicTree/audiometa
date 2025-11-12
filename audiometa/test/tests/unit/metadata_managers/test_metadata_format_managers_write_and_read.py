@@ -5,9 +5,9 @@ from audiometa.manager._rating_supporting.id3v2._Id3v2Manager import _Id3v2Manag
 from audiometa.manager._rating_supporting.riff._RiffManager import _RiffManager as RiffManager
 from audiometa.manager._rating_supporting.vorbis._VorbisManager import _VorbisManager as VorbisManager
 from audiometa.manager.id3v1._Id3v1Manager import _Id3v1Manager as Id3v1Manager
-from audiometa.manager.id3v1.Id3v1RawMetadataKey import Id3v1RawMetadataKey
+from audiometa.manager.id3v1.id3v1_raw_metadata_key import Id3v1RawMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 
 @pytest.mark.unit
