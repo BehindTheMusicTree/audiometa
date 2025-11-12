@@ -249,7 +249,7 @@ pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-un
 
 **Note:** CI tests only run on latest OS versions: `ubuntu-latest`, `macos-latest`, `windows-latest`.
 
-For detailed test documentation, including test principles, markers, and advanced usage, see [`audiometa/test/README.md`](test/README.md).
+For detailed test documentation, including test principles, markers, and advanced usage, see [`audiometa/test/README.md`](audiometa/test/README.md).
 
 #### Lint Code for Style Consistency
 
@@ -580,7 +580,7 @@ You retain authorship of your code; the project retains redistribution rights un
 
 ## 📜 Code of Conduct
 
-This project adheres to a Code of Conduct to ensure a welcoming and inclusive environment for all contributors. Please read and follow our [Code of Conduct](../CODE_OF_CONDUCT.md) when participating in this project.
+This project adheres to a Code of Conduct to ensure a welcoming and inclusive environment for all contributors. Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) when participating in this project.
 
 ## 🌍 Contact & Discussions
 
@@ -589,6 +589,6 @@ You can open:
 - **Issues** → bug reports or new ideas
 - **Discussions** → suggestions, architecture, or music-genre topics
 
-For more detailed support information, see [SUPPORT.md](../SUPPORT.md).
+For more detailed support information, see [SUPPORT.md](SUPPORT.md).
 
 Let's make this library grow together 🌱

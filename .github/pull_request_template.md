@@ -38,14 +38,14 @@
 
 ### Documentation
 
-- [ ] Updated docstrings for new functions/classes (only when needed - see [CONTRIBUTING.md](audiometa/CONTRIBUTING.md) for guidelines)
+- [ ] Updated docstrings for new functions/classes (only when needed - see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines)
 - [ ] Updated README if adding new features or changing behavior
 - [ ] Updated CONTRIBUTING.md if changing development workflow
 - [ ] Added/updated type hints where appropriate
 
 ### Git Hygiene
 
-- [ ] Commit messages follow the [commit message convention](audiometa/CONTRIBUTING.md#-commit-message-convention)
+- [ ] Commit messages follow the [commit message convention](CONTRIBUTING.md#-commit-message-convention)
 - [ ] No merge conflicts with target branch
 - [ ] Branch is up to date with target branch
 - [ ] No accidental commits (large files, secrets, personal configs)
@@ -96,4 +96,4 @@
 
 ---
 
-**Note**: Please ensure all items in the Pre-PR Checklist are completed before requesting review. See [CONTRIBUTING.md](audiometa/CONTRIBUTING.md) for detailed guidelines.
+**Note**: Please ensure all items in the Pre-PR Checklist are completed before requesting review. See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.

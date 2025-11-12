@@ -7,7 +7,7 @@ Need help with AudioMeta Python? You've come to the right place! Here are severa
 Before asking for help, please check our documentation:
 
 - **[README.md](README.md)** - Complete guide with installation, quick start, and API reference
-- **[CONTRIBUTING.md](audiometa/CONTRIBUTING.md)** - Development guidelines and contribution instructions
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Development guidelines and contribution instructions
 - **[CHANGELOG.md](CHANGELOG.md)** - Recent changes and version history
 
 ## 🐛 Reporting Bugs
@@ -78,7 +78,7 @@ To get help faster, please include:
 
 ## 🤝 Contributing
 
-Want to contribute? Great! Check out our [Contributing Guidelines](audiometa/CONTRIBUTING.md) to get started.
+Want to contribute? Great! Check out our [Contributing Guidelines](CONTRIBUTING.md) to get started.
 
 ## 📧 Contact
 
