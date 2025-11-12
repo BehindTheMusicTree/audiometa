@@ -82,15 +82,25 @@ def read_metadata(args) -> None:
             output = format_output(metadata, args.output_format)
 
             if args.output:
-                with open(args.output, "w") as f:
-                    f.write(output)
+                try:
+                    with open(args.output, "w") as f:
+                        f.write(output)
+                except (PermissionError, OSError) as e:
+                    error_msg = f"Error: cannot write to output file: {e}"
+                    print(error_msg, file=sys.stderr)
+                    if not args.continue_on_error:
+                        sys.exit(1)
             else:
                 print(output)
 
-        except (FileTypeNotSupportedError, FileNotFoundError):
+        except (FileTypeNotSupportedError, FileNotFoundError) as e:
+            error_msg = f"Error: {e}"
+            print(error_msg, file=sys.stderr)
             if not args.continue_on_error:
                 sys.exit(1)
-        except Exception:
+        except Exception as e:
+            error_msg = f"Error: {e}"
+            print(error_msg, file=sys.stderr)
             if not args.continue_on_error:
                 sys.exit(1)
 
@@ -104,19 +114,30 @@ def write_metadata(args) -> None:
     # Build metadata dictionary from command line arguments
     metadata = {}
 
-    if args.title:
-        metadata[UnifiedMetadataKey.TITLE] = args.title
-    if args.artist:
-        metadata[UnifiedMetadataKey.ARTISTS] = [args.artist]
-    if args.album:
-        metadata[UnifiedMetadataKey.ALBUM] = args.album
-    if args.year:
-        metadata[UnifiedMetadataKey.RELEASE_DATE] = str(args.year)
-    if args.genre:
-        metadata[UnifiedMetadataKey.GENRE] = args.genre
+    # Validate rating
     if args.rating is not None:
+        if args.rating < 0:
+            print("Error: rating value cannot be negative", file=sys.stderr)
+            sys.exit(1)
         metadata[UnifiedMetadataKey.RATING] = args.rating
-    if args.comment:
+
+    # Validate year
+    if args.year is not None:
+        if args.year < 0:
+            print("Error: year value cannot be negative", file=sys.stderr)
+            sys.exit(1)
+        metadata[UnifiedMetadataKey.RELEASE_DATE] = str(args.year)
+
+    # Only add non-empty string values
+    if args.title and args.title.strip():
+        metadata[UnifiedMetadataKey.TITLE] = args.title
+    if args.artist and args.artist.strip():
+        metadata[UnifiedMetadataKey.ARTISTS] = [args.artist]
+    if args.album and args.album.strip():
+        metadata[UnifiedMetadataKey.ALBUM] = args.album
+    if args.genre and args.genre.strip():
+        metadata[UnifiedMetadataKey.GENRE] = args.genre
+    if args.comment and args.comment.strip():
         metadata[UnifiedMetadataKey.COMMENT] = args.comment
 
     if not metadata:
@@ -129,10 +150,14 @@ def write_metadata(args) -> None:
             update_metadata(file_path, metadata, **update_kwargs)
             print("Updated metadata")
 
-        except (FileTypeNotSupportedError, FileNotFoundError):
+        except (FileTypeNotSupportedError, FileNotFoundError) as e:
+            error_msg = f"Error: {e}"
+            print(error_msg, file=sys.stderr)
             if not args.continue_on_error:
                 sys.exit(1)
-        except Exception:
+        except Exception as e:
+            error_msg = f"Error: {e}"
+            print(error_msg, file=sys.stderr)
             if not args.continue_on_error:
                 sys.exit(1)
 
@@ -151,10 +176,14 @@ def delete_metadata(args) -> None:
             else:
                 print("No metadata found")
 
-        except (FileTypeNotSupportedError, FileNotFoundError):
+        except (FileTypeNotSupportedError, FileNotFoundError) as e:
+            error_msg = f"Error: {e}"
+            print(error_msg, file=sys.stderr)
             if not args.continue_on_error:
                 sys.exit(1)
-        except Exception:
+        except Exception as e:
+            error_msg = f"Error: {e}"
+            print(error_msg, file=sys.stderr)
             if not args.continue_on_error:
                 sys.exit(1)
 
