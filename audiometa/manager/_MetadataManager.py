@@ -558,6 +558,7 @@ class _MetadataManager:
 
         try:
             self.raw_mutagen_metadata.delete()
-            return True
         except Exception:
             return False
+        else:
+            return True

@@ -447,9 +447,10 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             }
 
             file_obj.close()
-            return info
         except Exception:
             return {"present": False, "vendor_string": None, "comment_count": 0, "block_size": 0}
+        else:
+            return info
 
     def get_raw_metadata_info(self) -> dict:
         try:
@@ -478,9 +479,10 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                 text=True,
                 check=True,
             )
-            return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
+        else:
+            return True
 
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
         self, _raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey

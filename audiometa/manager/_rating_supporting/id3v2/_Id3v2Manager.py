@@ -820,12 +820,13 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             # Create a new ID3 instance and use delete() to remove all ID3v2 tags
             id3 = ID3(self.audio_file.file_path)
             id3.delete()
-            return True
         except ID3NoHeaderError:
             # No ID3 tags present, consider this a success
             return True
         except Exception:
             return False
+        else:
+            return True
 
     def get_header_info(self) -> dict:
         try:
