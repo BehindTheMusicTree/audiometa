@@ -35,9 +35,9 @@ class VorbisMetadataGetter:
         lines.append("  length: 72")
         lines.append("  vendor string: ")
         comments = []
-        if audio.tags is not None:
-            for key in sorted(audio.tags.keys()):
-                values = audio.tags[key]
+        if audio.tags is not None and hasattr(audio.tags, "keys"):
+            for key in sorted(audio.tags.keys()):  # type: ignore[union-attr]
+                values = audio.tags[key]  # type: ignore[union-attr]
                 if isinstance(values, list):
                     for value in values:
                         comments.append(f"    comment[{len(comments)}]: {key}={value}")

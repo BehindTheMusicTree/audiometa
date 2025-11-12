@@ -257,9 +257,9 @@ def get_unified_metadata_field(
             print("Field not supported by any format in the library")
     """
     # Check if key is a valid UnifiedMetadataKey enum first
-    if not isinstance(unified_metadata_key, UnifiedMetadataKey):
+    if not isinstance(unified_metadata_key, UnifiedMetadataKey):  # type: ignore[unreachable]
         msg = f"{unified_metadata_key} metadata not supported by the library."
-        raise MetadataFieldNotSupportedByLibError(msg)  # type: ignore[unreachable]
+        raise MetadataFieldNotSupportedByLibError(msg)
 
     audio_file = _AudioFile(file)
 
@@ -320,9 +320,9 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
 
     for key, value in unified_metadata.items():
         # Check if key is a valid UnifiedMetadataKey enum first
-        if not isinstance(key, UnifiedMetadataKey):
+        if not isinstance(key, UnifiedMetadataKey):  # type: ignore[unreachable]
             msg = f"{key} metadata not supported by the library."
-            raise MetadataFieldNotSupportedByLibError(msg)  # type: ignore[unreachable]
+            raise MetadataFieldNotSupportedByLibError(msg)
 
         # Allow None to mean "remove this field"
         if value is None:
