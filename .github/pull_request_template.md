@@ -8,7 +8,7 @@
 
 ## Type of Change
 
-<!-- Check all that apply -->
+<!-- Check all that apply. Note: Auto-labeling will add component labels (id3v1, id3v2, etc.) based on files changed. Please add type/priority labels manually. -->
 
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
