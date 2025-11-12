@@ -14,9 +14,10 @@ class VorbisHeaderVerifier:
         """Check if file has Vorbis comments using metaflac."""
         try:
             result = subprocess.run(["metaflac", "--list", str(file_path)], capture_output=True, text=True, check=True)
-            return "VORBIS_COMMENT" in result.stdout
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
+        else:
+            return "VORBIS_COMMENT" in result.stdout
 
     @staticmethod
     def get_metadata_info(file_path: Path) -> str:

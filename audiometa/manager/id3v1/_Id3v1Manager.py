@@ -403,8 +403,9 @@ class _Id3v1Manager(_MetadataManager):
                 # Write back to file
                 self.audio_file.write(file_data)
                 return True
-            return False
         except Exception:
+            return False
+        else:
             return False
 
     def get_header_info(self) -> dict:
@@ -448,14 +449,6 @@ class _Id3v1Manager(_MetadataManager):
                 ):
                     version = "1.1"
                     has_track_number = True
-
-            return {
-                "present": True,
-                "position": "end_of_file",
-                "size_bytes": 128,
-                "version": version,
-                "has_track_number": has_track_number,
-            }
         except Exception:
             return {
                 "present": False,
@@ -483,7 +476,9 @@ class _Id3v1Manager(_MetadataManager):
                     if raw_key and raw_key in tags:
                         value = tags[raw_key]
                         parsed_fields[unified_key] = value[0] if value else ""
-
+        except Exception:
+            return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
+        else:
             return {
                 "raw_data": None,  # ID3v1 is 128 bytes at end of file
                 "parsed_fields": parsed_fields,
@@ -491,5 +486,3 @@ class _Id3v1Manager(_MetadataManager):
                 "comments": {},
                 "chunk_structure": {},
             }
-        except Exception:
-            return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
