@@ -40,10 +40,8 @@ def create_silent_audio_file(output_path: Path, duration: float = 1.0, sample_ra
             cmd.insert(-1, bitrate)
 
         subprocess.run(cmd, check=True, capture_output=True)
-        print(f"Created {output_path}")
         return True
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        print(f"Failed to create {output_path}: {e}")
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
 
@@ -64,9 +62,9 @@ def create_test_files():
         if not output_path.exists():
             success = create_silent_audio_file(output_path, duration)
             if not success:
-                print(f"Warning: Could not create {filename}. Some tests may fail.")
+                pass
         else:
-            print(f"{filename} already exists, skipping.")
+            pass
 
 
 if __name__ == "__main__":

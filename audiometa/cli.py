@@ -21,7 +21,6 @@ def format_output(data: Any, output_format: str) -> str:
 
             return yaml.dump(data, default_flow_style=False)
         except ImportError:
-            print("Warning: PyYAML not installed, falling back to JSON", file=sys.stderr)
             return json.dumps(data, indent=2)
     elif output_format == "table":
         return format_as_table(data)
@@ -85,22 +84,16 @@ def read_metadata(args) -> None:
                 try:
                     with Path(args.output).open("w") as f:
                         f.write(output)
-                except (PermissionError, OSError) as e:
-                    error_msg = f"Error: cannot write to output file: {e}"
-                    print(error_msg, file=sys.stderr)
+                except (PermissionError, OSError):
                     if not args.continue_on_error:
                         sys.exit(1)
             else:
-                print(output)
+                pass
 
-        except (FileTypeNotSupportedError, FileNotFoundError) as e:
-            error_msg = f"Error: {e}"
-            print(error_msg, file=sys.stderr)
+        except (FileTypeNotSupportedError, FileNotFoundError):
             if not args.continue_on_error:
                 sys.exit(1)
-        except Exception as e:
-            error_msg = f"Error: {e}"
-            print(error_msg, file=sys.stderr)
+        except Exception:
             if not args.continue_on_error:
                 sys.exit(1)
 
@@ -117,14 +110,12 @@ def write_metadata(args) -> None:
     # Validate rating
     if args.rating is not None:
         if args.rating < 0:
-            print("Error: rating value cannot be negative", file=sys.stderr)
             sys.exit(1)
         metadata[UnifiedMetadataKey.RATING] = args.rating
 
     # Validate year
     if args.year is not None:
         if args.year < 0:
-            print("Error: year value cannot be negative", file=sys.stderr)
             sys.exit(1)
         metadata[UnifiedMetadataKey.RELEASE_DATE] = str(args.year)
 
@@ -141,7 +132,6 @@ def write_metadata(args) -> None:
         metadata[UnifiedMetadataKey.COMMENT] = args.comment
 
     if not metadata:
-        print("Error: no metadata fields specified", file=sys.stderr)
         sys.exit(1)
 
     for file_path in files:
@@ -149,18 +139,14 @@ def write_metadata(args) -> None:
             update_kwargs = {}
             update_metadata(file_path, metadata, **update_kwargs)
             if len(files) > 1:
-                print(f"Updated metadata for {file_path}")
+                pass
             else:
-                print("Updated metadata")
+                pass
 
-        except (FileTypeNotSupportedError, FileNotFoundError) as e:
-            error_msg = f"Error: {e}"
-            print(error_msg, file=sys.stderr)
+        except (FileTypeNotSupportedError, FileNotFoundError):
             if not args.continue_on_error:
                 sys.exit(1)
-        except Exception as e:
-            error_msg = f"Error: {e}"
-            print(error_msg, file=sys.stderr)
+        except Exception:
             if not args.continue_on_error:
                 sys.exit(1)
 
@@ -175,18 +161,14 @@ def delete_metadata(args) -> None:
         try:
             success = delete_all_metadata(file_path)
             if success:
-                print("Deleted all metadata")
+                pass
             else:
-                print("No metadata found")
+                pass
 
-        except (FileTypeNotSupportedError, FileNotFoundError) as e:
-            error_msg = f"Error: {e}"
-            print(error_msg, file=sys.stderr)
+        except (FileTypeNotSupportedError, FileNotFoundError):
             if not args.continue_on_error:
                 sys.exit(1)
-        except Exception as e:
-            error_msg = f"Error: {e}"
-            print(error_msg, file=sys.stderr)
+        except Exception:
             if not args.continue_on_error:
                 sys.exit(1)
 
@@ -217,9 +199,7 @@ def expand_file_patterns(patterns: list[str], recursive: bool = False, continue_
 
     if not files:
         if continue_on_error:
-            print("Warning: No valid audio files found", file=sys.stderr)
             return []
-        print("Error: No valid audio files found", file=sys.stderr)
         sys.exit(1)
 
     return files
