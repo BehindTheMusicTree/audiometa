@@ -256,8 +256,11 @@ def get_unified_metadata_field(
         except MetadataFieldNotSupportedByLibError:
             print("Field not supported by any format in the library")
     """
-    # Check if key is a valid UnifiedMetadataKey enum first (runtime validation)
-    if not isinstance(unified_metadata_key, UnifiedMetadataKey):
+    # Runtime validation: Python doesn't enforce type hints at runtime, so invalid inputs
+    # (e.g., strings instead of UnifiedMetadataKey enum) would cause confusing errors later.
+    # This check provides a clear error message. Mypy flags it as unreachable because the
+    # parameter is typed as UnifiedMetadataKey, but this is intentional defensive programming.
+    if not isinstance(unified_metadata_key, UnifiedMetadataKey):  # type: ignore[unreachable]
         msg = f"{unified_metadata_key} metadata not supported by the library."
         raise MetadataFieldNotSupportedByLibError(msg)
 
@@ -319,8 +322,11 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
     from typing import get_args, get_origin
 
     for key, value in unified_metadata.items():
-        # Check if key is a valid UnifiedMetadataKey enum first (runtime validation)
-        if not isinstance(key, UnifiedMetadataKey):
+        # Runtime validation: Python doesn't enforce type hints at runtime, so invalid inputs
+        # (e.g., strings instead of UnifiedMetadataKey enum) would cause confusing errors later.
+        # This check provides a clear error message. Mypy flags it as unreachable because the
+        # dict is typed as UnifiedMetadata, but this is intentional defensive programming.
+        if not isinstance(key, UnifiedMetadataKey):  # type: ignore[unreachable]
             msg = f"{key} metadata not supported by the library."
             raise MetadataFieldNotSupportedByLibError(msg)
 
