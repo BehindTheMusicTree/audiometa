@@ -589,4 +589,6 @@ You can open:
 - **Issues** → bug reports or new ideas
 - **Discussions** → suggestions, architecture, or music-genre topics
 
+For more detailed support information, see [SUPPORT.md](../SUPPORT.md).
+
 Let's make this library grow together 🌱
