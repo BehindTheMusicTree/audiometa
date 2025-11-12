@@ -67,7 +67,7 @@ class TestSyncStrategy:
             merged = get_unified_metadata(test_file)
             assert merged.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
 
-    def test_id3v1_not_preserved_with_sync_strategy(self, _sample_mp3_file: Path):
+    def test_id3v1_not_preserved_with_sync_strategy(self):
         # Create test file with ID3v1 metadata using external tools
         with temp_file_with_metadata({}, "mp3") as test_file:
             # Add ID3v1 metadata using external tools
@@ -100,7 +100,7 @@ class TestSyncStrategy:
             merged = get_unified_metadata(test_file)
             assert merged.get(UnifiedMetadataKey.TITLE) == "Synced Title"
 
-    def test_id3v1_modification_success(self, _sample_mp3_file: Path):
+    def test_id3v1_modification_success(self):
         # Create test file with ID3v1 metadata using external tools
         with temp_file_with_metadata({}, "mp3") as test_file:
             # Add ID3v1 metadata using external tools
@@ -119,7 +119,7 @@ class TestSyncStrategy:
             updated_id3v1_result = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V1)
             assert updated_id3v1_result.get(UnifiedMetadataKey.TITLE) == "New Title"
 
-    def test_sync_strategy_wav_with_field_length_limits(self, _sample_wav_file: Path):
+    def test_sync_strategy_wav_with_field_length_limits(self):
         # Create WAV file with initial RIFF metadata
         with temp_file_with_metadata({}, "wav") as test_file:
             # Add initial RIFF metadata using external tools
