@@ -1,0 +1,14 @@
+# Maintainer-only: Auto-assign configuration
+# Contributors cannot modify this file. Changes to automation policies require maintainer approval.
+# This file configures reviewer assignment for PRs from contributors (not maintainers)
+
+# Default reviewers to assign
+reviewers:
+  - Andreas-Garcia
+
+# Number of reviewers to assign
+number-of-reviewers: 1
+
+# Don't assign the PR author
+assign-author: false
+

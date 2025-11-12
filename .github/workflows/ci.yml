@@ -1,0 +1,126 @@
+# Maintainer-controlled: CI/CD workflow
+# Contributors can suggest changes via PRs, but maintainers review and approve all CI/CD changes.
+name: CI
+
+on:
+  push:
+    branches: [main, "feature/**", "hotfix/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Check for assert statements
+        run: |
+          find audiometa -name "*.py" ! -path "*/test/*" ! -path "*/tests/*" ! -path "*/scripts/*" -print0 | \
+          xargs -0 bash .pre-commit-hooks/no-assert.sh
+
+      - name: Check code formatting with ruff-format
+        run: ruff format --check .
+
+      - name: Check import sorting with isort
+        run: isort --check-only .
+
+      - name: Run ruff linting
+        run: ruff check .
+
+      - name: Run mypy type checking
+        # Note: pytest type stubs are not available, so mypy will report missing stubs for pytest
+        # This is expected - real import errors are caught by test execution
+        # The mypy overrides in pyproject.toml relax type checking rules for test files
+        run: mypy audiometa
+
+      - name: Run flake8
+        run: flake8 audiometa
+
+  test:
+    name: Test Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install system dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg flac
+
+      - name: Install system dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install ffmpeg flac
+
+      - name: Install system dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install ffmpeg flac -y
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Cache pytest cache
+        uses: actions/cache@v4
+        with:
+          path: .pytest_cache
+          key: pytest-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/*.py') }}
+          restore-keys: |
+            pytest-${{ runner.os }}-${{ matrix.python-version }}-
+
+      - name: Verify external tools (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        run: |
+          ffprobe -version
+          flac --version
+          metaflac --version || echo "metaflac not found (should be bundled with flac)"
+          which mid3v2 && mid3v2 --version || echo "mid3v2 not found (mutagen provides it, may not be in PATH)"
+
+      - name: Verify external tools (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          ffprobe -version
+          flac --version
+          metaflac --version
+          if (Get-Command mid3v2 -ErrorAction SilentlyContinue) { mid3v2 --version } else { Write-Host "mid3v2 not found (mutagen provides it, may not be in PATH)" }
+
+      - name: Run unit tests
+        run: pytest -m unit --cov=audiometa --cov-report=xml --cov-report=term
+
+      - name: Run integration tests
+        run: pytest -m integration --cov=audiometa --cov-report=xml --cov-report=term --cov-append
+
+      - name: Run e2e tests
+        run: pytest -m e2e --cov=audiometa --cov-report=xml --cov-report=term --cov-append
+
+      - name: Check combined coverage threshold
+        run: coverage report --fail-under=85

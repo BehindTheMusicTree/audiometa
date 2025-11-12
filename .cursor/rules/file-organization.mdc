@@ -1,0 +1,23 @@
+---
+alwaysApply: true
+---
+
+# File Organization
+
+## Cursor Rules File Location
+
+**All Cursor rules must be written in `.cursor/rules/` directory, not `.cursorrules` file.**
+
+The `.cursorrules` file is deprecated. Use `.cursor/rules/` directory with `.mdc` files instead.
+
+## Module Structure
+
+- Keep related functionality together
+- Use clear, descriptive file names
+- Avoid unnecessary module docstrings that just describe the file contents
+
+## Import Organization
+
+- Group imports logically
+- Use absolute imports when possible
+- Keep imports clean and minimal

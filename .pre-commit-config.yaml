@@ -1,0 +1,94 @@
+# Pre-commit hooks configuration
+# See https://pre-commit.com for more information
+#
+# To install: pre-commit install
+# To run manually: pre-commit run --all-files
+# To run on staged files only: pre-commit run
+#
+# Pre-commit hooks execution order - order matters!
+# 1. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
+# 2. no-assert: Check for assert statements in production code
+# 3. isort: Sort imports (configured to work with ruff-format/black)
+# 4. ruff-format: Format code (replaces black, handles EOF newlines automatically)
+# 5. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
+# 6. docformatter: Format docstrings (after code formatting)
+# 7. fix-long-comments: Fix long comment lines (custom hook)
+# 8. mypy: Type checking on formatted code
+# 9. prettier: Format markdown files (preserves list numbering without zero-padding)
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ["--maxkb=10000"]
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: trailing-whitespace
+
+  - repo: local
+    hooks:
+      - id: no-assert
+        name: Check for assert statements in production code
+        entry: bash -c '.pre-commit-hooks/no-assert.sh "$@"' --
+        language: system
+        files: ^audiometa/.*\.py$
+        exclude: ^(audiometa/test/|scripts/)
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black", "--line-length=120"]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.15
+    hooks:
+      - id: ruff-format
+        args: ["--line-length=120"]
+        files: ^audiometa/
+      - id: ruff
+        args: ["--fix", "--line-length=120"]
+        files: ^audiometa/
+
+  - repo: local
+    hooks:
+      - id: docformatter
+        name: docformatter
+        entry: docformatter
+        language: python
+        additional_dependencies: ["docformatter[tomli]"]
+        args: ["--in-place", "--wrap-summaries=120", "--wrap-descriptions=120"]
+        files: ^audiometa/
+        pass_filenames: true
+      - id: fix-long-comments
+        name: Fix long comment lines
+        entry: bash -c '.pre-commit-hooks/fix-long-comments.py "$@"' --
+        language: system
+        files: ^audiometa/.*\.py$
+        exclude: ^scripts/
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        # Note: pytest type stubs are not available as a separate package (types-pytest doesn't exist)
+        # Mypy will report "Cannot find implementation or library stub for module named 'pytest'"
+        # This is expected and acceptable - real import errors are still caught by test execution
+        # The mypy overrides in pyproject.toml relax type checking rules for test files
+        additional_dependencies: []
+        args: ["--follow-imports=normal"]
+        files: ^audiometa/
+        exclude: ^scripts/
+        pass_filenames: true
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        types_or: [markdown]
+        additional_dependencies:
+          - prettier@^3.0.0

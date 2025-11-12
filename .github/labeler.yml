@@ -1,0 +1,55 @@
+# Auto-label PRs based on files changed
+# Contributors can suggest changes to this file via PRs (especially when adding new features/components),
+# but maintainers review and approve all label configuration changes.
+
+# Component labels
+id3v1:
+  - audiometa/manager/id3v1/**/*
+  - audiometa/utils/id3v1_genre_code_map.py
+
+id3v2:
+  - audiometa/manager/_rating_supporting/_Id3v2Manager.py
+  - audiometa/manager/_rating_supporting/**/*id3v2*
+
+vorbis:
+  - audiometa/manager/_rating_supporting/_VorbisManager.py
+  - audiometa/manager/_rating_supporting/**/*vorbis*
+
+riff:
+  - audiometa/manager/_rating_supporting/_RiffManager.py
+  - audiometa/manager/_rating_supporting/**/*riff*
+
+cli:
+  - audiometa/cli.py
+  - audiometa/__main__.py
+
+core:
+  - audiometa/_audio_file.py
+  - audiometa/manager/_MetadataManager.py
+  - audiometa/utils/UnifiedMetadataKey.py
+  - audiometa/utils/MetadataFormat.py
+
+metadata:
+  - audiometa/utils/UnifiedMetadataKey.py
+
+# Type labels
+documentation:
+  - "**/*.md"
+  - "**/README.md"
+  - "**/CONTRIBUTING.md"
+  - "**/CHANGELOG.md"
+
+test:
+  - audiometa/test/**/*
+  - "**/test_*.py"
+  - "**/conftest.py"
+
+ci:
+  - ".github/workflows/**/*"
+  - ".github/**/*.yml"
+  - ".github/**/*.yaml"
+
+dependencies:
+  - "pyproject.toml"
+  - "setup.py"
+  - "setup.cfg"
