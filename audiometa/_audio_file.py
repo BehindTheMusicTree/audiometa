@@ -162,7 +162,7 @@ class _AudioFile:
             audio = MP3(path)
             # Get MP3 bitrate directly from audio stream
             if audio.info.bitrate:  # type: ignore[attr-defined]
-                return int(audio.info.bitrate) // 1000  # Convert from bps to kbps
+                return int(audio.info.bitrate) // 1000  # type: ignore[attr-defined]
             return 0
         if self.file_extension == ".wav":
             try:
@@ -359,7 +359,7 @@ class _AudioFile:
             try:
                 audio = MP3(self.file_path)
                 if audio.info.sample_rate is not None:  # type: ignore[attr-defined]
-                    return int(float(audio.info.sample_rate))
+                    return int(float(audio.info.sample_rate))  # type: ignore[attr-defined]
             except Exception:
                 pass
             return 0
