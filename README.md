@@ -442,6 +442,8 @@ Reads a specific metadata field. If no metadata format is specified, uses priori
 
 **Note:** `file_path` can be a string, `pathlib.Path` object, or `_AudioFile` instance.
 
+**Note:** The `field` parameter can be a `UnifiedMetadataKey` enum instance or a string matching an enum value (e.g., `"title"`). Invalid values will raise `MetadataFieldNotSupportedByLibError`.
+
 ```python
 from audiometa import get_unified_metadata_field, UnifiedMetadataKey
 

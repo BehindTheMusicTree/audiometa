@@ -215,7 +215,8 @@ def get_unified_metadata_field(
 
     Args:
         file: Audio file path (str or Path)
-        unified_metadata_key: The metadata field to retrieve
+        unified_metadata_key: The metadata field to retrieve. Can be a UnifiedMetadataKey enum instance
+            or a string matching an enum value (e.g., "title").
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             Only used when unified_metadata_key is RATING. For other metadata fields,
             this parameter is ignored. Defaults to None (no normalization).
@@ -258,9 +259,10 @@ def get_unified_metadata_field(
     """
     # Runtime validation: Python doesn't enforce type hints at runtime, so invalid inputs
     # (e.g., strings instead of UnifiedMetadataKey enum) would cause confusing errors later.
-    # This check provides a clear error message. Mypy flags it as unreachable because the
-    # parameter is typed as UnifiedMetadataKey, but this is intentional defensive programming.
-    if not isinstance(unified_metadata_key, UnifiedMetadataKey):
+    # This check validates that the key is either an instance of UnifiedMetadataKey OR is one of
+    # the valid enum values (e.g., a string matching an enum value). Mypy flags it as unreachable
+    # because the parameter is typed as UnifiedMetadataKey, but this is intentional defensive programming.
+    if not isinstance(unified_metadata_key, UnifiedMetadataKey) and unified_metadata_key not in UnifiedMetadataKey:
         msg = f"{unified_metadata_key} metadata not supported by the library."
         raise MetadataFieldNotSupportedByLibError(msg)
 
@@ -324,9 +326,10 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
     for key, value in unified_metadata.items():
         # Runtime validation: Python doesn't enforce type hints at runtime, so invalid inputs
         # (e.g., strings instead of UnifiedMetadataKey enum) would cause confusing errors later.
-        # This check provides a clear error message. Mypy flags it as unreachable because the
-        # dict is typed as UnifiedMetadata, but this is intentional defensive programming.
-        if not isinstance(key, UnifiedMetadataKey):
+        # This check validates that the key is either an instance of UnifiedMetadataKey OR is one of
+        # the valid enum values (e.g., a string matching an enum value). Mypy flags it as unreachable
+        # because the dict is typed as UnifiedMetadata, but this is intentional defensive programming.
+        if not isinstance(key, UnifiedMetadataKey) and key not in UnifiedMetadataKey:
             msg = f"{key} metadata not supported by the library."
             raise MetadataFieldNotSupportedByLibError(msg)
 
@@ -418,6 +421,7 @@ def update_metadata(
         FileNotFoundError: If the file does not exist
         MetadataFieldNotSupportedByMetadataFormatError: If the metadata field is not supported by
             the format (only for PRESERVE, CLEANUP strategies)
+        MetadataFieldNotSupportedByLibError: If any key in unified_metadata is not a valid UnifiedMetadataKey enum value
         MetadataWritingConflictParametersError: If both metadata_strategy and metadata_format are specified
         InvalidRatingValueError: If invalid rating values are provided
 

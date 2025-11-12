@@ -123,7 +123,7 @@ strict_equality = true
 # Disable unreachable warnings for runtime validation checks in __init__.py
 # These checks are intentional defensive programming despite mypy thinking they're unreachable
 [[tool.mypy.overrides]]
-module = "audiometa.__init__"
+module = "audiometa"
 warn_unreachable = false
 
 # Relaxed rules for test code
