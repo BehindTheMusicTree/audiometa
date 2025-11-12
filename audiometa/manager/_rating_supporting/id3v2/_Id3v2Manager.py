@@ -306,7 +306,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             normalized_rating_max_value=normalized_rating_max_value,
         )
 
-    def _extract_mutagen_metadata(self) -> RawMetadataDict:
+    def _extract_mutagen_metadata(self) -> RawMetadataDict:  # type: ignore[override]
         try:
             id3 = ID3(self.audio_file.file_path, load_v1=False, translate=False)
 
@@ -420,7 +420,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
         return None, False
 
-    def _update_undirectly_mapped_metadata(
+    def _update_undirectly_mapped_metadata(  # type: ignore[override]
         self,
         raw_mutagen_metadata: ID3,
         app_metadata_value: UnifiedMetadataValue,
@@ -433,7 +433,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 # Add new TXXX frame with desc 'REPLAYGAIN'
                 raw_mutagen_metadata.add(TXXX(encoding=3, desc="REPLAYGAIN", text=str(app_metadata_value)))
         else:
-            super()._update_undirectly_mapped_metadata(
+            super()._update_undirectly_mapped_metadata(  # type: ignore[safe-super]
                 cast(Any, raw_mutagen_metadata), app_metadata_value, unified_metadata_key
             )
 
@@ -454,7 +454,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         msg = f"Metadata key not handled: {unified_metadata_key}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
-    def _update_formatted_value_in_raw_mutagen_metadata(
+    def _update_formatted_value_in_raw_mutagen_metadata(  # type: ignore[override]
         self,
         raw_mutagen_metadata: ID3,
         raw_metadata_key: RawMetadataKey,

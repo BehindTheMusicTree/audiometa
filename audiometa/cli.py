@@ -9,6 +9,7 @@ from typing import Any
 
 from audiometa import UnifiedMetadataKey, delete_all_metadata, get_full_metadata, get_unified_metadata, update_metadata
 from audiometa.exceptions import FileTypeNotSupportedError
+from audiometa.utils.types import UnifiedMetadata
 
 
 def format_output(data: Any, output_format: str) -> str:
@@ -19,7 +20,8 @@ def format_output(data: Any, output_format: str) -> str:
         try:
             import yaml  # type: ignore[import-untyped]
 
-            return yaml.dump(data, default_flow_style=False)
+            result = yaml.dump(data, default_flow_style=False)
+            return str(result) if result is not None else ""
         except ImportError:
             return json.dumps(data, indent=2)
     elif output_format == "table":
@@ -58,7 +60,7 @@ def format_as_table(data: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def read_metadata(args) -> None:
+def read_metadata(args: argparse.Namespace) -> None:
     """Read and display metadata from audio file(s)."""
     files = expand_file_patterns(
         args.files, getattr(args, "recursive", False), getattr(args, "continue_on_error", False)
@@ -70,9 +72,9 @@ def read_metadata(args) -> None:
     for file_path in files:
         try:
             if getattr(args, "format_type", None) == "unified":
-                metadata = get_unified_metadata(file_path)
+                metadata: Any = get_unified_metadata(file_path)
             else:
-                metadata = get_full_metadata(
+                metadata: Any = get_full_metadata(
                     file_path,
                     include_headers=not getattr(args, "no_headers", False),
                     include_technical=not getattr(args, "no_technical", False),
@@ -98,14 +100,14 @@ def read_metadata(args) -> None:
                 sys.exit(1)
 
 
-def write_metadata(args) -> None:
+def write_metadata(args: argparse.Namespace) -> None:
     """Write metadata to audio file(s)."""
     files = expand_file_patterns(
         args.files, getattr(args, "recursive", False), getattr(args, "continue_on_error", False)
     )
 
     # Build metadata dictionary from command line arguments
-    metadata = {}
+    metadata: UnifiedMetadata = {}
 
     # Validate rating
     if args.rating is not None:
@@ -127,7 +129,7 @@ def write_metadata(args) -> None:
     if args.album and args.album.strip():
         metadata[UnifiedMetadataKey.ALBUM] = args.album
     if args.genre and args.genre.strip():
-        metadata[UnifiedMetadataKey.GENRE] = args.genre
+        metadata[UnifiedMetadataKey.GENRES_NAMES] = [args.genre]
     if args.comment and args.comment.strip():
         metadata[UnifiedMetadataKey.COMMENT] = args.comment
 
@@ -136,7 +138,7 @@ def write_metadata(args) -> None:
 
     for file_path in files:
         try:
-            update_kwargs = {}
+            update_kwargs: dict[str, Any] = {}
             update_metadata(file_path, metadata, **update_kwargs)
             if len(files) > 1:
                 pass
@@ -151,7 +153,7 @@ def write_metadata(args) -> None:
                 sys.exit(1)
 
 
-def delete_metadata(args) -> None:
+def delete_metadata(args: argparse.Namespace) -> None:
     """Delete metadata from audio file(s)."""
     files = expand_file_patterns(
         args.files, getattr(args, "recursive", False), getattr(args, "continue_on_error", False)

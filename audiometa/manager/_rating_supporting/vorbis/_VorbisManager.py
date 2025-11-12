@@ -119,7 +119,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             normalized_rating_max_value=normalized_rating_max_value,
         )
 
-    def _extract_mutagen_metadata(self) -> RawMetadataDict:
+    def _extract_mutagen_metadata(self) -> RawMetadataDict:  # type: ignore[override]
         """Read Vorbis comments from a FLAC file.
 
         This is a custom implementation for extracting Vorbis comments because:
@@ -191,7 +191,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
         return cast(RawMetadataDict, comments)
 
-    def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
+    def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(  # type: ignore[override]
         self,
         raw_mutagen_metadata: dict,
     ) -> RawMetadataDict:
@@ -258,7 +258,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
         return None, False
 
-    def _update_formatted_value_in_raw_mutagen_metadata(
+    def _update_formatted_value_in_raw_mutagen_metadata(  # type: ignore[override]
         self,
         raw_mutagen_metadata: dict,
         raw_metadata_key: RawMetadataKey,
@@ -490,7 +490,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         msg = f"Metadata key not handled: {unified_metadata_key}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
-    def _update_undirectly_mapped_metadata(
+    def _update_undirectly_mapped_metadata(  # type: ignore[override]
         self,
         raw_mutagen_metadata: dict,
         app_metadata_value: UnifiedMetadataValue,

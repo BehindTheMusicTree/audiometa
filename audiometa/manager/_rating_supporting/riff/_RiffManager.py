@@ -244,7 +244,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
         ):
             yield
 
-    def _extract_mutagen_metadata(self) -> RawMetadataDict:
+    def _extract_mutagen_metadata(self) -> RawMetadataDict:  # type: ignore[override]
         """Extract RIFF metadata from WAV files using direct RIFF chunk parsing.
 
         This method reads the WAV file's INFO chunk directly, providing the most reliable way to access RIFF metadata.
