@@ -37,8 +37,8 @@ This project is currently maintained by a solo developer, but contributions, sug
 
 Anyone can be a contributor by:
 
-- Submitting bug reports or feature requests via GitHub Issues
-- Proposing code changes through Pull Requests
+- Submitting bug reports or feature requests via GitHub Issues (use the issue templates for bug reports and feature requests)
+- Proposing code changes through Pull Requests (the PR template will guide you through the process)
 - Improving documentation
 - Participating in discussions
 - Testing and providing feedback
@@ -65,6 +65,8 @@ Currently, this project has a solo maintainer, but the role may expand as the pr
 2. Create a `feature/` branch
 3. Run tests locally
 4. Open a Pull Request with a clear description
+   - GitHub will automatically use the PR template to guide you through the process
+   - Fill out all relevant sections in the template
 
 ## 📦 Environment Setup
 
