@@ -54,6 +54,7 @@ The maintainer(s) are responsible for:
 - Maintaining the project's infrastructure
 - Creating and managing hotfix branches for urgent production fixes
 - Updating the changelog (contributors should not modify `CHANGELOG.md`)
+- Managing the TODO list (contributors should open issues for new tasks; maintainers update `TODO.md`)
 
 _Note: Contributors can submit fixes for critical issues via feature branches. Maintainers may promote these to hotfix branches when urgent production fixes are needed._
 
