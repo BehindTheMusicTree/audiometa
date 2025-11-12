@@ -1,3 +1,5 @@
+# Maintainer-only: Repository automation workflow
+# Contributors cannot modify this file. Changes to automation policies require maintainer approval.
 name: Auto Assign Reviewers
 
 on:

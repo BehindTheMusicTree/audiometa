@@ -1,5 +1,6 @@
-# Auto-assign configuration
-# Assigns reviewers to PRs from contributors (not maintainers)
+# Maintainer-only: Auto-assign configuration
+# Contributors cannot modify this file. Changes to automation policies require maintainer approval.
+# This file configures reviewer assignment for PRs from contributors (not maintainers)
 
 # Default reviewers to assign
 reviewers:

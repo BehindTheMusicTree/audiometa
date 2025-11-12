@@ -1,4 +1,6 @@
 # Auto-label PRs based on files changed
+# Contributors can suggest changes to this file via PRs (especially when adding new features/components),
+# but maintainers review and approve all label configuration changes.
 
 # Component labels
 id3v1:

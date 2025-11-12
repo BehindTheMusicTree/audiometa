@@ -1,3 +1,5 @@
+# Maintainer-controlled: CI/CD workflow
+# Contributors can suggest changes via PRs, but maintainers review and approve all CI/CD changes.
 name: CI
 
 on:
