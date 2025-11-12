@@ -72,15 +72,13 @@ def read_metadata(args: argparse.Namespace) -> None:
     for file_path in files:
         try:
             if getattr(args, "format_type", None) == "unified":
-                file_metadata: Any = get_unified_metadata(file_path)
+                metadata: Any = get_unified_metadata(file_path)
             else:
-                file_metadata: Any = get_full_metadata(
+                metadata = get_full_metadata(
                     file_path,
                     include_headers=not getattr(args, "no_headers", False),
                     include_technical=not getattr(args, "no_technical", False),
                 )
-
-            metadata = file_metadata
 
             output = format_output(metadata, args.output_format)
 
