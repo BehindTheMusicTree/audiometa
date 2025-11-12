@@ -578,6 +578,10 @@ Releases are created from the `main` branch.
 All contributions are made under the project's open-source license.
 You retain authorship of your code; the project retains redistribution rights under the same license.
 
+## 📜 Code of Conduct
+
+This project adheres to a Code of Conduct to ensure a welcoming and inclusive environment for all contributors. Please read and follow our [Code of Conduct](../CODE_OF_CONDUCT.md) when participating in this project.
+
 ## 🌍 Contact & Discussions
 
 You can open:
