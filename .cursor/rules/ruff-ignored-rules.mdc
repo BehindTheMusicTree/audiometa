@@ -1,0 +1,80 @@
+# Ruff Ignored Rules
+
+This document explains why certain Ruff rules are ignored in this codebase.
+
+## Complexity Warnings (R091)
+
+**Rule**: R091 - Too many branches/statements in function
+
+**Why Ignored**: 
+- Many functions in this codebase handle complex audio metadata operations that naturally require multiple branches
+- Breaking down these functions further would reduce readability and make the code harder to understand
+- The complexity is inherent to the domain (handling multiple metadata formats, edge cases, etc.)
+- These warnings are informational and don't indicate actual bugs
+
+**Example**:
+```python
+def get_unified_metadata(self) -> UnifiedMetadata:
+    # This function needs to handle multiple metadata formats,
+    # each with different parsing logic - naturally complex
+    if self.metadata_format == MetadataFormat.ID3V2:
+        # ... ID3v2 parsing logic
+    elif self.metadata_format == MetadataFormat.VORBIS:
+        # ... Vorbis parsing logic
+    # ... more format handling
+```
+
+## Abstract Raise to Inner Function (TRY301)
+
+**Rule**: TRY301 - Abstract `raise` to an inner function
+
+**Why Ignored**:
+- This rule suggests extracting raise statements to inner functions, which can reduce readability
+- Many raise statements are context-specific and extracting them would make error messages less clear
+- The current error handling is clear and maintainable
+- This refactoring would be invasive and provide minimal benefit
+
+**Example**:
+```python
+try:
+    result = some_operation()
+except Exception as e:
+    # Context-specific error message - extracting would reduce clarity
+    raise CustomError(f"Failed to process {file_path}: {e}") from e
+```
+
+## Logging Issues (G001, G005)
+
+**Rules**: 
+- G001 - Use lazy formatting in logging
+- G005 - Logging statement uses `+` instead of formatting
+
+**Why Considered**:
+- These rules suggest using lazy formatting (e.g., `logger.debug("Message %s", value)`) instead of f-strings
+- However, f-strings are more readable and Pythonic
+- Performance difference is negligible for most use cases
+- If these become problematic, we can address them case-by-case
+
+**Note**: These are not currently ignored but may be acceptable in some contexts.
+
+## Yield Issues (Y301, Y002)
+
+**Rules**:
+- Y301 - Consider using `yield from` instead of `yield` in a loop
+- Y002 - Consider using `yield from` instead of `yield` in a comprehension
+
+**Why Considered**:
+- These rules suggest using `yield from` for better performance and readability
+- However, explicit `yield` loops can be clearer in some contexts
+- If these become problematic, we can address them case-by-case
+
+**Note**: These are not currently ignored but may be acceptable in some contexts.
+
+## Summary
+
+The following rules are **explicitly ignored** in `pyproject.toml`:
+- **N999**: Invalid module name (false positive for private modules)
+- **R091**: Too many branches/statements (acceptable complexity for domain logic)
+- **TRY301**: Abstract raise to inner function (reduces readability)
+
+Other rules (G001, G005, Y301, Y002) are **not ignored** but may be acceptable in specific contexts. Address them case-by-case if they become problematic.

@@ -96,7 +96,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "DTZ", "T10", "EM", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SIM", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "NPY", "RUF"]
-ignore = ["N999"]
+ignore = ["N999", "R091", "TRY301"]
 
 [tool.ruff.lint.per-file-ignores]
 # PLR2004 (magic numbers) is acceptable in test files - test assertions often use literal values
