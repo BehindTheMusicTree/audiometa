@@ -262,7 +262,7 @@ def get_unified_metadata_field(
     # parameter is typed as UnifiedMetadataKey, but this is intentional defensive programming.
     if not isinstance(unified_metadata_key, UnifiedMetadataKey):
         msg = f"{unified_metadata_key} metadata not supported by the library."
-        raise MetadataFieldNotSupportedByLibError(msg)  # type: ignore[unreachable]
+        raise MetadataFieldNotSupportedByLibError(msg)
 
     audio_file = _AudioFile(file)
 
@@ -328,7 +328,7 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
         # dict is typed as UnifiedMetadata, but this is intentional defensive programming.
         if not isinstance(key, UnifiedMetadataKey):
             msg = f"{key} metadata not supported by the library."
-            raise MetadataFieldNotSupportedByLibError(msg)  # type: ignore[unreachable]
+            raise MetadataFieldNotSupportedByLibError(msg)
 
         # Allow None to mean "remove this field"
         if value is None:
