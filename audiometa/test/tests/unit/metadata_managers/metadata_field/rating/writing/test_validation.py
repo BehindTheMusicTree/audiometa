@@ -75,7 +75,7 @@ class TestRatingValidation:
         # Test with max_value = 255
         manager_255 = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=255)
         # Valid values: those that map to BASE_255_NON_PROPORTIONAL profile values
-        # BASE_255_NON_PROPORTIONAL = [0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255]
+        # Profile values: 0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255
         # So valid normalized values are: 0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255
         valid_values_255 = [0, 1, 13, 54, 64, 118, 128, 186, 196, 242, 255]
         for value in valid_values_255:

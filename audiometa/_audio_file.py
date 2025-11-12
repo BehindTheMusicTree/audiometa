@@ -4,6 +4,7 @@ import contextlib
 import json
 import subprocess
 import tempfile
+import types
 from pathlib import Path
 from typing import Any, cast
 
@@ -239,7 +240,7 @@ class _AudioFile:
     def __enter__(self) -> "_AudioFile":
         return self
 
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: object | None) -> None:
+    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: types.TracebackType | None) -> None:
         self.close()
 
     def get_file_path_or_object(self) -> str:
