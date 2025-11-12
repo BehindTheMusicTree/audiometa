@@ -32,7 +32,7 @@ jobs:
           xargs -0 bash .pre-commit-hooks/no-assert.sh
 
       - name: Check code formatting with ruff-format
-        run: ruff format --check .
+        run: ruff format --check --line-length=120 .
 
       - name: Check import sorting with isort
         run: isort --check-only .
