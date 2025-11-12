@@ -49,19 +49,21 @@ class TestErrorHandlingWorkflows:
             test_file.write_bytes(b"fake audio content")
 
             # All operations should raise FileTypeNotSupportedError
-            with pytest.raises(Exception):  # FileTypeNotSupportedError
+            from audiometa.exceptions import FileTypeNotSupportedError
+
+            with pytest.raises(FileTypeNotSupportedError):
                 get_unified_metadata(str(test_file))
 
-            with pytest.raises(Exception):  # FileTypeNotSupportedError
+            with pytest.raises(FileTypeNotSupportedError):
                 update_metadata(str(test_file), {UnifiedMetadataKey.TITLE: "Test"})
 
-            with pytest.raises(Exception):  # FileTypeNotSupportedError
+            with pytest.raises(FileTypeNotSupportedError):
                 delete_all_metadata(str(test_file))
 
-            with pytest.raises(Exception):  # FileTypeNotSupportedError
+            with pytest.raises(FileTypeNotSupportedError):
                 get_bitrate(str(test_file))
 
-            with pytest.raises(Exception):  # FileTypeNotSupportedError
+            with pytest.raises(FileTypeNotSupportedError):
                 get_duration_in_sec(str(test_file))
 
     def test_deletion_error_recovery_workflow(self):
