@@ -424,11 +424,11 @@ Before submitting a Pull Request (contributors) or merging to `main` (maintainer
 
 #### For Contributors (Before Opening a PR)
 
-**1. Code Quality Checks**
+**1. Code Quality**
 
-- ✅ Run pre-commit hooks: `pre-commit run --all-files`
-- ✅ All linting checks pass (ruff-format, isort, docformatter, ruff, mypy)
-- ✅ Code is properly formatted
+- ✅ Remove commented-out code
+- ✅ No hardcoded credentials, API keys, or secrets
+- ✅ Run pre-commit hooks: `pre-commit run --all-files` (includes linting, formatting, type checking, assert statement check, debug statement detection, etc.)
 
 **2. Tests**
 
@@ -437,15 +437,7 @@ Before submitting a Pull Request (contributors) or merging to `main` (maintainer
 - ✅ New features have corresponding tests
 - ✅ Bug fixes include regression tests
 
-**3. Code Cleanup**
-
-- ✅ Remove all debug print statements (`print()`, `pdb`, etc.)
-- ✅ Remove all `assert` statements from production code (assert statements are allowed in test code)
-- ✅ Remove commented-out code
-- ✅ Remove temporary files and test artifacts
-- ✅ No hardcoded credentials, API keys, or secrets
-
-**4. Documentation**
+**3. Documentation**
 
 - ✅ Update docstrings for new functions/classes (only when needed - see docstring guidelines below)
 - ✅ Update README if adding new features or changing behavior
@@ -496,26 +488,25 @@ def public_api_function(param1: str, param2: int | None = None) -> dict[str, Any
 - Test functions (unless testing complex scenarios)
 - Internal helper functions that are obvious from context
 
-**5. Git Hygiene**
+**4. Git Hygiene**
 
 - ✅ Commit messages follow the [commit message convention](#-commit-message-convention)
 - ✅ No merge conflicts with target branch
 - ✅ Branch is up to date with target branch
 - ✅ No accidental commits (large files, secrets, personal configs)
 
-**6. PR Description**
+**5. PR Description**
 
 - ✅ Clear description of changes
 - ✅ Reference related issues (e.g., "Fixes #123")
 - ✅ Note any breaking changes
 - ✅ Include testing instructions if applicable
 
-**7. Breaking Changes & Compatibility**
+**6. Breaking Changes**
 
-- ✅ Breaking changes are clearly marked in PR description
+- ✅ If this PR includes breaking changes, they are clearly documented
+- ✅ Migration path is provided (if applicable)
 - ✅ Breaking changes include proper versioning notes (for maintainers to handle)
-- ✅ Backward compatibility maintained (unless breaking change is intentional)
-- ✅ If breaking change is intentional, clearly document the migration path
 
 #### For Maintainers (Before Merging to `main`)
 
