@@ -95,8 +95,17 @@ wrap-descriptions = 120
 [tool.ruff]
 line-length = 120
 target-version = "py312"
+
+[tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "DTZ", "T10", "EM", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SIM", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "NPY", "RUF"]
 ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+# PLR2004 (magic numbers) is acceptable in test files - test assertions often use literal values
+# for clarity (e.g., assert len(artists) == 3, assert rating == 128)
+"audiometa/test/**" = ["PLR2004"]
+# PLR2004 is acceptable in pre-commit hooks - simple scripts where magic numbers are clear
+".pre-commit-hooks/**" = ["PLR2004"]
 
 [tool.mypy]
 python_version = "3.13"
