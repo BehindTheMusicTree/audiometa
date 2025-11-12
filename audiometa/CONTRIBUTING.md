@@ -12,6 +12,7 @@ This project is currently maintained by a solo developer, but contributions, sug
   - [Main Branch (`main`)](#main-branch-main)
   - [Feature Branches (`feature/<name>`)](#feature-branches-featurename)
   - [Hotfix Branches (`hotfix/<issue>`)](#hotfix-branches-hotfixissue)
+  - [Chore Branches (`chore/<name>`)](#chore-branches-chorename)
   - [🧪 Testing](#-testing)
     - [Run Local Tests](#run-local-tests)
     - [Run Coverage](#run-coverage)
@@ -103,6 +104,18 @@ We follow a light GitFlow model adapted for small teams and open-source projects
 
 - For urgent bug fixes on production versions
 - Contributors can submit fixes via feature branches that maintainers may promote to hotfixes if needed
+
+### Chore Branches (`chore/<name>`)
+
+- For maintenance, infrastructure, and configuration work
+- Examples: repository setup, CI/CD changes, dependency updates, documentation infrastructure
+- Valid in lightweight GitFlow/GitHub Flow workflows
+- Example:
+  ```bash
+  git checkout -b chore/github-setup
+  git checkout -b chore/update-dependencies
+  ```
+- Merge into `main` via Pull Request when complete
 
 ### 📝 Commit Message Convention
 
