@@ -51,10 +51,10 @@ class TestAudioFileTechnicalInfoErrorHandling:
             except Exception as exc:
                 error_str = str(exc)
                 if "file said" in error_str and "bytes, read" in error_str:
-                    raise FileByteMismatchError(error_str.capitalize())
+                    raise FileByteMismatchError(error_str.capitalize()) from exc
                 if "FLAC" in error_str or "chunk" in error_str.lower():
                     msg = f"Failed to decode FLAC chunks: {error_str}"
-                    raise InvalidChunkDecodeError(msg)
+                    raise InvalidChunkDecodeError(msg) from exc
                 raise
 
         monkeypatch.setattr("audiometa._audio_file._AudioFile.get_duration_in_sec", mock_get_duration_in_sec)

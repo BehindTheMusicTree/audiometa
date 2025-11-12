@@ -2,7 +2,6 @@
 
 import contextlib
 import json
-import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -57,11 +56,11 @@ class _AudioFile:
             msg = f"Unsupported file type: {type(file)}"
             raise FileTypeNotSupportedError(msg)
 
-        if not os.path.exists(self.file_path):
+        if not Path(self.file_path).exists():
             msg = f"File {self.file_path} does not exist"
             raise FileNotFoundError(msg)
 
-        file_extension = os.path.splitext(self.file_path)[1].lower()
+        file_extension = Path(self.file_path).suffix.lower()
         self.file_extension = file_extension
 
         # Validate that the file type is supported
@@ -126,21 +125,21 @@ class _AudioFile:
 
                 if duration <= 0:
                     msg = "Could not determine audio duration"
-                    raise DurationNotFoundError(msg)
+                    raise DurationNotFoundError(msg) from None
                 return duration
 
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
                 msg = "Failed to parse audio file metadata from ffprobe output"
-                raise AudioFileMetadataParseError(msg)
+                raise AudioFileMetadataParseError(msg) from e
             except DurationNotFoundError:
                 # Let DurationNotFoundError pass through
                 raise
             except Exception as exc:
                 if str(exc) == "Failed to probe audio file":
                     msg = "ffprobe could not parse the audio file."
-                    raise FileCorruptedError(msg)
+                    raise FileCorruptedError(msg) from exc
                 msg = f"Failed to read WAV file duration: {exc!s}"
-                raise RuntimeError(msg)
+                raise RuntimeError(msg) from exc
 
         elif self.file_extension == ".flac":
             try:
@@ -148,10 +147,10 @@ class _AudioFile:
             except Exception as exc:
                 error_str = str(exc)
                 if "file said" in error_str and "bytes, read" in error_str:
-                    raise FileByteMismatchError(error_str.capitalize())
+                    raise FileByteMismatchError(error_str.capitalize()) from exc
                 if "FLAC" in error_str or "chunk" in error_str.lower():
                     msg = f"Failed to decode FLAC chunks: {error_str}"
-                    raise InvalidChunkDecodeError(msg)
+                    raise InvalidChunkDecodeError(msg) from exc
                 raise
         else:
             msg = f"Reading is not supported for file type: {self.file_extension}"
@@ -187,12 +186,12 @@ class _AudioFile:
 
                 if result.returncode != 0:
                     msg = "Failed to probe audio file"
-                    raise RuntimeError(msg)
+                    raise RuntimeError(msg) from None
 
                 data = json.loads(result.stdout)
                 if not data.get("streams"):
                     msg = "No audio streams found"
-                    raise RuntimeError(msg)
+                    raise RuntimeError(msg) from None
 
                 stream = data["streams"][0]
                 # Get bitrate directly if available
@@ -206,15 +205,15 @@ class _AudioFile:
 
                 if not all([sample_rate, channels, bits_per_sample]):
                     msg = "Missing audio stream information"
-                    raise RuntimeError(msg)
+                    raise RuntimeError(msg) from None
 
                 return (sample_rate * channels * bits_per_sample) // 1000
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
                 msg = "Failed to parse audio file metadata from ffprobe output"
-                raise AudioFileMetadataParseError(msg)
+                raise AudioFileMetadataParseError(msg) from e
             except Exception as exc:
                 msg = f"Failed to read WAV file bitrate: {exc!s}"
-                raise RuntimeError(msg)
+                raise RuntimeError(msg) from exc
         elif self.file_extension == ".flac":
             audio_info = cast(StreamInfo, FLAC(path).info)
             return int(float(audio_info.bitrate) / 1000)
@@ -313,7 +312,8 @@ class _AudioFile:
                         raise FileCorruptedError(msg)
 
             # Verify the output file exists and is valid
-            if not os.path.exists(temp_path) or os.path.getsize(temp_path) == 0:
+            temp_path_obj = Path(temp_path)
+            if not temp_path_obj.exists() or temp_path_obj.stat().st_size == 0:
                 msg = "Failed to create corrected FLAC file"
                 raise FileCorruptedError(msg)
 
@@ -322,23 +322,23 @@ class _AudioFile:
             # If requested, try to delete the original file
             if delete_original and success:
                 try:
-                    os.unlink(self.file_path)
+                    Path(self.file_path).unlink()
                 except OSError as e:
                     msg = f"Failed to delete original file: {e!s}"
-                    raise OSError(msg)
+                    raise OSError(msg) from e
 
             return temp_path
 
         except (subprocess.SubprocessError, OSError) as e:
             msg = f"Failed to execute FLAC command: {e!s}"
-            raise RuntimeError(msg)
+            raise RuntimeError(msg) from e
         except Exception:
             raise
         finally:
             # Clean up the temp file only if we failed
-            if not success and os.path.exists(temp_path):
+            if not success and Path(temp_path).exists():
                 with contextlib.suppress(OSError):
-                    os.unlink(temp_path)
+                    Path(temp_path).unlink()
 
     def get_sample_rate(self) -> int:
         """Get the sample rate of an audio file.
@@ -463,7 +463,7 @@ class _AudioFile:
             File size in bytes
         """
         try:
-            return os.path.getsize(self.file_path)
+            return Path(self.file_path).stat().st_size
         except OSError:
             return 0
 

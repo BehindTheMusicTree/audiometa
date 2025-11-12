@@ -189,13 +189,18 @@ def expand_file_patterns(patterns: list[str], recursive: bool = False, continue_
                     files.extend(path.rglob(f"*{ext}"))
         else:
             # Try glob pattern
-            import glob
-
-            matches = glob.glob(pattern)
+            pattern_path = Path(pattern)
+            if "*" in pattern or "?" in pattern:
+                # Use glob for patterns
+                if pattern_path.is_absolute():
+                    matches = list(pattern_path.parent.glob(pattern_path.name))
+                else:
+                    matches = list(Path().glob(pattern))
+            else:
+                matches = [pattern_path]
             for match in matches:
-                match_path = Path(match)
-                if match_path.is_file():
-                    files.append(match_path)
+                if match.is_file():
+                    files.append(match)
 
     if not files:
         if continue_on_error:

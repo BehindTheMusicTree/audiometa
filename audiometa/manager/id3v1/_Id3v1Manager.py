@@ -120,7 +120,7 @@ class _Id3v1Manager(_MetadataManager):
             return Id3v1RawMetadata(fileobj=self.audio_file.file_path)
         except Exception as exc:
             msg = f"Failed to extract ID3v1 metadata: {exc}"
-            raise FileCorruptedError(msg)
+            raise FileCorruptedError(msg) from exc
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
         self, raw_mutagen_metadata: MutagenMetadata

@@ -155,11 +155,8 @@ class _MetadataManager:
             return True
 
         # If we have multiple entries without null separators, don't parse (preserve separators)
-        if len(non_empty_entries) > 1:
-            return False
-
         # If we have a single entry without null separators, parse it (legacy data detection)
-        return True
+        return len(non_empty_entries) <= 1
 
     def _apply_smart_parsing(self, values_list_str: list[str]) -> list[str]:
         """Apply smart parsing to split values.

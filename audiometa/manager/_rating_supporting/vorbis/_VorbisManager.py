@@ -1,3 +1,4 @@
+import contextlib
 import struct
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar, cast
@@ -397,15 +398,12 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             # Remove all existing tags
             if tags_to_remove:
                 for metaflac_key in tags_to_remove:
-                    try:
+                    with contextlib.suppress(subprocess.CalledProcessError):
                         subprocess.run(
                             ["metaflac", "--remove-tag=" + metaflac_key, self.audio_file.file_path],
                             check=True,
                             capture_output=True,
                         )
-                    except subprocess.CalledProcessError:
-                        # Ignore errors when removing non-existent tags
-                        pass
 
             # Then, add new tags for non-None values
             set_cmd = ["metaflac"]
@@ -430,10 +428,10 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
         except subprocess.CalledProcessError as e:
             msg = f"Failed to write metadata with metaflac: {e}"
-            raise FileCorruptedError(msg)
-        except FileNotFoundError:
+            raise FileCorruptedError(msg) from e
+        except FileNotFoundError as e:
             msg = "metaflac tool not found. Please install it to write Vorbis metadata to FLAC files."
-            raise FileCorruptedError(msg)
+            raise FileCorruptedError(msg) from e
 
     def get_header_info(self) -> dict:
         try:
@@ -512,9 +510,9 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                             normalized_rating = int(float(str(app_metadata_value)))
                         file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating)
                         raw_mutagen_metadata[self.VorbisKey.RATING] = [str(file_rating)]
-                    except (TypeError, ValueError):
+                    except (TypeError, ValueError) as e:
                         msg = f"Invalid rating value: {app_metadata_value}. Expected a numeric value."
-                        raise InvalidRatingValueError(msg)
+                        raise InvalidRatingValueError(msg) from e
             else:
                 # Remove rating
                 if self.VorbisKey.RATING in raw_mutagen_metadata:

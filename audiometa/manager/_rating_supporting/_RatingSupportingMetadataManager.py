@@ -183,25 +183,27 @@ class _RatingSupportingMetadataManager(_MetadataManager):
 
         # If rating is mapped to None, it means it's handled indirectly by the manager
         # We should let the manager handle it in its own way
-        if self.metadata_keys_direct_map_write[UnifiedMetadataKey.RATING] is not None:
+        if (
+            self.metadata_keys_direct_map_write[UnifiedMetadataKey.RATING] is not None
+            and self.update_using_mutagen_metadata
+        ):
             # Only process rating if it's handled directly by the base class
             # (i.e., when using mutagen-based approach)
-            if self.update_using_mutagen_metadata:
-                value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore
-                if value is not None:
-                    if self.normalized_rating_max_value is None:
-                        # When no normalization, write value as-is (already validated above)
-                        pass
-                    else:
-                        try:
-                            normalized_rating = int(float(value))
-                            file_rating = self._convert_normalized_rating_to_file_rating(
-                                normalized_rating=normalized_rating
-                            )
-                            unified_metadata[UnifiedMetadataKey.RATING] = file_rating
-                        except (TypeError, ValueError):
-                            msg = f"Invalid rating value: {value}. Expected a numeric value."
-                            raise InvalidRatingValueError(msg)
+            value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore
+            if value is not None:
+                if self.normalized_rating_max_value is None:
+                    # When no normalization, write value as-is (already validated above)
+                    pass
+                else:
+                    try:
+                        normalized_rating = int(float(value))
+                        file_rating = self._convert_normalized_rating_to_file_rating(
+                            normalized_rating=normalized_rating
+                        )
+                        unified_metadata[UnifiedMetadataKey.RATING] = file_rating
+                    except (TypeError, ValueError) as e:
+                        msg = f"Invalid rating value: {value}. Expected a numeric value."
+                        raise InvalidRatingValueError(msg) from e
                 # If value is None, let the individual managers handle the removal
 
     def update_metadata(self, unified_metadata: UnifiedMetadata) -> None:

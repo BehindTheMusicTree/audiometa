@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import pytest
@@ -26,7 +25,7 @@ class TestFlacMd5Functions:
         with temp_file_with_metadata({}, "flac") as test_file:
             # Truncate the file to corrupt it and ensure MD5 is invalid
             with test_file.open("r+b") as f:
-                f.truncate(os.path.getsize(test_file) - 100)  # Remove last 100 bytes
+                f.truncate(test_file.stat().st_size - 100)  # Remove last 100 bytes
 
             # Ensure we're testing with a FLAC file that has invalid MD5
             assert not is_flac_md5_valid(test_file), "Test file should have invalid MD5 for fix_md5_checking test"

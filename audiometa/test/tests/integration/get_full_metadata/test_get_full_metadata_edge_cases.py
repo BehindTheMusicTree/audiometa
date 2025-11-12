@@ -1,6 +1,5 @@
 """Edge case tests for get_full_metadata function."""
 
-import os
 import tempfile
 from pathlib import Path
 
@@ -36,7 +35,7 @@ class TestGetFullMetadataEdgeCases:
             with pytest.raises(FileCorruptedError):
                 get_full_metadata(temp_path)
         finally:
-            os.unlink(temp_path)
+            Path(temp_path).unlink()
 
     def test_get_full_metadata_file_with_only_headers_no_metadata(self):
         with temp_file_with_metadata({}, "mp3") as temp_file_path:
@@ -181,7 +180,7 @@ class TestGetFullMetadataEdgeCases:
             with pytest.raises(FileTypeNotSupportedError):
                 get_full_metadata(temp_path)
         finally:
-            os.unlink(temp_path)
+            Path(temp_path).unlink()
 
     def test_get_full_metadata_structure_consistency(self, sample_mp3_file: Path):
         result1 = get_full_metadata(sample_mp3_file)

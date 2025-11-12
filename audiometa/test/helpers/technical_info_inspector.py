@@ -18,10 +18,10 @@ class TechnicalInfoInspector:
             return {"text": result.stdout}
         except subprocess.CalledProcessError as e:
             msg = f"Failed to run mediainfo on {file_path}: {e}"
-            raise RuntimeError(msg)
+            raise RuntimeError(msg) from e
         except json.JSONDecodeError as e:
             msg = f"Failed to parse mediainfo output: {e}"
-            raise RuntimeError(msg)
+            raise RuntimeError(msg) from e
 
     @staticmethod
     def get_bitrate(file_path: str | Path) -> int | None:

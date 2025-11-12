@@ -1,5 +1,4 @@
 import contextlib
-import os
 import shutil
 import subprocess
 import tempfile
@@ -411,14 +410,13 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
     def _get_raw_rating_by_traktor_or_not(self, raw_clean_metadata: RawMetadataDict) -> tuple[int | None, bool]:
         for raw_metadata_key, raw_metadata_values in raw_clean_metadata.items():
-            if raw_metadata_values and len(raw_metadata_values) > 0:
-                if raw_metadata_key == self.Id3TextFrame.RATING:
-                    first_popm = cast(list, raw_metadata_values)
-                    first_popm_identifier = first_popm[0]
-                    first_popm_rating = first_popm[1]
-                    if first_popm_identifier.find("Traktor") != -1:
-                        return int(first_popm_rating), True
-                    return int(first_popm_rating), False
+            if raw_metadata_values and len(raw_metadata_values) > 0 and raw_metadata_key == self.Id3TextFrame.RATING:
+                first_popm = cast(list, raw_metadata_values)
+                first_popm_identifier = first_popm[0]
+                first_popm_rating = first_popm[1]
+                if first_popm_identifier.find("Traktor") != -1:
+                    return int(first_popm_rating), True
+                return int(first_popm_rating), False
 
         return None, False
 
@@ -614,7 +612,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 finally:
                     # Clean up temp file
                     with contextlib.suppress(OSError):
-                        os.unlink(temp_path)
+                        Path(temp_path).unlink()
             else:
                 # No ID3v1 data to preserve, save normally
                 id3_metadata.save(file_path, v2_version=version_major)
@@ -808,10 +806,10 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             subprocess.run(cmd, check=True, capture_output=True)
         except subprocess.CalledProcessError as e:
             msg = f"Failed to write ID3v2 metadata with {tool}: {e}"
-            raise FileCorruptedError(msg)
-        except FileNotFoundError:
+            raise FileCorruptedError(msg) from e
+        except FileNotFoundError as e:
             msg = f"External tool {tool} not found. Please install it to write ID3v2 metadata to FLAC files."
-            raise FileCorruptedError(msg)
+            raise FileCorruptedError(msg) from e
 
     def delete_metadata(self) -> bool:
         """Delete all ID3v2 metadata from the audio file.

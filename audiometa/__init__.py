@@ -13,7 +13,7 @@ import contextlib
 import re
 import warnings
 from pathlib import Path
-from typing import Any, Type, TypeAlias, Union, cast
+from typing import Any, Union, cast
 
 from ._audio_file import _AudioFile
 from .exceptions import (
@@ -70,10 +70,7 @@ def _get_metadata_manager(
     if issubclass(manager_class, _RatingSupportingMetadataManager):
         if manager_class is _Id3v2Manager:
             # Determine ID3v2 version based on provided version or use default
-            if id3v2_version is not None:
-                version = id3v2_version
-            else:
-                version = (2, 3, 0)  # Default to ID3v2.3
+            version = id3v2_version if id3v2_version is not None else (2, 3, 0)  # Default to ID3v2.3
             id3v2_manager_class = cast(type[_Id3v2Manager], manager_class)
             return cast(
                 _MetadataManager,
@@ -193,7 +190,7 @@ def get_unified_metadata(
 
     result: dict[UnifiedMetadataKey, UnifiedMetadataValue] = {}
     for unified_metadata_key in UnifiedMetadataKey:
-        for format_type, manager in managers_by_precedence:
+        for _format_type, manager in managers_by_precedence:
             try:
                 unified_metadata = manager.get_unified_metadata()
                 if unified_metadata_key in unified_metadata:
@@ -545,7 +542,7 @@ def _handle_metadata_strategy(
 
     if strategy == MetadataWritingStrategy.CLEANUP:
         # First, clean up non-target formats
-        for fmt, manager in other_managers.items():
+        for _fmt, manager in other_managers.items():
             with contextlib.suppress(Exception):
                 manager.delete_metadata()
                 # Some managers might not support deletion or might fail
@@ -565,7 +562,8 @@ def _handle_metadata_strategy(
                 msg = f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             warnings.warn(
-                f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}"
+                f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}",
+                stacklevel=2,
             )
             # Create filtered metadata without unsupported fields
             filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
@@ -605,7 +603,7 @@ def _handle_metadata_strategy(
                 unsupported_warn_msg = (
                     f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}"
                 )
-                warnings.warn(unsupported_warn_msg)
+                warnings.warn(unsupported_warn_msg, stacklevel=2)
                 # Create filtered metadata without unsupported fields
                 filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
                 unified_metadata = filtered_metadata
@@ -617,7 +615,7 @@ def _handle_metadata_strategy(
         except MetadataFieldNotSupportedByMetadataFormatError as e:
             # For SYNC strategy, log warning but continue with other formats
             format_warn_msg = f"Format {target_format_actual} doesn't support some metadata fields: {e}"
-            warnings.warn(format_warn_msg)
+            warnings.warn(format_warn_msg, stacklevel=2)
         except Exception as e:
             # Re-raise user errors (like InvalidRatingValueError) immediately
             from .exceptions import ConfigurationError, InvalidRatingValueError
@@ -628,13 +626,13 @@ def _handle_metadata_strategy(
 
         # Then sync all other available formats
         # Note: We need to be careful about the order to avoid conflicts
-        for fmt, manager in other_managers.items():
+        for fmt_name, manager in other_managers.items():
             try:
                 manager.update_metadata(unified_metadata)
             except MetadataFieldNotSupportedByMetadataFormatError as e:
                 # For SYNC strategy, log warning but continue with other formats
-                format_warn_msg = f"Format {fmt} doesn't support some metadata fields: {e}"
-                warnings.warn(format_warn_msg)
+                format_warn_msg = f"Format {fmt_name} doesn't support some metadata fields: {e}"
+                warnings.warn(format_warn_msg, stacklevel=2)
                 continue
             except Exception:
                 # Some managers might not support writing or might fail for other reasons
@@ -670,7 +668,7 @@ def _handle_metadata_strategy(
             unsupported_warn_msg = (
                 f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}"
             )
-            warnings.warn(unsupported_warn_msg)
+            warnings.warn(unsupported_warn_msg, stacklevel=2)
             # Create filtered metadata without unsupported fields
             filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
             unified_metadata = filtered_metadata

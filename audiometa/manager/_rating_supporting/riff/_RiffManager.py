@@ -196,39 +196,38 @@ class _RiffManager(_RatingSupportingMetadataManager):
             chunk_id = file_data[pos : pos + 4]
             chunk_size = int.from_bytes(file_data[pos + 4 : pos + 8], "little")
 
-            if chunk_id == b"LIST" and pos + 12 <= len(file_data):
-                if file_data[pos + 8 : pos + 12] == b"INFO":
-                    # Process INFO chunk
-                    info_pos = pos + 12
-                    info_end = pos + 8 + chunk_size
+            if chunk_id == b"LIST" and pos + 12 <= len(file_data) and file_data[pos + 8 : pos + 12] == b"INFO":
+                # Process INFO chunk
+                info_pos = pos + 12
+                info_end = pos + 8 + chunk_size
 
-                    while info_pos < info_end - 8:
-                        # Extract each metadata field
-                        field_id = file_data[info_pos : info_pos + 4].decode("ascii", errors="ignore")
-                        field_size = int.from_bytes(file_data[info_pos + 4 : info_pos + 8], "little")
+                while info_pos < info_end - 8:
+                    # Extract each metadata field
+                    field_id = file_data[info_pos : info_pos + 4].decode("ascii", errors="ignore")
+                    field_size = int.from_bytes(file_data[info_pos + 4 : info_pos + 8], "little")
 
-                        if field_size > 0 and info_pos + 8 + field_size <= info_end:
-                            # -1 to exclude null terminator
-                            field_data = file_data[info_pos + 8 : info_pos + 8 + field_size - 1]
-                            try:
-                                # Decode and handle null-terminated strings
-                                field_value = field_data.decode("utf-8", errors="ignore")
-                                # Split on null byte and take first part if exists
-                                field_value = field_value.split("\x00")[0].strip()
-                                # Compare field_id with enum member values (FourCC strings)
-                                if (
-                                    any(field_id == member.value for member in self.RiffTagKey.__members__.values())
-                                    and field_value
-                                ):
-                                    if field_id not in info_tags:
-                                        info_tags[field_id] = []
-                                    info_tags[field_id].append(field_value)
-                            except UnicodeDecodeError:
-                                pass
+                    if field_size > 0 and info_pos + 8 + field_size <= info_end:
+                        # -1 to exclude null terminator
+                        field_data = file_data[info_pos + 8 : info_pos + 8 + field_size - 1]
+                        try:
+                            # Decode and handle null-terminated strings
+                            field_value = field_data.decode("utf-8", errors="ignore")
+                            # Split on null byte and take first part if exists
+                            field_value = field_value.split("\x00")[0].strip()
+                            # Compare field_id with enum member values (FourCC strings)
+                            if (
+                                any(field_id == member.value for member in self.RiffTagKey.__members__.values())
+                                and field_value
+                            ):
+                                if field_id not in info_tags:
+                                    info_tags[field_id] = []
+                                info_tags[field_id].append(field_value)
+                        except UnicodeDecodeError:
+                            pass
 
-                        # Move to next field, maintaining alignment
-                        info_pos += 8 + ((field_size + 1) & ~1)
-                    break
+                    # Move to next field, maintaining alignment
+                    info_pos += 8 + ((field_size + 1) & ~1)
+                break
 
             # Move to next chunk, maintaining alignment
             pos += 8 + ((chunk_size + 1) & ~1)
@@ -271,10 +270,9 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 return cast(RawMetadataDict, wave)
             finally:
                 # Clean up temporary file
-                import os
 
                 with contextlib.suppress(OSError):
-                    os.unlink(temp_file.name)
+                    Path(temp_file.name).unlink()
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
         self, raw_mutagen_metadata: MutagenMetadata
@@ -565,16 +563,17 @@ class _RiffManager(_RatingSupportingMetadataManager):
         if app_key == UnifiedMetadataKey.GENRES_NAMES:
             # Write genre as text instead of numeric code for better compatibility
             value = str(value)
-        elif app_key == UnifiedMetadataKey.RATING:
+        elif (
+            app_key == UnifiedMetadataKey.RATING and value is not None and self.normalized_rating_max_value is not None
+        ):
             # Convert normalized rating to file rating for RIFF format
-            if value is not None and self.normalized_rating_max_value is not None:
-                try:
-                    normalized_rating = int(float(value))
-                    file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
-                    value = file_rating
-                except (TypeError, ValueError):
-                    # If conversion fails, use the original value
-                    pass
+            try:
+                normalized_rating = int(float(value))
+                file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
+                value = file_rating
+            except (TypeError, ValueError):
+                # If conversion fails, use the original value
+                pass
 
         if value is None:
             return None
