@@ -2365,6 +2365,12 @@ audiometa delete music/ --recursive
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for information on how to contribute to this project.
 
+When submitting issues or pull requests, please use the provided templates:
+
+- **Bug Reports**: Use the bug report template when opening an issue
+- **Feature Requests**: Use the feature request template for new ideas
+- **Pull Requests**: The PR template will guide you through the submission process
+
 ## License
 
 This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
