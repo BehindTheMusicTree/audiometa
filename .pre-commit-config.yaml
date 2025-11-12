@@ -8,12 +8,12 @@
 # Pre-commit hooks execution order - order matters!
 # 1. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
 # 2. no-assert: Check for assert statements in production code
-# 3. isort: Sort imports (configured to work with ruff-format/black)
-# 4. ruff-format: Format code (replaces black, handles EOF newlines automatically)
-# 5. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
-# 6. docformatter: Format docstrings (after code formatting)
-# 7. fix-long-comments: Fix long comment lines (custom hook)
-# 8. mypy: Type checking on formatted code
+# 3. ruff-format: Format code (replaces black, handles EOF newlines automatically)
+# 4. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
+# 5. isort: Sort imports (configured to work with ruff-format/black)
+# 6. mypy: Type checking on formatted code
+# 7. docformatter: Format docstrings (after code formatting)
+# 8. fix-long-comments: Fix long comment lines (custom hook)
 # 9. prettier: Format markdown files (preserves list numbering without zero-padding)
 
 repos:
@@ -38,24 +38,34 @@ repos:
         files: ^audiometa/.*\.py$
         exclude: ^(audiometa/test/|scripts/)
 
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ["--profile", "black", "--line-length=120"]
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.15
-    hooks:
-      - id: ruff-format
-        args: ["--line-length=120"]
-        files: ^audiometa/
-      - id: ruff
-        args: ["--fix", "--line-length=120"]
-        files: ^audiometa/
-
   - repo: local
     hooks:
+      - id: ruff-format
+        name: ruff-format
+        entry: ruff format --line-length=120
+        language: system
+        files: ^audiometa/.*\.py$
+      - id: ruff
+        name: ruff
+        entry: ruff check --fix --line-length=120
+        language: system
+        files: ^audiometa/.*\.py$
+      - id: isort
+        name: isort
+        entry: isort --profile black --line-length=120
+        language: system
+        files: ^audiometa/.*\.py$
+      - id: mypy
+        name: mypy
+        # Note: pytest type stubs are not available as a separate package (types-pytest doesn't exist)
+        # Mypy will report "Cannot find implementation or library stub for module named 'pytest'"
+        # This is expected and acceptable - real import errors are still caught by test execution
+        # The mypy overrides in pyproject.toml relax type checking rules for test files
+        entry: mypy --follow-imports=normal
+        language: system
+        files: ^audiometa/.*\.py$
+        exclude: ^(audiometa/test/|scripts/)
+        pass_filenames: true
       - id: docformatter
         name: docformatter
         entry: docformatter
@@ -70,20 +80,6 @@ repos:
         language: system
         files: ^audiometa/.*\.py$
         exclude: ^scripts/
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
-    hooks:
-      - id: mypy
-        # Note: pytest type stubs are not available as a separate package (types-pytest doesn't exist)
-        # Mypy will report "Cannot find implementation or library stub for module named 'pytest'"
-        # This is expected and acceptable - real import errors are still caught by test execution
-        # The mypy overrides in pyproject.toml relax type checking rules for test files
-        additional_dependencies: []
-        args: ["--follow-imports=normal"]
-        files: ^audiometa/
-        exclude: ^scripts/
-        pass_filenames: true
 
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v4.0.0-alpha.8
