@@ -73,7 +73,7 @@ class MetadataFieldNotSupportedByMetadataFormatError(Exception):
     """
 
 
-class MetadataFieldNotSupportedByLib(Exception):
+class MetadataFieldNotSupportedByLibError(Exception):
     """Raised when attempting to read or write a metadata field that is not supported by the library at all.
 
     This error indicates that the requested metadata field is not implemented or supported

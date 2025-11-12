@@ -54,7 +54,7 @@ class UnifiedMetadataKey(str, Enum):
         Returns:
             The type of the metadata value.
         """
-        APP_METADATA_KEYS_OPTIONAL_TYPES_MAP: dict[UnifiedMetadataKey, type[int | str | list[str]]] = {
+        app_metadata_keys_optional_types_map: dict[UnifiedMetadataKey, type[int | str | list[str]]] = {
             UnifiedMetadataKey.TITLE: str,
             UnifiedMetadataKey.ARTISTS: list[str],
             UnifiedMetadataKey.ALBUM: str,
@@ -73,7 +73,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.REPLAYGAIN: str,
             UnifiedMetadataKey.ARCHIVAL_LOCATION: str,
         }
-        result_type = APP_METADATA_KEYS_OPTIONAL_TYPES_MAP.get(self)
+        result_type = app_metadata_keys_optional_types_map.get(self)
         if not result_type:
             msg = f"No optional type defined for {self}"
             raise ValueError(msg)

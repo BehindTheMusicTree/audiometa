@@ -5,7 +5,7 @@ import pytest
 from audiometa import UnifiedMetadataKey, get_unified_metadata_field, update_metadata
 from audiometa.exceptions import (
     InvalidMetadataFieldTypeError,
-    MetadataFieldNotSupportedByLib,
+    MetadataFieldNotSupportedByLibError,
     MetadataFieldNotSupportedByMetadataFormatError,
 )
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
@@ -67,14 +67,14 @@ class TestMetadataFieldValidation:
         assert rating is None or isinstance(rating, int)
 
     def test_field_not_supported_by_lib_exception_exists(self):
-        with pytest.raises(MetadataFieldNotSupportedByLib, match="Test field not supported by library"):
+        with pytest.raises(MetadataFieldNotSupportedByLibError, match="Test field not supported by library"):
             msg = "Test field not supported by library"
-            raise MetadataFieldNotSupportedByLib(msg)
+            raise MetadataFieldNotSupportedByLibError(msg)
 
     def test_field_not_supported_by_lib_concept(self, _sample_wav_file: Path):
         with (
             temp_file_with_metadata({}, "wav") as test_file,
-            pytest.raises(MetadataFieldNotSupportedByLib, match="Test field not supported by library"),
+            pytest.raises(MetadataFieldNotSupportedByLibError, match="Test field not supported by library"),
         ):
             get_unified_metadata_field(test_file, "Test field not supported by library")
 

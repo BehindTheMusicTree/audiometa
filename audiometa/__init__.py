@@ -21,7 +21,7 @@ from .exceptions import (
     FileTypeNotSupportedError,
     InvalidMetadataFieldFormatError,
     InvalidMetadataFieldTypeError,
-    MetadataFieldNotSupportedByLib,
+    MetadataFieldNotSupportedByLibError,
     MetadataFieldNotSupportedByMetadataFormatError,
     MetadataFormatNotSupportedByAudioFormatError,
     MetadataWritingConflictParametersError,
@@ -228,7 +228,7 @@ def get_unified_metadata_field(
     Raises:
         MetadataFieldNotSupportedByMetadataFormatError: When metadata_format is specified and the field
             is not supported by that format
-        MetadataFieldNotSupportedByLib: When the field is not supported by any format in the library
+        MetadataFieldNotSupportedByLibError: When the field is not supported by any format in the library
             (only when metadata_format is None and all formats raise MetadataFieldNotSupportedByMetadataFormatError)
 
     Examples:
@@ -253,7 +253,7 @@ def get_unified_metadata_field(
         # Handle library-wide errors
         try:
             value = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.SOME_FIELD)
-        except MetadataFieldNotSupportedByLib:
+        except MetadataFieldNotSupportedByLibError:
             print("Field not supported by any format in the library")
     """
     # Check if key is a valid UnifiedMetadataKey enum first
@@ -302,7 +302,7 @@ def get_unified_metadata_field(
         # the field is not supported by the library at all
         if len(format_errors) == len(managers_prioritized) and len(format_errors) > 0:
             msg = f"{unified_metadata_key} metadata field is not supported by any format in the library"
-            raise MetadataFieldNotSupportedByLib(msg)
+            raise MetadataFieldNotSupportedByLibError(msg)
 
         return None
 
@@ -322,7 +322,7 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
         # Check if key is a valid UnifiedMetadataKey enum first
         if not isinstance(key, UnifiedMetadataKey):
             msg = f"{key} metadata not supported by the library."
-            raise MetadataFieldNotSupportedByLib(msg)
+            raise MetadataFieldNotSupportedByLibError(msg)
 
         # Allow None to mean "remove this field"
         if value is None:

@@ -8,7 +8,7 @@ import pytest
 def pytest_collection_modifyitems(items):
     """Reorder test items to ensure proper execution order: unit → integration → e2e."""
     # Define the desired test execution order based on directory structure
-    TEST_ORDER = {"unit": 1, "integration": 2, "e2e": 3}
+    test_order = {"unit": 1, "integration": 2, "e2e": 3}
 
     def get_test_priority(item):
         """Get the priority order for a test item based on its path."""
@@ -16,13 +16,13 @@ def pytest_collection_modifyitems(items):
 
         # Check for unit tests
         if "/unit/" in test_path:
-            return TEST_ORDER["unit"]
+            return test_order["unit"]
         # Check for integration tests
         if "/integration/" in test_path:
-            return TEST_ORDER["integration"]
+            return test_order["integration"]
         # Check for e2e tests
         if "/e2e/" in test_path:
-            return TEST_ORDER["e2e"]
+            return test_order["e2e"]
         # Default priority for other tests (comprehensive, etc.)
         return 0  # Run first (before unit tests)
 

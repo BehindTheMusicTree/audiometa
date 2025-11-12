@@ -12,7 +12,7 @@ class TestFieldNotSupportedReading:
         with (
             temp_file_with_metadata({}, "mp3") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             get_unified_metadata_field(test_file, "FIELD_NOT_SUPPORTED")
@@ -21,7 +21,7 @@ class TestFieldNotSupportedReading:
         with (
             temp_file_with_metadata({"title": "Test Song"}, "id3v1") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             get_unified_metadata_field(test_file, "FIELD_NOT_SUPPORTED", metadata_format=MetadataFormat.ID3V1)
@@ -30,7 +30,7 @@ class TestFieldNotSupportedReading:
         with (
             temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             get_unified_metadata_field(test_file, "FIELD_NOT_SUPPORTED", metadata_format=MetadataFormat.ID3V2)
@@ -39,7 +39,7 @@ class TestFieldNotSupportedReading:
         with (
             temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             get_unified_metadata_field(test_file, "FIELD_NOT_SUPPORTED", metadata_format=MetadataFormat.VORBIS)
@@ -48,7 +48,7 @@ class TestFieldNotSupportedReading:
         with (
             temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             get_unified_metadata_field(test_file, "FIELD_NOT_SUPPORTED", metadata_format=MetadataFormat.RIFF)

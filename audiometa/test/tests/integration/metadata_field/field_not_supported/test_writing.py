@@ -12,7 +12,7 @@ class TestFieldNotSupportedWriting:
         with (
             temp_file_with_metadata({}, "mp3") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             update_metadata(
@@ -25,7 +25,7 @@ class TestFieldNotSupportedWriting:
         with (
             temp_file_with_metadata({}, "mp3") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             update_metadata(
@@ -38,7 +38,7 @@ class TestFieldNotSupportedWriting:
         with (
             temp_file_with_metadata({}, "wav") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             update_metadata(
@@ -51,7 +51,7 @@ class TestFieldNotSupportedWriting:
         with (
             temp_file_with_metadata({}, "flac") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             update_metadata(

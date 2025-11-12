@@ -12,7 +12,7 @@ class TestFieldNotSupportedDeleting:
         with (
             temp_file_with_metadata({}, "mp3") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             update_metadata(test_file, {"FIELD_NOT_SUPPORTED": None})
@@ -21,7 +21,7 @@ class TestFieldNotSupportedDeleting:
         with (
             temp_file_with_metadata({}, "mp3") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             update_metadata(test_file, {"FIELD_NOT_SUPPORTED": None}, metadata_format=MetadataFormat.ID3V2)
@@ -30,7 +30,7 @@ class TestFieldNotSupportedDeleting:
         with (
             temp_file_with_metadata({}, "mp3") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             update_metadata(test_file, {"FIELD_NOT_SUPPORTED": None}, metadata_format=MetadataFormat.ID3V1)
@@ -39,7 +39,7 @@ class TestFieldNotSupportedDeleting:
         with (
             temp_file_with_metadata({}, "wav") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             update_metadata(test_file, {"FIELD_NOT_SUPPORTED": None}, metadata_format=MetadataFormat.RIFF)
@@ -48,7 +48,7 @@ class TestFieldNotSupportedDeleting:
         with (
             temp_file_with_metadata({}, "flac") as test_file,
             pytest.raises(
-                MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
+                MetadataFieldNotSupportedByLibError, match="FIELD_NOT_SUPPORTED metadata not supported by the library."
             ),
         ):
             update_metadata(test_file, {"FIELD_NOT_SUPPORTED": None}, metadata_format=MetadataFormat.VORBIS)
