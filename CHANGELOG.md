@@ -54,6 +54,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Raw metadata details from each format
   - Format priority information
 - **GitHub Sponsors Support**: Added FUNDING.yml to enable GitHub Sponsors button on repository
+- **Issue Templates**: Added bug report and feature request templates for better issue tracking and contributor experience
+- **CI/CD Pipeline**: Comprehensive GitHub Actions workflow for continuous integration:
+  - Automated linting and code quality checks (ruff, isort, mypy, flake8, assert statement validation)
+  - Cross-platform testing on Ubuntu, macOS, and Windows
+  - Multi-version Python support (3.10, 3.11, 3.12, 3.13)
+  - Code coverage enforcement (85% threshold)
+  - External tool verification (ffprobe, flac, metaflac, mid3v2)
+  - Runs on push to main/feature/hotfix branches and all pull requests
 
 ### Changed
 
