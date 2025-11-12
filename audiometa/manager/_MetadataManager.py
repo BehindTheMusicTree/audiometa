@@ -407,9 +407,7 @@ class _MetadataManager:
     def get_unified_metadata_field(self, unified_metadata_key: UnifiedMetadataKey) -> UnifiedMetadataValue:
         if unified_metadata_key not in self.metadata_keys_direct_map_read:
             msg = f"{unified_metadata_key} metadata not supported by this format"
-            raise MetadataFieldNotSupportedByMetadataFormatError(
-                msg
-            )
+            raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         if self.raw_clean_metadata_uppercase_keys is None:
             self._extract_raw_clean_metadata_uppercase_keys_from_file()
@@ -540,9 +538,7 @@ class _MetadataManager:
 
                 if unified_metadata_key not in self.metadata_keys_direct_map_write:
                     msg = f"{unified_metadata_key} metadata not supported by this format"
-                    raise MetadataFieldNotSupportedByMetadataFormatError(
-                        msg
-                    )
+                    raise MetadataFieldNotSupportedByMetadataFormatError(msg)
                 raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
                 if raw_metadata_key:
                     self._update_formatted_value_in_raw_mutagen_metadata(

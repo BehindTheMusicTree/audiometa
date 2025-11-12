@@ -322,9 +322,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
         for unified_metadata_key in unified_metadata:
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 msg = f"{unified_metadata_key} metadata not supported by RIFF format"
-                raise MetadataFieldNotSupportedByMetadataFormatError(
-                    msg
-                )
+                raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         # Read the entire file into a mutable bytearray
         self.audio_file.seek(0)
@@ -350,9 +348,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             riff_start = self._find_riff_header_after_id3v2(file_data)
             if riff_start == -1:
                 msg = "Invalid WAV file format - RIFF header not found after ID3v2 tags"
-                raise MetadataFieldNotSupportedByMetadataFormatError(
-                    msg
-                )
+                raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             # Work with the RIFF portion only for metadata updates
             riff_data = file_data[riff_start:]
         else:

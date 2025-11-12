@@ -20,9 +20,12 @@ class TestCopyrightDeleting:
             assert get_unified_metadata_field(test_file, UnifiedMetadataKey.COPYRIGHT) is None
 
     def test_delete_copyright_id3v1(self):
-        with temp_file_with_metadata({}, "mp3") as test_file, pytest.raises(
-            MetadataFieldNotSupportedByMetadataFormatError,
-            match="UnifiedMetadataKey.COPYRIGHT metadata not supported by this format",
+        with (
+            temp_file_with_metadata({}, "mp3") as test_file,
+            pytest.raises(
+                MetadataFieldNotSupportedByMetadataFormatError,
+                match="UnifiedMetadataKey.COPYRIGHT metadata not supported by this format",
+            ),
         ):
             update_metadata(
                 test_file,

@@ -688,9 +688,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             app_metadata_value = unified_metadata[unified_metadata_key]
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 msg = f"{unified_metadata_key} metadata not supported by this format"
-                raise MetadataFieldNotSupportedByMetadataFormatError(
-                    msg
-                )
+                raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
             if raw_metadata_key:
                 self._update_formatted_value_in_raw_mutagen_metadata(
@@ -810,9 +808,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             raise FileCorruptedError(msg)
         except FileNotFoundError:
             msg = f"External tool {tool} not found. Please install it to write ID3v2 metadata to FLAC files."
-            raise FileCorruptedError(
-                msg
-            )
+            raise FileCorruptedError(msg)
 
     def delete_metadata(self) -> bool:
         """Delete all ID3v2 metadata from the audio file.

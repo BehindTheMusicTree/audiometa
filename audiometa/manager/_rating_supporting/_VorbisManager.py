@@ -326,9 +326,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 msg = f"{unified_metadata_key} metadata not supported by this format"
-                raise MetadataFieldNotSupportedByMetadataFormatError(
-                    msg
-                )
+                raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
             if raw_metadata_key:
                 self._update_formatted_value_in_raw_mutagen_metadata(
@@ -432,9 +430,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             raise FileCorruptedError(msg)
         except FileNotFoundError:
             msg = "metaflac tool not found. Please install it to write Vorbis metadata to FLAC files."
-            raise FileCorruptedError(
-                msg
-            )
+            raise FileCorruptedError(msg)
 
     def get_header_info(self) -> dict:
         try:
@@ -515,9 +511,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                         raw_mutagen_metadata[self.VorbisKey.RATING] = [str(file_rating)]
                     except (TypeError, ValueError):
                         msg = f"Invalid rating value: {app_metadata_value}. Expected a numeric value."
-                        raise InvalidRatingValueError(
-                            msg
-                        )
+                        raise InvalidRatingValueError(msg)
             else:
                 # Remove rating
                 if self.VorbisKey.RATING in raw_mutagen_metadata:

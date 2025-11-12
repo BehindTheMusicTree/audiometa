@@ -65,9 +65,7 @@ class _AudioFile:
         supported_extensions = MetadataFormat.get_priorities().keys()
         if file_extension not in supported_extensions:
             msg = f"File type {file_extension} is not supported. Supported types: {', '.join(supported_extensions)}"
-            raise FileTypeNotSupportedError(
-                msg
-            )
+            raise FileTypeNotSupportedError(msg)
 
         # Validate that the file content is valid for the format
         try:
@@ -80,9 +78,7 @@ class _AudioFile:
                 self._validate_wav_file(self.file_path)
         except Exception as e:
             msg = f"The file content is corrupted or not a valid {file_extension.upper()} file: {e!s}"
-            raise FileCorruptedError(
-                msg
-            )
+            raise FileCorruptedError(msg)
 
     def get_duration_in_sec(self) -> float:
         path = self.file_path
@@ -254,9 +250,7 @@ class _AudioFile:
             msg = "The file is not a FLAC file"
             raise FileTypeNotSupportedError(msg)
 
-        result = subprocess.run(
-            ["flac", "-t", self.file_path], capture_output=True, check=False
-        )
+        result = subprocess.run(["flac", "-t", self.file_path], capture_output=True, check=False)
 
         output = result.stderr.decode()
         if "ok" in output:
@@ -306,18 +300,14 @@ class _AudioFile:
                     # Try reencoding with ffmpeg as a fallback
                     ffmpeg_cmd = ["ffmpeg", "-i", self.file_path, "-c:a", "flac", temp_path]
 
-                    ffmpeg_result = subprocess.run(
-                        ffmpeg_cmd, capture_output=True, check=False
-                    )
+                    ffmpeg_result = subprocess.run(ffmpeg_cmd, capture_output=True, check=False)
 
                     if ffmpeg_result.returncode != 0:
                         msg = (
                             "The FLAC file MD5 check failed and reencoding attempts were unsuccessful. "
                             "The file is probably corrupted."
                         )
-                        raise FileCorruptedError(
-                            msg
-                        )
+                        raise FileCorruptedError(msg)
 
             # Verify the output file exists and is valid
             if not os.path.exists(temp_path) or os.path.getsize(temp_path) == 0:

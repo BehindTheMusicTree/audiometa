@@ -63,9 +63,7 @@ def _get_metadata_manager(
         metadata_format = audio_file_prioritized_tag_formats[0]
     elif metadata_format not in audio_file_prioritized_tag_formats:
         msg = f"Tag format {metadata_format} not supported for file extension {audio_file.file_extension}"
-        raise MetadataFormatNotSupportedByAudioFormatError(
-            msg
-        )
+        raise MetadataFormatNotSupportedByAudioFormatError(msg)
 
     manager_class: type[_MetadataManager] = cast(Any, METADATA_FORMAT_MANAGER_CLASS_MAP[metadata_format])
     if issubclass(manager_class, _RatingSupportingMetadataManager):
@@ -306,9 +304,7 @@ def get_unified_metadata_field(
         # the field is not supported by the library at all
         if len(format_errors) == len(managers_prioritized) and len(format_errors) > 0:
             msg = f"{unified_metadata_key} metadata field is not supported by any format in the library"
-            raise MetadataFieldNotSupportedByLib(
-                msg
-            )
+            raise MetadataFieldNotSupportedByLib(msg)
 
         return None
 
@@ -480,9 +476,7 @@ def update_metadata(
             "Choose either: use metadata_strategy for multi-format management, "
             "or metadata_format for single-format writing."
         )
-        raise MetadataWritingConflictParametersError(
-            msg
-        )
+        raise MetadataWritingConflictParametersError(msg)
 
     # Default to SYNC strategy if not specified
     if metadata_strategy is None:
@@ -566,9 +560,7 @@ def _handle_metadata_strategy(
         if unsupported_fields:
             if fail_on_unsupported_field:
                 msg = f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}"
-                raise MetadataFieldNotSupportedByMetadataFormatError(
-                    msg
-                )
+                raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             warnings.warn(
                 f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}"
             )

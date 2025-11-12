@@ -150,9 +150,7 @@ class _Id3v1Manager(_MetadataManager):
                 raw_metadata_ket=Id3v1RawMetadataKey.GENRE_CODE_OR_NAME,
             )
         msg = f"{unified_metadata_key} metadata is not undirectly handled"
-        raise MetadataFieldNotSupportedByMetadataFormatError(
-            msg
-        )
+        raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_undirectly_mapped_metadata(
         self,
@@ -178,9 +176,7 @@ class _Id3v1Manager(_MetadataManager):
                     tags[Id3v1RawMetadataKey.GENRE_CODE_OR_NAME] = [str(genre_code)]
         else:
             msg = f"{unified_metadata_key} metadata is not undirectly handled"
-            raise MetadataFieldNotSupportedByMetadataFormatError(
-                msg
-            )
+            raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_formatted_value_in_raw_mutagen_metadata(
         self,
@@ -250,9 +246,7 @@ class _Id3v1Manager(_MetadataManager):
         for unified_metadata_key in unified_metadata:
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 msg = f"{unified_metadata_key} metadata not supported by this format"
-                raise MetadataFieldNotSupportedByMetadataFormatError(
-                    msg
-                )
+                raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         # Read the entire file
         self.audio_file.seek(0)

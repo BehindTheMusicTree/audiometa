@@ -94,24 +94,18 @@ class _RatingSupportingMetadataManager(_MetadataManager):
             # Rating is written as-is - must be non-negative
             if rating_value < 0:
                 msg = f"Rating value {rating_value} is invalid. Rating values must be non-negative (>= 0)."
-                raise InvalidRatingValueError(
-                    msg
-                )
+                raise InvalidRatingValueError(msg)
         else:
             # Value is normalized - must be non-negative and within max
             if rating_value < 0:
                 msg = f"Rating value {rating_value} is invalid. Rating values must be non-negative (>= 0)."
-                raise InvalidRatingValueError(
-                    msg
-                )
+                raise InvalidRatingValueError(msg)
             if rating_value > self.normalized_rating_max_value:
                 msg = (
                     f"Rating value {rating_value} is out of range. "
                     f"Value must be between 0 and {self.normalized_rating_max_value} (inclusive)."
                 )
-                raise InvalidRatingValueError(
-                    msg
-                )
+                raise InvalidRatingValueError(msg)
             # Calculate ratio and check if output values exist in writing profiles
             ratio = rating_value / self.normalized_rating_max_value
             output_100 = round(ratio * 100)
@@ -128,9 +122,7 @@ class _RatingSupportingMetadataManager(_MetadataManager):
                     f"Calculated output values ({output_100} for 100-scale, {output_255} for 255-scale) "
                     f"do not exist in any supported writing profile."
                 )
-                raise InvalidRatingValueError(
-                    msg
-                )
+                raise InvalidRatingValueError(msg)
 
     def _validate_rating_in_unified_metadata(self, unified_metadata: UnifiedMetadata) -> None:
         """Validate rating value in unified metadata if present.
@@ -182,9 +174,7 @@ class _RatingSupportingMetadataManager(_MetadataManager):
             elif metadata_format_name == "VORBIS":
                 metadata_format_name = "Vorbis"
             msg = f"{UnifiedMetadataKey.RATING} metadata not supported by {metadata_format_name} format"
-            raise MetadataFieldNotSupportedByMetadataFormatError(
-                msg
-            )
+            raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         # Validate rating value before processing
         self._validate_rating_in_unified_metadata(unified_metadata)

@@ -222,7 +222,6 @@ def manual_multiple_frames_test():
                 capture_output=True,
             )
 
-
             # Test 1: Multiple TPE1 frames
             artists = ["Artist One", "Artist Two", "Artist Three"]
             ManualID3v2FrameCreator.create_multiple_tpe1_frames(tmp_path, artists, version)
@@ -256,7 +255,6 @@ def manual_multiple_frames_test():
             # Check version in the file and verify multiple frames exist in binary
             result = subprocess.run(["mid3v2", "-l", str(tmp_path)], capture_output=True, text=True, check=False)
             if result.stdout:
-
                 # Verify multiple frames exist by checking raw binary
                 with open(tmp_path, "rb") as f:
                     data = f.read(1000)  # Read first 1KB to check for multiple frame IDs
@@ -295,7 +293,6 @@ def create_test_file_with_version(
 
     # Add multiple frames
     ManualID3v2FrameCreator.create_mixed_multiple_frames(output_path, artists, genres, version)
-
 
 
 if __name__ == "__main__":
