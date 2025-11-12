@@ -62,13 +62,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CI/CD Pipeline**: Comprehensive GitHub Actions workflow for continuous integration:
   - Automated linting and code quality checks (ruff, isort, mypy, flake8, assert statement validation)
   - Cross-platform testing on Ubuntu, macOS, and Windows
-  - Multi-version Python support (3.10, 3.11, 3.12, 3.13)
+  - Multi-version Python support (3.12, 3.13)
   - Code coverage enforcement (85% threshold)
   - External tool verification (ffprobe, flac, metaflac, mid3v2)
   - Runs on push to main/feature/hotfix branches and all pull requests
 
 ### Changed
 
+- **BREAKING: Python version requirement**: Minimum Python version increased from 3.10 to 3.12
+  - Codebase uses `type` statements (PEP 695) which require Python 3.12+
+  - CI now tests Python 3.12 and 3.13 only
+  - Updated all documentation to reflect Python 3.12+ requirement
 - **Architecture simplification**: Removed MultiEntriesManager layer and integrated smart parsing into base MetadataManager
 - Systematic smart parsing behavior for all semantically multi-value fields
 - **ID3v1 is no longer read-only**: Full read/write support with direct file manipulation
@@ -195,7 +199,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Requirements
 
-- Python 3.10+
+- Python 3.12+
 - mutagen >= 1.45.0
 - ffprobe (for WAV file processing)
 - flac (for FLAC MD5 validation)

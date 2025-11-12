@@ -1,7 +1,7 @@
 # AudioMeta Python
 
 [![CI](https://github.com/Andreas-Garcia/audiometa/actions/workflows/ci.yml/badge.svg)](https://github.com/Andreas-Garcia/audiometa/actions/workflows/ci.yml)
-[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-0.1.0-orange)](https://github.com/Andreas-Garcia/audiometa)
 
@@ -254,7 +254,7 @@ pip install audiometa-python
 
 ### System Requirements
 
-- **Python**: 3.10 or higher
+- **Python**: 3.12 or higher
 - **Operating Systems**: Windows, macOS, Linux
 - **Dependencies**: Automatically installed with the package
 - **Required Tools**: ffprobe (for WAV file processing), flac (for FLAC MD5 validation)
@@ -361,7 +361,7 @@ AudioMeta uses a combination of Python libraries and external command-line tools
 
 ### What You Need
 
-- Python 3.10+
+- Python 3.12+
 - Audio files (MP3, FLAC, WAV)
 - Basic Python knowledge
 
@@ -2363,7 +2363,7 @@ audiometa delete music/ --recursive
 
 ## Requirements
 
-- Python 3.10+
+- Python 3.12+
 - mutagen >= 1.45.0
 - ffprobe (for WAV file processing)
 - flac (for FLAC MD5 validation)

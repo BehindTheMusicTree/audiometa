@@ -112,7 +112,7 @@ Currently, this project has a solo maintainer, but the role may expand as the pr
 
 Ensure you're using:
 
-- Python 3.10 or higher
+- Python 3.12 or higher
 
 - Virtual environment with dependencies:
 
