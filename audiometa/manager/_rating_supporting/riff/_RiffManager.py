@@ -266,7 +266,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 # Create WAVE object with the clean RIFF data
                 wave = WAVE(filename=temp_file.name)
                 info_tags = self._extract_riff_metadata_directly(file_data)  # Use original data for our custom parsing
-                wave.info = info_tags
+                wave.info = info_tags  # type: ignore[assignment]
                 return cast(RawMetadataDict, wave)
             finally:
                 # Clean up temporary file
@@ -285,7 +285,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
         raw_metadata_dict: dict = {}
 
         # Get metadata from our custom info which contains the directly parsed INFO chunk
-        if hasattr(raw_mutagen_metadata_wav, "info"):
+        if hasattr(raw_mutagen_metadata_wav, "info") and raw_mutagen_metadata_wav.info is not None:
             info_tags = raw_mutagen_metadata_wav.info
             for key, value in info_tags.items():
                 # key is a FourCC string; check against enum member values
@@ -637,8 +637,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
                     # Look at the local variables to determine the strategy and target format
                     strategy = frame.f_locals["strategy"]
                     target_format = frame.f_locals["target_format_actual"]
-                    from ...utils.metadata_format import MetadataFormat
-                    from ...utils.metadata_writing_strategy import MetadataWritingStrategy
+                    from audiometa.utils.metadata_format import MetadataFormat  # type: ignore[import-not-found]
+                    from audiometa.utils.metadata_writing_strategy import MetadataWritingStrategy  # type: ignore[import-not-found]
 
                     # Preserve ID3v2 tags when:
                     # 1. PRESERVE strategy and target format is RIFF (preserve existing ID3v2 tags)

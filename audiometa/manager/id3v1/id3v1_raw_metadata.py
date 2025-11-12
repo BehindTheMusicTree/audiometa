@@ -237,6 +237,6 @@ class Id3v1RawMetadata(FileType):
             pass  # Ignore errors during deletion
 
     @staticmethod
-    def score(_filename: str, _fileobj: Any, _header: Any) -> float:
+    def score(_filename: str, _fileobj: Any, _header: Any) -> int:  # type: ignore[override]
         """Return a score indicating how likely this class can handle the file."""
-        return 0.0  # We don't want this to be auto-detected by mutagen
+        return 0  # We don't want this to be auto-detected by mutagen

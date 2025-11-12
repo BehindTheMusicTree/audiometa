@@ -472,7 +472,11 @@ class _Id3v1Manager(_MetadataManager):
             if self.raw_mutagen_metadata is None:
                 self.raw_mutagen_metadata = self._extract_mutagen_metadata()
 
-            if not self.raw_mutagen_metadata or not hasattr(self.raw_mutagen_metadata, "tags") or self.raw_mutagen_metadata.tags is None:
+            if (
+                not self.raw_mutagen_metadata
+                or not hasattr(self.raw_mutagen_metadata, "tags")
+                or self.raw_mutagen_metadata.tags is None
+            ):
                 return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
 
             # Get parsed fields using unified metadata keys
