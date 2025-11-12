@@ -865,7 +865,9 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                         "flags": getattr(ext_header, "flags", 0),
                         "padding_size": getattr(ext_header, "padding_size", 0),
                     }
-
+        except Exception:
+            return {"present": False, "version": None, "header_size_bytes": 0, "flags": {}, "extended_header": {}}
+        else:
             return {
                 "present": True,
                 "version": version_str,
@@ -873,8 +875,6 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 "flags": flags,
                 "extended_header": extended_header,
             }
-        except Exception:
-            return {"present": False, "version": None, "header_size_bytes": 0, "flags": {}, "extended_header": {}}
 
     def get_raw_metadata_info(self) -> dict:
         try:
@@ -929,7 +929,9 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                         "size": getattr(frame, "size", 0),
                         "flags": getattr(frame, "flags", 0),
                     }
-
+        except Exception:
+            return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
+        else:
             return {
                 "raw_data": None,  # ID3v2 data is complex, not storing raw bytes
                 "parsed_fields": {},
@@ -937,5 +939,3 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 "comments": {},
                 "chunk_structure": {},
             }
-        except Exception:
-            return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}

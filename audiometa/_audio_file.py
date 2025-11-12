@@ -126,12 +126,13 @@ class _AudioFile:
                 if duration <= 0:
                     msg = "Could not determine audio duration"
                     raise DurationNotFoundError(msg) from None
-                return duration
-
             except json.JSONDecodeError as e:
                 msg = "Failed to parse audio file metadata from ffprobe output"
                 raise AudioFileMetadataParseError(msg) from e
             except DurationNotFoundError:
+                raise
+            else:
+                return duration
                 # Let DurationNotFoundError pass through
                 raise
             except Exception as exc:
@@ -326,8 +327,6 @@ class _AudioFile:
                 except OSError as e:
                     msg = f"Failed to delete original file: {e!s}"
                     raise OSError(msg) from e
-
-            return temp_path
 
         except (subprocess.SubprocessError, OSError) as e:
             msg = f"Failed to execute FLAC command: {e!s}"

@@ -515,10 +515,10 @@ class _RiffManager(_RatingSupportingMetadataManager):
             # Write updated file
             self.audio_file.seek(0)
             self.audio_file.write(final_file_data)
-
-            return True
         except Exception:
             return False
+        else:
+            return True
 
     def _find_info_chunk_in_file_data(self, file_data: bytearray) -> int:
         pos = 12  # Start after RIFF header
@@ -737,7 +737,9 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 pos += 8 + chunk_size
                 if chunk_size % 2 == 1:  # Word alignment
                     pos += 1
-
+        except Exception:
+            return {"present": False, "chunk_info": {}}
+        else:
             return {
                 "present": True,
                 "chunk_info": {
@@ -747,8 +749,6 @@ class _RiffManager(_RatingSupportingMetadataManager):
                     "subchunk_size": subchunk_size,
                 },
             }
-        except Exception:
-            return {"present": False, "chunk_info": {}}
 
     def get_raw_metadata_info(self) -> dict[str, Any]:
         try:
@@ -765,7 +765,9 @@ class _RiffManager(_RatingSupportingMetadataManager):
             parsed_fields = {}
             for key, value in raw_clean_metadata.items():
                 parsed_fields[key] = value[0] if value else ""
-
+        except Exception:
+            return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
+        else:
             return {
                 "raw_data": None,  # RIFF data is complex binary structure
                 "parsed_fields": parsed_fields,
@@ -773,5 +775,3 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 "comments": {},
                 "chunk_structure": {},
             }
-        except Exception:
-            return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
