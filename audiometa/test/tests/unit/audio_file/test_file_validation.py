@@ -29,11 +29,11 @@ class TestAudioFileFileTypeValidation:
         # Create a file with valid extension but bad content
         with temp_file_with_metadata({}, "mp3") as temp_audio_file_path:
             temp_audio_file_path.write_bytes(b"not a real audio file")
-            temp_audio_file_path = temp_audio_file_path.with_suffix(".mp3")
-            temp_audio_file_path.write_bytes(b"not a real audio file")
+            mp3_file_path = temp_audio_file_path.with_suffix(".mp3")
+            mp3_file_path.write_bytes(b"not a real audio file")
 
             with pytest.raises(FileCorruptedError):
-                _AudioFile(str(temp_audio_file_path))
+                _AudioFile(str(mp3_file_path))
 
     def test_nonexistent_file_raises_error(self):
         with pytest.raises(FileNotFoundError):

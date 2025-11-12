@@ -778,20 +778,21 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             if unified_key in key_mapping and value is not None:
                 tool_arg = key_mapping[unified_key]
 
+                processed_value = value
                 if unified_key == UnifiedMetadataKey.ARTISTS and isinstance(value, list):
                     # Handle multiple artists by joining with semicolon
-                    value = ";".join(value)
+                    processed_value = ";".join(value)
                 elif unified_key == UnifiedMetadataKey.GENRES_NAMES and isinstance(value, list):
                     # Handle multiple genres by joining with semicolon
-                    value = ";".join(value)
+                    processed_value = ";".join(value)
                 elif unified_key == UnifiedMetadataKey.COMPOSERS and isinstance(value, list):
                     # Handle multiple composers by joining with semicolon
-                    value = ";".join(value)
+                    processed_value = ";".join(value)
                 elif unified_key == UnifiedMetadataKey.ALBUM_ARTISTS and isinstance(value, list):
                     # Handle multiple album artists by joining with semicolon
-                    value = ";".join(value)
+                    processed_value = ";".join(value)
 
-                cmd.extend([tool_arg, str(value)])
+                cmd.extend([tool_arg, str(processed_value)])
 
         # Add file path and execute
         cmd.append(self.audio_file.file_path)

@@ -14,11 +14,11 @@ class TestReadingErrorHandling:
         # Create a file with unsupported extension
         with temp_file_with_metadata({}, "mp3") as temp_audio_file_path:
             temp_audio_file_path.write_bytes(b"fake audio content")
-            temp_audio_file_path = temp_audio_file_path.with_suffix(".txt")
-            temp_audio_file_path.write_bytes(b"fake audio content")
+            txt_file_path = temp_audio_file_path.with_suffix(".txt")
+            txt_file_path.write_bytes(b"fake audio content")
 
             with pytest.raises(FileTypeNotSupportedError):
-                get_unified_metadata(str(temp_audio_file_path))
+                get_unified_metadata(str(txt_file_path))
 
     def test_nonexistent_file_raises_error(self):
         nonexistent_file = "nonexistent_file.mp3"
