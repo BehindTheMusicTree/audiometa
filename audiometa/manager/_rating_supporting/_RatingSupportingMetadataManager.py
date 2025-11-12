@@ -143,7 +143,7 @@ class _RatingSupportingMetadataManager(_MetadataManager):
                     self._validate_rating_value(rating_int)
                 else:
                     msg = f"Rating value must be numeric, got {type(value).__name__}"
-                    raise InvalidRatingValueError(msg)  # type: ignore[unreachable]
+                    raise InvalidRatingValueError(msg)
 
     def _validate_and_process_rating(self, unified_metadata: UnifiedMetadata) -> None:
         """Validate and process rating in unified metadata if present.
