@@ -87,7 +87,16 @@ class TestRealAudioFilesReading:
 
         metadata = get_unified_metadata(file_path)
         assert isinstance(metadata, dict)
-        assert metadata[UnifiedMetadataKey.TITLE] == "Y do i - Carmina Burana Remix (Techno of the Opera)"
+        assert metadata.get(UnifiedMetadataKey.TITLE) == "Y do i - Carmina Burana Remix (Techno of the Opera)"
+        # Additional metadata fields that should be present if added:
+        if UnifiedMetadataKey.ARTISTS in metadata:
+            assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Y do I"]
+        if UnifiedMetadataKey.ALBUM_ARTISTS in metadata:
+            assert metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS) == ["Y do I"]
+        if UnifiedMetadataKey.COMPOSERS in metadata:
+            assert metadata.get(UnifiedMetadataKey.COMPOSERS) == ["Carl Orff"]
+        if UnifiedMetadataKey.ALBUM in metadata:
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Remixes"
 
     def test_recording_california_gurls_metadata(self, assets_dir: Path):
         file_path = assets_dir / "recording=california gurls_id3v2 tags.flac"
