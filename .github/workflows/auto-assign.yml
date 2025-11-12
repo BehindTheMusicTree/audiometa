@@ -1,0 +1,32 @@
+name: Auto Assign Reviewers
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+jobs:
+  auto-assign:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Check if PR is from maintainer
+        id: check-maintainer
+        run: |
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          MAINTAINER="Andreas-Garcia"
+          if [ "$PR_AUTHOR" = "$MAINTAINER" ]; then
+            echo "is_maintainer=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_maintainer=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Auto-assign reviewer for contributor PRs
+        if: steps.check-maintainer.outputs.is_maintainer == 'false'
+        uses: kentaro-m/auto-assign-action@v1.2.1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/auto-assign.yml
+
