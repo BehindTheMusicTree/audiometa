@@ -244,10 +244,12 @@ class TestDeletionWorkflows:
             test_file.write_bytes(b"fake audio content")
 
             # All deletion operations should raise appropriate errors
-            with pytest.raises(Exception):  # FileTypeNotSupportedError
+            from audiometa.exceptions import FileTypeNotSupportedError
+
+            with pytest.raises(FileTypeNotSupportedError):
                 delete_all_metadata(str(test_file))
 
-            with pytest.raises(Exception):  # FileTypeNotSupportedError
+            with pytest.raises(FileTypeNotSupportedError):
                 update_metadata(str(test_file), {UnifiedMetadataKey.TITLE: None})
 
     def test_deletion_with_rating_normalization_workflow(self):

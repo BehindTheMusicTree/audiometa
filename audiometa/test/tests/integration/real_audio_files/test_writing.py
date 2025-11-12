@@ -3,6 +3,7 @@
 import shutil
 import tempfile
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 
@@ -14,7 +15,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 class TestRealAudioFilesWriting:
     """Test cases for writing metadata to real audio files."""
 
-    test_metadata = {
+    test_metadata: ClassVar = {
         UnifiedMetadataKey.TITLE: "Test Writing Title",
         UnifiedMetadataKey.ARTISTS: ["Test Writing Artist"],
         UnifiedMetadataKey.ALBUM: "Test Writing Album",

@@ -9,7 +9,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.integration
-class TestMultipleValuesId3v2_4:
+class TestMultipleValuesId3v24:
     def test_write_multiple_artists(self):
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             metadata = {UnifiedMetadataKey.ARTISTS: ["Artist One", "Artist Two"]}
