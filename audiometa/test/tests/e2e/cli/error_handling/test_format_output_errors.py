@@ -8,7 +8,7 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.e2e
 class TestCLIFormatOutputErrors:
-    def test_cli_yaml_format_without_pyyaml(self, sample_mp3_file, monkeypatch, capsys):
+    def test_cli_yaml_format_without_pyyaml(self, _sample_mp3_file, monkeypatch, capsys):
         # Test the format_output function directly with mocked yaml import
         import sys
 

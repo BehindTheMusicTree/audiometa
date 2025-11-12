@@ -25,7 +25,7 @@ class TestFlacMd5Functions:
     def test_fix_md5_checking_flac(self):
         with temp_file_with_metadata({}, "flac") as test_file:
             # Truncate the file to corrupt it and ensure MD5 is invalid
-            with open(test_file, "r+b") as f:
+            with test_file.open("r+b") as f:
                 f.truncate(os.path.getsize(test_file) - 100)  # Remove last 100 bytes
 
             # Ensure we're testing with a FLAC file that has invalid MD5

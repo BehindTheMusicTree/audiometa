@@ -36,7 +36,7 @@ class TestUserScenarios:
                 assert metadata.get(UnifiedMetadataKey.ALBUM) == "My Music Library"
                 assert metadata.get(UnifiedMetadataKey.TITLE) == f"Track {i + 1}"
 
-    def test_metadata_import_export_workflow(self, sample_mp3_file):
+    def test_metadata_import_export_workflow(self, _sample_mp3_file):
         # Simulate a user importing metadata from external source
         # Use external script to set initial metadata
         initial_metadata = {"title": "Original Title", "artist": "Original Artist", "album": "Original Album"}
@@ -66,7 +66,7 @@ class TestUserScenarios:
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Updated Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Updated Artist"]
 
-    def test_metadata_privacy_cleanup_workflow(self, sample_mp3_file):
+    def test_metadata_privacy_cleanup_workflow(self, _sample_mp3_file):
         # Simulate a user cleaning up metadata for privacy before sharing files
         initial_metadata = {
             "title": "Personal Music Track",
@@ -106,7 +106,7 @@ class TestUserScenarios:
             )
             assert final_metadata.get(UnifiedMetadataKey.COMMENT) is None
 
-    def test_metadata_correction_workflow(self, sample_mp3_file):
+    def test_metadata_correction_workflow(self, _sample_mp3_file):
         # Simulate a user correcting incorrect metadata
         initial_metadata = {"title": "Wrong Title", "artist": "Wrong Artist", "album": "Wrong Album"}
 
