@@ -6,6 +6,8 @@ This project is currently maintained by a solo developer, but contributions, sug
 ## Table of Contents
 
 - [🧑‍🤝‍🧑 Contributors vs Maintainers](#-contributors-vs-maintainers)
+  - [Roles Overview](#roles-overview)
+  - [Infrastructure & Automation Permissions](#infrastructure--automation-permissions)
 - [💻 Contributing Code](#-contributing-code)
 - [📦 Environment Setup](#-environment-setup)
 - [🧱 Development Workflow](#-development-workflow)
@@ -33,6 +35,8 @@ This project is currently maintained by a solo developer, but contributions, sug
 
 ## Contributors vs Maintainers
 
+### Roles Overview
+
 **Contributors**
 
 Anyone can be a contributor by:
@@ -55,8 +59,42 @@ The maintainer(s) are responsible for:
 - Creating and managing hotfix branches for urgent production fixes
 - Updating the changelog (contributors should not modify `CHANGELOG.md`)
 - Managing the TODO list (contributors should open issues for new tasks; maintainers update `TODO.md`)
+- Managing repository automation (stale issues/PRs, auto-labeling, auto-assignment, etc.)
 
 _Note: Contributors can submit fixes for critical issues via feature branches. Maintainers may promote these to hotfix branches when urgent production fixes are needed._
+
+### Infrastructure & Automation Permissions
+
+**Repository automation policies (maintainer-only):**
+
+- Stale issues/PRs workflow (`.github/workflows/stale.yml`) - affects repository management policies
+- Auto-assignment workflows - affects review process
+- Other automation workflows that affect repository management
+
+**Auto-labeling configuration (contributors can suggest changes via PRs):**
+
+- Auto-labeling configuration (`.github/labeler.yml`) - contributors can suggest updates when adding new features/components
+- Example: If adding a new audio format handler, contributor can suggest adding label rules for that component
+- Maintainers review and approve label configuration changes
+
+**Why most automation is maintainer-only:**
+
+- These workflows implement repository policies and management decisions
+- Changes can affect how issues/PRs are handled, categorized, and maintained
+- They require understanding of project management strategy
+
+**What contributors can do:**
+
+- Suggest changes to auto-labeling configuration (`.github/labeler.yml`) via PRs, especially when adding new features/components
+- Suggest improvements or report issues with automation via GitHub Issues
+- Add/remove labels on their own issues and PRs (type labels like `bug`, `enhancement`, priority labels, etc.)
+- Discuss automation behavior in discussions or issues
+
+**What contributors cannot do:**
+
+- Modify automation workflows (stale, auto-assignment, etc.) - these are policy decisions
+- Create or delete repository labels (maintainer-only) - repository labels are the label definitions (like `bug`, `enhancement`, `id3v1`) that exist in the repository's label list
+- Modify labels on issues/PRs they didn't create (unless they have write access)
 
 Currently, this project has a solo maintainer, but the role may expand as the project grows.
 
@@ -556,6 +594,18 @@ def public_api_function(param1: str, param2: int | None = None) -> dict[str, Any
 pre-commit run --all-files && \
 pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=85
 ```
+
+### What Happens When You Submit a PR
+
+When you open a Pull Request, several automations will run automatically:
+
+- **Auto-labeling**: Component labels (like `id3v1`, `id3v2`, `vorbis`, `riff`, `cli`, `core`) and some type labels (`documentation`, `test`, `ci`, `dependencies`) are automatically added based on files changed
+- **Manual labels**: You should still add type labels (`bug`, `enhancement`, `feature`) and priority labels manually, as these can't be determined from file paths
+- **Auto-assignment**: For contributor PRs (not maintainer PRs), reviewers are automatically assigned
+- **CI/CD checks**: Automated tests, linting, and type checking run on your PR
+- **Welcome message**: First-time contributors receive a welcome message with helpful links
+
+These automations help streamline the review process and ensure consistency across the project.
 
 ### Releasing _(For Maintainers)_
 
