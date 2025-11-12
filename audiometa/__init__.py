@@ -9,6 +9,7 @@ Note: OGG file support is planned but not yet implemented.
 For detailed metadata support information, see the README.md file.
 """
 
+import contextlib
 import re
 import warnings
 from pathlib import Path
@@ -26,10 +27,10 @@ from .exceptions import (
     MetadataWritingConflictParametersError,
 )
 from .manager._MetadataManager import _MetadataManager
-from .manager._rating_supporting._Id3v2Manager import _Id3v2Manager
 from .manager._rating_supporting._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
-from .manager._rating_supporting._RiffManager import _RiffManager
-from .manager._rating_supporting._VorbisManager import _VorbisManager
+from .manager._rating_supporting.id3v2._Id3v2Manager import _Id3v2Manager
+from .manager._rating_supporting.riff._RiffManager import _RiffManager
+from .manager._rating_supporting.vorbis._VorbisManager import _VorbisManager
 from .manager.id3v1._Id3v1Manager import _Id3v1Manager
 from .utils.MetadataFormat import MetadataFormat
 from .utils.MetadataWritingStrategy import MetadataWritingStrategy
@@ -332,9 +333,9 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
 
         try:
             expected_type = key.get_optional_type()
-        except Exception:
+        except Exception as err:
             msg = f"Cannot determine expected type for key: {key.value}"
-            raise TypeError(msg)
+            raise TypeError(msg) from err
 
         origin = get_origin(expected_type)
         if origin is list:
@@ -369,10 +370,14 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
             )
 
         # Format validation for specific fields
-        if key == UnifiedMetadataKey.RELEASE_DATE and isinstance(value, str):
+        if (
+            key == UnifiedMetadataKey.RELEASE_DATE
+            and isinstance(value, str)
+            and value
+            and not (re.match(r"^\d{4}$", value) or re.match(r"^\d{4}-\d{2}-\d{2}$", value))
+        ):
             # Accept empty string (represents no date), YYYY (4 digits) or YYYY-MM-DD (ISO-like format)
-            if value and not (re.match(r"^\d{4}$", value) or re.match(r"^\d{4}-\d{2}-\d{2}$", value)):
-                raise InvalidMetadataFieldFormatError(key.value, "YYYY (4 digits) or YYYY-MM-DD format", value)
+            raise InvalidMetadataFieldFormatError(key.value, "YYYY (4 digits) or YYYY-MM-DD format", value)
 
 
 def update_metadata(
@@ -541,11 +546,9 @@ def _handle_metadata_strategy(
     if strategy == MetadataWritingStrategy.CLEANUP:
         # First, clean up non-target formats
         for fmt, manager in other_managers.items():
-            try:
+            with contextlib.suppress(Exception):
                 manager.delete_metadata()
-            except Exception:
                 # Some managers might not support deletion or might fail
-                pass
 
         # Check for unsupported fields by target format
         target_manager = all_managers[target_format_actual]

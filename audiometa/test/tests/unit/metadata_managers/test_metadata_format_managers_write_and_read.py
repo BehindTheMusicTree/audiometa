@@ -1,9 +1,9 @@
 import pytest
 
 from audiometa._audio_file import _AudioFile
-from audiometa.manager._rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
-from audiometa.manager._rating_supporting._RiffManager import _RiffManager as RiffManager
-from audiometa.manager._rating_supporting._VorbisManager import _VorbisManager as VorbisManager
+from audiometa.manager._rating_supporting.id3v2._Id3v2Manager import _Id3v2Manager as Id3v2Manager
+from audiometa.manager._rating_supporting.riff._RiffManager import _RiffManager as RiffManager
+from audiometa.manager._rating_supporting.vorbis._VorbisManager import _VorbisManager as VorbisManager
 from audiometa.manager.id3v1._Id3v1Manager import _Id3v1Manager as Id3v1Manager
 from audiometa.manager.id3v1.Id3v1RawMetadataKey import Id3v1RawMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata

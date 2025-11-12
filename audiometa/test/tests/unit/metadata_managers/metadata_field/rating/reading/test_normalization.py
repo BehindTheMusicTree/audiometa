@@ -2,9 +2,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from audiometa.manager._rating_supporting._Id3v2Manager import _Id3v2Manager as Id3v2Manager
-from audiometa.manager._rating_supporting._RiffManager import _RiffManager as RiffManager
-from audiometa.manager._rating_supporting._VorbisManager import _VorbisManager as VorbisManager
+from audiometa.manager._rating_supporting.id3v2._Id3v2Manager import _Id3v2Manager as Id3v2Manager
+from audiometa.manager._rating_supporting.riff._RiffManager import _RiffManager as RiffManager
+from audiometa.manager._rating_supporting.vorbis._VorbisManager import _VorbisManager as VorbisManager
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 

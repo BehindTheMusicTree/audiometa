@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from audiometa._audio_file import _AudioFile
-from audiometa.manager._rating_supporting._RiffManager import _RiffManager as RiffManager
+from audiometa.manager._rating_supporting.riff._RiffManager import _RiffManager as RiffManager
 
 
 @pytest.mark.unit
