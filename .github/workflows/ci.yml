@@ -124,3 +124,17 @@ jobs:
 
       - name: Check combined coverage threshold
         run: coverage report --fail-under=85
+
+  ci-success:
+    name: CI Success
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check all jobs succeeded
+        run: |
+          if [ "${{ needs.lint.result }}" != "success" ] || [ "${{ needs.test.result }}" != "success" ]; then
+            echo "One or more CI jobs failed"
+            exit 1
+          fi
+          echo "All CI checks passed"
