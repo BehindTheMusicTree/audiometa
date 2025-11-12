@@ -20,7 +20,8 @@ env/
 htmlcov/
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 
 # Type checking

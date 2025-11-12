@@ -135,11 +135,11 @@ module = "mutagen.*"
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-testpaths = ["audiometa/test"]
+testpaths = ["audiometa/test/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short --strict-markers --disable-warnings --order-dependencies --order-marker=unit:1 --order-marker=integration:2 --order-marker=e2e:3"
+addopts = "-v --tb=short --strict-markers --disable-warnings"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "unit: marks tests as unit tests",
