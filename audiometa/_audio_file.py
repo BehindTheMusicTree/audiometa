@@ -417,7 +417,7 @@ class _AudioFile:
             try:
                 audio = MP3(self.file_path)
                 if audio.info.channels is not None:  # type: ignore[attr-defined]
-                    return int(float(audio.info.channels))
+                    return int(float(audio.info.channels))  # type: ignore[attr-defined]
             except Exception:
                 pass
             return 0
