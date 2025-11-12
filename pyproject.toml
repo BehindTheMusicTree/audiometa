@@ -120,6 +120,11 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 
+# Disable unreachable warnings for runtime validation checks
+[[tool.mypy.overrides]]
+module = "audiometa.__init__"
+warn_unreachable = false
+
 # Relaxed rules for test code
 [[tool.mypy.overrides]]
 module = "audiometa.test.*"
