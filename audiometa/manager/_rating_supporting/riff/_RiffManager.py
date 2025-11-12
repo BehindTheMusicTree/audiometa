@@ -646,7 +646,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
                     #    (preserve ID3v2 tags that were written by other managers)
                     if strategy in (MetadataWritingStrategy.PRESERVE, MetadataWritingStrategy.SYNC):
                         return bool(target_format == MetadataFormat.RIFF)
-                        return False
+                    return False
                 frame = frame.f_back
         finally:
             del frame

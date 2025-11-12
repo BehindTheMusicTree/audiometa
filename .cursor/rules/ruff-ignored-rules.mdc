@@ -4,14 +4,14 @@ This document explains why certain Ruff rules are ignored in this codebase.
 
 ## Complexity Warnings (PLR0911-PLR0915)
 
-**Rules**: 
+**Rules**:
 - PLR0911 - Too many branches
 - PLR0912 - Too many branches in function
 - PLR0913 - Too many arguments
 - PLR0914 - Too many local variables
 - PLR0915 - Too many statements
 
-**Why Ignored**: 
+**Why Ignored**:
 - Many functions in this codebase handle complex audio metadata operations that naturally require multiple branches
 - Breaking down these functions further would reduce readability and make the code harder to understand
 - The complexity is inherent to the domain (handling multiple metadata formats, edge cases, etc.)
@@ -50,7 +50,7 @@ except Exception as e:
 
 ## Logging Issues (G001, G005)
 
-**Rules**: 
+**Rules**:
 - G001 - Use lazy formatting in logging
 - G005 - Logging statement uses `+` instead of formatting
 

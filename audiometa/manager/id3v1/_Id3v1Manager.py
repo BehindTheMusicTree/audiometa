@@ -438,17 +438,17 @@ class _Id3v1Manager(_MetadataManager):
             version = "1.0"
             has_track_number = False
 
-            if hasattr(self.raw_mutagen_metadata, "tags") and self.raw_mutagen_metadata.tags is not None:
-                # Check if track number is present (ID3v1.1 feature)
-                tags = cast(dict[Any, Any], self.raw_mutagen_metadata.tags)
-                comment = tags.get("COMMENT", [""])[0]
-                if (
-                    len(comment) >= ID3V1_MIN_COMMENT_LENGTH_TO_CHECK_TRACK_NUMBER
-                    and comment[-2] == "\x00"
-                    and comment[-1] != "\x00"
-                ):
-                    version = "1.1"
-                    has_track_number = True
+            # Check if track number is present (ID3v1.1 feature)
+            # We already know tags is not None from the present check above
+            tags = cast(dict[Any, Any], self.raw_mutagen_metadata.tags)
+            comment = tags.get("COMMENT", [""])[0]
+            if (
+                len(comment) >= ID3V1_MIN_COMMENT_LENGTH_TO_CHECK_TRACK_NUMBER
+                and comment[-2] == "\x00"
+                and comment[-1] != "\x00"
+            ):
+                version = "1.1"
+                has_track_number = True
         except Exception:
             return {
                 "present": False,

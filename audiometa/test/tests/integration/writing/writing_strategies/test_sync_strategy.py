@@ -4,7 +4,6 @@ This module tests the SYNC strategy which writes to native format and synchroniz
 already present.
 """
 
-
 import pytest
 
 from audiometa import get_unified_metadata, update_metadata
