@@ -14,3 +14,72 @@ All code must pass pre-commit hooks before committing:
 **Note:** Ruff handles unused imports/variables (replaces autoflake) and most linting rules (replaces flake8). The trailing-whitespace hook automatically removes trailing whitespace without failing. Ruff-format handles code formatting and EOF newlines automatically.
 
 Run `pre-commit run --all-files` before committing to ensure all checks pass.
+
+## Tool Version Alignment Pattern
+
+**Critical:** CI and pre-commit hooks must use the exact same tool versions to prevent inconsistencies.
+
+### Best Practice: Single Source of Truth
+
+1. **Pin tool versions in `pyproject.toml`** (not `>=`):
+   ```toml
+   [project.optional-dependencies]
+   dev = [
+       "ruff==0.6.9",      # ✅ Pinned version
+       "isort==5.13.2",    # ✅ Pinned version
+       "mypy==1.8.0",      # ✅ Pinned version
+   ]
+   ```
+
+2. **Use local hooks in `.pre-commit-config.yaml`** that reference environment tools:
+   ```yaml
+   - repo: local
+     hooks:
+       - id: ruff-format
+         name: ruff-format
+         entry: ruff format --line-length=120
+         language: system
+         files: ^audiometa/.*\.py$
+       - id: isort
+         name: isort
+         entry: isort --profile black --line-length=120
+         language: system
+         files: ^audiometa/.*\.py$
+   ```
+
+3. **CI installs from `pyproject.toml`**:
+   ```yaml
+   - name: Install dependencies
+     run: pip install -e ".[dev]"
+   ```
+
+### Why This Works
+
+- **Single source of truth**: Versions defined once in `pyproject.toml`
+- **Automatic alignment**: Both CI and pre-commit use the same installed tools
+- **No version drift**: Impossible for environments to diverge
+- **Easier maintenance**: Update version in one place
+
+### What NOT to Do
+
+```yaml
+# ❌ BAD: External hook with pinned version (can drift from pyproject.toml)
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.6.9  # Must manually sync with pyproject.toml
+```
+
+```toml
+# ❌ BAD: Unpinned version (allows version drift)
+dev = [
+    "ruff>=0.4.0",  # CI might install 0.7.0, pre-commit uses 0.6.9
+]
+```
+
+### When to Use External Hooks
+
+Only use external pre-commit hooks for:
+- Non-Python tools (e.g., prettier for markdown)
+- Tools not in your Python dependencies
+- Tools that require special pre-commit integration
+
+For all Python tools installed via pip, use local hooks.

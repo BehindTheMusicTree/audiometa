@@ -12,6 +12,11 @@ jobs:
   lint:
     name: Lint and Format Check
     runs-on: ubuntu-latest
+    # Tool Version Alignment Pattern:
+    # All linting/formatting tools (ruff, isort, mypy) use versions pinned in pyproject.toml.
+    # This ensures CI and pre-commit hooks use the exact same tool versions, preventing
+    # version drift and inconsistent formatting/linting behavior.
+    # See .cursor/rules/pre-commit.mdc for the complete pattern documentation.
     steps:
       - uses: actions/checkout@v4
 
@@ -22,6 +27,8 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
+        # Installs exact tool versions from pyproject.toml (e.g., ruff==0.6.9, isort==5.13.2, mypy==1.8.0)
+        # Pre-commit hooks use local hooks that reference these same installed tools, ensuring version alignment.
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
@@ -32,15 +39,23 @@ jobs:
           xargs -0 bash .pre-commit-hooks/no-assert.sh
 
       - name: Check code formatting with ruff-format
+        # Uses ruff version from pyproject.toml (pinned, e.g., ruff==0.6.9)
+        # Must match pre-commit hook version to prevent formatting inconsistencies
         run: ruff format --check --line-length=120 .
 
       - name: Check import sorting with isort
+        # Uses isort version from pyproject.toml (pinned, e.g., isort==5.13.2)
+        # Must match pre-commit hook version to prevent import sorting inconsistencies
         run: isort --check-only .
 
       - name: Run ruff linting
+        # Uses ruff version from pyproject.toml (pinned, e.g., ruff==0.6.9)
+        # Must match pre-commit hook version to prevent linting inconsistencies
         run: ruff check .
 
       - name: Run mypy type checking
+        # Uses mypy version from pyproject.toml (pinned, e.g., mypy==1.8.0)
+        # Must match pre-commit hook version to prevent type checking inconsistencies
         # Note: pytest type stubs are not available, so mypy will report missing stubs for pytest
         # This is expected - real import errors are caught by test execution
         # The mypy overrides in pyproject.toml relax type checking rules for test files
@@ -84,6 +99,8 @@ jobs:
           choco install ffmpeg flac -y
 
       - name: Install Python dependencies
+        # Installs exact tool versions from pyproject.toml
+        # This ensures test environment uses the same tool versions as lint job and pre-commit hooks
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
