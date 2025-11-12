@@ -9,7 +9,7 @@ class ExternalMetadataToolError(Exception):
 
 
 def run_external_tool(
-    command: list[str], tool_name: str = "external tool", check: bool = True, input: str | bytes | None = None
+    command: list[str], tool_name: str = "external tool", check: bool = True, input_data: str | bytes | None = None
 ) -> subprocess.CompletedProcess:
     """Run an external tool command with proper error handling.
 
@@ -17,7 +17,7 @@ def run_external_tool(
         command: List of command and arguments to execute
         tool_name: Name of the tool for error messages (e.g., "metaflac", "mid3v2")
         check: Whether to raise exception on non-zero exit code
-        input: Optional input to pass to stdin
+        input_data: Optional input to pass to stdin
 
     Returns:
         subprocess.CompletedProcess: The result of the command execution
@@ -26,8 +26,8 @@ def run_external_tool(
         ExternalMetadataToolError: If the command fails or tool is not found
     """
     try:
-        text = not isinstance(input, bytes) if input is not None else True
-        return subprocess.run(command, capture_output=True, text=text, check=check, input=input)
+        text = not isinstance(input_data, bytes) if input_data is not None else True
+        return subprocess.run(command, capture_output=True, text=text, check=check, input=input_data)
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
         msg = f"{tool_name} failed: {e}"
         raise ExternalMetadataToolError(msg) from e

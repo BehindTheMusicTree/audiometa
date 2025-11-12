@@ -136,7 +136,7 @@ class _RatingSupportingMetadataManager(_MetadataManager):
             InvalidRatingValueError: If rating value is invalid
         """
         if UnifiedMetadataKey.RATING in unified_metadata:
-            value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore
+            value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore[assignment]
             if value is not None:
                 if isinstance(value, int | float):
                     rating_int = int(value)
@@ -189,7 +189,7 @@ class _RatingSupportingMetadataManager(_MetadataManager):
         ):
             # Only process rating if it's handled directly by the base class
             # (i.e., when using mutagen-based approach)
-            value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore
+            value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore[assignment]
             if value is not None:
                 if self.normalized_rating_max_value is None:
                     # When no normalization, write value as-is (already validated above)

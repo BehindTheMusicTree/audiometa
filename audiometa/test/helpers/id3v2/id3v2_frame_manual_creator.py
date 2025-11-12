@@ -97,10 +97,7 @@ class ManualID3v2FrameCreator:
             enc = 3
 
         # Determine null terminator based on encoding
-        if enc in (1, 2):  # UTF-16 variants
-            null_terminator = b"\x00\x00"
-        else:  # ISO-8859-1 or UTF-8
-            null_terminator = b"\x00"
+        null_terminator = b"\x00\x00" if enc in (1, 2) else b"\x00"
 
         # Encode text
         if enc == 0:  # ISO-8859-1

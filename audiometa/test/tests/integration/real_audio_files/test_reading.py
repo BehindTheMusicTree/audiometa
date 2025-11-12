@@ -35,7 +35,7 @@ class TestRealAudioFilesReading:
         assert isinstance(metadata, dict)
         assert metadata[UnifiedMetadataKey.TITLE] == "Celinekin Park (Linkin Park vs. Celine Dion)"
         assert metadata[UnifiedMetadataKey.ARTISTS] == ["The Table"]
-        assert metadata[UnifiedMetadataKey.ALBUM] == "Bootie Top 10 – November/December 2018"
+        assert metadata[UnifiedMetadataKey.ALBUM] == "Bootie Top 10 - November/December 2018"
         assert metadata[UnifiedMetadataKey.ALBUM_ARTISTS] == ["A Plus D"]
         assert metadata[UnifiedMetadataKey.RELEASE_DATE] == "2018-11-30"
         assert metadata[UnifiedMetadataKey.TRACK_NUMBER] == "9/10"

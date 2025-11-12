@@ -239,7 +239,7 @@ class _AudioFile:
     def __enter__(self) -> "_AudioFile":
         return self
 
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: Any) -> None:
+    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: object | None) -> None:
         self.close()
 
     def get_file_path_or_object(self) -> str:
