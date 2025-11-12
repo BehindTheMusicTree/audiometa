@@ -1,0 +1,222 @@
+# Ruff Style Best Practices
+
+This document outlines best practices to avoid common Ruff linting errors and maintain code quality.
+
+## File Operations
+
+### Use `Path.open()` instead of `open()`
+
+**Rule**: PTH123 - `open()` should be replaced by `Path.open()`
+
+**❌ Bad:**
+```python
+with open(file_path, "rb") as f:
+    data = f.read()
+```
+
+**✅ Good:**
+```python
+from pathlib import Path
+
+with Path(file_path).open("rb") as f:
+    data = f.read()
+
+# Or if file_path is already a Path object:
+with file_path.open("rb") as f:
+    data = f.read()
+```
+
+## Exception Handling
+
+### Use `raise ... from err` in except blocks
+
+**Rule**: B904 - Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None`
+
+**❌ Bad:**
+```python
+try:
+    result = some_operation()
+except Exception as e:
+    raise CustomError("Operation failed")
+```
+
+**✅ Good:**
+```python
+try:
+    result = some_operation()
+except Exception as e:
+    raise CustomError("Operation failed") from e  # Preserves exception chain
+
+# Or if you want to hide the original exception:
+except Exception as e:
+    raise CustomError("Operation failed") from None  # Hides original exception
+```
+
+### Use `contextlib.suppress()` instead of `try-except-pass`
+
+**Rule**: SIM105 - Use `contextlib.suppress()` instead of `try`-`except`-`pass`
+
+**❌ Bad:**
+```python
+try:
+    os.unlink(temp_path)
+except OSError:
+    pass  # Ignore cleanup errors
+```
+
+**✅ Good:**
+```python
+import contextlib
+
+with contextlib.suppress(OSError):
+    os.unlink(temp_path)
+```
+
+## Control Flow
+
+### Combine nested `with` statements
+
+**Rule**: SIM117 - Use a single `with` statement with multiple contexts instead of nested `with` statements
+
+**❌ Bad:**
+```python
+with temp_file_with_metadata({}, "mp3") as test_file:
+    with pytest.raises(FileNotFoundError):
+        get_unified_metadata(test_file)
+```
+
+**✅ Good:**
+```python
+with temp_file_with_metadata({}, "mp3") as test_file, pytest.raises(FileNotFoundError):
+    get_unified_metadata(test_file)
+```
+
+### Use single `if` instead of nested `if` statements
+
+**Rule**: SIM102 - Use a single `if` statement instead of nested `if` statements
+
+**❌ Bad:**
+```python
+if key == UnifiedMetadataKey.RELEASE_DATE:
+    if isinstance(value, str):
+        if value and not re.match(r"^\d{4}$", value):
+            raise ValueError("Invalid date format")
+```
+
+**✅ Good:**
+```python
+if (
+    key == UnifiedMetadataKey.RELEASE_DATE
+    and isinstance(value, str)
+    and value
+    and not re.match(r"^\d{4}$", value)
+):
+    raise ValueError("Invalid date format")
+```
+
+## Function Arguments
+
+### Prefix unused arguments with `_`
+
+**Rule**: ARG002 - Unused method argument
+
+**❌ Bad:**
+```python
+def test_something(self, sample_mp3_file: Path):
+    # sample_mp3_file is not used in the test
+    with temp_file_with_metadata({}, "mp3") as test_file:
+        # test implementation
+```
+
+**✅ Good:**
+```python
+def test_something(self, _sample_mp3_file: Path):
+    # Prefix with _ to indicate intentionally unused
+    with temp_file_with_metadata({}, "mp3") as test_file:
+        # test implementation
+```
+
+## Line Length
+
+### Keep docstrings within line length limits
+
+**Rule**: E501 - Line too long
+
+**❌ Bad:**
+```python
+def set_titles(file_path: Path, titles: list[str], in_separate_frames: bool = False):
+    """Set ID3v2 multiple titles using external mid3v2 tool or manual frame creation.
+
+    Args:
+        in_separate_frames: If True, creates multiple separate TIT2 frames (one per title) using manual binary construction. If False (default), creates a single TIT2 frame with multiple values using mid3v2.
+    """
+```
+
+**✅ Good:**
+```python
+def set_titles(file_path: Path, titles: list[str], in_separate_frames: bool = False):
+    """Set ID3v2 multiple titles using external mid3v2 tool or manual frame creation.
+
+    Args:
+        in_separate_frames: If True, creates multiple separate TIT2 frames (one per title)
+            using manual binary construction. If False (default), creates a single TIT2 frame
+            with multiple values using mid3v2.
+    """
+```
+
+## Magic Numbers
+
+### Use constants for meaningful numbers
+
+**Rule**: PLR2004 - Magic value used in comparison
+
+**Note**: Many magic numbers in tests are acceptable (e.g., `assert len(artists) == 3`). However, for production code, consider using constants for meaningful values.
+
+**❌ Bad (production code):**
+```python
+if len(data) == 128:  # ID3v1 tag size
+    return True
+```
+
+**✅ Good (production code):**
+```python
+ID3V1_TAG_SIZE = 128
+
+if len(data) == ID3V1_TAG_SIZE:
+    return True
+```
+
+**✅ Acceptable (test code):**
+```python
+def test_artists_count(self):
+    artists = get_unified_metadata_field(file_path, UnifiedMetadataKey.ARTISTS)
+    assert len(artists) == 3  # Magic number is acceptable in tests
+```
+
+## Module Naming
+
+### Private modules can start with `_`
+
+**Rule**: N999 - Invalid module name
+
+**Note**: This is a false positive for private modules. Ruff may flag modules starting with `_`, but these are valid Python conventions for private/internal modules.
+
+**✅ Acceptable:**
+```python
+# File: audiometa/manager/_MetadataManager.py
+# This is a private module, the underscore prefix is intentional
+```
+
+## Summary
+
+When writing code, remember to:
+
+1. ✅ Use `Path.open()` instead of `open()` for file operations
+2. ✅ Use `raise ... from err` in except blocks to preserve exception chains
+3. ✅ Use `contextlib.suppress()` instead of `try-except-pass`
+4. ✅ Combine nested `with` statements into a single statement
+5. ✅ Combine nested `if` statements when possible
+6. ✅ Prefix unused function arguments with `_`
+7. ✅ Keep docstrings within line length limits (break long lines)
+8. ✅ Use constants for meaningful magic numbers in production code
+9. ✅ Run `pre-commit run --all-files` before committing to catch these issues early
