@@ -2,9 +2,14 @@
 
 This document explains why certain Ruff rules are ignored in this codebase.
 
-## Complexity Warnings (R091)
+## Complexity Warnings (PLR0911-PLR0915)
 
-**Rule**: R091 - Too many branches/statements in function
+**Rules**: 
+- PLR0911 - Too many branches
+- PLR0912 - Too many branches in function
+- PLR0913 - Too many arguments
+- PLR0914 - Too many local variables
+- PLR0915 - Too many statements
 
 **Why Ignored**: 
 - Many functions in this codebase handle complex audio metadata operations that naturally require multiple branches
@@ -74,7 +79,7 @@ except Exception as e:
 
 The following rules are **explicitly ignored** in `pyproject.toml`:
 - **N999**: Invalid module name (false positive for private modules)
-- **R091**: Too many branches/statements (acceptable complexity for domain logic)
+- **PLR0911-PLR0915**: Complexity warnings (acceptable complexity for domain logic)
 - **TRY301**: Abstract raise to inner function (reduces readability)
 
 Other rules (G001, G005, Y301, Y002) are **not ignored** but may be acceptable in specific contexts. Address them case-by-case if they become problematic.
