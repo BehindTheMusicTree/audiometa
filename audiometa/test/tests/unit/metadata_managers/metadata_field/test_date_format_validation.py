@@ -1,7 +1,7 @@
 import pytest
 
 from audiometa import _validate_unified_metadata_types
-from audiometa.exceptions import InvalidMetadataFieldFormatError
+from audiometa.exceptions import InvalidMetadataFieldFormatError, InvalidMetadataFieldTypeError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -114,6 +114,6 @@ class TestReleaseDateFormatValidation:
 
     def test_format_validation_after_type_validation(self):
         invalid_type = {UnifiedMetadataKey.RELEASE_DATE: 2024}
-        with pytest.raises(Exception) as exc_info:
+        with pytest.raises(InvalidMetadataFieldTypeError) as exc_info:
             _validate_unified_metadata_types(invalid_type)
         assert not isinstance(exc_info.value, InvalidMetadataFieldFormatError)
