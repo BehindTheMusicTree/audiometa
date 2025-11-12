@@ -479,11 +479,11 @@ class _Id3v1Manager(_MetadataManager):
             parsed_fields: dict[str, Any] = {}
             # We already checked tags exist and is not None above
             tags = cast(dict[Any, Any], self.raw_mutagen_metadata.tags)
-                # Map raw mutagen keys to unified metadata keys
-                for unified_key, raw_key in self.metadata_keys_direct_map_read.items():
-                    if raw_key and raw_key in tags:
-                        value = tags[raw_key]
-                        parsed_fields[unified_key] = value[0] if value else ""
+            # Map raw mutagen keys to unified metadata keys
+            for unified_key, raw_key in self.metadata_keys_direct_map_read.items():
+                if raw_key and raw_key in tags:
+                    value = tags[raw_key]
+                    parsed_fields[unified_key] = value[0] if value else ""
         except Exception:
             return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
         else:
