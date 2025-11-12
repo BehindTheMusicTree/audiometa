@@ -41,7 +41,7 @@ dev = [
     "ruff==0.6.9",
     "isort==5.13.2",
     "mypy==1.18.2",  # 1.9.0+ required for PEP 695 'type' statement support
-    "flake8>=5.0.0",
+    "flake8==6.0.0",
     "pre-commit>=3.0.0",
     "autoflake>=2.0.0",
     "docformatter>=1.7.0",
