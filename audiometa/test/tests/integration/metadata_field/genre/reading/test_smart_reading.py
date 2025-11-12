@@ -12,7 +12,8 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestGenreSmartReading:
     def test_single_entry_text_with_codes_and_separators_and_without_parentheses(self):
-        """Test single genre entry with text with codes and separators without parentheses: '17/6' -> ['Rock', 'Grunge']"""
+        """Test single genre entry with text with codes and separators without parentheses:
+        '17/6' -> ['Rock', 'Grunge']"""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with text with codes and separators without parentheses
             ID3v2MetadataSetter.set_genres(test_file, ["17/6"], version="2.4")
@@ -121,7 +122,8 @@ class TestGenreSmartReading:
             assert genres == ["Rock", "Blues"]
 
     def test_single_entry_text_with_semicolon_separators(self):
-        """Test single genre entry with text with semicolon separators: 'Rock; Alternative' -> ['Rock', 'Alternative']"""
+        """Test single genre entry with text with semicolon separators:
+        'Rock; Alternative' -> ['Rock', 'Alternative']"""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with text with separators
             ID3v2MetadataSetter.set_genres(test_file, ["Rock; Alternative"], version="2.4")
