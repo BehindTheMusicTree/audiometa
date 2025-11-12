@@ -61,7 +61,7 @@ class TestCLIRead:
         assert result.returncode == 0
         assert output_file.exists()
 
-        with open(output_file) as f:
+        with output_file.open() as f:
             data = json.load(f)
         assert isinstance(data, dict)
 

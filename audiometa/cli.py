@@ -83,7 +83,7 @@ def read_metadata(args) -> None:
 
             if args.output:
                 try:
-                    with open(args.output, "w") as f:
+                    with Path(args.output).open("w") as f:
                         f.write(output)
                 except (PermissionError, OSError) as e:
                     error_msg = f"Error: cannot write to output file: {e}"

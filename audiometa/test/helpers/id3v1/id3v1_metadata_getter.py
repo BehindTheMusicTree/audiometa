@@ -10,7 +10,7 @@ class ID3v1MetadataGetter:
     @staticmethod
     def get_raw_metadata(file_path: Path) -> dict[str, Any]:
         """Return the raw metadata for a specific ID3v1 field."""
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             f.seek(-128, 2)  # Seek to last 128 bytes (ID3v1 tag location)
             data = f.read(128)
 

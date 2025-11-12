@@ -12,7 +12,7 @@ class RIFFHeaderVerifier:
     def has_riff_info_chunk(file_path: Path) -> bool:
         """Check if file has RIFF INFO chunk by reading file structure."""
         try:
-            with open(file_path, "rb") as f:
+            with file_path.open("rb") as f:
                 # Read first few bytes to check for ID3v2 tags
                 first_bytes = f.read(10)
                 f.seek(0)  # Reset to beginning

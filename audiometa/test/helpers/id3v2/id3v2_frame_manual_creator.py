@@ -173,7 +173,7 @@ class ManualID3v2FrameCreator:
             )
 
         # Read existing file content (audio data)
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             original_data = f.read()
 
         # Remove any existing ID3v2 tag
@@ -198,7 +198,7 @@ class ManualID3v2FrameCreator:
                 audio_data = original_data[10 + existing_tag_size :]
 
         # Write new file with our custom ID3v2 tag
-        with open(file_path, "wb") as f:
+        with file_path.open("wb") as f:
             f.write(header)
             f.write(frames_data)
             f.write(audio_data)
@@ -256,7 +256,7 @@ def manual_multiple_frames_test():
             result = subprocess.run(["mid3v2", "-l", str(tmp_path)], capture_output=True, text=True, check=False)
             if result.stdout:
                 # Verify multiple frames exist by checking raw binary
-                with open(tmp_path, "rb") as f:
+                with Path(tmp_path).open("rb") as f:
                     data = f.read(1000)  # Read first 1KB to check for multiple frame IDs
                     tpe1_count = data.count(b"TPE1")
                     tcon_count = data.count(b"TCON")

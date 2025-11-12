@@ -123,7 +123,7 @@ class ManualRIFFMetadataCreator:
     def _write_riff_info_chunk(file_path: Path, fields: list[bytes]) -> None:
         """Write RIFF INFO chunk with the given fields to the file."""
         # Read existing file content
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             original_data = f.read()
 
         # Skip any ID3v2 tags that might be present at the start
@@ -167,7 +167,7 @@ class ManualRIFFMetadataCreator:
         )
 
         # Write new file
-        with open(file_path, "wb") as f:
+        with file_path.open("wb") as f:
             f.write(new_file_data)
 
     @staticmethod

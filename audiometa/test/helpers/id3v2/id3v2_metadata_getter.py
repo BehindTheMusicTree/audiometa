@@ -35,7 +35,7 @@ class ID3v2MetadataGetter:
             String with metadata in 'frame_id=value' format, one per line, or error string if parsing fails.
         """
         try:
-            with open(file_path, "rb") as f:
+            with file_path.open("rb") as f:
                 # Read ID3v2 header (10 bytes)
                 header = f.read(10)
                 if len(header) < 10 or header[:3] != b"ID3":

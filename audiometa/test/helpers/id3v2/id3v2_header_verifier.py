@@ -10,7 +10,7 @@ class ID3v2HeaderVerifier:
     def has_id3v2_header(file_path: Path) -> bool:
         """Check if file has ID3v2 header by reading the first 10 bytes."""
         try:
-            with open(file_path, "rb") as f:
+            with file_path.open("rb") as f:
                 header = f.read(10)
                 return header[:3] == b"ID3"
         except OSError:

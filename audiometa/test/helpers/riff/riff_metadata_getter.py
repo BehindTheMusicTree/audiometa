@@ -11,7 +11,7 @@ class RIFFMetadataGetter:
     def get_raw_metadata(file_path: Path) -> str:
         """Inspect RIFF metadata using custom binary reading to detect multiple fields."""
         # Read the file and find all RIFF INFO fields
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             data = f.read()
 
         # Find all RIFF INFO fields
