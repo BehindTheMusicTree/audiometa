@@ -161,7 +161,7 @@ class _Id3v1Manager(_MetadataManager):
     ) -> None:
         # Ensure tags exist
         if not hasattr(raw_mutagen_metadata, "tags") or raw_mutagen_metadata.tags is None:
-            raw_mutagen_metadata.tags = {}
+            raw_mutagen_metadata.tags = {}  # type: ignore[assignment]
         # Type narrowing: mypy now knows tags is not None after the assignment above
         tags: dict[Any, Any] = cast(dict[Any, Any], raw_mutagen_metadata.tags)
 
@@ -187,7 +187,7 @@ class _Id3v1Manager(_MetadataManager):
     ) -> None:
         # Ensure tags exist
         if not hasattr(raw_mutagen_metadata, "tags") or raw_mutagen_metadata.tags is None:
-            raw_mutagen_metadata.tags = {}
+            raw_mutagen_metadata.tags = {}  # type: ignore[assignment]
         # Type narrowing: mypy now knows tags is not None after the assignment above
         tags: dict[Any, Any] = cast(dict[Any, Any], raw_mutagen_metadata.tags)
 
