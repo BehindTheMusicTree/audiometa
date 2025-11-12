@@ -480,7 +480,7 @@ class _Id3v1Manager(_MetadataManager):
                 return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
 
             # Get parsed fields using unified metadata keys
-            parsed_fields: dict[str, Any] = {}
+            parsed_fields: dict[str, Any] = {}  # type: ignore[unreachable]
             # We already checked tags exist and is not None above
             tags = cast(dict[Any, Any], self.raw_mutagen_metadata.tags)
             # Map raw mutagen keys to unified metadata keys
@@ -491,7 +491,7 @@ class _Id3v1Manager(_MetadataManager):
         except Exception:
             return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
         else:
-            return {
+            return {  # type: ignore[unreachable]
                 "raw_data": None,  # ID3v1 is 128 bytes at end of file
                 "parsed_fields": parsed_fields,
                 "frames": {},
