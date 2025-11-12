@@ -64,9 +64,9 @@ from enum import Enum
 class RatingReadProfile(Enum):
     """Enumeration of rating read profiles for different audio formats."""
 
-    BASE_255_NON_PROPORTIONAL = [0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255]
-    BASE_255_PROPORTIONAL_TRAKTOR = [None, None, 51, None, 102, None, 153, None, 204, None, 255]
-    BASE_100_PROPORTIONAL = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    BASE_255_NON_PROPORTIONAL: ClassVar = [0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255]
+    BASE_255_PROPORTIONAL_TRAKTOR: ClassVar = [None, None, 51, None, 102, None, 153, None, 204, None, 255]
+    BASE_100_PROPORTIONAL: ClassVar = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
     def __getitem__(self, index: int) -> int | None:
         result = self.value[index]

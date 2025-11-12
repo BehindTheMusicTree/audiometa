@@ -3,7 +3,7 @@ import os
 import shutil
 import subprocess
 import tempfile
-from typing import Any, cast
+from typing import Any, ClassVar, cast
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.id3 import ID3
@@ -224,7 +224,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         KEY = "TKEY"
         REPLAYGAIN = "REPLAYGAIN"
 
-    ID3_TEXT_FRAME_CLASS_MAP: dict[RawMetadataKey, type] = {
+    ID3_TEXT_FRAME_CLASS_MAP: ClassVar[dict[RawMetadataKey, type]] = {
         Id3TextFrame.TITLE: TIT2,
         Id3TextFrame.ARTISTS: TPE1,
         Id3TextFrame.ALBUM: TALB,
