@@ -77,11 +77,13 @@ class TestErrorHandlingWorkflows:
 
             # 2. Test deletion on file that doesn't exist
             non_existent_file = test_file.parent / "non_existent.mp3"
-            with pytest.raises(Exception):  # FileNotFoundError
+            with pytest.raises(FileNotFoundError):
                 delete_all_metadata(str(non_existent_file))
 
             # 3. Test deletion on directory instead of file
-            with pytest.raises(Exception):  # IsADirectoryError or similar
+            from audiometa.exceptions import FileTypeNotSupportedError
+
+            with pytest.raises(FileTypeNotSupportedError):
                 delete_all_metadata(str(test_file.parent))
 
             # 4. Verify original file is still usable after errors

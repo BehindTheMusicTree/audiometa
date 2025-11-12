@@ -227,7 +227,9 @@ class TestGetFullMetadata:
             get_full_metadata("non_existent_file.mp3")
 
         # Test with unsupported file type
-        with pytest.raises(Exception):  # Should raise FileTypeNotSupportedError
+        from audiometa.exceptions import FileTypeNotSupportedError
+
+        with pytest.raises(FileTypeNotSupportedError):
             get_full_metadata("test.txt")
 
     def test_get_full_metadata_performance_optimization(self, sample_mp3_file: Path):
