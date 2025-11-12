@@ -1,8 +1,10 @@
 from abc import abstractmethod
+from typing import TYPE_CHECKING
 
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
-from ..._audio_file import _AudioFile
+if TYPE_CHECKING:
+    from ..._audio_file import _AudioFile
 from ...exceptions import ConfigurationError, InvalidRatingValueError, MetadataFieldNotSupportedByMetadataFormatError
 from ...utils.rating_profiles import RatingReadProfile, RatingWriteProfile
 from ...utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
@@ -17,7 +19,7 @@ class _RatingSupportingMetadataManager(_MetadataManager):
 
     def __init__(
         self,
-        audio_file: _AudioFile,
+        audio_file: "_AudioFile",
         metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None],
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None],
         rating_write_profile: RatingWriteProfile,

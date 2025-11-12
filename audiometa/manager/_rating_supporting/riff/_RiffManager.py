@@ -1,17 +1,18 @@
 import contextlib
 import os
 from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.wave import WAVE
 
-from ..._audio_file import _AudioFile
-from ...exceptions import ConfigurationError, FileTypeNotSupportedError, MetadataFieldNotSupportedByMetadataFormatError
-from ...utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
-from ...utils.rating_profiles import RatingWriteProfile
-from ...utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
-from .._MetadataManager import UnifiedMetadataKey
+if TYPE_CHECKING:
+    from ...._audio_file import _AudioFile
+from ....exceptions import ConfigurationError, FileTypeNotSupportedError, MetadataFieldNotSupportedByMetadataFormatError
+from ....utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
+from ....utils.rating_profiles import RatingWriteProfile
+from ....utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
+from ....utils.UnifiedMetadataKey import UnifiedMetadataKey
 from .._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
 from ..id3v2._id3v2_constants import ID3V2_HEADER_SIZE
 from ._riff_constants import (
@@ -98,7 +99,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
         BPM = "IBPM"
         UNSYNCHRONIZED_LYRICS = "ILYR"
 
-    def __init__(self, audio_file: _AudioFile, normalized_rating_max_value: None | int = None):
+    def __init__(self, audio_file: "_AudioFile", normalized_rating_max_value: None | int = None):
         # Validate that the file is a WAV file
         if audio_file.file_extension != ".wav":
             msg = f"RiffManager only supports WAV files, got {audio_file.file_extension}"

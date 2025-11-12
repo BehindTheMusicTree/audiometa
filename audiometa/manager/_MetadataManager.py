@@ -1,12 +1,13 @@
 import re
 from abc import abstractmethod
-from typing import TypeVar, cast
+from typing import TYPE_CHECKING, TypeVar, cast
 
 from mutagen._file import FileType as MutagenMetadata
 
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
-from .._audio_file import _AudioFile
+if TYPE_CHECKING:
+    from .._audio_file import _AudioFile
 from ..exceptions import MetadataFieldNotSupportedByMetadataFormatError
 from ..utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 from ..utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
@@ -20,7 +21,7 @@ T = TypeVar("T", str, int)
 
 
 class _MetadataManager:
-    audio_file: _AudioFile
+    audio_file: "_AudioFile"
     metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None]
     metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] | None
     raw_mutagen_metadata: MutagenMetadata | None = None
@@ -30,7 +31,7 @@ class _MetadataManager:
 
     def __init__(
         self,
-        audio_file: _AudioFile,
+        audio_file: "_AudioFile",
         metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None],
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] | None = None,
         update_using_mutagen_metadata: bool = True,

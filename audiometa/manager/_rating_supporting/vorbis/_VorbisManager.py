@@ -1,14 +1,15 @@
 import struct
 from pathlib import Path
-from typing import Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 import taglib  # type: ignore[import-not-found]
 
-from ..._audio_file import _AudioFile
-from ...exceptions import FileCorruptedError, InvalidRatingValueError, MetadataFieldNotSupportedByMetadataFormatError
-from ...utils.rating_profiles import RatingWriteProfile
-from ...utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
-from .._MetadataManager import UnifiedMetadataKey
+if TYPE_CHECKING:
+    from ...._audio_file import _AudioFile
+from ....exceptions import FileCorruptedError, InvalidRatingValueError, MetadataFieldNotSupportedByMetadataFormatError
+from ....utils.rating_profiles import RatingWriteProfile
+from ....utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
+from ....utils.UnifiedMetadataKey import UnifiedMetadataKey
 from .._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
 from ._vorbis_constants import VORBIS_BLOCK_HEADER_SIZE, VORBIS_COMMENT_BLOCK_TYPE, VORBIS_ID3V2_HEADER_SIZE
 
@@ -68,7 +69,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         REPLAYGAIN = "REPLAYGAIN"
         PUBLISHER = "PUBLISHER"
 
-    def __init__(self, audio_file: _AudioFile, normalized_rating_max_value: int | None = None):
+    def __init__(self, audio_file: "_AudioFile", normalized_rating_max_value: int | None = None):
         metadata_keys_direct_map_read = {
             UnifiedMetadataKey.TITLE: self.VorbisKey.TITLE,
             UnifiedMetadataKey.ARTISTS: self.VorbisKey.ARTIST,

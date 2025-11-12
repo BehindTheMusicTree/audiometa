@@ -4,7 +4,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Any, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.id3 import ID3
@@ -38,11 +38,12 @@ from mutagen.id3._util import ID3NoHeaderError
 
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
-from ..._audio_file import _AudioFile
-from ...exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError
-from ...utils.rating_profiles import RatingWriteProfile
-from ...utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
-from .._MetadataManager import _MetadataManager as MetadataManager
+if TYPE_CHECKING:
+    from ...._audio_file import _AudioFile
+from ....exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError
+from ....utils.rating_profiles import RatingWriteProfile
+from ....utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
+from ..._MetadataManager import _MetadataManager as MetadataManager
 from .._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
 from ._id3v2_constants import ID3V2_DATE_FORMAT_LENGTH, ID3V2_VERSION_3, ID3V2_VERSION_4
 
@@ -254,7 +255,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
     def __init__(
         self,
-        audio_file: _AudioFile,
+        audio_file: "_AudioFile",
         normalized_rating_max_value: int | None = None,
         id3v2_version: tuple[int, int, int] = (2, 3, 0),
     ):
