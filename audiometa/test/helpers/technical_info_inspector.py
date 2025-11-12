@@ -77,8 +77,9 @@ class TechnicalInfoInspector:
                         if "Hz" in sample_rate_str:
                             return int(sample_rate_str.split()[0])
                         return int(sample_rate_str)
-            return None
         except Exception:
+            return None
+        else:
             return None
 
     @staticmethod
