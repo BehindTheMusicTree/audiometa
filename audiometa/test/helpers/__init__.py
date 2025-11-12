@@ -40,8 +40,12 @@ Common Utilities (common/):
 Usage:
     from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
     from audiometa.test.helpers.id3v1 import Id3v1Tool, ID3v1MetadataDeleter
-    from audiometa.test.helpers.id3v2 import ID3v2MetadataVerifier, ID3v2MetadataSetter, ManualID3v2FrameCreator, ID3HeaderVerifier
-    from audiometa.test.helpers.vorbis import VorbisMetadataSetter, VorbisMetadataDeleter, VorbisHeaderVerifier, VorbisMetadataVerifier
+    from audiometa.test.helpers.id3v2 import (
+        ID3v2MetadataVerifier, ID3v2MetadataSetter, ManualID3v2FrameCreator, ID3HeaderVerifier
+    )
+    from audiometa.test.helpers.vorbis import (
+        VorbisMetadataSetter, VorbisMetadataDeleter, VorbisHeaderVerifier, VorbisMetadataVerifier
+    )
     from audiometa.test.helpers.riff import RIFFMetadataVerifier, RIFFHeaderVerifier
     from audiometa.test.helpers.common import AudioFileCreator, ComprehensiveMetadataVerifier, run_script
 """

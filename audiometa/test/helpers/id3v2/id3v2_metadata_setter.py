@@ -108,8 +108,9 @@ class ID3v2MetadataSetter:
         Args:
             file_path: Path to the audio file
             titles: List of title strings to set
-            in_separate_frames: If True, creates multiple separate TIT2 frames (one per title) using manual binary construction.
-                              If False (default), creates a single TIT2 frame with multiple values using mid3v2.
+            in_separate_frames: If True, creates multiple separate TIT2 frames (one per title)
+                using manual binary construction. If False (default), creates a single TIT2 frame
+                with multiple values using mid3v2.
             version: ID3v2 version to use (e.g., "2.3", "2.4")
         """
         ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TIT2", titles, in_separate_frames, version)
@@ -249,7 +250,8 @@ class ID3v2MetadataSetter:
             file_path: Path to the audio file
             frame_id: The ID3v2 frame identifier (e.g., 'TPE1', 'TCON', 'TCOM', 'TIT2')
             values: List of values to set
-            in_separate_frames: If True, creates multiple separate frames. If False, creates a single frame with multiple values.
+            in_separate_frames: If True, creates multiple separate frames. If False, creates a
+                single frame with multiple values.
             version: ID3v2 version to use (e.g., "2.3", "2.4")
             separator: Separator to use between values when in_separate_frames=False. If None, uses default behavior.
         """
@@ -272,8 +274,9 @@ class ID3v2MetadataSetter:
         Args:
             file_path: Path to the audio file
             genres: List of genre strings to set
-            in_separate_frames: If True, creates multiple separate TCON frames (one per genre) using manual binary construction.
-                              If False (default), creates a single TCON frame with multiple values using mid3v2.
+            in_separate_frames: If True, creates multiple separate TCON frames (one per genre)
+                using manual binary construction. If False (default), creates a single TCON frame
+                with multiple values using mid3v2.
             version: ID3v2 version to use (e.g., "2.3", "2.4")
         """
         ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TCON", genres, in_separate_frames, version)
@@ -285,8 +288,9 @@ class ID3v2MetadataSetter:
         Args:
             file_path: Path to the audio file
             album_artists: List of album artist strings to set
-            in_separate_frames: If True, creates multiple separate TPE2 frames (one per album artist) using manual binary construction.
-                              If False (default), creates a single TPE2 frame with multiple values using mid3v2.
+            in_separate_frames: If True, creates multiple separate TPE2 frames (one per album artist)
+                using manual binary construction. If False (default), creates a single TPE2 frame
+                with multiple values using mid3v2.
         """
         ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TPE2", album_artists, in_separate_frames)
 
@@ -297,8 +301,9 @@ class ID3v2MetadataSetter:
         Args:
             file_path: Path to the audio file
             composers: List of composer strings to set
-            in_separate_frames: If True, creates multiple separate TCOM frames (one per composer) using manual binary construction.
-                              If False (default), creates a single TCOM frame with multiple values using mid3v2.
+            in_separate_frames: If True, creates multiple separate TCOM frames (one per composer)
+                using manual binary construction. If False (default), creates a single TCOM frame
+                with multiple values using mid3v2.
             version: ID3v2 version to use (e.g., "2.3", "2.4")
         """
         ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TCOM", composers, in_separate_frames, version)
