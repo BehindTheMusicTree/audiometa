@@ -120,12 +120,14 @@ def write_metadata(args) -> None:
         metadata[UnifiedMetadataKey.COMMENT] = args.comment
 
     if not metadata:
+        print("Error: no metadata fields specified", file=sys.stderr)
         sys.exit(1)
 
     for file_path in files:
         try:
             update_kwargs = {}
             update_metadata(file_path, metadata, **update_kwargs)
+            print("Updated metadata")
 
         except (FileTypeNotSupportedError, FileNotFoundError):
             if not args.continue_on_error:
@@ -145,9 +147,9 @@ def delete_metadata(args) -> None:
         try:
             success = delete_all_metadata(file_path)
             if success:
-                pass
+                print("Deleted all metadata")
             else:
-                pass
+                print("No metadata found")
 
         except (FileTypeNotSupportedError, FileNotFoundError):
             if not args.continue_on_error:
