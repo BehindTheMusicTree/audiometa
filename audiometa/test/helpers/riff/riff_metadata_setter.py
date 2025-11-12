@@ -182,7 +182,7 @@ class RIFFMetadataSetter:
             run_external_tool(command, "bwfmetaedit")
 
     @staticmethod
-    def set_multiple_album_artists(file_path: Path, album_artists: list[str], in_separate_frames: bool = False):
+    def set_multiple_album_artists(file_path: Path, album_artists: list[str], _in_separate_frames: bool = False):
         """Set multiple album artists, optionally in separate IAAR frames."""
         # IAAR is not a standard RIFF INFO chunk field, so external tools don't support it.
         # Use the manual metadata creator which can create non-standard RIFF fields.
