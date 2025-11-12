@@ -89,9 +89,7 @@ class _AudioFile:
         if self.file_extension == ".mp3":
             try:
                 audio = MP3(path)
-                if audio.info is None:
-                    msg = f"MP3 file {path} has no info"
-                    raise DurationNotFoundError(msg)
+                assert audio.info is not None  # MP3 always has info
                 return float(audio.info.length)
             except Exception as exc:
                 # If MP3 fails, try other formats as fallback
@@ -164,8 +162,7 @@ class _AudioFile:
         if self.file_extension == ".mp3":
             audio = MP3(path)
             # Get MP3 bitrate directly from audio stream
-            if audio.info is None:
-                return 0
+            assert audio.info is not None  # MP3 always has info
             if audio.info.bitrate:
                 return int(audio.info.bitrate) // 1000  # Convert from bps to kbps
             return 0
@@ -363,8 +360,7 @@ class _AudioFile:
         if self.file_extension == ".mp3":
             try:
                 audio = MP3(self.file_path)
-                if audio.info is None:
-                    return 0
+                assert audio.info is not None  # MP3 always has info
                 if audio.info.sample_rate is not None:
                     return int(float(audio.info.sample_rate))
             except Exception:
@@ -423,8 +419,7 @@ class _AudioFile:
         if self.file_extension == ".mp3":
             try:
                 audio = MP3(self.file_path)
-                if audio.info is None:
-                    return 0
+                assert audio.info is not None  # MP3 always has info
                 if audio.info.channels is not None:
                     return int(float(audio.info.channels))
             except Exception:
