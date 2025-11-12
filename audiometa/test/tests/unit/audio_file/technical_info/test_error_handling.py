@@ -25,7 +25,7 @@ class TestAudioFileTechnicalInfoErrorHandling:
             pass
 
     def test_flac_md5_check_failed_error_corrupted_flac(self, monkeypatch):
-        def mock_subprocess_run(*args, **kwargs):
+        def mock_subprocess_run(*_args, **_kwargs):
             class MockResult:
                 stderr = b"Some unexpected FLAC error message"
                 returncode = 1
@@ -44,7 +44,7 @@ class TestAudioFileTechnicalInfoErrorHandling:
             pass
 
     def test_invalid_chunk_decode_error_corrupted_flac_chunks(self, monkeypatch):
-        def mock_get_duration_in_sec(self):
+        def mock_get_duration_in_sec(_self):
             try:
                 msg = "FLAC chunk decoding failed"
                 raise Exception(msg)

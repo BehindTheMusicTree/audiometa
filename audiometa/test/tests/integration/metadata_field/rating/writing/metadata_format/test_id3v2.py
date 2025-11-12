@@ -24,7 +24,7 @@ class TestId3v2RatingWriting:
             (5, 100),
         ],
     )
-    def test_write_star_rating(self, _star_rating, expected_normalized_rating):
+    def test_write_star_rating(self, expected_normalized_rating):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
 
         with temp_file_with_metadata(basic_metadata, "mp3") as test_file:

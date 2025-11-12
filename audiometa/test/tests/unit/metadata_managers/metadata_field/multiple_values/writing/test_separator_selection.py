@@ -21,8 +21,6 @@ class TestSeparatorSelection:
             # Cases where // and \\\\ are present, so pick ;
             (["Artist//One", "Artist\\\\Two"], ";"),
             (["Artist//One", "Artist\\\\Two", "Artist\\Three"], ";"),
-            # Cases where //, \\\\, \\ are present, so pick ;
-            (["Artist//One", "Artist\\\\Two", "Artist\\Three"], ";"),
             # Cases where //, \\\\, \\, ; are present, so pick ,
             (["Artist//One", "Artist\\\\Two", "Artist\\Three", "Artist;Four"], ","),
             (["Artist//One", "Artist\\\\Two", "Artist\\Three", "Artist;Four", "Artist/Five"], ","),
