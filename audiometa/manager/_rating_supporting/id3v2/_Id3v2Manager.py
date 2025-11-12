@@ -756,25 +756,19 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 if self.id3v2_version[1] == ID3V2_VERSION_3:
                     # id3v2 supports removing a single frame at a time via -r
                     for frame in frames_to_remove:
-                        try:
+                        with contextlib.suppress(subprocess.CalledProcessError):
                             subprocess.run(
                                 ["id3v2", "-r", frame, self.audio_file.file_path], check=True, capture_output=True
                             )
-                        except subprocess.CalledProcessError:
-                            # ignore failures to remove non-existent frames
-                            pass
                 else:
                     # mid3v2 supports deleting multiple frames with --delete-frames
                     frames_arg = ",".join(frames_to_remove)
-                    try:
+                    with contextlib.suppress(subprocess.CalledProcessError):
                         subprocess.run(
                             ["mid3v2", f"--delete-frames={frames_arg}", self.audio_file.file_path],
                             check=True,
                             capture_output=True,
                         )
-                    except subprocess.CalledProcessError:
-                        # ignore failures
-                        pass
         except FileNotFoundError:
             # If removal tool not found, proceed and hope save will remove frames
             pass

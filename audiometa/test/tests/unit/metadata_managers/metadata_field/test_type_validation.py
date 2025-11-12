@@ -1,3 +1,5 @@
+import contextlib
+
 import pytest
 
 from audiometa import _validate_unified_metadata_types
@@ -130,12 +132,9 @@ class TestUnifiedMetadataTypeValidation:
         _validate_unified_metadata_types({UnifiedMetadataKey.TITLE: ""})
 
         # Empty list for ARTISTS (might be valid or invalid depending on implementation)
-        try:
+        with contextlib.suppress(InvalidMetadataFieldTypeError):
             _validate_unified_metadata_types({UnifiedMetadataKey.ARTISTS: []})
             # If this succeeds, empty lists are allowed
-        except InvalidMetadataFieldTypeError:
-            # If this fails, empty lists are not allowed
-            pass
 
     def test_unicode_and_special_characters(self):
         # Valid unicode strings should work
