@@ -62,8 +62,8 @@ def mock_id3_with_metadata():
         "TALB": mock_album,
     }
 
-    mock_id3.__contains__ = lambda self, key: key in frame_dict
-    mock_id3.__getitem__ = lambda self, key: frame_dict.get(key)
+    mock_id3.__contains__ = lambda _self, key: key in frame_dict
+    mock_id3.__getitem__ = lambda _self, key: frame_dict.get(key)
     mock_id3.items.return_value = []
 
     return mock_id3

@@ -69,7 +69,7 @@ class TestAudioFileTechnicalInfoErrorHandling:
             pass
 
     def test_duration_not_found_error_invalid_wav_duration(self, monkeypatch):
-        def mock_subprocess_run(*args, **kwargs):
+        def mock_subprocess_run(*_args, **_kwargs):
             class MockResult:
                 returncode = 0
                 stdout = '{"format": {"duration": "0.0"}, "streams": [{"duration": "0"}]}'
@@ -88,7 +88,7 @@ class TestAudioFileTechnicalInfoErrorHandling:
             pass
 
     def test_audio_file_metadata_parse_error_invalid_json(self, monkeypatch):
-        def mock_subprocess_run(*args, **kwargs):
+        def mock_subprocess_run(*_args, **_kwargs):
             class MockResult:
                 returncode = 0
                 stdout = "invalid json response"
