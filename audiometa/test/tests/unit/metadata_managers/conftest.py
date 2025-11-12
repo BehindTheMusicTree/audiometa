@@ -102,8 +102,8 @@ def mock_id3_updatable():
     mock_id3.delall = mock_delall
     mock_id3.add = mock_add
     mock_id3.items = mock_items
-    mock_id3.__contains__ = lambda self, key: key in frames
-    mock_id3.__getitem__ = lambda self, key: frames[key]
+    mock_id3.__contains__ = lambda _self, key: key in frames
+    mock_id3.__getitem__ = lambda _self, key: frames[key]
 
     return mock_id3
 
