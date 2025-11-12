@@ -135,7 +135,7 @@ module = "mutagen.*"
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-testpaths = ["audiometa/test"]
+testpaths = ["audiometa/test/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
