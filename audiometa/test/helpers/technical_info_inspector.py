@@ -92,8 +92,9 @@ class TechnicalInfoInspector:
                     channels_str = track.get("Channels")
                     if channels_str:
                         return int(channels_str)
-            return None
         except Exception:
+            return None
+        else:
             return None
 
     @staticmethod
@@ -107,6 +108,7 @@ class TechnicalInfoInspector:
                     file_size_str = track.get("FileSize")
                     if file_size_str:
                         return int(file_size_str)
-            return None
         except Exception:
+            return None
+        else:
             return None
