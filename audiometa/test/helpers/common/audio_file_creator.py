@@ -44,7 +44,7 @@ class AudioFileCreator:
                     shutil.copy2(sample_files[0], file_path)
                 else:
                     msg = f"No template file found for {format_type}"
-                    raise RuntimeError(msg)
+                    raise RuntimeError(msg) from None
 
     @staticmethod
     def _create_minimal_audio_with_ffmpeg(file_path: Path, format_type: str) -> None:

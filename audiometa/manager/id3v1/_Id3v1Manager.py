@@ -457,6 +457,14 @@ class _Id3v1Manager(_MetadataManager):
                 "version": None,
                 "has_track_number": False,
             }
+        else:
+            return {
+                "present": True,
+                "position": "end_of_file",
+                "size_bytes": 128,
+                "version": version,
+                "has_track_number": has_track_number,
+            }
 
     def get_raw_metadata_info(self) -> dict:
         """Get raw ID3v1 metadata information."""
