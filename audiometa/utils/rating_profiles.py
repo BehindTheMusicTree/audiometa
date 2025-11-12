@@ -59,6 +59,7 @@ Luckily, Traktor ratings are written with special tags making them easy to disti
 
 from collections.abc import Iterator
 from enum import Enum
+from typing import ClassVar
 
 
 class RatingReadProfile(Enum):
