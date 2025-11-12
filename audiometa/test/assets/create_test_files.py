@@ -40,9 +40,10 @@ def create_silent_audio_file(output_path: Path, duration: float = 1.0, sample_ra
             cmd.insert(-1, bitrate)
 
         subprocess.run(cmd, check=True, capture_output=True)
-        return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
+    else:
+        return True
 
 
 def create_test_files():

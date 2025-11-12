@@ -30,8 +30,9 @@ class ID3v2HeaderVerifier:
             from mutagen.id3 import ID3, ID3NoHeaderError
 
             id3_tags = ID3(file_path)
-            return id3_tags.version
         except ID3NoHeaderError:
             return None
         except Exception:
             return None
+        else:
+            return id3_tags.version

@@ -141,8 +141,9 @@ class ID3v2MetadataGetter:
                     tit2_values = metadata.get("TIT2", [])
                     if tit2_values:
                         return tit2_values[0]
-            return None
         except Exception:
+            return None
+        else:
             return None
 
     @staticmethod

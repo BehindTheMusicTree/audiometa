@@ -15,13 +15,14 @@ class TechnicalInfoInspector:
                 import json
 
                 return json.loads(result.stdout)
-            return {"text": result.stdout}
         except subprocess.CalledProcessError as e:
             msg = f"Failed to run mediainfo on {file_path}: {e}"
             raise RuntimeError(msg) from e
         except json.JSONDecodeError as e:
             msg = f"Failed to parse mediainfo output: {e}"
             raise RuntimeError(msg) from e
+        else:
+            return {"text": result.stdout}
 
     @staticmethod
     def get_bitrate(file_path: str | Path) -> int | None:
@@ -38,8 +39,9 @@ class TechnicalInfoInspector:
                             return int(str(bitrate_str).split()[0])
                         if str(bitrate_str).isdigit():
                             return int(bitrate_str) // 1000
-            return None
         except Exception:
+            return None
+        else:
             return None
 
     @staticmethod
@@ -56,8 +58,9 @@ class TechnicalInfoInspector:
                         if "s" in duration_str:
                             return float(duration_str.split()[0])
                         return float(duration_str)
-            return None
         except Exception:
+            return None
+        else:
             return None
 
     @staticmethod
