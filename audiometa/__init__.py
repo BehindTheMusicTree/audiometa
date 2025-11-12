@@ -258,7 +258,7 @@ def get_unified_metadata_field(
     """
     # Check if key is a valid UnifiedMetadataKey enum first (runtime validation)
     # This check is necessary for runtime validation even though mypy sees it as unreachable
-    if not isinstance(unified_metadata_key, UnifiedMetadataKey):  # type: ignore[misc]
+    if not isinstance(unified_metadata_key, UnifiedMetadataKey):  # type: ignore
         msg = f"{unified_metadata_key} metadata not supported by the library."
         raise MetadataFieldNotSupportedByLibError(msg)
 
@@ -322,7 +322,7 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
     for key, value in unified_metadata.items():
         # Check if key is a valid UnifiedMetadataKey enum first (runtime validation)
         # This check is necessary for runtime validation even though mypy sees it as unreachable
-        if not isinstance(key, UnifiedMetadataKey):  # type: ignore[misc]
+        if not isinstance(key, UnifiedMetadataKey):  # type: ignore
             msg = f"{key} metadata not supported by the library."
             raise MetadataFieldNotSupportedByLibError(msg)
 
