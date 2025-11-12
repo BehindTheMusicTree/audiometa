@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Issue Templates**: Added bug report and feature request templates for better issue tracking and contributor experience
 - **Pull Request Template**: Added comprehensive PR template aligned with contributing guidelines, including pre-PR checklist, breaking changes section, and testing instructions
 - **Code of Conduct**: Added Contributor Covenant Code of Conduct to ensure a welcoming and inclusive community environment
+- **Security Policy**: Added SECURITY.md with vulnerability reporting procedures, disclosure policy, and security best practices
 - **CI/CD Pipeline**: Comprehensive GitHub Actions workflow for continuous integration:
   - Automated linting and code quality checks (ruff, isort, mypy, flake8, assert statement validation)
   - Cross-platform testing on Ubuntu, macOS, and Windows
