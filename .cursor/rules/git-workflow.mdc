@@ -1,0 +1,67 @@
+---
+alwaysApply: true
+---
+
+# Git Workflow and Branch Naming
+
+We follow a light GitFlow model adapted for small teams and open-source projects.
+
+## Branch Naming Conventions
+
+All branches must follow these naming patterns:
+
+### Available Branch Prefixes
+
+| Prefix    | Usage                                          | Example                                    |
+| --------- | ---------------------------------------------- | ------------------------------------------ |
+| `feature/` | New features or bug fixes (contributors)      | `feature/improve-genre-classification`    |
+| `hotfix/` | Urgent bug fixes on production (maintainers)   | `hotfix/critical-metadata-bug`             |
+| `chore/`  | Maintenance, infrastructure, configuration     | `chore/update-dependencies`               |
+
+### Branch Naming Rules
+
+- **Use lowercase** for branch names
+- **Use hyphens** to separate words (not underscores or camelCase)
+- **Be descriptive** - the branch name should indicate what it does
+- **No `fix/` prefix** - use `feature/` for bug fixes or `hotfix/` for urgent production fixes
+
+### Examples
+
+```bash
+# ✅ Good
+git checkout -b feature/add-flac-support
+git checkout -b feature/fix-id3v1-encoding
+git checkout -b chore/update-ruff-version
+git checkout -b chore/ci-workflow-improvements
+git checkout -b hotfix/critical-security-patch
+
+# ❌ Bad
+git checkout -b fix/encoding-issue          # Use feature/ instead
+git checkout -b FixEncoding                 # Wrong format
+git checkout -b feature/fix_encoding        # Use hyphens, not underscores
+git checkout -b bugfix/encoding             # Not a valid prefix
+```
+
+## Main Branch
+
+- The stable, always-deployable branch
+- All tests must pass before merging
+- Releases are tagged from `main`
+
+## Feature Branches
+
+- Create one for each new feature or bug fix
+- Merge into `main` via Pull Request when complete and tested
+- Use `feature/` prefix for both new features and regular bug fixes
+
+## Hotfix Branches
+
+- For urgent bug fixes on production versions
+- Typically used by maintainers
+- Contributors can submit fixes via feature branches that maintainers may promote to hotfixes if needed
+
+## Chore Branches
+
+- For maintenance, infrastructure, and configuration work
+- Examples: repository setup, CI/CD changes, dependency updates, documentation infrastructure
+- Merge into `main` via Pull Request when complete
