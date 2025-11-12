@@ -2,6 +2,8 @@
 
 This file tracks future work, improvements, and testing tasks for AudioMeta Python.
 
+**Note for Contributors**: This TODO list is maintained by project maintainers. If you'd like to suggest a new task or work on an existing one, please open a GitHub issue first for discussion. Maintainers will update this file based on project priorities and community feedback.
+
 ## Rating Profile Compatibility Testing
 
 ### High Priority
@@ -69,7 +71,7 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
 
 ## Infrastructure & Publishing
 
-### Medium Priority
+### High Priority
 
 - [ ] **Set up CI workflow for automatic PyPI publishing**
   - Configure GitHub Actions workflow to publish to PyPI on releases/tags
@@ -81,6 +83,13 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
   - PyPI version badge
   - PyPI downloads badge
   - Update badges section with PyPI links
+
+### Medium Priority
+
+- [ ] **Review and update maintainer pre-merge checklist**
+  - Ensure all maintainer checks are comprehensive and up-to-date
+  - Align with current project practices and CI/CD setup
+  - Document any additional checks needed before merging PRs
 
 ## Contributing
 
