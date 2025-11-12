@@ -95,6 +95,8 @@ wrap-descriptions = 120
 [tool.ruff]
 line-length = 120
 target-version = "py312"
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "DTZ", "T10", "EM", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SIM", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "NPY", "RUF"]
+ignore = []
 
 [tool.mypy]
 python_version = "3.13"
