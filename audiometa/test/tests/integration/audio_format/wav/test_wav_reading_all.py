@@ -55,6 +55,8 @@ class TestWavReading:
             assert metadata.get(UnifiedMetadataKey.TITLE) == "a" * 30
 
     def test_vorbis_metadata_reading_wav(self):
-        with temp_file_with_metadata({}, "wav") as test_file:
-            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                get_unified_metadata(test_file, metadata_format=MetadataFormat.VORBIS)
+        with (
+            temp_file_with_metadata({}, "wav") as test_file,
+            pytest.raises(MetadataFormatNotSupportedByAudioFormatError),
+        ):
+            get_unified_metadata(test_file, metadata_format=MetadataFormat.VORBIS)

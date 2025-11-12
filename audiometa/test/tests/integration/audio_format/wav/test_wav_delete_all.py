@@ -80,6 +80,8 @@ class TestDeleteAllMetadataFormatSpecificWAV:
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) is None
 
     def test_vorbis(self):
-        with temp_file_with_metadata({"title": "Test RIFF Title", "artist": "Test RIFF Artist"}, "wav") as test_file:
-            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                delete_all_metadata(test_file, metadata_format=MetadataFormat.VORBIS)
+        with (
+            temp_file_with_metadata({"title": "Test RIFF Title", "artist": "Test RIFF Artist"}, "wav") as test_file,
+            pytest.raises(MetadataFormatNotSupportedByAudioFormatError),
+        ):
+            delete_all_metadata(test_file, metadata_format=MetadataFormat.VORBIS)

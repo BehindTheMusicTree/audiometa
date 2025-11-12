@@ -40,17 +40,21 @@ class TestMp3Writing:
             assert read_metadata[UnifiedMetadataKey.TITLE] == "Test Title ID3v2.4"
 
     def test_riff_metadata_writing_mp3(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                update_metadata(
-                    test_file, {UnifiedMetadataKey.TITLE: "Test Title RIFF"}, metadata_format=MetadataFormat.RIFF
-                )
+        with (
+            temp_file_with_metadata({}, "mp3") as test_file,
+            pytest.raises(MetadataFormatNotSupportedByAudioFormatError),
+        ):
+            update_metadata(
+                test_file, {UnifiedMetadataKey.TITLE: "Test Title RIFF"}, metadata_format=MetadataFormat.RIFF
+            )
 
     def test_vorbis_metadata_writing_mp3(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                update_metadata(
-                    test_file,
-                    {UnifiedMetadataKey.TITLE: "Test Title Vorbis"},
-                    metadata_format=MetadataFormat.VORBIS,
-                )
+        with (
+            temp_file_with_metadata({}, "mp3") as test_file,
+            pytest.raises(MetadataFormatNotSupportedByAudioFormatError),
+        ):
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.TITLE: "Test Title Vorbis"},
+                metadata_format=MetadataFormat.VORBIS,
+            )

@@ -20,7 +20,7 @@ class TestWavReading:
             title = get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE)
             assert title == "Title ID3v1"
 
-    def test_riff_metadata_reading_wav(self, metadata_riff_small_wav):
+    def test_riff_metadata_reading_wav(self, _metadata_riff_small_wav):
         with temp_file_with_metadata({}, "wav") as test_file:
             RIFFMetadataSetter.set_title(test_file, "RIFF Small Title")
 
@@ -50,6 +50,8 @@ class TestWavReading:
             assert title == "ID3v2.4 Long Title That Exceeds RIFF Limits"
 
     def test_vorbis_metadata_reading_wav(self):
-        with temp_file_with_metadata({}, "wav") as test_file:
-            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.VORBIS)
+        with (
+            temp_file_with_metadata({}, "wav") as test_file,
+            pytest.raises(MetadataFormatNotSupportedByAudioFormatError),
+        ):
+            get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.VORBIS)

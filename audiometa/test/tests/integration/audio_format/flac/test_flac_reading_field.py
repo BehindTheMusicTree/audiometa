@@ -58,6 +58,8 @@ class TestFlacReading:
             assert title == "a" * 30
 
     def test_riff_metadata_reading_flac(self):
-        with temp_file_with_metadata({}, "flac") as test_file:
-            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF)
+        with (
+            temp_file_with_metadata({}, "flac") as test_file,
+            pytest.raises(MetadataFormatNotSupportedByAudioFormatError),
+        ):
+            get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF)

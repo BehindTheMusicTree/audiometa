@@ -51,10 +51,12 @@ class TestWavWriting:
             assert title == "Test Title ID3v2.4"
 
     def test_vorbis_metadata_writing_wav(self):
-        with temp_file_with_metadata({}, "wav") as test_file:
-            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                update_metadata(
-                    test_file,
-                    {UnifiedMetadataKey.TITLE: "Test Title Vorbis"},
-                    metadata_format=MetadataFormat.VORBIS,
-                )
+        with (
+            temp_file_with_metadata({}, "wav") as test_file,
+            pytest.raises(MetadataFormatNotSupportedByAudioFormatError),
+        ):
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.TITLE: "Test Title Vorbis"},
+                metadata_format=MetadataFormat.VORBIS,
+            )

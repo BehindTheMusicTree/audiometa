@@ -53,11 +53,15 @@ class TestMp3Reading:
             assert title == "Title ID3v2.4"
 
     def test_riff_metadata_reading_mp3(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF)
+        with (
+            temp_file_with_metadata({}, "mp3") as test_file,
+            pytest.raises(MetadataFormatNotSupportedByAudioFormatError),
+        ):
+            get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF)
 
     def test_vorbis_metadata_reading_mp3(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.VORBIS)
+        with (
+            temp_file_with_metadata({}, "mp3") as test_file,
+            pytest.raises(MetadataFormatNotSupportedByAudioFormatError),
+        ):
+            get_unified_metadata_field(test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.VORBIS)
