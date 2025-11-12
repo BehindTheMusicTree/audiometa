@@ -90,8 +90,7 @@ def process_file(file_path: Path, max_length: int = 120) -> bool:
         if modified:
             file_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
             return True
-
-        return False
+        return False  # noqa: TRY300
     except Exception:
         return False
 
