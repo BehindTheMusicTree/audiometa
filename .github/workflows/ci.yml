@@ -86,17 +86,17 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg flac
+          sudo apt-get install -y ffmpeg flac mediainfo
 
       - name: Install system dependencies (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          brew install ffmpeg flac
+          brew install ffmpeg flac mediainfo
 
       - name: Install system dependencies (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          choco install ffmpeg flac -y
+          choco install ffmpeg flac mediainfo -y
 
       - name: Install Python dependencies
         # Installs exact tool versions from pyproject.toml
@@ -119,6 +119,7 @@ jobs:
           ffprobe -version
           flac --version
           metaflac --version || echo "metaflac not found (should be bundled with flac)"
+          mediainfo --version
           which mid3v2 && mid3v2 --version || echo "mid3v2 not found (mutagen provides it, may not be in PATH)"
 
       - name: Verify external tools (Windows)
@@ -128,6 +129,7 @@ jobs:
           ffprobe -version
           flac --version
           metaflac --version
+          mediainfo --version
           if (Get-Command mid3v2 -ErrorAction SilentlyContinue) { mid3v2 --version } else { Write-Host "mid3v2 not found (mutagen provides it, may not be in PATH)" }
 
       - name: Run unit tests
