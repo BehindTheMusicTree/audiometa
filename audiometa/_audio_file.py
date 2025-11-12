@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 import types
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 from mutagen.flac import FLAC, StreamInfo
 from mutagen.mp3 import MP3
