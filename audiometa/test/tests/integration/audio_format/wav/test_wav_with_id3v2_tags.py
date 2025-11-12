@@ -20,7 +20,7 @@ class TestWavWithId3v2Tags:
             update_metadata(test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
 
             # The key test: _AudioFile instantiation should not fail
-            from audiometa._audio_file import _AudioFile as _AudioFile
+            from audiometa._audio_file import _AudioFile
 
             audio_file = _AudioFile(test_file)  # Should not raise FileCorruptedError
 

@@ -23,7 +23,7 @@ class TestGetFullMetadataBinaryDataFiltering:
             # Text should not contain binary data patterns
             assert not any(
                 ord(c) < 32 and c not in "\t\n\r" for c in text
-            ), f"Frame {frame_id} contains binary data in text: {repr(text[:50])}"
+            ), f"Frame {frame_id} contains binary data in text: {text[:50]!r}"
 
             # If it's a binary frame type, should have placeholder text
             binary_frame_types = {
@@ -61,7 +61,7 @@ class TestGetFullMetadataBinaryDataFiltering:
 
     def test_id3v2_manager_binary_filtering(self, sample_mp3_file):
         """Test Id3v2Manager directly filters binary frames."""
-        from audiometa._audio_file import _AudioFile as _AudioFile
+        from audiometa._audio_file import _AudioFile
 
         audio_file = _AudioFile(sample_mp3_file)
         manager = Id3v2Manager(audio_file)
@@ -106,7 +106,7 @@ class TestGetFullMetadataBinaryDataFiltering:
                 # Text frames should not contain binary data
                 assert not any(
                     ord(c) < 32 and c not in "\t\n\r" for c in text
-                ), f"Text frame {frame_id} contains binary data: {repr(text[:50])}"
+                ), f"Text frame {frame_id} contains binary data: {text[:50]!r}"
 
     def test_get_full_metadata_vorbis_no_binary_data(self, sample_flac_file):
         """Test that get_full_metadata Vorbis comments don't contain binary data."""
@@ -122,7 +122,7 @@ class TestGetFullMetadataBinaryDataFiltering:
                 # Check for binary data patterns
                 assert not any(
                     ord(c) < 32 and c not in "\t\n\r" for c in value
-                ), f"Vorbis comment {key} contains binary data: {repr(value[:50])}"
+                ), f"Vorbis comment {key} contains binary data: {value[:50]!r}"
 
     def test_get_full_metadata_riff_no_binary_data(self, sample_wav_file):
         """Test that get_full_metadata RIFF metadata doesn't contain binary data."""
@@ -136,7 +136,7 @@ class TestGetFullMetadataBinaryDataFiltering:
             # Check for binary data patterns
             assert not any(
                 ord(c) < 32 and c not in "\t\n\r" for c in value
-            ), f"RIFF field {key} contains binary data: {repr(value[:50])}"
+            ), f"RIFF field {key} contains binary data: {value[:50]!r}"
 
     def test_get_full_metadata_id3v1_no_binary_data(self, sample_mp3_file):
         """Test that get_full_metadata ID3v1 metadata doesn't contain binary data."""
@@ -150,7 +150,7 @@ class TestGetFullMetadataBinaryDataFiltering:
             # Check for binary data patterns
             assert not any(
                 ord(c) < 32 and c not in "\t\n\r" for c in value
-            ), f"ID3v1 field {key} contains binary data: {repr(value[:50])}"
+            ), f"ID3v1 field {key} contains binary data: {value[:50]!r}"
 
     def test_cli_output_no_binary_data(self, sample_mp3_file):
         """Test that CLI output doesn't contain binary data."""
@@ -162,6 +162,7 @@ class TestGetFullMetadataBinaryDataFiltering:
             [sys.executable, "-m", "audiometa", "read", str(sample_mp3_file), "--format", "json"],
             capture_output=True,
             text=True,
+            check=False,
         )
 
         assert result.returncode == 0, f"CLI failed: {result.stderr}"
@@ -181,7 +182,7 @@ class TestGetFullMetadataBinaryDataFiltering:
 
     def test_binary_frame_size_preserved(self, sample_mp3_file):
         """Test that binary frame sizes are still reported correctly."""
-        from audiometa._audio_file import _AudioFile as _AudioFile
+        from audiometa._audio_file import _AudioFile
 
         audio_file = _AudioFile(sample_mp3_file)
         manager = Id3v2Manager(audio_file)
@@ -229,7 +230,7 @@ class TestGetFullMetadataBinaryDataFiltering:
 
     def test_text_frames_unchanged(self, sample_mp3_file):
         """Test that text frames are not affected by binary filtering."""
-        from audiometa._audio_file import _AudioFile as _AudioFile
+        from audiometa._audio_file import _AudioFile
 
         audio_file = _AudioFile(sample_mp3_file)
         manager = Id3v2Manager(audio_file)

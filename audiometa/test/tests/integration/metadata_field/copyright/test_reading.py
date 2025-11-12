@@ -10,14 +10,13 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestCopyrightReading:
     def test_id3v1(self):
-        with temp_file_with_metadata({"title": "Test Song"}, "id3v1") as test_file:
-            with pytest.raises(
-                MetadataFieldNotSupportedByMetadataFormatError,
-                match="UnifiedMetadataKey.COPYRIGHT metadata not supported by this format",
-            ):
-                get_unified_metadata_field(
-                    test_file, UnifiedMetadataKey.COPYRIGHT, metadata_format=MetadataFormat.ID3V1
-                )
+        with temp_file_with_metadata({"title": "Test Song"}, "id3v1") as test_file, pytest.raises(
+            MetadataFieldNotSupportedByMetadataFormatError,
+            match="UnifiedMetadataKey.COPYRIGHT metadata not supported by this format",
+        ):
+            get_unified_metadata_field(
+                test_file, UnifiedMetadataKey.COPYRIGHT, metadata_format=MetadataFormat.ID3V1
+            )
 
     def test_id3v2(self):
         with temp_file_with_metadata({"title": "Test Song", "copyright": "Test Copyright"}, "mp3") as test_file:

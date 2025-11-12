@@ -101,6 +101,5 @@ class TestDeleteAllMetadataFormatSpecificFLAC:
     def test_riff(self):
         with temp_file_with_metadata(
             {"title": "Test Vorbis Title", "artist": "Test Vorbis Artist"}, "flac"
-        ) as test_file:
-            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                delete_all_metadata(test_file, metadata_format=MetadataFormat.RIFF)
+        ) as test_file, pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
+            delete_all_metadata(test_file, metadata_format=MetadataFormat.RIFF)

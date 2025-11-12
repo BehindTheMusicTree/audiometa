@@ -46,7 +46,7 @@ METADATA_FORMAT_MANAGER_CLASS_MAP: dict[MetadataFormat, type] = {
 }
 
 # Public API: only accepts standard file path types (not _AudioFile)
-PublicFileType: TypeAlias = Union[str, Path]
+type PublicFileType = str | Path
 
 
 def _get_metadata_manager(
@@ -61,13 +61,13 @@ def _get_metadata_manager(
 
     if not metadata_format:
         metadata_format = audio_file_prioritized_tag_formats[0]
-    else:
-        if metadata_format not in audio_file_prioritized_tag_formats:
-            raise MetadataFormatNotSupportedByAudioFormatError(
-                f"Tag format {metadata_format} not supported for file extension {audio_file.file_extension}"
-            )
+    elif metadata_format not in audio_file_prioritized_tag_formats:
+        msg = f"Tag format {metadata_format} not supported for file extension {audio_file.file_extension}"
+        raise MetadataFormatNotSupportedByAudioFormatError(
+            msg
+        )
 
-    manager_class: Type[_MetadataManager] = cast(Any, METADATA_FORMAT_MANAGER_CLASS_MAP[metadata_format])
+    manager_class: type[_MetadataManager] = cast(Any, METADATA_FORMAT_MANAGER_CLASS_MAP[metadata_format])
     if issubclass(manager_class, _RatingSupportingMetadataManager):
         if manager_class is _Id3v2Manager:
             # Determine ID3v2 version based on provided version or use default
@@ -75,7 +75,7 @@ def _get_metadata_manager(
                 version = id3v2_version
             else:
                 version = (2, 3, 0)  # Default to ID3v2.3
-            id3v2_manager_class = cast(Type[_Id3v2Manager], manager_class)
+            id3v2_manager_class = cast(type[_Id3v2Manager], manager_class)
             return cast(
                 _MetadataManager,
                 id3v2_manager_class(
@@ -84,8 +84,7 @@ def _get_metadata_manager(
                     id3v2_version=version,
                 ),
             )
-        else:
-            return manager_class(audio_file=audio_file, normalized_rating_max_value=normalized_rating_max_value)  # type: ignore[call-arg]
+        return manager_class(audio_file=audio_file, normalized_rating_max_value=normalized_rating_max_value)  # type: ignore[call-arg]
     return manager_class(audio_file=audio_file)  # type: ignore[call-arg]
 
 
@@ -263,7 +262,8 @@ def get_unified_metadata_field(
     """
     # Check if key is a valid UnifiedMetadataKey enum first
     if not isinstance(unified_metadata_key, UnifiedMetadataKey):
-        raise MetadataFieldNotSupportedByLib(f"{unified_metadata_key} metadata not supported by the library.")
+        msg = f"{unified_metadata_key} metadata not supported by the library."
+        raise MetadataFieldNotSupportedByLib(msg)
 
     audio_file = _AudioFile(file)
 
@@ -305,8 +305,9 @@ def get_unified_metadata_field(
         # If ALL managers raised MetadataFieldNotSupportedByMetadataFormatError,
         # the field is not supported by the library at all
         if len(format_errors) == len(managers_prioritized) and len(format_errors) > 0:
+            msg = f"{unified_metadata_key} metadata field is not supported by any format in the library"
             raise MetadataFieldNotSupportedByLib(
-                f"{unified_metadata_key} metadata field is not supported by any format in the library"
+                msg
             )
 
         return None
@@ -321,12 +322,13 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
     if not unified_metadata:
         return
 
-    from typing import Union, get_args, get_origin
+    from typing import get_args, get_origin
 
     for key, value in unified_metadata.items():
         # Check if key is a valid UnifiedMetadataKey enum first
         if not isinstance(key, UnifiedMetadataKey):
-            raise MetadataFieldNotSupportedByLib(f"{key} metadata not supported by the library.")
+            msg = f"{key} metadata not supported by the library."
+            raise MetadataFieldNotSupportedByLib(msg)
 
         # Allow None to mean "remove this field"
         if value is None:
@@ -335,10 +337,11 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
         try:
             expected_type = key.get_optional_type()
         except Exception:
-            raise TypeError(f"Cannot determine expected type for key: {key.value}")
+            msg = f"Cannot determine expected type for key: {key.value}"
+            raise TypeError(msg)
 
         origin = get_origin(expected_type)
-        if origin == list:
+        if origin is list:
             # Expect a list of a particular type (e.g., list[str]). Do NOT allow
             # single values of the inner type; callers must provide a list.
             arg_types = get_args(expected_type)
@@ -360,15 +363,14 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
                 raise InvalidMetadataFieldTypeError(
                     key.value, f"Union[{', '.join(getattr(t, '__name__', str(t)) for t in arg_types)}]", value
                 )
-        else:
-            # expected_type is a plain type like str or int
-            if not isinstance(value, expected_type):
-                # Special case for TRACK_NUMBER: allow int for writing convenience (returns string when reading)
-                if key == UnifiedMetadataKey.TRACK_NUMBER and isinstance(value, (int, str)):
-                    continue
-                raise InvalidMetadataFieldTypeError(
-                    key.value, getattr(expected_type, "__name__", str(expected_type)), value
-                )
+        # expected_type is a plain type like str or int
+        elif not isinstance(value, expected_type):
+            # Special case for TRACK_NUMBER: allow int for writing convenience (returns string when reading)
+            if key == UnifiedMetadataKey.TRACK_NUMBER and isinstance(value, int | str):
+                continue
+            raise InvalidMetadataFieldTypeError(
+                key.value, getattr(expected_type, "__name__", str(expected_type)), value
+            )
 
         # Format validation for specific fields
         if key == UnifiedMetadataKey.RELEASE_DATE and isinstance(value, str):
@@ -472,11 +474,14 @@ def update_metadata(
 
     # Validate that both parameters are not specified simultaneously
     if metadata_strategy is not None and metadata_format is not None:
-        raise MetadataWritingConflictParametersError(
+        msg = (
             "Cannot specify both metadata_strategy and metadata_format. "
             "When metadata_format is specified, strategy is not applicable. "
             "Choose either: use metadata_strategy for multi-format management, "
             "or metadata_format for single-format writing."
+        )
+        raise MetadataWritingConflictParametersError(
+            msg
         )
 
     # Default to SYNC strategy if not specified
@@ -515,7 +520,8 @@ def _handle_metadata_strategy(
     else:
         available_formats = MetadataFormat.get_priorities().get(audio_file.file_extension)
         if not available_formats:
-            raise FileTypeNotSupportedError(f"File extension {audio_file.file_extension} is not supported")
+            msg = f"File extension {audio_file.file_extension} is not supported"
+            raise FileTypeNotSupportedError(msg)
         target_format_actual = available_formats[0]
 
     # When a specific format is forced, ignore strategy and write only to that format
@@ -550,26 +556,25 @@ def _handle_metadata_strategy(
         # Check for unsupported fields by target format
         target_manager = all_managers[target_format_actual]
         unsupported_fields = []
-        for field in unified_metadata.keys():
+        for field in unified_metadata:
             if (
                 hasattr(target_manager, "metadata_keys_direct_map_write")
                 and target_manager.metadata_keys_direct_map_write
-            ):
-                if field not in target_manager.metadata_keys_direct_map_write:
-                    unsupported_fields.append(field)
+            ) and field not in target_manager.metadata_keys_direct_map_write:
+                unsupported_fields.append(field)
 
         if unsupported_fields:
             if fail_on_unsupported_field:
+                msg = f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}"
                 raise MetadataFieldNotSupportedByMetadataFormatError(
-                    f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}"
+                    msg
                 )
-            else:
-                warnings.warn(
-                    f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}"
-                )
-                # Create filtered metadata without unsupported fields
-                filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
-                unified_metadata = filtered_metadata
+            warnings.warn(
+                f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}"
+            )
+            # Create filtered metadata without unsupported fields
+            filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
+            unified_metadata = filtered_metadata
 
         # Then write to target format
         target_manager.update_metadata(unified_metadata)
@@ -580,13 +585,12 @@ def _handle_metadata_strategy(
         if fail_on_unsupported_field:
             target_manager = all_managers[target_format_actual]
             unsupported_fields = []
-            for field in unified_metadata.keys():
+            for field in unified_metadata:
                 if (
                     hasattr(target_manager, "metadata_keys_direct_map_write")
                     and target_manager.metadata_keys_direct_map_write
-                ):
-                    if field not in target_manager.metadata_keys_direct_map_write:
-                        unsupported_fields.append(field)
+                ) and field not in target_manager.metadata_keys_direct_map_write:
+                    unsupported_fields.append(field)
             if unsupported_fields:
                 unsupported_error_msg = (
                     f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}"
@@ -596,13 +600,12 @@ def _handle_metadata_strategy(
             # Filter out unsupported fields when fail_on_unsupported_field is False
             target_manager = all_managers[target_format_actual]
             unsupported_fields = []
-            for field in unified_metadata.keys():
+            for field in unified_metadata:
                 if (
                     hasattr(target_manager, "metadata_keys_direct_map_write")
                     and target_manager.metadata_keys_direct_map_write
-                ):
-                    if field not in target_manager.metadata_keys_direct_map_write:
-                        unsupported_fields.append(field)
+                ) and field not in target_manager.metadata_keys_direct_map_write:
+                    unsupported_fields.append(field)
             if unsupported_fields:
                 unsupported_warn_msg = (
                     f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}"
@@ -624,7 +627,7 @@ def _handle_metadata_strategy(
             # Re-raise user errors (like InvalidRatingValueError) immediately
             from .exceptions import ConfigurationError, InvalidRatingValueError
 
-            if isinstance(e, (InvalidRatingValueError, ConfigurationError)):
+            if isinstance(e, InvalidRatingValueError | ConfigurationError):
                 raise
             # Some managers might not support writing or might fail for other reasons
 
@@ -656,13 +659,12 @@ def _handle_metadata_strategy(
         # Check for unsupported fields by target format
         target_manager = all_managers[target_format_actual]
         unsupported_fields = []
-        for field in unified_metadata.keys():
+        for field in unified_metadata:
             if (
                 hasattr(target_manager, "metadata_keys_direct_map_write")
                 and target_manager.metadata_keys_direct_map_write
-            ):
-                if field not in target_manager.metadata_keys_direct_map_write:
-                    unsupported_fields.append(field)
+            ) and field not in target_manager.metadata_keys_direct_map_write:
+                unsupported_fields.append(field)
 
         if unsupported_fields:
             if fail_on_unsupported_field:
@@ -670,14 +672,13 @@ def _handle_metadata_strategy(
                     f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}"
                 )
                 raise MetadataFieldNotSupportedByMetadataFormatError(unsupported_error_msg)
-            else:
-                unsupported_warn_msg = (
-                    f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}"
-                )
-                warnings.warn(unsupported_warn_msg)
-                # Create filtered metadata without unsupported fields
-                filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
-                unified_metadata = filtered_metadata
+            unsupported_warn_msg = (
+                f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}"
+            )
+            warnings.warn(unsupported_warn_msg)
+            # Create filtered metadata without unsupported fields
+            filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
+            unified_metadata = filtered_metadata
 
         # Write to target format
         target_manager.update_metadata(unified_metadata)
@@ -757,7 +758,7 @@ def delete_all_metadata(
     )
     success_count = 0
 
-    for format_type, manager in all_managers.items():
+    for _format_type, manager in all_managers.items():
         try:
             if manager.delete_metadata():
                 success_count += 1

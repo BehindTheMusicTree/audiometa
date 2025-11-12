@@ -14,6 +14,7 @@ class TestCLIInputValidationErrors:
                 [sys.executable, "-m", "audiometa", "write", str(temp_file_path), "--rating", "-5"],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should fail due to negative rating - CLI validates explicitly
@@ -29,6 +30,7 @@ class TestCLIInputValidationErrors:
                 [sys.executable, "-m", "audiometa", "write", str(temp_file_path), "--rating", "150"],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should succeed - no write profile validation when normalized_rating_max_value is None
@@ -40,6 +42,7 @@ class TestCLIInputValidationErrors:
                 [sys.executable, "-m", "audiometa", "write", str(temp_file_path), "--rating", "37"],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should succeed - no write profile validation when normalized_rating_max_value is None
@@ -51,6 +54,7 @@ class TestCLIInputValidationErrors:
                 [sys.executable, "-m", "audiometa", "write", str(temp_file_path), "--rating", "not-a-number"],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should fail due to non-numeric rating
@@ -64,6 +68,7 @@ class TestCLIInputValidationErrors:
                 [sys.executable, "-m", "audiometa", "write", str(temp_file_path), "--rating", "128"],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should succeed - any integer rating value is allowed
@@ -76,6 +81,7 @@ class TestCLIInputValidationErrors:
                 [sys.executable, "-m", "audiometa", "write", str(temp_file_path), "--year", "not-a-year"],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should fail due to non-numeric year
@@ -89,6 +95,7 @@ class TestCLIInputValidationErrors:
                 [sys.executable, "-m", "audiometa", "write", str(temp_file_path), "--year", "-2023"],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should fail due to invalid date format (negative year doesn't match YYYY format)
@@ -103,6 +110,7 @@ class TestCLIInputValidationErrors:
                 [sys.executable, "-m", "audiometa", "write", str(temp_file_path), "--year", future_year],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should succeed - future years are allowed
@@ -112,7 +120,10 @@ class TestCLIInputValidationErrors:
     def test_cli_write_no_metadata_fields(self):
         with temp_file_with_metadata({}, "mp3") as temp_file_path:
             result = subprocess.run(
-                [sys.executable, "-m", "audiometa", "write", str(temp_file_path)], capture_output=True, text=True
+                [sys.executable, "-m", "audiometa", "write", str(temp_file_path)],
+                capture_output=True,
+                text=True,
+                check=False,
             )
 
             # Should fail due to no metadata fields
@@ -138,6 +149,7 @@ class TestCLIInputValidationErrors:
                 ],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should fail - empty strings are not considered valid metadata

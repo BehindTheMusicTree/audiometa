@@ -14,5 +14,5 @@ class ID3v1HeaderVerifier:
                 f.seek(-128, 2)  # Seek to last 128 bytes
                 header = f.read(128)
                 return header[:3] == b"TAG"
-        except (IOError, OSError):
+        except OSError:
             return False

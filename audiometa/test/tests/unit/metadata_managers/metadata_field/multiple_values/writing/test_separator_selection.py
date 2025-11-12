@@ -6,7 +6,7 @@ from audiometa.manager._MetadataManager import _MetadataManager as MetadataManag
 @pytest.mark.unit
 class TestSeparatorSelection:
     @pytest.mark.parametrize(
-        "values, expected_separator",
+        ("values", "expected_separator"),
         [
             (["Artist One", "Artist Two"], "//"),
             (["Artist One", "Artist Two", "Artist Three"], "//"),
@@ -105,7 +105,7 @@ class TestSeparatorSelection:
         assert separator == "//"
 
     @pytest.mark.parametrize(
-        "values, expected_separator",
+        ("values", "expected_separator"),
         [
             (["DJ Snake", "The Chainsmokers"], "//"),
             (["Miley Cyrus & Billy Ray Cyrus", "Florida Georgia Line"], "//"),

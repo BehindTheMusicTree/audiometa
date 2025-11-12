@@ -14,14 +14,13 @@ class ID3v2MetadataGetter:
         """Decode text based on encoding."""
         if encoding == 0:  # ISO-8859-1
             return data.decode("latin1", errors="ignore")
-        elif encoding == 1:  # UTF-16 with BOM
+        if encoding == 1:  # UTF-16 with BOM
             return data.decode("utf-16", errors="ignore")
-        elif encoding == 2:  # UTF-16BE without BOM
+        if encoding == 2:  # UTF-16BE without BOM
             return data.decode("utf-16be", errors="ignore")
-        elif encoding == 3:  # UTF-8
+        if encoding == 3:  # UTF-8
             return data.decode("utf-8", errors="ignore")
-        else:
-            return data.decode("latin1", errors="ignore")  # fallback
+        return data.decode("latin1", errors="ignore")  # fallback
 
     @staticmethod
     def get_raw_metadata(file_path, version=None):
@@ -53,7 +52,8 @@ class ID3v2MetadataGetter:
                     expected_major = 4
                     expected_minor = 0
                 else:
-                    raise ValueError("Version must be '2.3' or '2.4'")
+                    msg = "Version must be '2.3' or '2.4'"
+                    raise ValueError(msg)
                 if file_version[0] != expected_major or file_version[1] != expected_minor:
                     return None
                 header[5]
@@ -121,7 +121,7 @@ class ID3v2MetadataGetter:
 
                 return metadata
         except Exception as e:
-            return f"Error parsing ID3v2: {str(e)}"
+            return f"Error parsing ID3v2: {e!s}"
 
     @staticmethod
     def get_artists(file_path, version=None):

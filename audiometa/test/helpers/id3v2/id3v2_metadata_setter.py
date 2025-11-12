@@ -1,7 +1,7 @@
 """ID3v2 and ID3v1 metadata setting operations."""
 
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from ..common.external_tool_runner import run_external_tool
 
@@ -10,7 +10,7 @@ class ID3v2MetadataSetter:
     """Static utility class for ID3v2 metadata setting using external tools."""
 
     @staticmethod
-    def set_metadata(file_path: Path, metadata: Dict[str, Any], version: str = "2.4") -> None:
+    def set_metadata(file_path: Path, metadata: dict[str, Any], version: str = "2.4") -> None:
         """Set MP3 metadata using appropriate ID3v2 tool based on version.
 
         Args:
@@ -102,7 +102,7 @@ class ID3v2MetadataSetter:
             run_external_tool(command, "mid3v2")
 
     @staticmethod
-    def set_titles(file_path: Path, titles: List[str], in_separate_frames: bool = False, version: str = "2.4"):
+    def set_titles(file_path: Path, titles: list[str], in_separate_frames: bool = False, version: str = "2.4"):
         """Set ID3v2 multiple titles using external mid3v2 tool or manual frame creation.
 
         Args:
@@ -215,7 +215,7 @@ class ID3v2MetadataSetter:
 
     @staticmethod
     def _set_multiple_values_single_frame(
-        file_path: Path, frame_id: str, values: List[str], version: str = "2.4", separator: str = None
+        file_path: Path, frame_id: str, values: list[str], version: str = "2.4", separator: str | None = None
     ) -> None:
         """Set multiple values in a single ID3v2 frame with version-specific handling.
 
@@ -238,10 +238,10 @@ class ID3v2MetadataSetter:
     def _set_multiple_metadata_values(
         file_path: Path,
         frame_id: str,
-        values: List[str],
+        values: list[str],
         in_separate_frames: bool = False,
         version: str = "2.4",
-        separator: str = None,
+        separator: str | None = None,
     ) -> None:
         """Set multiple metadata values, either in separate frames or a single frame.
 
@@ -266,7 +266,7 @@ class ID3v2MetadataSetter:
             ID3v2MetadataSetter._set_multiple_values_single_frame(file_path, frame_id, values, version, separator)
 
     @staticmethod
-    def set_genres(file_path: Path, genres: List[str], in_separate_frames: bool = False, version: str = "2.4"):
+    def set_genres(file_path: Path, genres: list[str], in_separate_frames: bool = False, version: str = "2.4"):
         """Set ID3v2 multiple genres using external mid3v2 tool or manual frame creation.
 
         Args:
@@ -279,7 +279,7 @@ class ID3v2MetadataSetter:
         ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TCON", genres, in_separate_frames, version)
 
     @staticmethod
-    def set_album_artists(file_path: Path, album_artists: List[str], in_separate_frames: bool = False):
+    def set_album_artists(file_path: Path, album_artists: list[str], in_separate_frames: bool = False):
         """Set ID3v2 multiple album artists using external mid3v2 tool or manual frame creation.
 
         Args:
@@ -291,7 +291,7 @@ class ID3v2MetadataSetter:
         ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TPE2", album_artists, in_separate_frames)
 
     @staticmethod
-    def set_composers(file_path: Path, composers: List[str], in_separate_frames: bool = False, version: str = "2.4"):
+    def set_composers(file_path: Path, composers: list[str], in_separate_frames: bool = False, version: str = "2.4"):
         """Set ID3v2 multiple composers using external mid3v2 tool or manual frame creation.
 
         Args:
@@ -304,7 +304,7 @@ class ID3v2MetadataSetter:
         ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TCOM", composers, in_separate_frames, version)
 
     @staticmethod
-    def set_comments(file_path: Path, comments: List[str], in_separate_frames: bool = False):
+    def set_comments(file_path: Path, comments: list[str], in_separate_frames: bool = False):
         """Set ID3v2 multiple comments using external mid3v2 tool.
 
         Args:
@@ -323,14 +323,13 @@ class ID3v2MetadataSetter:
             for comment in comments:
                 command = ["id3v2", "--id3v2-only", "--comment", comment, str(file_path)]
                 run_external_tool(command, "id3v2")
-        else:
-            # Set only the first comment (ID3v2 comment fields are typically single-valued)
-            if comments:
-                command = ["id3v2", "--id3v2-only", "--comment", comments[0], str(file_path)]
-                run_external_tool(command, "id3v2")
+        # Set only the first comment (ID3v2 comment fields are typically single-valued)
+        elif comments:
+            command = ["id3v2", "--id3v2-only", "--comment", comments[0], str(file_path)]
+            run_external_tool(command, "id3v2")
 
     @staticmethod
-    def _create_multiple_id3v2_frames(file_path: Path, frame_id: str, texts: List[str], version: str = "2.4") -> None:
+    def _create_multiple_id3v2_frames(file_path: Path, frame_id: str, texts: list[str], version: str = "2.4") -> None:
         """Create multiple separate ID3v2 frames using manual binary construction.
 
         This uses the ManualID3v2FrameCreator to bypass standard tools that
@@ -365,7 +364,7 @@ class ID3v2MetadataSetter:
 
     @staticmethod
     def _set_single_frame_with_id3v2(
-        file_path: Path, frame_id: str, alist: List[str], version: str, separator: str = None
+        file_path: Path, frame_id: str, alist: list[str], version: str, separator: str | None = None
     ) -> None:
         """Internal helper: Create a single ID3v2 frame using appropriate tool based on version.
 

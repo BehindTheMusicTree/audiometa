@@ -42,6 +42,5 @@ class TestArtistsWriting:
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == test_artists
 
     def test_invalid_type_raises(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            with pytest.raises(InvalidMetadataFieldTypeError):
-                update_metadata(test_file, {UnifiedMetadataKey.ARTISTS: "Single Artist"})
+        with temp_file_with_metadata({}, "mp3") as test_file, pytest.raises(InvalidMetadataFieldTypeError):
+            update_metadata(test_file, {UnifiedMetadataKey.ARTISTS: "Single Artist"})

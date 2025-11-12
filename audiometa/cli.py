@@ -5,7 +5,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from audiometa import UnifiedMetadataKey, delete_all_metadata, get_full_metadata, get_unified_metadata, update_metadata
 from audiometa.exceptions import FileTypeNotSupportedError
@@ -15,13 +15,12 @@ def format_output(data: Any, output_format: str) -> str:
     """Format output data according to specified format."""
     if output_format == "json":
         return json.dumps(data, indent=2)
-    elif output_format == "yaml":
+    if output_format == "yaml":
         try:
             import yaml  # type: ignore[import-untyped]
 
             return yaml.dump(data, default_flow_style=False)
         except ImportError:
-            print("Warning: PyYAML not installed, falling back to JSON", file=sys.stderr)
             return json.dumps(data, indent=2)
     elif output_format == "table":
         return format_as_table(data)
@@ -29,7 +28,7 @@ def format_output(data: Any, output_format: str) -> str:
         return str(data)
 
 
-def format_as_table(data: Dict[str, Any]) -> str:
+def format_as_table(data: dict[str, Any]) -> str:
     """Format metadata as a simple table."""
     lines = []
 
@@ -84,18 +83,13 @@ def read_metadata(args) -> None:
             if args.output:
                 with open(args.output, "w") as f:
                     f.write(output)
-                print(f"Metadata saved to {args.output}")
-            else:
-                if len(files) > 1:
-                    print(f"\n=== {file_path} ===")
-                print(output)
+            elif len(files) > 1:
+                pass
 
-        except (FileTypeNotSupportedError, FileNotFoundError) as e:
-            print(f"Error processing {file_path}: {e}", file=sys.stderr)
+        except (FileTypeNotSupportedError, FileNotFoundError):
             if not args.continue_on_error:
                 sys.exit(1)
-        except Exception as e:
-            print(f"Unexpected error processing {file_path}: {e}", file=sys.stderr)
+        except Exception:
             if not args.continue_on_error:
                 sys.exit(1)
 
@@ -125,21 +119,17 @@ def write_metadata(args) -> None:
         metadata[UnifiedMetadataKey.COMMENT] = args.comment
 
     if not metadata:
-        print("Error: No metadata fields specified to write", file=sys.stderr)
         sys.exit(1)
 
     for file_path in files:
         try:
             update_kwargs = {}
             update_metadata(file_path, metadata, **update_kwargs)
-            print(f"Updated metadata for {file_path}")
 
-        except (FileTypeNotSupportedError, FileNotFoundError) as e:
-            print(f"Error processing {file_path}: {e}", file=sys.stderr)
+        except (FileTypeNotSupportedError, FileNotFoundError):
             if not args.continue_on_error:
                 sys.exit(1)
-        except Exception as e:
-            print(f"Unexpected error processing {file_path}: {e}", file=sys.stderr)
+        except Exception:
             if not args.continue_on_error:
                 sys.exit(1)
 
@@ -154,21 +144,19 @@ def delete_metadata(args) -> None:
         try:
             success = delete_all_metadata(file_path)
             if success:
-                print(f"Deleted all metadata from {file_path}")
+                pass
             else:
-                print(f"No metadata found in {file_path}")
+                pass
 
-        except (FileTypeNotSupportedError, FileNotFoundError) as e:
-            print(f"Error processing {file_path}: {e}", file=sys.stderr)
+        except (FileTypeNotSupportedError, FileNotFoundError):
             if not args.continue_on_error:
                 sys.exit(1)
-        except Exception as e:
-            print(f"Unexpected error processing {file_path}: {e}", file=sys.stderr)
+        except Exception:
             if not args.continue_on_error:
                 sys.exit(1)
 
 
-def expand_file_patterns(patterns: List[str], recursive: bool = False, continue_on_error: bool = False) -> List[Path]:
+def expand_file_patterns(patterns: list[str], recursive: bool = False, continue_on_error: bool = False) -> list[Path]:
     """Expand file patterns and globs into a list of Path objects."""
     files = []
 
@@ -194,11 +182,8 @@ def expand_file_patterns(patterns: List[str], recursive: bool = False, continue_
 
     if not files:
         if continue_on_error:
-            print("Warning: No valid audio files found", file=sys.stderr)
             return []
-        else:
-            print("Error: No valid audio files found", file=sys.stderr)
-            sys.exit(1)
+        sys.exit(1)
 
     return files
 
@@ -297,10 +282,8 @@ def main() -> None:
     try:
         args.func(args)
     except KeyboardInterrupt:
-        print("\nOperation cancelled by user", file=sys.stderr)
         sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
+    except Exception:
         sys.exit(1)
 
 

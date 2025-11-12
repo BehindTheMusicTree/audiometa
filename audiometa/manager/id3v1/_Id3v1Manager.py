@@ -118,7 +118,8 @@ class _Id3v1Manager(_MetadataManager):
         try:
             return Id3v1RawMetadata(fileobj=self.audio_file.file_path)
         except Exception as exc:
-            raise FileCorruptedError(f"Failed to extract ID3v1 metadata: {exc}")
+            msg = f"Failed to extract ID3v1 metadata: {exc}"
+            raise FileCorruptedError(msg)
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
         self, raw_mutagen_metadata: MutagenMetadata
@@ -148,8 +149,9 @@ class _Id3v1Manager(_MetadataManager):
                 raw_clean_metadata=raw_clean_metadata_uppercase_keys,
                 raw_metadata_ket=Id3v1RawMetadataKey.GENRE_CODE_OR_NAME,
             )
+        msg = f"{unified_metadata_key} metadata is not undirectly handled"
         raise MetadataFieldNotSupportedByMetadataFormatError(
-            f"{unified_metadata_key} metadata is not undirectly handled"
+            msg
         )
 
     def _update_undirectly_mapped_metadata(
@@ -175,8 +177,9 @@ class _Id3v1Manager(_MetadataManager):
                 if genre_code is not None:
                     tags[Id3v1RawMetadataKey.GENRE_CODE_OR_NAME] = [str(genre_code)]
         else:
+            msg = f"{unified_metadata_key} metadata is not undirectly handled"
             raise MetadataFieldNotSupportedByMetadataFormatError(
-                f"{unified_metadata_key} metadata is not undirectly handled"
+                msg
             )
 
     def _update_formatted_value_in_raw_mutagen_metadata(
@@ -223,17 +226,13 @@ class _Id3v1Manager(_MetadataManager):
 
                 if re.match(r"^\d+([-/]\d*)?$", app_metadata_value):
                     track_match = re.match(r"(\d+)", app_metadata_value)
-                    if track_match is None:
-                        track_num = 0
-                    else:
-                        track_num = int(track_match.group(1))
+                    track_num = 0 if track_match is None else int(track_match.group(1))
                 else:
                     track_num = 0
+            elif isinstance(app_metadata_value, int | float):
+                track_num = int(float(app_metadata_value))
             else:
-                if isinstance(app_metadata_value, (int, float)):
-                    track_num = int(float(app_metadata_value))
-                else:
-                    track_num = 0
+                track_num = 0
             value = str(max(0, min(255, track_num)))
         elif raw_metadata_key == Id3v1RawMetadataKey.COMMENT:
             value = self._truncate_string(str(app_metadata_value), 28)  # 28 for ID3v1.1 with track number
@@ -246,11 +245,13 @@ class _Id3v1Manager(_MetadataManager):
         """Update ID3v1 metadata using direct file manipulation."""
         # Validate that all fields are supported by ID3v1
         if self.metadata_keys_direct_map_write is None:
-            raise MetadataFieldNotSupportedByMetadataFormatError("metadata_keys_direct_map_write is None")
-        for unified_metadata_key in unified_metadata.keys():
+            msg = "metadata_keys_direct_map_write is None"
+            raise MetadataFieldNotSupportedByMetadataFormatError(msg)
+        for unified_metadata_key in unified_metadata:
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
+                msg = f"{unified_metadata_key} metadata not supported by this format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(
-                    f"{unified_metadata_key} metadata not supported by this format"
+                    msg
                 )
 
         # Read the entire file
@@ -320,17 +321,13 @@ class _Id3v1Manager(_MetadataManager):
 
                 if re.match(r"^\d+([-/]\d*)?$", track_number):
                     track_match = re.match(r"(\d+)", track_number)
-                    if track_match is None:
-                        track_num = 0
-                    else:
-                        track_num = int(track_match.group(1))
+                    track_num = 0 if track_match is None else int(track_match.group(1))
                 else:
                     track_num = 0
+            elif isinstance(track_number, int | float):
+                track_num = int(float(track_number))
             else:
-                if isinstance(track_number, (int, float)):
-                    track_num = int(float(track_number))
-                else:
-                    track_num = 0
+                track_num = 0
             track_num = max(0, min(255, track_num))
             if track_num > 0:
                 tag_data[125] = 0  # Null byte to indicate track number presence

@@ -18,14 +18,13 @@ def pytest_collection_modifyitems(items):
         if "/unit/" in test_path:
             return TEST_ORDER["unit"]
         # Check for integration tests
-        elif "/integration/" in test_path:
+        if "/integration/" in test_path:
             return TEST_ORDER["integration"]
         # Check for e2e tests
-        elif "/e2e/" in test_path:
+        if "/e2e/" in test_path:
             return TEST_ORDER["e2e"]
         # Default priority for other tests (comprehensive, etc.)
-        else:
-            return 0  # Run first (before unit tests)
+        return 0  # Run first (before unit tests)
 
     # Sort items by priority
     items.sort(key=get_test_priority)

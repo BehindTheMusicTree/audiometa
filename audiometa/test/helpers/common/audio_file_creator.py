@@ -24,7 +24,8 @@ class AudioFileCreator:
         elif format_type.lower() == "wav":
             template_file = assets_dir / "metadata=none.wav"
         else:
-            raise ValueError(f"Unsupported format type: {format_type}")
+            msg = f"Unsupported format type: {format_type}"
+            raise ValueError(msg)
 
         if template_file.exists():
             # Copy from template
@@ -33,22 +34,17 @@ class AudioFileCreator:
             # Fallback: create a minimal file using ffmpeg if available
             try:
                 # For id3v1, id3v2.3, id3v2.4, use mp3 format for ffmpeg
-                if format_type.lower() in ["id3v1", "id3v2.3", "id3v2.4"]:
-                    actual_format = "mp3"
-                else:
-                    actual_format = format_type.lower()
+                actual_format = "mp3" if format_type.lower() in ["id3v1", "id3v2.3", "id3v2.4"] else format_type.lower()
                 AudioFileCreator._create_minimal_audio_with_ffmpeg(file_path, actual_format)
             except (subprocess.CalledProcessError, FileNotFoundError):
                 # Last resort: copy from any available sample file
-                if format_type.lower() in ["id3v1", "id3v2.3", "id3v2.4"]:
-                    search_format = "mp3"
-                else:
-                    search_format = format_type.lower()
+                search_format = "mp3" if format_type.lower() in ["id3v1", "id3v2.3", "id3v2.4"] else format_type.lower()
                 sample_files = list(assets_dir.glob(f"*.{search_format}"))
                 if sample_files:
                     shutil.copy2(sample_files[0], file_path)
                 else:
-                    raise RuntimeError(f"No template file found for {format_type}")
+                    msg = f"No template file found for {format_type}"
+                    raise RuntimeError(msg)
 
     @staticmethod
     def _create_minimal_audio_with_ffmpeg(file_path: Path, format_type: str) -> None:

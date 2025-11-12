@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from audiometa._audio_file import _AudioFile as _AudioFile
+from audiometa._audio_file import _AudioFile
 from audiometa.exceptions import FileCorruptedError, FileTypeNotSupportedError
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 

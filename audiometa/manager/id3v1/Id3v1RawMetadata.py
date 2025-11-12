@@ -18,7 +18,7 @@ class Id3v1RawMetadata(FileType):
     """
 
     @dataclass
-    class Id3v1Tag:  # noqa: D106
+    class Id3v1Tag:
         title: str = ""
         artists_names_str: str = ""
         album_name: str = ""
@@ -27,18 +27,14 @@ class Id3v1RawMetadata(FileType):
         track_number: int | None = None
         genre_code: int = 255  # 255 is undefined genre
 
-    def __init__(self, fileobj: Any):  # noqa: D107
+    def __init__(self, fileobj: Any):
         self.fileobj = fileobj
         object.__setattr__(self, "tags", None)
         self._load_tags()
 
     def _load_tags(self) -> None:
         # Handle both file objects and file paths
-        if isinstance(self.fileobj, str):
-            with open(self.fileobj, "rb") as f:
-                f.seek(-128, 2)  # Seek from end
-                data = f.read(128)
-        elif isinstance(self.fileobj, Path):
+        if isinstance(self.fileobj, str | Path):
             with open(self.fileobj, "rb") as f:
                 f.seek(-128, 2)  # Seek from end
                 data = f.read(128)
@@ -99,7 +95,7 @@ class Id3v1RawMetadata(FileType):
             return
 
         # Read the entire file
-        if isinstance(self.fileobj, (str, Path)):  # type: ignore[unreachable]
+        if isinstance(self.fileobj, str | Path):  # type: ignore[unreachable]
             # File path
             with open(self.fileobj, "rb") as f:
                 file_data = bytearray(f.read())
@@ -118,7 +114,7 @@ class Id3v1RawMetadata(FileType):
         file_data.extend(tag_data)
 
         # Write back to file
-        if isinstance(self.fileobj, (str, Path)):
+        if isinstance(self.fileobj, str | Path):
             # File path
             with open(self.fileobj, "wb") as f:
                 f.write(file_data)
@@ -134,7 +130,8 @@ class Id3v1RawMetadata(FileType):
 
         tags: dict[Id3v1RawMetadataKey, list[str]] = type_cast(dict[Id3v1RawMetadataKey, list[str]], self.tags)
         if not tags:
-            raise ValueError("Tags must be loaded before creating tag data")
+            msg = "Tags must be loaded before creating tag data"
+            raise ValueError(msg)
         # Initialize with null bytes
         tag_data = bytearray(128)
 

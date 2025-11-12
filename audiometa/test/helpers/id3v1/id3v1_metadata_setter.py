@@ -1,7 +1,7 @@
 """ID3v1 metadata setting operations."""
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from ..common.external_tool_runner import run_external_tool
 
@@ -50,7 +50,7 @@ class ID3v1MetadataSetter:
         run_script("set-id3v1-max-metadata.sh", file_path, scripts_dir)
 
     @staticmethod
-    def set_metadata(file_path: Path, metadata: Dict[str, Any]) -> None:
+    def set_metadata(file_path: Path, metadata: dict[str, Any]) -> None:
         """Set ID3v1 metadata using id3v2 tool (id3v2 can also set ID3v1 tags)."""
         # Ensure ID3v1.1 format when track is set
         metadata = metadata.copy()

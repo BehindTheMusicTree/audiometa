@@ -18,7 +18,7 @@ class TestGenreWriting:
             update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V1)
 
             raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file)
-            assert 17 == raw_metadata["genre"]
+            assert raw_metadata["genre"] == 17
 
     def test_id3v2_3(self):
         with temp_file_with_metadata({}, "mp3") as test_file:

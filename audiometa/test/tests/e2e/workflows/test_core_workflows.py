@@ -102,7 +102,7 @@ class TestCoreWorkflows:
 
         sample_files = [(sample_mp3_file, "mp3"), (sample_flac_file, "flac"), (sample_wav_file, "wav")]
 
-        for file_path, format_type in sample_files:
+        for _file_path, format_type in sample_files:
             # Set up metadata using external script
             initial_metadata = {"title": "Original Title", "artist": "Original Artist"}
             with temp_file_with_metadata(initial_metadata, format_type) as test_file:

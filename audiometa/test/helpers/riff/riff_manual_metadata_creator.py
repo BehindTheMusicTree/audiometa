@@ -7,14 +7,13 @@ test files with truly separate IART, IGNR, etc. fields within the same INFO chun
 
 import struct
 from pathlib import Path
-from typing import List
 
 
 class ManualRIFFMetadataCreator:
     """Creates RIFF INFO chunks with multiple separate fields by manual binary construction."""
 
     @staticmethod
-    def create_multiple_title_fields(file_path: Path, titles: List[str]) -> None:
+    def create_multiple_title_fields(file_path: Path, titles: list[str]) -> None:
         """Create multiple separate INAM fields in the RIFF INFO chunk."""
         fields = []
         for title in titles:
@@ -24,7 +23,7 @@ class ManualRIFFMetadataCreator:
         ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, fields)
 
     @staticmethod
-    def create_multiple_artist_fields(file_path: Path, artists: List[str]) -> None:
+    def create_multiple_artist_fields(file_path: Path, artists: list[str]) -> None:
         """Create multiple separate IART fields in the RIFF INFO chunk."""
         fields = []
         for artist in artists:
@@ -34,7 +33,7 @@ class ManualRIFFMetadataCreator:
         ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, fields)
 
     @staticmethod
-    def create_multiple_genre_fields(file_path: Path, genres: List[str]) -> None:
+    def create_multiple_genre_fields(file_path: Path, genres: list[str]) -> None:
         """Create multiple separate IGNR fields in the RIFF INFO chunk."""
         fields = []
         for genre in genres:
@@ -44,7 +43,7 @@ class ManualRIFFMetadataCreator:
         ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, fields)
 
     @staticmethod
-    def create_multiple_composer_fields(file_path: Path, composers: List[str]) -> None:
+    def create_multiple_composer_fields(file_path: Path, composers: list[str]) -> None:
         """Create multiple separate ICMP fields in the RIFF INFO chunk."""
         fields = []
         for composer in composers:
@@ -54,7 +53,7 @@ class ManualRIFFMetadataCreator:
         ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, fields)
 
     @staticmethod
-    def create_multiple_album_artist_fields(file_path: Path, album_artists: List[str]) -> None:
+    def create_multiple_album_artist_fields(file_path: Path, album_artists: list[str]) -> None:
         """Create multiple separate IAAR fields in the RIFF INFO chunk."""
         fields = []
         for album_artist in album_artists:
@@ -64,7 +63,7 @@ class ManualRIFFMetadataCreator:
         ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, fields)
 
     @staticmethod
-    def create_multiple_comment_fields(file_path: Path, comments: List[str]) -> None:
+    def create_multiple_comment_fields(file_path: Path, comments: list[str]) -> None:
         """Create multiple separate ICMT fields in the RIFF INFO chunk."""
         fields = []
         for comment in comments:
@@ -74,7 +73,7 @@ class ManualRIFFMetadataCreator:
         ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, fields)
 
     @staticmethod
-    def create_mixed_multiple_fields(file_path: Path, artists: List[str], genres: List[str]) -> None:
+    def create_mixed_multiple_fields(file_path: Path, artists: list[str], genres: list[str]) -> None:
         """Create multiple fields of different types in the RIFF INFO chunk."""
         fields = []
 
@@ -121,7 +120,7 @@ class ManualRIFFMetadataCreator:
         return field_header + text_bytes
 
     @staticmethod
-    def _write_riff_info_chunk(file_path: Path, fields: List[bytes]) -> None:
+    def _write_riff_info_chunk(file_path: Path, fields: list[bytes]) -> None:
         """Write RIFF INFO chunk with the given fields to the file."""
         # Read existing file content
         with open(file_path, "rb") as f:
@@ -132,7 +131,8 @@ class ManualRIFFMetadataCreator:
 
         # Validate RIFF/WAVE header
         if len(audio_data) < 12 or audio_data[:4] != b"RIFF" or audio_data[8:12] != b"WAVE":
-            raise ValueError("Invalid WAV file format")
+            msg = "Invalid WAV file format"
+            raise ValueError(msg)
 
         # Find existing INFO chunk and remove it
         audio_data_without_info = ManualRIFFMetadataCreator._remove_existing_info_chunk(audio_data)

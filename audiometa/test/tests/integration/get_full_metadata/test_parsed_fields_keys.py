@@ -15,7 +15,7 @@ class TestParsedFieldsKeys:
         parsed_fields = id3v1_raw.get("parsed_fields", {})
 
         # If there are parsed fields, they should use UnifiedMetadataKey enum values as keys
-        for key in parsed_fields.keys():
+        for key in parsed_fields:
             assert isinstance(
                 key, UnifiedMetadataKey
             ), f"ID3v1 parsed_fields key {key} should be UnifiedMetadataKey enum, got {type(key)}"
@@ -30,7 +30,7 @@ class TestParsedFieldsKeys:
 
         # RIFF should use raw RIFF tag keys (like 'INAM', 'IART', etc.)
         # These are NOT UnifiedMetadataKey enum values, which is correct for RIFF
-        for key in parsed_fields.keys():
+        for key in parsed_fields:
             assert isinstance(key, str), f"RIFF parsed_fields key {key} should be string, got {type(key)}"
             # RIFF keys should be 4-character codes like 'INAM', 'IART', etc.
             assert len(key) == 4, f"RIFF parsed_fields key {key} should be 4 characters (FourCC), got {len(key)}"
@@ -44,6 +44,7 @@ class TestParsedFieldsKeys:
             [sys.executable, "-m", "audiometa", "read", str(sample_mp3_file), "--format", "json"],
             capture_output=True,
             text=True,
+            check=False,
         )
 
         assert result.returncode == 0, f"CLI failed: {result.stderr}"
@@ -55,7 +56,7 @@ class TestParsedFieldsKeys:
         id3v1_raw = raw_metadata.get("id3v1", {})
         parsed_fields = id3v1_raw.get("parsed_fields", {})
 
-        for key in parsed_fields.keys():
+        for key in parsed_fields:
             # In JSON output, UnifiedMetadataKey enum values are serialized as their string values
             # (e.g., "title" instead of "UnifiedMetadataKey.TITLE") because UnifiedMetadataKey inherits from str
             assert isinstance(key, str), f"ID3v1 parsed_fields key in CLI output should be string, got: {type(key)}"

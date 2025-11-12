@@ -52,14 +52,12 @@ class TestReleaseDateErrorHandling:
                     update_metadata(test_file, {UnifiedMetadataKey.RELEASE_DATE: invalid_date})
 
     def test_invalid_format_wrong_separator_flac(self):
-        with temp_file_with_metadata({}, "flac") as test_file:
-            with pytest.raises(InvalidMetadataFieldFormatError):
-                update_metadata(test_file, {UnifiedMetadataKey.RELEASE_DATE: "2024/01/01"})
+        with temp_file_with_metadata({}, "flac") as test_file, pytest.raises(InvalidMetadataFieldFormatError):
+            update_metadata(test_file, {UnifiedMetadataKey.RELEASE_DATE: "2024/01/01"})
 
     def test_invalid_format_wrong_separator_wav(self):
-        with temp_file_with_metadata({}, "wav") as test_file:
-            with pytest.raises(InvalidMetadataFieldFormatError):
-                update_metadata(test_file, {UnifiedMetadataKey.RELEASE_DATE: "2024/01/01"})
+        with temp_file_with_metadata({}, "wav") as test_file, pytest.raises(InvalidMetadataFieldFormatError):
+            update_metadata(test_file, {UnifiedMetadataKey.RELEASE_DATE: "2024/01/01"})
 
     def test_valid_format_yyyy_passes(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
@@ -74,12 +72,11 @@ class TestReleaseDateErrorHandling:
             update_metadata(test_file, {UnifiedMetadataKey.RELEASE_DATE: None})
 
     def test_invalid_format_with_multiple_fields(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            with pytest.raises(InvalidMetadataFieldFormatError):
-                update_metadata(
-                    test_file,
-                    {
-                        UnifiedMetadataKey.TITLE: "Valid Title",
-                        UnifiedMetadataKey.RELEASE_DATE: "2024/01/01",
-                    },
-                )
+        with temp_file_with_metadata({}, "mp3") as test_file, pytest.raises(InvalidMetadataFieldFormatError):
+            update_metadata(
+                test_file,
+                {
+                    UnifiedMetadataKey.TITLE: "Valid Title",
+                    UnifiedMetadataKey.RELEASE_DATE: "2024/01/01",
+                },
+            )

@@ -2,7 +2,6 @@
 
 import subprocess
 from pathlib import Path
-from typing import List, Optional, Union
 
 
 class ExternalMetadataToolError(Exception):
@@ -10,7 +9,7 @@ class ExternalMetadataToolError(Exception):
 
 
 def run_external_tool(
-    command: List[str], tool_name: str = "external tool", check: bool = True, input: Optional[Union[str, bytes]] = None
+    command: list[str], tool_name: str = "external tool", check: bool = True, input: str | bytes | None = None
 ) -> subprocess.CompletedProcess:
     """Run an external tool command with proper error handling.
 
@@ -28,14 +27,14 @@ def run_external_tool(
     """
     try:
         text = not isinstance(input, bytes) if input is not None else True
-        result = subprocess.run(command, capture_output=True, text=text, check=check, input=input)
-        return result
+        return subprocess.run(command, capture_output=True, text=text, check=check, input=input)
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        raise ExternalMetadataToolError(f"{tool_name} failed: {e}") from e
+        msg = f"{tool_name} failed: {e}"
+        raise ExternalMetadataToolError(msg) from e
 
 
 def run_script(
-    script_path: Union[str, Path], target_file: Union[str, Path], scripts_dir: Union[str, Path] = None
+    script_path: str | Path, target_file: str | Path, scripts_dir: str | Path | None = None
 ) -> subprocess.CompletedProcess:
     """Run a shell script with proper error handling and permissions.
 
@@ -54,17 +53,16 @@ def run_script(
         ExternalMetadataToolError: If the script execution fails
     """
     # Resolve script path
-    if scripts_dir is not None:
-        full_script_path = Path(scripts_dir) / script_path
-    else:
-        full_script_path = Path(script_path)
+    full_script_path = Path(scripts_dir) / script_path if scripts_dir is not None else Path(script_path)
 
     # Validate script exists
     if not full_script_path.exists():
-        raise FileNotFoundError(f"Script not found: {full_script_path}")
+        msg = f"Script not found: {full_script_path}"
+        raise FileNotFoundError(msg)
 
     if not full_script_path.is_file():
-        raise FileNotFoundError(f"Script is not a file: {full_script_path}")
+        msg = f"Script is not a file: {full_script_path}"
+        raise FileNotFoundError(msg)
 
     # Make script executable
     full_script_path.chmod(0o755)

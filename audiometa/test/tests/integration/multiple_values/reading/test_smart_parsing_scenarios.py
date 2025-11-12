@@ -34,7 +34,7 @@ class TestSmartParsingScenarios:
                 in_separate_frames=True,
             )
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
-            assert ["Artist One", "Artist; with; semicolons", "Artist Three"] == raw_metadata["TPE1"]
+            assert raw_metadata["TPE1"] == ["Artist One", "Artist; with; semicolons", "Artist Three"]
 
             # Read metadata
             artists = get_unified_metadata_field(
@@ -56,7 +56,7 @@ class TestSmartParsingScenarios:
                 in_separate_frames=True,
             )
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.4")
-            assert ["Artist One", "Artist; with; semicolons", "Artist Three"] == raw_metadata["TPE1"]
+            assert raw_metadata["TPE1"] == ["Artist One", "Artist; with; semicolons", "Artist Three"]
 
             # Read metadata
             artists = get_unified_metadata_field(
@@ -109,7 +109,7 @@ class TestSmartParsingScenarios:
             )
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
-            assert ["Artist One;Artist Two;Artist Three"] == raw_metadata["TPE1"]
+            assert raw_metadata["TPE1"] == ["Artist One;Artist Two;Artist Three"]
 
             # Read metadata
             artists = get_unified_metadata_field(
@@ -126,7 +126,7 @@ class TestSmartParsingScenarios:
             )
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.4")
-            assert ["Artist One;Artist Two;Artist Three"] == raw_metadata["TPE1"]
+            assert raw_metadata["TPE1"] == ["Artist One;Artist Two;Artist Three"]
 
             # Read metadata
             artists = get_unified_metadata_field(
@@ -187,7 +187,7 @@ class TestSmartParsingScenarios:
                 in_separate_frames=True,
             )
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
-            assert ["Artist One", "Artist; with; semicolons", "Artist Three"] == raw_metadata["TPE1"]
+            assert raw_metadata["TPE1"] == ["Artist One", "Artist; with; semicolons", "Artist Three"]
 
             # Read metadata
             artists = get_unified_metadata_field(

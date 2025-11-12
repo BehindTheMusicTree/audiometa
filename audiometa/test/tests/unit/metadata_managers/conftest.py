@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from audiometa._audio_file import _AudioFile as _AudioFile
+from audiometa._audio_file import _AudioFile
 
 
 @pytest.fixture
@@ -83,7 +83,7 @@ def mock_id3_updatable():
 
     def mock_delall(key):
         """Remove all frames with the given key."""
-        keys_to_remove = [k for k in frames.keys() if k.startswith(key)]
+        keys_to_remove = [k for k in frames if k.startswith(key)]
         for k in keys_to_remove:
             del frames[k]
 

@@ -8,7 +8,7 @@ from audiometa.manager._MetadataManager import _MetadataManager as MetadataManag
 @pytest.mark.unit
 class TestSmartParsing:
     @pytest.mark.parametrize(
-        "values, expected_should_parse",
+        ("values", "expected_should_parse"),
         [
             ([], False),
             ([""], False),
@@ -36,7 +36,7 @@ class TestSmartParsing:
         assert result is True
 
     @pytest.mark.parametrize(
-        "values, expected_parsed",
+        ("values", "expected_parsed"),
         [
             (["Artist One;Artist Two"], ["Artist One", "Artist Two"]),
             (["Artist One//Artist Two"], ["Artist One", "Artist Two"]),

@@ -25,8 +25,8 @@ class TestReleaseDateReading:
         with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
             ID3v2MetadataSetter.set_release_date(test_file, "9999-12-31", version="2.3")
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
-            assert ["3112"] == raw_metadata["TDAT"]
-            assert ["9999"] == raw_metadata["TYER"]
+            assert raw_metadata["TDAT"] == ["3112"]
+            assert raw_metadata["TYER"] == ["9999"]
 
             release_date = get_unified_metadata_field(test_file, UnifiedMetadataKey.RELEASE_DATE)
             assert release_date == "9999-12-31"
@@ -35,7 +35,7 @@ class TestReleaseDateReading:
         with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
             ID3v2MetadataSetter.set_release_date(test_file, "9999-12-31", version="2.4")
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.4")
-            assert ["9999-12-31"] == raw_metadata["TDRC"]
+            assert raw_metadata["TDRC"] == ["9999-12-31"]
 
             release_date = get_unified_metadata_field(test_file, UnifiedMetadataKey.RELEASE_DATE)
             assert release_date == "9999-12-31"

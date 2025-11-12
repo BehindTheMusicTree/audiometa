@@ -4,9 +4,9 @@ This module provides a context manager for test files with metadata using contex
 """
 
 import tempfile
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator
 
 from .common import AudioFileCreator
 from .id3v1 import ID3v1MetadataSetter
@@ -56,10 +56,7 @@ def _create_test_file_with_metadata(metadata: dict, format_type: str) -> Path:
     """
     # Create temporary file with correct extension
     # For id3v1, id3v2.3, id3v2.4, use .mp3 extension since they're still MP3 files
-    if format_type.lower() in ["id3v1", "id3v2.3", "id3v2.4"]:
-        actual_extension = "mp3"
-    else:
-        actual_extension = format_type.lower()
+    actual_extension = "mp3" if format_type.lower() in ["id3v1", "id3v2.3", "id3v2.4"] else format_type.lower()
     with tempfile.NamedTemporaryFile(suffix=f".{actual_extension}", delete=False) as tmp_file:
         target_file = Path(tmp_file.name)
 
@@ -79,6 +76,7 @@ def _create_test_file_with_metadata(metadata: dict, format_type: str) -> Path:
     elif format_type.lower() == "wav":
         RIFFMetadataSetter.set_metadata(target_file, metadata)
     else:
-        raise ValueError(f"Unsupported format type: {format_type}")
+        msg = f"Unsupported format type: {format_type}"
+        raise ValueError(msg)
 
     return target_file

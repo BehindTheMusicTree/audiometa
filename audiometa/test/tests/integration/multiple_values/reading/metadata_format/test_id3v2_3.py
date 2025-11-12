@@ -20,7 +20,7 @@ class TestId3v23:
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file) == (2, 3, 0)
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
-            assert ["Artist One;Artist Two;Artist Three"] == raw_metadata["TPE1"]
+            assert raw_metadata["TPE1"] == ["Artist One;Artist Two;Artist Three"]
 
             artists = get_unified_metadata_field(
                 test_file,
@@ -42,7 +42,7 @@ class TestId3v23:
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file) == (2, 3, 0)
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
-            assert ["One", "Two", "Three"] == raw_metadata["TPE1"]
+            assert raw_metadata["TPE1"] == ["One", "Two", "Three"]
 
             artists = get_unified_metadata_field(
                 test_file, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2
@@ -63,7 +63,7 @@ class TestId3v23:
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file) == (2, 3, 0)
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
-            assert ["Artist 1;Artist 2", "Artist 3"] == raw_metadata["TPE1"]
+            assert raw_metadata["TPE1"] == ["Artist 1;Artist 2", "Artist 3"]
 
             artists = get_unified_metadata_field(
                 test_file, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2
@@ -82,7 +82,7 @@ class TestId3v23:
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file) == (2, 3, 0)
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file, version="2.3")
-            assert ["Title One", "Title Two", "Title Three"] == raw_metadata["TIT2"]
+            assert raw_metadata["TIT2"] == ["Title One", "Title Two", "Title Three"]
 
             title = get_unified_metadata_field(
                 test_file, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2

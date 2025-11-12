@@ -45,7 +45,7 @@ class TestGetFullMetadataEdgeCases:
             # Should detect headers even if no metadata content
             headers = result["headers"]
 
-            for metadata_format_name, header_info in headers.items():
+            for _metadata_format_name, header_info in headers.items():
                 # Headers might be present even without metadata content
                 assert "present" in header_info
                 assert isinstance(header_info["present"], bool)
@@ -86,7 +86,7 @@ class TestGetFullMetadataEdgeCases:
         unified_metadata = result["unified_metadata"]
 
         # Check that string values are properly handled
-        for key, value in unified_metadata.items():
+        for _key, value in unified_metadata.items():
             if isinstance(value, str):
                 # Should be able to handle unicode
                 assert isinstance(value, str)
@@ -105,7 +105,7 @@ class TestGetFullMetadataEdgeCases:
 
         # Headers should be minimal
         headers = result["headers"]
-        for metadata_format_name, header_info in headers.items():
+        for _metadata_format_name, header_info in headers.items():
             # Should have basic structure but minimal data
             assert "present" in header_info
 
@@ -191,7 +191,7 @@ class TestGetFullMetadataEdgeCases:
         assert set(result1.keys()) == set(result2.keys())
 
         # Each top-level section should have same keys
-        for key in result1.keys():
+        for key in result1:
             if key in ["unified_metadata", "technical_info", "metadata_format", "headers", "raw_metadata"]:
                 assert set(result1[key].keys()) == set(result2[key].keys())
 

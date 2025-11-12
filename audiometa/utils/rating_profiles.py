@@ -70,7 +70,7 @@ class RatingReadProfile(Enum):
 
     def __getitem__(self, index: int) -> int | None:
         result = self.value[index]
-        return result if isinstance(result, (int, type(None))) else int(result)
+        return result if isinstance(result, int | type(None)) else int(result)
 
     def __len__(self) -> int:
         return len(self.value)
@@ -98,7 +98,7 @@ class RatingWriteProfile(Enum):
 
     def __getitem__(self, index: int) -> int | None:
         result = self.value[index]
-        return result if isinstance(result, (int, type(None))) else int(result)
+        return result if isinstance(result, int | type(None)) else int(result)
 
     def __len__(self) -> int:
         return len(self.value)

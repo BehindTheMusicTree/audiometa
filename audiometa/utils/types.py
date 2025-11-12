@@ -4,8 +4,9 @@ This module contains type aliases and enums used throughout the application for 
 values.
 """
 
+from collections.abc import MutableMapping
 from enum import Enum
-from typing import Any, MutableMapping, TypedDict
+from typing import Any, TypedDict
 
 from .UnifiedMetadataKey import UnifiedMetadataKey
 

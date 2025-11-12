@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from audiometa._audio_file import _AudioFile as _AudioFile
+from audiometa._audio_file import _AudioFile
 from audiometa.manager.id3v1._Id3v1Manager import _Id3v1Manager as Id3v1Manager
 
 

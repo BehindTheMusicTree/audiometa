@@ -13,16 +13,15 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestLyricsDeleting:
     def test_delete_lyrics_id3v1(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            with pytest.raises(
-                MetadataFieldNotSupportedByMetadataFormatError,
-                match="UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS metadata not supported by this format",
-            ):
-                update_metadata(
-                    test_file,
-                    {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: "Test lyrics"},
-                    metadata_format=MetadataFormat.ID3V1,
-                )
+        with temp_file_with_metadata({}, "mp3") as test_file, pytest.raises(
+            MetadataFieldNotSupportedByMetadataFormatError,
+            match="UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS metadata not supported by this format",
+        ):
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: "Test lyrics"},
+                metadata_format=MetadataFormat.ID3V1,
+            )
 
     def test_delete_lyrics_id3v2_3(self):
         with temp_file_with_metadata({}, "id3v2.3") as test_file:

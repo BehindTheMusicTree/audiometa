@@ -9,7 +9,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestTrackNumberWriting:
     @pytest.mark.parametrize(
-        "input_value,expected",
+        ("input_value", "expected"),
         [
             (5, "5"),
             ("5", "5"),
@@ -25,7 +25,7 @@ class TestTrackNumberWriting:
             assert track_number == expected
 
     @pytest.mark.parametrize(
-        "input_value,expected",
+        ("input_value", "expected"),
         [
             (5, "5"),
             ("5", "5"),
@@ -41,7 +41,7 @@ class TestTrackNumberWriting:
             assert track_number == expected
 
     @pytest.mark.parametrize(
-        "input_value,expected",
+        ("input_value", "expected"),
         [
             (5, "5"),
             ("5", "5"),
@@ -57,7 +57,7 @@ class TestTrackNumberWriting:
             assert track_number == expected
 
     @pytest.mark.parametrize(
-        "input_value,expected",
+        ("input_value", "expected"),
         [
             (5, "5"),
             ("5", "5"),

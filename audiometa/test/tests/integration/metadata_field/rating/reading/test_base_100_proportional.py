@@ -9,7 +9,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestBase100Proportional:
     @pytest.mark.parametrize(
-        "star_rating,expected_normalized_rating",
+        ("star_rating", "expected_normalized_rating"),
         [
             (0, 0),
             (0.5, 10),
@@ -29,11 +29,11 @@ class TestBase100Proportional:
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
-        assert isinstance(rating, (int, float))
+        assert isinstance(rating, int | float)
         assert rating == expected_normalized_rating
 
     @pytest.mark.parametrize(
-        "star_rating,expected_normalized_rating",
+        ("star_rating", "expected_normalized_rating"),
         [
             (0, 0),
             (0.5, 10),
@@ -53,11 +53,11 @@ class TestBase100Proportional:
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
-        assert isinstance(rating, (int, float))
+        assert isinstance(rating, int | float)
         assert rating == expected_normalized_rating
 
     @pytest.mark.parametrize(
-        "star_rating,expected_normalized_rating",
+        ("star_rating", "expected_normalized_rating"),
         [
             (1, 20),
             (2, 40),
@@ -71,7 +71,7 @@ class TestBase100Proportional:
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
-        assert isinstance(rating, (int, float))
+        assert isinstance(rating, int | float)
         assert rating == expected_normalized_rating
 
     def test_none_rating_wav_riff(self, assets_dir: Path):

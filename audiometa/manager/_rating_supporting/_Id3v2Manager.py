@@ -1,8 +1,9 @@
+import contextlib
 import os
 import shutil
 import subprocess
 import tempfile
-from typing import Any, Type, cast
+from typing import Any, cast
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.id3 import ID3
@@ -223,7 +224,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         KEY = "TKEY"
         REPLAYGAIN = "REPLAYGAIN"
 
-    ID3_TEXT_FRAME_CLASS_MAP: dict[RawMetadataKey, Type] = {
+    ID3_TEXT_FRAME_CLASS_MAP: dict[RawMetadataKey, type] = {
         Id3TextFrame.TITLE: TIT2,
         Id3TextFrame.ARTISTS: TPE1,
         Id3TextFrame.ALBUM: TALB,
@@ -387,8 +388,8 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         if self.Id3TextFrame.RECORDING_TIME not in result:
             year_key: RawMetadataKey = self.Id3TextFrame.YEAR
             date_key: RawMetadataKey = self.Id3TextFrame.DATE
-            tyer_value = result[year_key] if year_key in result else None
-            tdat_value = result[date_key] if date_key in result else None
+            tyer_value = result.get(year_key, None)
+            tdat_value = result.get(date_key, None)
             if tyer_value and tdat_value:
                 # Parse TDAT (DDMM) and TYER to construct YYYY-MM-DD
                 try:
@@ -449,8 +450,8 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 return None
             first_value = replaygain_value[0]
             return cast(UnifiedMetadataValue, first_value)
-        else:
-            raise MetadataFieldNotSupportedByMetadataFormatError(f"Metadata key not handled: {unified_metadata_key}")
+        msg = f"Metadata key not handled: {unified_metadata_key}"
+        raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_formatted_value_in_raw_mutagen_metadata(
         self,
@@ -516,7 +517,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
     def _add_id3_frame(
         self,
         raw_mutagen_metadata_id3: ID3,
-        text_frame_class: Type[Any],
+        text_frame_class: type[Any],
         raw_metadata_key: RawMetadataKey,
         app_metadata_value: UnifiedMetadataValue,
     ) -> None:
@@ -549,7 +550,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             raw_mutagen_metadata_id3.add(text_frame_class(encoding=encoding, text=app_metadata_value))
 
     def _add_id3_frame_v24_multi(
-        self, raw_mutagen_metadata_id3: ID3, text_frame_class: Type[Any], values: list[str]
+        self, raw_mutagen_metadata_id3: ID3, text_frame_class: type[Any], values: list[str]
     ) -> None:
         """ID3v2.4: add a single text frame containing multiple null-separated values.
 
@@ -609,10 +610,8 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
                 finally:
                     # Clean up temp file
-                    try:
+                    with contextlib.suppress(OSError):
                         os.unlink(temp_path)
-                    except OSError:
-                        pass
             else:
                 # No ID3v1 data to preserve, save normally
                 id3_metadata.save(file_path, v2_version=version_major)
@@ -671,7 +670,8 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             return
 
         if not self.metadata_keys_direct_map_write:
-            raise MetadataFieldNotSupportedByMetadataFormatError("This format does not support metadata modification")
+            msg = "This format does not support metadata modification"
+            raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         self._validate_and_process_rating(unified_metadata)
 
@@ -687,23 +687,23 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         for unified_metadata_key in list(unified_metadata.keys()):
             app_metadata_value = unified_metadata[unified_metadata_key]
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
+                msg = f"{unified_metadata_key} metadata not supported by this format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(
-                    f"{unified_metadata_key} metadata not supported by this format"
+                    msg
+                )
+            raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
+            if raw_metadata_key:
+                self._update_formatted_value_in_raw_mutagen_metadata(
+                    raw_mutagen_metadata=id3_metadata,
+                    raw_metadata_key=raw_metadata_key,
+                    app_metadata_value=app_metadata_value,
                 )
             else:
-                raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
-                if raw_metadata_key:
-                    self._update_formatted_value_in_raw_mutagen_metadata(
-                        raw_mutagen_metadata=id3_metadata,
-                        raw_metadata_key=raw_metadata_key,
-                        app_metadata_value=app_metadata_value,
-                    )
-                else:
-                    self._update_undirectly_mapped_metadata(
-                        raw_mutagen_metadata=id3_metadata,
-                        app_metadata_value=app_metadata_value,
-                        unified_metadata_key=unified_metadata_key,
-                    )
+                self._update_undirectly_mapped_metadata(
+                    raw_mutagen_metadata=id3_metadata,
+                    app_metadata_value=app_metadata_value,
+                    unified_metadata_key=unified_metadata_key,
+                )
 
         # Save with ID3v1 preservation
         self._save_with_id3v1_preservation(self.audio_file.file_path, id3v1_data)
@@ -711,7 +711,8 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
     def _update_metadata_for_flac(self, unified_metadata: UnifiedMetadata) -> None:
         """Update ID3v2 metadata for FLAC files using external tools to avoid file corruption."""
         if not self.metadata_keys_direct_map_write:
-            raise MetadataFieldNotSupportedByMetadataFormatError("This format does not support metadata modification")
+            msg = "This format does not support metadata modification"
+            raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         self._validate_and_process_rating(unified_metadata)
 
@@ -805,10 +806,12 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         try:
             subprocess.run(cmd, check=True, capture_output=True)
         except subprocess.CalledProcessError as e:
-            raise FileCorruptedError(f"Failed to write ID3v2 metadata with {tool}: {e}")
+            msg = f"Failed to write ID3v2 metadata with {tool}: {e}"
+            raise FileCorruptedError(msg)
         except FileNotFoundError:
+            msg = f"External tool {tool} not found. Please install it to write ID3v2 metadata to FLAC files."
             raise FileCorruptedError(
-                f"External tool {tool} not found. Please install it to write ID3v2 metadata to FLAC files."
+                msg
             )
 
     def delete_metadata(self) -> bool:
@@ -909,7 +912,6 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 "SYTC:",
                 "ETCO:",
                 "MLLT:",
-                "SYLT:",
                 "OWNE:",
                 "COMR:",
                 "ENCR:",

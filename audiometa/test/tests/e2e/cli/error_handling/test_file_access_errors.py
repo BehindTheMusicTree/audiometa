@@ -11,7 +11,10 @@ class TestCLIFileAccessErrors:
     def test_cli_read_nonexistent_file(self, tmp_path):
         nonexistent_file = tmp_path / "nonexistent.mp3"
         result = subprocess.run(
-            [sys.executable, "-m", "audiometa", "read", str(nonexistent_file)], capture_output=True, text=True
+            [sys.executable, "-m", "audiometa", "read", str(nonexistent_file)],
+            capture_output=True,
+            text=True,
+            check=False,
         )
         assert result.returncode == 1
         assert "error" in result.stderr.lower()
@@ -22,6 +25,7 @@ class TestCLIFileAccessErrors:
             [sys.executable, "-m", "audiometa", "read", str(nonexistent_file), "--continue-on-error"],
             capture_output=True,
             text=True,
+            check=False,
         )
         assert result.returncode == 0
 
@@ -36,6 +40,7 @@ class TestCLIFileAccessErrors:
             [sys.executable, "-m", "audiometa", "read", str(sample_mp3_file), "--output", str(output_file)],
             capture_output=True,
             text=True,
+            check=False,
         )
 
         # Should fail due to permission error
@@ -64,6 +69,7 @@ class TestCLIFileAccessErrors:
             ],
             capture_output=True,
             text=True,
+            check=False,
         )
 
         # Should succeed overall (exit code 0) because continue-on-error prevents exit
@@ -80,6 +86,7 @@ class TestCLIFileAccessErrors:
             [sys.executable, "-m", "audiometa", "read", str(sample_mp3_file), "--output", str(output_file)],
             capture_output=True,
             text=True,
+            check=False,
         )
 
         # Should fail due to nonexistent directory
@@ -98,6 +105,7 @@ class TestCLIFileAccessErrors:
                 [sys.executable, "-m", "audiometa", "unified", str(temp_file_path), "--output", str(output_file)],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should fail due to permission error

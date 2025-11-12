@@ -11,7 +11,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.unit
 class TestNormalization:
     @pytest.mark.parametrize(
-        "metadata_rating_read, expected_normalized_value",
+        ("metadata_rating_read", "expected_normalized_value"),
         [
             (0, 0),
             (13, 1),
@@ -56,7 +56,7 @@ class TestNormalization:
         assert vorbis_normalized_rating == expected_normalized_value
 
     @pytest.mark.parametrize(
-        "metadata_rating_read, expected_normalized_value",
+        ("metadata_rating_read", "expected_normalized_value"),
         [
             (0, 0),
             (10, 1),
@@ -103,7 +103,7 @@ class TestNormalization:
         assert vorbis_normalized_rating == expected_normalized_value
 
     @pytest.mark.parametrize(
-        "metadata_rating_read, expected_normalized_value",
+        ("metadata_rating_read", "expected_normalized_value"),
         [
             (51, 1),
             (102, 2),

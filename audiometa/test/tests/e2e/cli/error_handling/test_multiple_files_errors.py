@@ -29,6 +29,7 @@ class TestCLIMultipleFilesErrors:
             ],
             capture_output=True,
             text=True,
+            check=False,
         )
 
         # Should succeed overall (exit code 0)
@@ -51,6 +52,7 @@ class TestCLIMultipleFilesErrors:
             [sys.executable, "-m", "audiometa", "read", str(sample_mp3_file), str(unsupported_file)],
             capture_output=True,
             text=True,
+            check=False,
         )
 
         # Should fail overall (exit code 1) due to the unsupported file
@@ -73,6 +75,7 @@ class TestCLIMultipleFilesErrors:
             [sys.executable, "-m", "audiometa", "read", str(unsupported1), str(unsupported2), "--continue-on-error"],
             capture_output=True,
             text=True,
+            check=False,
         )
 
         # Should succeed overall (exit code 0) despite all files failing
@@ -104,6 +107,7 @@ class TestCLIMultipleFilesErrors:
                 ],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should succeed overall (exit code 0)
@@ -137,6 +141,7 @@ class TestCLIMultipleFilesErrors:
                 ],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should succeed overall (exit code 0)

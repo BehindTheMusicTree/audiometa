@@ -1,7 +1,7 @@
 """Vorbis metadata setting operations."""
 
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from mutagen.flac import FLAC
 
@@ -13,7 +13,7 @@ class VorbisMetadataSetter:
 
     @staticmethod
     def set_multiple_tags(
-        file_path: Path, tag_name: str, values: List[str], removing_existing=True, key_lower_case=False
+        file_path: Path, tag_name: str, values: list[str], removing_existing=True, key_lower_case=False
     ) -> None:
         """Set multiple Vorbis comment tags with the same name."""
 
@@ -34,7 +34,7 @@ class VorbisMetadataSetter:
             run_external_tool(command, "metaflac")
 
     @staticmethod
-    def set_metadata(file_path: Path, metadata: Dict[str, Any]) -> None:
+    def set_metadata(file_path: Path, metadata: dict[str, Any]) -> None:
         """Set FLAC metadata using metaflac tool."""
         cmd = ["metaflac"]
 
@@ -133,7 +133,7 @@ class VorbisMetadataSetter:
 
     @staticmethod
     def set_artists(
-        file_path: Path, artists: List[str], removing_existing=True, key_lower_case=False, in_single_entry=False
+        file_path: Path, artists: list[str], removing_existing=True, key_lower_case=False, in_single_entry=False
     ) -> None:
         """Set multiple Vorbis artists using mutagen."""
         audio = FLAC(str(file_path))
@@ -153,27 +153,27 @@ class VorbisMetadataSetter:
         audio.save()
 
     @staticmethod
-    def set_album_artists(file_path: Path, album_artists: List[str]):
+    def set_album_artists(file_path: Path, album_artists: list[str]):
         """Set multiple Vorbis album artists using external metaflac tool."""
         VorbisMetadataSetter.set_multiple_tags(file_path, "ALBUMARTIST", album_artists)
 
     @staticmethod
-    def set_composers(file_path: Path, composers: List[str]):
+    def set_composers(file_path: Path, composers: list[str]):
         """Set multiple Vorbis composers using external metaflac tool."""
         VorbisMetadataSetter.set_multiple_tags(file_path, "COMPOSER", composers)
 
     @staticmethod
-    def set_genres(file_path: Path, genres: List[str]):
+    def set_genres(file_path: Path, genres: list[str]):
         """Set multiple Vorbis genres using external metaflac tool."""
         VorbisMetadataSetter.set_multiple_tags(file_path, "GENRE", genres)
 
     @staticmethod
-    def set_performers(file_path: Path, performers: List[str]):
+    def set_performers(file_path: Path, performers: list[str]):
         """Set multiple Vorbis performers using external metaflac tool."""
         VorbisMetadataSetter.set_multiple_tags(file_path, "PERFORMER", performers)
 
     @staticmethod
-    def set_multiple_comments(file_path: Path, comments: List[str]):
+    def set_multiple_comments(file_path: Path, comments: list[str]):
         """Set multiple Vorbis comments using external metaflac tool."""
         VorbisMetadataSetter.set_multiple_tags(file_path, "COMMENT", comments)
 

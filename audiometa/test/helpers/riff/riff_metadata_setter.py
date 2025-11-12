@@ -1,7 +1,7 @@
 """RIFF metadata setting operations."""
 
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from ..common.external_tool_runner import ExternalMetadataToolError, run_external_tool
 
@@ -10,7 +10,7 @@ class RIFFMetadataSetter:
     """Static utility class for RIFF metadata setting using external tools."""
 
     @staticmethod
-    def set_metadata(file_path: Path, metadata: Dict[str, Any]) -> None:
+    def set_metadata(file_path: Path, metadata: dict[str, Any]) -> None:
         """Set WAV metadata using bwfmetaedit tool."""
         cmd = ["bwfmetaedit"]
 
@@ -59,17 +59,16 @@ class RIFFMetadataSetter:
         run_external_tool(command, "bwfmetaedit")
 
     @staticmethod
-    def set_multiple_titles(file_path: Path, titles: List[str], in_separate_frames: bool = False):
+    def set_multiple_titles(file_path: Path, titles: list[str], in_separate_frames: bool = False):
         """Set multiple titles, optionally in separate INAM frames."""
         if in_separate_frames:
             from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
 
             ManualRIFFMetadataCreator.create_multiple_title_fields(file_path, titles)
-        else:
-            # For now, just set the first title
-            if titles:
-                command = ["bwfmetaedit", f"--INAM={titles[0]}", str(file_path)]
-                run_external_tool(command, "bwfmetaedit")
+        # For now, just set the first title
+        elif titles:
+            command = ["bwfmetaedit", f"--INAM={titles[0]}", str(file_path)]
+            run_external_tool(command, "bwfmetaedit")
 
     @staticmethod
     def set_artist(file_path: Path, artist: str) -> None:
@@ -82,7 +81,7 @@ class RIFFMetadataSetter:
         run_external_tool(command, "bwfmetaedit")
 
     @staticmethod
-    def set_genres(file_path: Path, genres: List[str]) -> None:
+    def set_genres(file_path: Path, genres: list[str]) -> None:
         command = ["bwfmetaedit", f"--IGNR={','.join(genres)}", str(file_path)]
         run_external_tool(command, "bwfmetaedit")
 
@@ -98,7 +97,8 @@ class RIFFMetadataSetter:
                 genres = [genre.strip() for genre in genre_text.split(";") if genre.strip()]
                 RIFFMetadataSetter.set_genres(file_path, genres)
             except ExternalMetadataToolError as e:
-                raise RuntimeError(f"Failed to set RIFF genre: {e}") from e
+                msg = f"Failed to set RIFF genre: {e}"
+                raise RuntimeError(msg) from e
 
     @staticmethod
     def set_lyrics(file_path: Path, lyrics: str) -> None:
@@ -145,47 +145,44 @@ class RIFFMetadataSetter:
         run_external_tool(command, "exiftool")
 
     @staticmethod
-    def set_artists(file_path: Path, artists: List[str], in_separate_frames: bool = False):
+    def set_artists(file_path: Path, artists: list[str], in_separate_frames: bool = False):
         """Set multiple artists, optionally in separate IART frames."""
         if in_separate_frames:
             from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
 
             ManualRIFFMetadataCreator.create_multiple_artist_fields(file_path, artists)
-        else:
-            # For testing multiple instances, we'd need to use a more sophisticated approach
-            # For now, just set the first artist
-            if artists:
-                command = ["bwfmetaedit", f"--IART={artists[0]}", str(file_path)]
-                run_external_tool(command, "bwfmetaedit")
+        # For testing multiple instances, we'd need to use a more sophisticated approach
+        # For now, just set the first artist
+        elif artists:
+            command = ["bwfmetaedit", f"--IART={artists[0]}", str(file_path)]
+            run_external_tool(command, "bwfmetaedit")
 
     @staticmethod
-    def set_multiple_genres(file_path: Path, genres: List[str], in_separate_frames: bool = False):
+    def set_multiple_genres(file_path: Path, genres: list[str], in_separate_frames: bool = False):
         """Set multiple genres, optionally in separate IGNR frames."""
         if in_separate_frames:
             from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
 
             ManualRIFFMetadataCreator.create_multiple_genre_fields(file_path, genres)
-        else:
-            # For now, just set the first genre
-            if genres:
-                command = ["bwfmetaedit", f"--IGNR={genres[0]}", str(file_path)]
-                run_external_tool(command, "bwfmetaedit")
+        # For now, just set the first genre
+        elif genres:
+            command = ["bwfmetaedit", f"--IGNR={genres[0]}", str(file_path)]
+            run_external_tool(command, "bwfmetaedit")
 
     @staticmethod
-    def set_multiple_composers(file_path: Path, composers: List[str], in_separate_frames: bool = False):
+    def set_multiple_composers(file_path: Path, composers: list[str], in_separate_frames: bool = False):
         """Set multiple composers, optionally in separate ICMP frames."""
         if in_separate_frames:
             from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
 
             ManualRIFFMetadataCreator.create_multiple_composer_fields(file_path, composers)
-        else:
-            # For now, just set the first composer
-            if composers:
-                command = ["bwfmetaedit", f"--ICMP={composers[0]}", str(file_path)]
-                run_external_tool(command, "bwfmetaedit")
+        # For now, just set the first composer
+        elif composers:
+            command = ["bwfmetaedit", f"--ICMP={composers[0]}", str(file_path)]
+            run_external_tool(command, "bwfmetaedit")
 
     @staticmethod
-    def set_multiple_album_artists(file_path: Path, album_artists: List[str], in_separate_frames: bool = False):
+    def set_multiple_album_artists(file_path: Path, album_artists: list[str], in_separate_frames: bool = False):
         """Set multiple album artists, optionally in separate IAAR frames."""
         # IAAR is not a standard RIFF INFO chunk field, so external tools don't support it.
         # Use the manual metadata creator which can create non-standard RIFF fields.

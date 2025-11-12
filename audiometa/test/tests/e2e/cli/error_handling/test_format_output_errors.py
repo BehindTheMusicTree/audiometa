@@ -23,7 +23,8 @@ class TestCLIFormatOutputErrors:
 
         def mock_import(name, *args, **kwargs):
             if name == "yaml":
-                raise ImportError("No module named 'yaml'")
+                msg = "No module named 'yaml'"
+                raise ImportError(msg)
             return original_import(name, *args, **kwargs)
 
         monkeypatch.setattr("builtins.__import__", mock_import)
@@ -47,6 +48,7 @@ class TestCLIFormatOutputErrors:
             [sys.executable, "-m", "audiometa", "read", "nonexistent.mp3", "--format", "invalid"],
             capture_output=True,
             text=True,
+            check=False,
         )
 
         # Should fail due to invalid format choice
@@ -61,6 +63,7 @@ class TestCLIFormatOutputErrors:
                 [sys.executable, "-m", "audiometa", "read", str(temp_file_path), "--output", ""],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should succeed - empty output path means stdout
@@ -83,6 +86,7 @@ class TestCLIFormatOutputErrors:
                 ],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should succeed - these options are compatible

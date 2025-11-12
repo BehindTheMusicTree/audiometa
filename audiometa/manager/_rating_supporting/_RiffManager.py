@@ -91,7 +91,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
     def __init__(self, audio_file: _AudioFile, normalized_rating_max_value: None | int = None):
         # Validate that the file is a WAV file
         if audio_file.file_extension != ".wav":
-            raise FileTypeNotSupportedError(f"RiffManager only supports WAV files, got {audio_file.file_extension}")
+            msg = f"RiffManager only supports WAV files, got {audio_file.file_extension}"
+            raise FileTypeNotSupportedError(msg)
 
         metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
@@ -248,16 +249,14 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 # Create WAVE object with the clean RIFF data
                 wave = WAVE(filename=temp_file.name)
                 info_tags = self._extract_riff_metadata_directly(file_data)  # Use original data for our custom parsing
-                setattr(wave, "info", info_tags)
+                wave.info = info_tags
                 return cast(RawMetadataDict, wave)
             finally:
                 # Clean up temporary file
                 import os
 
-                try:
+                with contextlib.suppress(OSError):
                     os.unlink(temp_file.name)
-                except OSError:
-                    pass
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
         self, raw_mutagen_metadata: MutagenMetadata
@@ -271,7 +270,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
 
         # Get metadata from our custom info which contains the directly parsed INFO chunk
         if hasattr(raw_mutagen_metadata_wav, "info"):
-            info_tags = getattr(raw_mutagen_metadata_wav, "info")
+            info_tags = raw_mutagen_metadata_wav.info
             for key, value in info_tags.items():
                 # key is a FourCC string; check against enum member values
                 if any(key == member.value for member in self.RiffTagKey.__members__.values()):
@@ -303,8 +302,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
             return self._get_genres_from_raw_clean_metadata_uppercase_keys(
                 raw_clean_metadata, self.RiffTagKey.GENRES_NAMES_OR_CODES
             )
-        else:
-            raise MetadataFieldNotSupportedByMetadataFormatError(f"Metadata key not handled: {unified_metadata_key}")
+        msg = f"Metadata key not handled: {unified_metadata_key}"
+        raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_not_using_mutagen_metadata(self, unified_metadata: UnifiedMetadata) -> None:
         """Update metadata fields in the RIFF INFO chunk using an optimized chunk-based approach.
@@ -316,13 +315,15 @@ class _RiffManager(_RatingSupportingMetadataManager):
         Therefore, we implement our own RIFF chunk writer following the specification.
         """
         if not self.metadata_keys_direct_map_write:
-            raise ConfigurationError("metadata_keys_direct_map_write must be set")
+            msg = "metadata_keys_direct_map_write must be set"
+            raise ConfigurationError(msg)
 
         # Validate that all metadata fields are supported by RIFF format
-        for unified_metadata_key in unified_metadata.keys():
+        for unified_metadata_key in unified_metadata:
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
+                msg = f"{unified_metadata_key} metadata not supported by RIFF format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(
-                    f"{unified_metadata_key} metadata not supported by RIFF format"
+                    msg
                 )
 
         # Read the entire file into a mutable bytearray
@@ -348,8 +349,9 @@ class _RiffManager(_RatingSupportingMetadataManager):
             # Find RIFF header after ID3v2 tags
             riff_start = self._find_riff_header_after_id3v2(file_data)
             if riff_start == -1:
+                msg = "Invalid WAV file format - RIFF header not found after ID3v2 tags"
                 raise MetadataFieldNotSupportedByMetadataFormatError(
-                    "Invalid WAV file format - RIFF header not found after ID3v2 tags"
+                    msg
                 )
             # Work with the RIFF portion only for metadata updates
             riff_data = file_data[riff_start:]
@@ -357,7 +359,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
             riff_data = file_data
 
         if len(riff_data) < 12 or bytes(riff_data[:4]) != b"RIFF" or bytes(riff_data[8:12]) != b"WAVE":
-            raise MetadataFieldNotSupportedByMetadataFormatError("Invalid WAV file format")
+            msg = "Invalid WAV file format"
+            raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         # Find or create LIST INFO chunk in the RIFF data
         info_chunk_start = self._find_info_chunk_in_file_data(riff_data)
@@ -406,12 +409,11 @@ class _RiffManager(_RatingSupportingMetadataManager):
                     value_bytes = self._prepare_tag_value(concatenated_value, app_key)
                     if value_bytes:
                         new_tags_data.extend(self._create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
-            else:
-                # Single value - ensure it's not None before processing
-                if isinstance(value, (int, float, str)):
-                    value_bytes = self._prepare_tag_value(value, app_key)
-                    if value_bytes:
-                        new_tags_data.extend(self._create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
+            # Single value - ensure it's not None before processing
+            elif isinstance(value, int | float | str):
+                value_bytes = self._prepare_tag_value(value, app_key)
+                if value_bytes:
+                    new_tags_data.extend(self._create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
 
         # Create new INFO chunk
         new_info_chunk = bytearray()
@@ -528,14 +530,11 @@ class _RiffManager(_RatingSupportingMetadataManager):
         if not self.metadata_keys_direct_map_write:
             return None
 
-        if app_key not in self.metadata_keys_direct_map_write:
-            riff_key = None
-        else:
-            riff_key = self.metadata_keys_direct_map_write[app_key]
+        riff_key = self.metadata_keys_direct_map_write.get(app_key, None)
         if not riff_key:
             if app_key == UnifiedMetadataKey.GENRES_NAMES:
                 return cast(RawMetadataKey | None, self.RiffTagKey.GENRES_NAMES_OR_CODES)
-            elif app_key == UnifiedMetadataKey.RATING:
+            if app_key == UnifiedMetadataKey.RATING:
                 return cast(RawMetadataKey | None, self.RiffTagKey.RATING)
         return riff_key
 
@@ -625,12 +624,9 @@ class _RiffManager(_RatingSupportingMetadataManager):
                         # 1. PRESERVE strategy and target format is RIFF (preserve existing ID3v2 tags)
                         # 2. SYNC strategy and target format is RIFF
                         #    (preserve ID3v2 tags that were written by other managers)
-                        if strategy == MetadataWritingStrategy.PRESERVE:
+                        if strategy in (MetadataWritingStrategy.PRESERVE, MetadataWritingStrategy.SYNC):
                             return bool(target_format == MetadataFormat.RIFF)
-                        elif strategy == MetadataWritingStrategy.SYNC:
-                            return bool(target_format == MetadataFormat.RIFF)
-                        else:
-                            return False
+                        return False
                 frame = frame.f_back
         finally:
             del frame
@@ -652,8 +648,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             return -1
 
         # Calculate the position where RIFF starts
-        id3v2_size = len(file_data) - len(skipped_data)
-        return id3v2_size
+        return len(file_data) - len(skipped_data)
 
     def _get_id3v2_size(self, file_data: bytearray) -> int:
         """Get the size of ID3v2 tags at the beginning of the file.
@@ -701,7 +696,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 if chunk_id == b"LIST" and file_data[pos + 8 : pos + 12] == b"INFO":
                     info_chunk_size = chunk_size
                     break
-                elif chunk_id == b"fmt ":
+                if chunk_id == b"fmt ":
                     # Parse format chunk
                     if chunk_size >= 16:
                         audio_format_code = int.from_bytes(file_data[pos + 8 : pos + 10], "little")

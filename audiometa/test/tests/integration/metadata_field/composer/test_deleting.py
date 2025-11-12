@@ -11,16 +11,15 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestComposerDeleting:
     def test_delete_composer_id3v1(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            with pytest.raises(
-                MetadataFieldNotSupportedByMetadataFormatError,
-                match="UnifiedMetadataKey.COMPOSERS metadata not supported by this format",
-            ):
-                update_metadata(
-                    test_file,
-                    {UnifiedMetadataKey.COMPOSERS: ["Test Composer"]},
-                    metadata_format=MetadataFormat.ID3V1,
-                )
+        with temp_file_with_metadata({}, "mp3") as test_file, pytest.raises(
+            MetadataFieldNotSupportedByMetadataFormatError,
+            match="UnifiedMetadataKey.COMPOSERS metadata not supported by this format",
+        ):
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.COMPOSERS: ["Test Composer"]},
+                metadata_format=MetadataFormat.ID3V1,
+            )
 
     def test_delete_composer_id3v2(self):
         with temp_file_with_metadata({"composer": "Test Composer"}, "id3v2.4") as test_file:

@@ -9,7 +9,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 @pytest.mark.integration
 class TestBase255Proportional:
     @pytest.mark.parametrize(
-        "star_rating,expected_normalized_rating",
+        ("star_rating", "expected_normalized_rating"),
         [
             (1, 20),
             (2, 40),
@@ -23,7 +23,7 @@ class TestBase255Proportional:
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
-        assert isinstance(rating, (int, float))
+        assert isinstance(rating, int | float)
         assert rating == expected_normalized_rating
 
     def test_none_rating_vorbis_flac_traktor(self, assets_dir: Path):
@@ -33,7 +33,7 @@ class TestBase255Proportional:
         assert rating is None
 
     @pytest.mark.parametrize(
-        "star_rating,expected_normalized_rating",
+        ("star_rating", "expected_normalized_rating"),
         [
             (1, 20),
             (2, 40),
@@ -47,7 +47,7 @@ class TestBase255Proportional:
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
-        assert isinstance(rating, (int, float))
+        assert isinstance(rating, int | float)
         assert rating == expected_normalized_rating
 
     def test_none_rating_id3v2_mp3_traktor(self, assets_dir: Path):

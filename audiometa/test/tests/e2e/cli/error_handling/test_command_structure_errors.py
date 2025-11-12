@@ -14,6 +14,7 @@ class TestCLICommandStructureErrors:
                 [sys.executable, "-m", "audiometa", "unified", str(temp_file_path), "--no-headers", "--no-technical"],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should fail - unified command doesn't accept these flags
@@ -22,12 +23,15 @@ class TestCLICommandStructureErrors:
             assert "unrecognized arguments" in stderr_output
 
     def test_cli_read_help_flag(self):
-        result = subprocess.run([sys.executable, "-m", "audiometa", "read", "--help"], capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, "-m", "audiometa", "read", "--help"], capture_output=True, text=True, check=False
+        )
 
         # Should show read command help
         assert result.returncode == 0
         stdout_output = result.stdout.lower()
-        assert "read" in stdout_output and "files" in stdout_output
+        assert "read" in stdout_output
+        assert "files" in stdout_output
 
     def test_cli_recursive_with_single_file(self):
         """Test CLI recursive flag with single file (should work but be redundant)."""
@@ -36,6 +40,7 @@ class TestCLICommandStructureErrors:
                 [sys.executable, "-m", "audiometa", "read", str(temp_file_path), "--recursive"],
                 capture_output=True,
                 text=True,
+                check=False,
             )
 
             # Should succeed - recursive with single file is valid
@@ -43,7 +48,9 @@ class TestCLICommandStructureErrors:
             assert len(result.stdout.strip()) > 0
 
     def test_cli_invalid_command(self):
-        result = subprocess.run([sys.executable, "-m", "audiometa", "invalidcommand"], capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, "-m", "audiometa", "invalidcommand"], capture_output=True, text=True, check=False
+        )
 
         # Should fail due to invalid command
         assert result.returncode != 0
@@ -51,7 +58,7 @@ class TestCLICommandStructureErrors:
         assert "invalid choice" in stderr_output or "error" in stderr_output
 
     def test_cli_no_command(self):
-        result = subprocess.run([sys.executable, "-m", "audiometa"], capture_output=True, text=True)
+        result = subprocess.run([sys.executable, "-m", "audiometa"], capture_output=True, text=True, check=False)
 
         # Should show help and exit with code 1
         assert result.returncode == 1
@@ -59,9 +66,12 @@ class TestCLICommandStructureErrors:
         assert "usage" in stdout_output or "help" in stdout_output
 
     def test_cli_help_flag(self):
-        result = subprocess.run([sys.executable, "-m", "audiometa", "--help"], capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, "-m", "audiometa", "--help"], capture_output=True, text=True, check=False
+        )
 
         # Should show help and exit successfully
         assert result.returncode == 0
         stdout_output = result.stdout.lower()
-        assert "usage" in stdout_output and "help" in stdout_output
+        assert "usage" in stdout_output
+        assert "help" in stdout_output

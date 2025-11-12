@@ -68,7 +68,8 @@ class TestMetadataFieldValidation:
 
     def test_field_not_supported_by_lib_exception_exists(self):
         with pytest.raises(MetadataFieldNotSupportedByLib, match="Test field not supported by library"):
-            raise MetadataFieldNotSupportedByLib("Test field not supported by library")
+            msg = "Test field not supported by library"
+            raise MetadataFieldNotSupportedByLib(msg)
 
     def test_field_not_supported_by_lib_concept(self, sample_wav_file: Path):
         with temp_file_with_metadata({}, "wav") as test_file:

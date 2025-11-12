@@ -13,7 +13,7 @@ class ID3v2HeaderVerifier:
             with open(file_path, "rb") as f:
                 header = f.read(10)
                 return header[:3] == b"ID3"
-        except (IOError, OSError):
+        except OSError:
             return False
 
     @staticmethod

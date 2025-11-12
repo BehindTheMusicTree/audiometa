@@ -14,6 +14,7 @@ class TestCLIUnified:
             [sys.executable, "-m", "audiometa", "unified", str(sample_mp3_file), "--format", "json"],
             capture_output=True,
             text=True,
+            check=False,
         )
         assert result.returncode == 0
         data = json.loads(result.stdout)
@@ -25,6 +26,7 @@ class TestCLIUnified:
                 [sys.executable, "-m", "audiometa", "unified", str(test_file), "--format", "json"],
                 capture_output=True,
                 text=True,
+                check=False,
             )
             assert result.returncode == 0
             data = json.loads(result.stdout)

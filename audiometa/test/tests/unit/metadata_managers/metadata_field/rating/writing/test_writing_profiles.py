@@ -10,7 +10,7 @@ from audiometa.manager._rating_supporting._VorbisManager import _VorbisManager a
 @pytest.mark.unit
 class TestWritingProfiles:
     @pytest.mark.parametrize(
-        "normalized_rating, expected_raw_rating",
+        ("normalized_rating", "expected_raw_rating"),
         [
             (0, 0),
             (1, 13),
@@ -38,7 +38,7 @@ class TestWritingProfiles:
         assert raw_rating == expected_raw_rating
 
     @pytest.mark.parametrize(
-        "normalized_rating, expected_raw_rating",
+        ("normalized_rating", "expected_raw_rating"),
         [
             (0, 0),
             (1, 10),

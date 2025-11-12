@@ -6,7 +6,7 @@ from audiometa.manager._MetadataManager import _MetadataManager as MetadataManag
 @pytest.mark.unit
 class TestValueFiltering:
     @pytest.mark.parametrize(
-        "values, expected_filtered",
+        ("values", "expected_filtered"),
         [
             (["Artist One", "Artist Two"], ["Artist One", "Artist Two"]),
             (["Artist One", ""], ["Artist One"]),

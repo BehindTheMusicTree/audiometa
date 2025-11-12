@@ -6,7 +6,7 @@ from audiometa.utils.rating_profiles import RatingReadProfile
 @pytest.mark.unit
 class TestRatingProfileValues:
     @pytest.mark.parametrize(
-        "profile_enum, expected_values",
+        ("profile_enum", "expected_values"),
         [
             (RatingReadProfile.BASE_255_NON_PROPORTIONAL, [0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255]),
             (RatingReadProfile.BASE_100_PROPORTIONAL, [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]),

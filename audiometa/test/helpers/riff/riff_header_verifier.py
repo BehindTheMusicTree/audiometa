@@ -47,35 +47,34 @@ class RIFFHeaderVerifier:
                             return False
                         pos += 1
                     return False
-                else:
-                    # File starts with RIFF header
-                    riff_header = f.read(12)
-                    if riff_header[:4] != b"RIFF":
-                        return False
-
-                    # Look for LIST chunk containing INFO
-                    chunk_size = int.from_bytes(riff_header[4:8], "little")
-                    data = f.read(chunk_size)
-
-                    # Search for LIST chunk containing INFO
-                    pos = 0
-                    while pos < len(data) - 8:
-                        chunk_id = data[pos : pos + 4]
-                        chunk_size = int.from_bytes(data[pos + 4 : pos + 8], "little")
-
-                        if chunk_id == b"LIST":
-                            # Check if this LIST chunk contains INFO
-                            list_data = data[pos + 8 : pos + 8 + chunk_size]
-                            if len(list_data) >= 4 and list_data[:4] == b"INFO":
-                                return True
-
-                        # Move to next chunk (chunk size + padding)
-                        pos += 8 + chunk_size
-                        if chunk_size % 2 == 1:  # Odd size needs padding
-                            pos += 1
-
+                # File starts with RIFF header
+                riff_header = f.read(12)
+                if riff_header[:4] != b"RIFF":
                     return False
-        except (IOError, OSError, ValueError):
+
+                # Look for LIST chunk containing INFO
+                chunk_size = int.from_bytes(riff_header[4:8], "little")
+                data = f.read(chunk_size)
+
+                # Search for LIST chunk containing INFO
+                pos = 0
+                while pos < len(data) - 8:
+                    chunk_id = data[pos : pos + 4]
+                    chunk_size = int.from_bytes(data[pos + 4 : pos + 8], "little")
+
+                    if chunk_id == b"LIST":
+                        # Check if this LIST chunk contains INFO
+                        list_data = data[pos + 8 : pos + 8 + chunk_size]
+                        if len(list_data) >= 4 and list_data[:4] == b"INFO":
+                            return True
+
+                    # Move to next chunk (chunk size + padding)
+                    pos += 8 + chunk_size
+                    if chunk_size % 2 == 1:  # Odd size needs padding
+                        pos += 1
+
+                return False
+        except (OSError, ValueError):
             return False
 
     @staticmethod

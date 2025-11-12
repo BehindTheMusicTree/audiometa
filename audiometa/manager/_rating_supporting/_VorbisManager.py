@@ -127,7 +127,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         with open(self.audio_file.file_path, "rb") as f:
             # --- Step 1: Skip ID3v2 tags if present, then find FLAC header ---
             header = f.read(4)
-            if header == b"ID3\x03" or header == b"ID3\x04":
+            if header in (b"ID3\x03", b"ID3\x04"):
                 # ID3v2 tag present, skip it
                 f.seek(0)  # Reset to beginning
                 # Read ID3v2 header to get tag size
@@ -146,7 +146,8 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                 header = f.read(4)
 
             if header != b"fLaC":
-                raise ValueError("Not a valid FLAC file")
+                msg = "Not a valid FLAC file"
+                raise ValueError(msg)
 
             # --- Step 2: Read metadata blocks ---
             is_last = False
@@ -263,12 +264,11 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             if isinstance(app_metadata_value, list):
                 # For multi-value fields, keep as separate entries
                 raw_mutagen_metadata[raw_metadata_key] = [str(v) for v in app_metadata_value]
+            # Convert BPM to string for Vorbis comments
+            elif raw_metadata_key == self.VorbisKey.BPM:
+                raw_mutagen_metadata[raw_metadata_key] = [str(app_metadata_value)]
             else:
-                # Convert BPM to string for Vorbis comments
-                if raw_metadata_key == self.VorbisKey.BPM:
-                    raw_mutagen_metadata[raw_metadata_key] = [str(app_metadata_value)]
-                else:
-                    raw_mutagen_metadata[raw_metadata_key] = [str(app_metadata_value)]
+                raw_mutagen_metadata[raw_metadata_key] = [str(app_metadata_value)]
         elif raw_metadata_key in raw_mutagen_metadata:
             del raw_mutagen_metadata[raw_metadata_key]
 
@@ -305,7 +305,8 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             FileCorruptedError: If metaflac tool fails or is not found
         """
         if not self.metadata_keys_direct_map_write:
-            raise MetadataFieldNotSupportedByMetadataFormatError("This format does not support metadata modification")
+            msg = "This format does not support metadata modification"
+            raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         self._validate_and_process_rating(unified_metadata)
 
@@ -324,23 +325,23 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                     app_metadata_value = None
 
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
+                msg = f"{unified_metadata_key} metadata not supported by this format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(
-                    f"{unified_metadata_key} metadata not supported by this format"
+                    msg
+                )
+            raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
+            if raw_metadata_key:
+                self._update_formatted_value_in_raw_mutagen_metadata(
+                    raw_mutagen_metadata=current_metadata,
+                    raw_metadata_key=raw_metadata_key,
+                    app_metadata_value=app_metadata_value,
                 )
             else:
-                raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
-                if raw_metadata_key:
-                    self._update_formatted_value_in_raw_mutagen_metadata(
-                        raw_mutagen_metadata=current_metadata,
-                        raw_metadata_key=raw_metadata_key,
-                        app_metadata_value=app_metadata_value,
-                    )
-                else:
-                    self._update_undirectly_mapped_metadata(
-                        raw_mutagen_metadata=current_metadata,
-                        app_metadata_value=app_metadata_value,
-                        unified_metadata_key=unified_metadata_key,
-                    )
+                self._update_undirectly_mapped_metadata(
+                    raw_mutagen_metadata=current_metadata,
+                    app_metadata_value=app_metadata_value,
+                    unified_metadata_key=unified_metadata_key,
+                )
 
         # Write metadata using metaflac
         self._write_metadata_with_metaflac(current_metadata)
@@ -383,7 +384,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             tags_to_remove = set()
 
             # Add tags that are in the metadata dict (these are being updated/deleted)
-            for key in metadata.keys():
+            for key in metadata:
                 if key in key_mapping:
                     tags_to_remove.add(key_mapping[key])
 
@@ -427,10 +428,12 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                 subprocess.run(set_cmd, check=True, capture_output=True)
 
         except subprocess.CalledProcessError as e:
-            raise FileCorruptedError(f"Failed to write metadata with metaflac: {e}")
+            msg = f"Failed to write metadata with metaflac: {e}"
+            raise FileCorruptedError(msg)
         except FileNotFoundError:
+            msg = "metaflac tool not found. Please install it to write Vorbis metadata to FLAC files."
             raise FileCorruptedError(
-                "metaflac tool not found. Please install it to write Vorbis metadata to FLAC files."
+                msg
             )
 
     def get_header_info(self) -> dict:
@@ -485,7 +488,8 @@ class _VorbisManager(_RatingSupportingMetadataManager):
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
         self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
     ) -> UnifiedMetadataValue:
-        raise MetadataFieldNotSupportedByMetadataFormatError(f"Metadata key not handled: {unified_metadata_key}")
+        msg = f"Metadata key not handled: {unified_metadata_key}"
+        raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_undirectly_mapped_metadata(
         self,
@@ -497,21 +501,22 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             if app_metadata_value is not None:
                 if self.normalized_rating_max_value is None:
                     # When no normalization, write value as-is (already validated by parent class)
-                    if isinstance(app_metadata_value, (int, float)):
+                    if isinstance(app_metadata_value, int | float):
                         raw_mutagen_metadata[self.VorbisKey.RATING] = [str(int(app_metadata_value))]
                     else:
                         raw_mutagen_metadata[self.VorbisKey.RATING] = [str(app_metadata_value)]
                 else:
                     try:
-                        if isinstance(app_metadata_value, (int, float)):
+                        if isinstance(app_metadata_value, int | float):
                             normalized_rating = int(float(app_metadata_value))
                         else:
                             normalized_rating = int(float(str(app_metadata_value)))
                         file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating)
                         raw_mutagen_metadata[self.VorbisKey.RATING] = [str(file_rating)]
                     except (TypeError, ValueError):
+                        msg = f"Invalid rating value: {app_metadata_value}. Expected a numeric value."
                         raise InvalidRatingValueError(
-                            f"Invalid rating value: {app_metadata_value}. Expected a numeric value."
+                            msg
                         )
             else:
                 # Remove rating
@@ -520,4 +525,5 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                 if self.VorbisKey.RATING_TRAKTOR in raw_mutagen_metadata:
                     del raw_mutagen_metadata[self.VorbisKey.RATING_TRAKTOR]
         else:
-            raise MetadataFieldNotSupportedByMetadataFormatError(f"Metadata key not handled: {unified_metadata_key}")
+            msg = f"Metadata key not handled: {unified_metadata_key}"
+            raise MetadataFieldNotSupportedByMetadataFormatError(msg)

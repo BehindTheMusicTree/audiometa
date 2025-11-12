@@ -20,7 +20,7 @@ class TestUserScenarios:
 
         sample_files = [(sample_mp3_file, "mp3"), (sample_flac_file, "flac"), (sample_wav_file, "wav")]
 
-        for i, (file_path, format_type) in enumerate(sample_files[:3]):  # Test with first 3 files
+        for i, (_file_path, format_type) in enumerate(sample_files[:3]):  # Test with first 3 files
             # Set basic metadata using external script
             basic_metadata = {"title": f"Original Track {i + 1}", "artist": "Original Artist"}
             with temp_file_with_metadata(basic_metadata, format_type) as test_file:
@@ -152,7 +152,7 @@ class TestUserScenarios:
 
         sample_files = [(sample_mp3_file, "mp3"), (sample_flac_file, "flac"), (sample_wav_file, "wav")]
 
-        for file_path, format_type in sample_files:
+        for _file_path, format_type in sample_files:
             # Set basic metadata using external script
             basic_metadata = {"title": "Original Title", "artist": "Original Artist"}
             with temp_file_with_metadata(basic_metadata, format_type) as test_file:

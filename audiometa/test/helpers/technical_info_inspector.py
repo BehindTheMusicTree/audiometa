@@ -1,6 +1,5 @@
 import subprocess
 from pathlib import Path
-from typing import Optional
 
 
 class TechnicalInfoInspector:
@@ -16,15 +15,16 @@ class TechnicalInfoInspector:
                 import json
 
                 return json.loads(result.stdout)
-            else:
-                return {"text": result.stdout}
+            return {"text": result.stdout}
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Failed to run mediainfo on {file_path}: {e}")
+            msg = f"Failed to run mediainfo on {file_path}: {e}"
+            raise RuntimeError(msg)
         except json.JSONDecodeError as e:
-            raise RuntimeError(f"Failed to parse mediainfo output: {e}")
+            msg = f"Failed to parse mediainfo output: {e}"
+            raise RuntimeError(msg)
 
     @staticmethod
-    def get_bitrate(file_path: str | Path) -> Optional[int]:
+    def get_bitrate(file_path: str | Path) -> int | None:
         """Get the bitrate of an audio file in kb/s using mediainfo."""
         try:
             data = TechnicalInfoInspector._run_mediainfo(file_path, "JSON")
@@ -36,14 +36,14 @@ class TechnicalInfoInspector:
                         # Handle formats like "128 kb/s" or "128000"
                         if "kb/s" in str(bitrate_str):
                             return int(str(bitrate_str).split()[0])
-                        elif str(bitrate_str).isdigit():
+                        if str(bitrate_str).isdigit():
                             return int(bitrate_str) // 1000
             return None
         except Exception:
             return None
 
     @staticmethod
-    def get_duration(file_path: str | Path) -> Optional[float]:
+    def get_duration(file_path: str | Path) -> float | None:
         """Get the duration of an audio file in seconds using mediainfo."""
         try:
             data = TechnicalInfoInspector._run_mediainfo(file_path, "JSON")
@@ -55,14 +55,13 @@ class TechnicalInfoInspector:
                         # Handle formats like "1.025 s" or just numbers
                         if "s" in duration_str:
                             return float(duration_str.split()[0])
-                        else:
-                            return float(duration_str)
+                        return float(duration_str)
             return None
         except Exception:
             return None
 
     @staticmethod
-    def get_sample_rate(file_path: str | Path) -> Optional[int]:
+    def get_sample_rate(file_path: str | Path) -> int | None:
         """Get the sample rate of an audio file in Hz using mediainfo."""
         try:
             data = TechnicalInfoInspector._run_mediainfo(file_path, "JSON")
@@ -74,14 +73,13 @@ class TechnicalInfoInspector:
                         # Handle formats like "44100 Hz"
                         if "Hz" in sample_rate_str:
                             return int(sample_rate_str.split()[0])
-                        else:
-                            return int(sample_rate_str)
+                        return int(sample_rate_str)
             return None
         except Exception:
             return None
 
     @staticmethod
-    def get_channels(file_path: str | Path) -> Optional[int]:
+    def get_channels(file_path: str | Path) -> int | None:
         """Get the number of channels of an audio file using mediainfo."""
         try:
             data = TechnicalInfoInspector._run_mediainfo(file_path, "JSON")
@@ -96,7 +94,7 @@ class TechnicalInfoInspector:
             return None
 
     @staticmethod
-    def get_file_size(file_path: str | Path) -> Optional[int]:
+    def get_file_size(file_path: str | Path) -> int | None:
         """Get the file size of an audio file in bytes using mediainfo."""
         try:
             data = TechnicalInfoInspector._run_mediainfo(file_path, "JSON")

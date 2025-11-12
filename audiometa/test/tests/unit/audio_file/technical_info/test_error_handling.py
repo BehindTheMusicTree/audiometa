@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa._audio_file import _AudioFile as _AudioFile
+from audiometa._audio_file import _AudioFile
 from audiometa.exceptions import (
     AudioFileMetadataParseError,
     DurationNotFoundError,
@@ -46,13 +46,15 @@ class TestAudioFileTechnicalInfoErrorHandling:
     def test_invalid_chunk_decode_error_corrupted_flac_chunks(self, monkeypatch):
         def mock_get_duration_in_sec(self):
             try:
-                raise Exception("FLAC chunk decoding failed")
+                msg = "FLAC chunk decoding failed"
+                raise Exception(msg)
             except Exception as exc:
                 error_str = str(exc)
                 if "file said" in error_str and "bytes, read" in error_str:
                     raise FileByteMismatchError(error_str.capitalize())
-                elif "FLAC" in error_str or "chunk" in error_str.lower():
-                    raise InvalidChunkDecodeError(f"Failed to decode FLAC chunks: {error_str}")
+                if "FLAC" in error_str or "chunk" in error_str.lower():
+                    msg = f"Failed to decode FLAC chunks: {error_str}"
+                    raise InvalidChunkDecodeError(msg)
                 raise
 
         monkeypatch.setattr("audiometa._audio_file._AudioFile.get_duration_in_sec", mock_get_duration_in_sec)

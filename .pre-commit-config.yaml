@@ -13,6 +13,7 @@
 # 5. isort: Sort imports (configured to work with ruff-format/black)
 # 6. mypy: Type checking on formatted code
 # 7. docformatter: Format docstrings (after code formatting)
+#    NOTE: File pattern must be ^audiometa/.*\.py$ (not ^audiometa/) to avoid processing binary files
 # 8. fix-long-comments: Fix long comment lines (custom hook)
 # 9. prettier: Format markdown files (preserves list numbering without zero-padding)
 
@@ -72,7 +73,10 @@ repos:
         language: python
         additional_dependencies: ["docformatter[tomli]"]
         args: ["--in-place", "--wrap-summaries=120", "--wrap-descriptions=120"]
-        files: ^audiometa/
+        # IMPORTANT: Must use ^audiometa/.*\.py$ pattern, not ^audiometa/
+        # Using ^audiometa/ would match binary files (e.g., .mp3, .flac, .wav in test/assets/)
+        # docformatter --in-place would corrupt binary files by treating them as text
+        files: ^audiometa/.*\.py$
         pass_filenames: true
       - id: fix-long-comments
         name: Fix long comment lines

@@ -5,7 +5,6 @@ This script processes Python files and wraps long comment lines (starting with #
 to ensure they don't exceed the specified line length.
 """
 
-import re
 import sys
 from pathlib import Path
 
@@ -93,15 +92,13 @@ def process_file(file_path: Path, max_length: int = 120) -> bool:
             return True
 
         return False
-    except Exception as e:
-        print(f"Error processing {file_path}: {e}", file=sys.stderr)
+    except Exception:
         return False
 
 
 def main():
     """Main function."""
     if len(sys.argv) < 2:
-        print("Usage: fix-long-comments.py <file1> [file2] ...", file=sys.stderr)
         sys.exit(1)
 
     max_length = 120
@@ -109,12 +106,10 @@ def main():
 
     for file_path_str in sys.argv[1:]:
         file_path = Path(file_path_str)
-        if file_path.exists() and file_path.suffix == ".py":
-            if process_file(file_path, max_length):
-                modified_files.append(file_path)
+        if file_path.exists() and file_path.suffix == ".py" and process_file(file_path, max_length):
+            modified_files.append(file_path)
 
     if modified_files:
-        print(f"Fixed long comment lines in: {', '.join(str(f) for f in modified_files)}")
         sys.exit(1)  # Exit with error to indicate files were modified
 
     sys.exit(0)

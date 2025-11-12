@@ -213,7 +213,7 @@ class TestSpecialCharactersEdgeCases:
         unified_metadata = get_unified_metadata(sample_mp3_file)
 
         # Should handle any special characters that might be in the sample file
-        for key, value in unified_metadata.items():
+        for _key, value in unified_metadata.items():
             if isinstance(value, str):
                 # Should be able to handle unicode and special characters
                 assert isinstance(value, str)
