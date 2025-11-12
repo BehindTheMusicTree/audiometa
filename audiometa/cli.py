@@ -21,6 +21,7 @@ def format_output(data: Any, output_format: str) -> str:
 
             return yaml.dump(data, default_flow_style=False)
         except ImportError:
+            print("Warning: PyYAML not installed, falling back to JSON", file=sys.stderr)
             return json.dumps(data, indent=2)
     elif output_format == "table":
         return format_as_table(data)
@@ -83,8 +84,8 @@ def read_metadata(args) -> None:
             if args.output:
                 with open(args.output, "w") as f:
                     f.write(output)
-            elif len(files) > 1:
-                pass
+            else:
+                print(output)
 
         except (FileTypeNotSupportedError, FileNotFoundError):
             if not args.continue_on_error:
@@ -182,7 +183,9 @@ def expand_file_patterns(patterns: list[str], recursive: bool = False, continue_
 
     if not files:
         if continue_on_error:
+            print("Warning: No valid audio files found", file=sys.stderr)
             return []
+        print("Error: No valid audio files found", file=sys.stderr)
         sys.exit(1)
 
     return files
