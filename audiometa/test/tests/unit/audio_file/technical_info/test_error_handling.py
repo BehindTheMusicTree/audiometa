@@ -47,7 +47,7 @@ class TestAudioFileTechnicalInfoErrorHandling:
         def mock_get_duration_in_sec(_self):
             try:
                 msg = "FLAC chunk decoding failed"
-                raise Exception(msg)
+                raise RuntimeError(msg)
             except Exception as exc:
                 error_str = str(exc)
                 if "file said" in error_str and "bytes, read" in error_str:
