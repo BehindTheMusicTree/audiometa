@@ -259,7 +259,7 @@ def get_unified_metadata_field(
     # Check if key is a valid UnifiedMetadataKey enum first
     if not isinstance(unified_metadata_key, UnifiedMetadataKey):
         msg = f"{unified_metadata_key} metadata not supported by the library."
-        raise MetadataFieldNotSupportedByLib(msg)
+        raise MetadataFieldNotSupportedByLibError(msg)
 
     audio_file = _AudioFile(file)
 

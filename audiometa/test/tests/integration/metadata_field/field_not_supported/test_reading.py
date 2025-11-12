@@ -1,7 +1,7 @@
 import pytest
 
 from audiometa import get_unified_metadata_field
-from audiometa.exceptions import MetadataFieldNotSupportedByLib
+from audiometa.exceptions import MetadataFieldNotSupportedByLibError
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 from audiometa.utils.metadata_format import MetadataFormat
 
