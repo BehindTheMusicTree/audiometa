@@ -1,0 +1,13 @@
+# Auto-assign configuration
+# Assigns reviewers to PRs from contributors (not maintainers)
+
+# Default reviewers to assign
+reviewers:
+  - Andreas-Garcia
+
+# Number of reviewers to assign
+number-of-reviewers: 1
+
+# Don't assign the PR author
+assign-author: false
+
