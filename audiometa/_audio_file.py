@@ -131,16 +131,14 @@ class _AudioFile:
                 raise AudioFileMetadataParseError(msg) from e
             except DurationNotFoundError:
                 raise
-            else:
-                return duration
-                # Let DurationNotFoundError pass through
-                raise
             except Exception as exc:
                 if str(exc) == "Failed to probe audio file":
                     msg = "ffprobe could not parse the audio file."
                     raise FileCorruptedError(msg) from exc
                 msg = f"Failed to read WAV file duration: {exc!s}"
                 raise RuntimeError(msg) from exc
+            else:
+                return duration
 
         elif self.file_extension == ".flac":
             try:
@@ -333,6 +331,8 @@ class _AudioFile:
             raise RuntimeError(msg) from e
         except Exception:
             raise
+        else:
+            return temp_path
         finally:
             # Clean up the temp file only if we failed
             if not success and Path(temp_path).exists():
