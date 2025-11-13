@@ -17,4 +17,4 @@ class TestCLIDelete:
                 check=False,
             )
             assert result.returncode == 0
-            assert "Deleted all metadata" in result.stdout or "No metadata found" in result.stdout
+            assert "Deleted metadata" in result.stdout or "No metadata found" in result.stderr
