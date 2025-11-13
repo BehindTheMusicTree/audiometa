@@ -23,6 +23,7 @@ def format_output(data: Any, output_format: str) -> str:
             result = yaml.dump(data, default_flow_style=False)
             return str(result) if result is not None else ""
         except ImportError:
+            sys.stderr.write("Warning: PyYAML not installed, falling back to JSON\n")
             return json.dumps(data, indent=2)
     elif output_format == "table":
         return format_as_table(data)
