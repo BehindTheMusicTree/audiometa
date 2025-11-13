@@ -174,9 +174,9 @@ def _write_metadata(args: argparse.Namespace) -> None:
             update_kwargs: dict[str, Any] = {}
             update_metadata(file_path, metadata, **update_kwargs)
             if len(files) > 1:
-                pass
+                sys.stdout.write(f"Updated metadata for: {file_path}\n")
             else:
-                pass
+                sys.stdout.write("Updated metadata\n")
 
         except (FileTypeNotSupportedError, FileNotFoundError, PermissionError, OSError, Exception) as e:
             _handle_file_operation_error(e, file_path, args.continue_on_error)
@@ -192,9 +192,12 @@ def _delete_metadata(args: argparse.Namespace) -> None:
         try:
             success = delete_all_metadata(file_path)
             if success:
-                pass
+                if len(files) > 1:
+                    sys.stdout.write(f"Deleted metadata from: {file_path}\n")
+                else:
+                    sys.stdout.write("Deleted metadata\n")
             else:
-                pass
+                sys.stderr.write(f"Warning: No metadata found in: {file_path}\n")
 
         except (FileTypeNotSupportedError, FileNotFoundError, PermissionError, OSError, Exception) as e:
             _handle_file_operation_error(e, file_path, args.continue_on_error)
