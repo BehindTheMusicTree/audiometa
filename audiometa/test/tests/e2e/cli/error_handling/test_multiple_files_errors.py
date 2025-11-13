@@ -115,7 +115,9 @@ class TestCLIMultipleFilesErrors:
 
             # Should contain success messages for valid files
             stdout_output = result.stdout.lower()
-            assert "updated metadata for" in stdout_output
+            assert (
+                "updated metadata for" in stdout_output
+            ), f"Expected success message in stdout but got:\nSTDOUT: {result.stdout}\nSTDERR: {result.stderr}"
 
             # Should contain error message for unsupported file
             stderr_output = result.stderr.lower()
@@ -149,7 +151,9 @@ class TestCLIMultipleFilesErrors:
 
             # Should contain messages for processed files
             stdout_output = result.stdout.lower()
-            assert "deleted" in stdout_output or "found" in stdout_output
+            assert (
+                "deleted" in stdout_output or "found" in stdout_output
+            ), f"Expected success message in stdout but got:\nSTDOUT: {result.stdout}\nSTDERR: {result.stderr}"
 
             # Should contain error message for unsupported file
             stderr_output = result.stderr.lower()
