@@ -75,13 +75,6 @@ A powerful, unified Python library for reading and writing audio metadata across
   - [Rating Handling](#rating-handling)
   - [Release Date Validation Rules](#release-date-validation-rules)
   - [Track Number](#track-number)
-    - [ID3v1 Track Number Format](#id3v1-track-number-format)
-    - [ID3v2 Track Number Format](#id3v2-track-number-format)
-    - [Vorbis Track Number Format](#vorbis-track-number-format)
-    - [RIFF Track Number Format](#riff-track-number-format)
-    - [Reading And Writing Track Number](#reading-and-writing-track-number)
-      - [Reading Track Number](#reading-track-number)
-      - [Writing Track Number](#writing-track-number)
   - [Lyrics Support](#lyrics-support)
     - [Synchronized Lyrics](#synchronized-lyrics)
     - [Unsynchronized Lyrics](#unsynchronized-lyrics)
@@ -1265,6 +1258,7 @@ For detailed guides on specific topics, see:
 - [Multiple Values Handling](docs/MULTIPLE_VALUES.md) - How AudioMeta handles multi-value fields
 - [Genre Handling](docs/GENRE_HANDLING.md) - Comprehensive genre support across formats
 - [Rating Handling](docs/RATING_HANDLING.md) - Rating profiles and normalization
+- [Track Number Handling](docs/TRACK_NUMBER.md) - Track number formats and handling across metadata standards
 
 ### Metadata Support by Format
 
@@ -1443,73 +1437,12 @@ Invalid release date formats raise `InvalidMetadataFieldFormatError` with a desc
 
 The library handles different track number formats across audio metadata standards:
 
-#### ID3v1 Track Number Format
+- **ID3v1**: Simple numeric string (stored in comment field)
+- **ID3v2**: Supports `"track/total"` format (e.g., `"5/12"`) or simple `"track"` format
+- **Vorbis**: Simple numeric string, supports track/total format
+- **RIFF**: Simple numeric string
 
-ID3v1 does not natively support track numbers. The library supports storing track numbers in the comment field since ID3v1.1 format.
-
-- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
-- **Parsing**: Returns as string
-- **Examples**:
-  - `"5"` → Track number: `"5"`
-  - `"12"` → Track number: `"12"`
-
-#### ID3v2 Track Number Format
-
-- **Format**: `"track/total"` (e.g., `"5/12"`, `"99/99"`) or simple `"track"` (e.g., `"5"`, `"1"`)
-- **Parsing**: Returns the full track number string as stored
-- **Examples**:
-  - `"5/12"` → Track number: `"5/12"`
-  - `"99/99"` → Track number: `"99/99"`
-  - `"1"` → Track number: `"1"` (simple format also supported)
-
-#### Vorbis Track Number Format
-
-- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
-- **Parsing**: Returns as string
-- **Examples**:
-  - `"5"` → Track number: `"5"`
-  - `"12"` → Track number: `"12"`
-
-#### RIFF Track Number Format
-
-- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
-- **Parsing**: Returns as string
-- **Examples**:
-  - `"5"` → Track number: `"5"`
-  - `"12"` → Track number: `"12"`
-
-#### Reading And Writing Track Number
-
-##### Reading Track Number
-
-The library returns track numbers as strings. The library handles common edge cases:
-
-- `"5/"` → Track number: `"5/"` (trailing slash preserved)
-- `"/12"` → Track number: `None` (no track number before slash)
-- `"abc/def"` → Track number: `None` (non-numeric values)
-- `""` → Track number: `None` (empty string)
-- `"5/12/15"` → Track number: `None` (multiple slashes, invalid format)
-- `"5-12"` → Track number: `"5-12"` (different separator preserved)
-- `"01"` → Track number: `"01"` (leading zeros preserved)
-
-##### Writing Track Number
-
-The library supports writing track numbers in various formats. For formats that support track totals, the full format is preserved. The following matrix shows what value is written for each input format:
-
-| Input Value | ID3v1  | ID3v2     | Vorbis    | RIFF      |
-| ----------- | ------ | --------- | --------- | --------- |
-| `5` (int)   | `"5"`  | `"5"`     | `"5"`     | `"5"`     |
-| `"5"` (str) | `"5"`  | `"5"`     | `"5"`     | `"5"`     |
-| `"5/12"`    | `"5"`  | `"5/12"`  | `"5/12"`  | `"5/12"`  |
-| `"99/99"`   | `"99"` | `"99/99"` | `"99/99"` | `"99/99"` |
-| `"1"`       | `"1"`  | `"1"`     | `"1"`     | `"1"`     |
-
-**Notes:**
-
-- **ID3v1**: Only supports track numbers (1-255), extracts the track number from formats like "5/12" and ignores the total
-- **ID3v2**: Supports full track/total format (e.g., "5/12") as per ID3v2 specification
-- **Vorbis**: Supports full track/total format through TRACKNUMBER field
-- **RIFF**: Track number writing is not currently supported
+For comprehensive details on track number formats, reading/writing behavior, and edge case handling, see the [Track Number Handling Guide](docs/TRACK_NUMBER.md).
 
 ### Lyrics Support
 
