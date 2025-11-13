@@ -326,8 +326,10 @@ def _validate_and_normalize_unified_metadata_key(key: str | UnifiedMetadataKey) 
     """
     if isinstance(key, UnifiedMetadataKey):
         return key
-    if isinstance(key, str) and key in UnifiedMetadataKey:
-        return UnifiedMetadataKey[key]
+    if isinstance(key, str):
+        for enum_member in UnifiedMetadataKey:
+            if enum_member.value == key:
+                return enum_member
     msg = f"{key} metadata not supported by the library."
     raise MetadataFieldNotSupportedByLibError(msg)
 
