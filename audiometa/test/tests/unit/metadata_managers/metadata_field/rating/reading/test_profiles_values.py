@@ -8,11 +8,11 @@ class TestRatingProfileValues:
     @pytest.mark.parametrize(
         ("profile_enum", "expected_values"),
         [
-            (RatingReadProfile.BASE_255_NON_PROPORTIONAL, [0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255]),
-            (RatingReadProfile.BASE_100_PROPORTIONAL, [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]),
+            (RatingReadProfile.BASE_255_NON_PROPORTIONAL, (0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255)),
+            (RatingReadProfile.BASE_100_PROPORTIONAL, (0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)),
             (
                 RatingReadProfile.BASE_255_PROPORTIONAL_TRAKTOR,
-                [None, None, 51, None, 102, None, 153, None, 204, None, 255],
+                (None, None, 51, None, 102, None, 153, None, 204, None, 255),
             ),
         ],
     )
