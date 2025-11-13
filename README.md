@@ -425,7 +425,7 @@ Reads all metadata from a file and returns a unified dictionary.
 If `metadata_format` is specified, reads only from that format.
 If not specified, uses priority order across all formats.
 
-**Note:** `file_path` can be a string, `pathlib.Path` object, or `_AudioFile` instance.
+**Note:** `file_path` can be a string or `pathlib.Path` object.
 
 ```python
 from audiometa import get_unified_metadata
@@ -442,7 +442,7 @@ print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM, 'Unknown')}")
 
 Reads a specific metadata field. If no metadata format is specified, uses priority order across all formats.
 
-**Note:** `file_path` can be a string, `pathlib.Path` object, or `_AudioFile` instance.
+**Note:** `file_path` can be a string or `pathlib.Path` object.
 
 **Note:** The `field` parameter can be a `UnifiedMetadataKey` enum instance or a string matching an enum value (e.g., `"title"`). Invalid values will raise `MetadataFieldNotSupportedByLibError`.
 
@@ -484,7 +484,7 @@ except MetadataFieldNotSupportedByMetadataFormatError as e:
 
 Gets comprehensive metadata including all available information from a file, including headers and technical details even when no metadata is present.
 
-**Note:** `file_path` can be a string, `pathlib.Path` object, or `_AudioFile` instance.
+**Note:** `file_path` can be a string or `pathlib.Path` object.
 
 ```python
 from audiometa import get_full_metadata
@@ -689,7 +689,7 @@ Reads all metadata from a file and returns a unified dictionary.
 If `metadata_format` is specified, reads only from that format.
 If not specified, uses priority order across all formats.
 
-**Note:** `file_path` can be a string, `pathlib.Path` object, or `_AudioFile` instance.
+**Note:** `file_path` can be a string or `pathlib.Path` object.
 
 ```python
 from audiometa import get_unified_metadata
@@ -734,7 +734,7 @@ id3v2_4_metadata = get_unified_metadata("song.mp3", metadata_format=MetadataForm
 
 Reads a specific metadata field. If `metadata_format` is specified, reads only from that format; otherwise uses priority order across all formats.
 
-**Note:** `file_path` can be a string, `pathlib.Path` object, or `_AudioFile` instance.
+**Note:** `file_path` can be a string or `pathlib.Path` object.
 
 ```python
 from audiometa import get_unified_metadata_field, UnifiedMetadataKey
@@ -753,7 +753,7 @@ id3v2_rating = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.RATING,
 
 Gets comprehensive metadata including all available information from a file, including headers and technical details even when no metadata is present.
 
-**Note:** `file_path` can be a string, `pathlib.Path` object, or `_AudioFile` instance.
+**Note:** `file_path` can be a string or `pathlib.Path` object.
 
 This function provides the most complete view of an audio file by combining:
 
@@ -796,7 +796,7 @@ print(f"Raw Vorbis Comments: {full_metadata['raw_metadata']['vorbis']['comments'
 
 **Parameters:**
 
-- `file_path`: Path to the audio file (str, Path, or \_AudioFile)
+- `file_path`: Path to the audio file (str or Path)
 - `include_headers`: Whether to include format-specific header information (default: True)
 - `include_technical`: Whether to include technical audio information (default: True)
 
@@ -1022,7 +1022,7 @@ metadata = {
 
 Updates metadata in a file. The function automatically calls pre-update validation on the metadata before writing (see [Pre-Update Validation](#pre-update-validation) for validation rules).
 
-**Note:** `file_path` can be a string, `pathlib.Path` object, or `_AudioFile` instance.
+**Note:** `file_path` can be a string or `pathlib.Path` object.
 
 ```python
 from audiometa import update_metadata
@@ -1237,7 +1237,7 @@ Deletes all metadata from all supported formats for the file type.
 
 **`delete_all_metadata(file_path, metadata_format=None)`**
 
-**Note:** `file_path` can be a string, `pathlib.Path` object, or `_AudioFile` instance.
+**Note:** `file_path` can be a string or `pathlib.Path` object.
 
 ```python
 from audiometa import delete_all_metadata
@@ -1252,7 +1252,7 @@ Deletes all metadata from a specific format.
 
 **`delete_all_metadata(file_path, metadata_format=MetadataFormat.ID3V2)`**
 
-**Note:** `file_path` can be a string, `pathlib.Path` object, or `_AudioFile` instance.
+**Note:** `file_path` can be a string or `pathlib.Path` object.
 
 ```python
 from audiometa import delete_all_metadata
