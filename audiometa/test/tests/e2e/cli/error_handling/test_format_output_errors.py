@@ -8,6 +8,29 @@ from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metada
 
 @pytest.mark.e2e
 class TestCLIFormatOutputErrors:
+    def test_cli_yaml_format_with_pyyaml(self, capsys):
+        # Test the format_output function when PyYAML is installed
+        import json
+
+        from audiometa.cli import format_output
+
+        # Test that format_output uses YAML when yaml is available
+        test_data = {"test": "data", "number": 42}
+        result = format_output(test_data, "yaml")
+
+        # Should NOT be JSON (YAML format is different)
+        json_result = json.dumps(test_data, indent=2)
+        assert result != json_result
+
+        # Should NOT print warning to stderr
+        captured = capsys.readouterr()
+        assert "Warning: PyYAML not installed" not in captured.err
+        assert "falling back" not in captured.err
+
+        # Result should contain YAML formatting (includes colons for key-value pairs)
+        assert "test: data" in result or "test: 'data'" in result
+        assert "number: 42" in result
+
     def test_cli_yaml_format_without_pyyaml(self, monkeypatch, capsys):
         # Test the format_output function directly with mocked yaml import
         import sys
