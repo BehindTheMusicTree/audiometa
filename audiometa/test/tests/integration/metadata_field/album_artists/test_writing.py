@@ -42,7 +42,7 @@ class TestAlbumArtistsWriting:
             temp_file_with_metadata({}, "mp3") as test_file,
             pytest.raises(
                 MetadataFieldNotSupportedByMetadataFormatError,
-                match="UnifiedMetadataKey.ALBUM_ARTISTS metadata not supported by this format",
+                match="UnifiedMetadataKey.ALBUM_ARTISTS metadata not supported by ID3v1 format",
             ),
         ):
             update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V1)

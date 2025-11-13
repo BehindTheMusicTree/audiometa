@@ -29,6 +29,17 @@ class _Id3v1Manager(_MetadataManager):
         - Multiple genres
         - Multiple artists
         ...
+    """
+
+    def _get_formatted_metadata_format_name(self) -> str:
+        """Get the formatted metadata format name.
+
+        Returns:
+            The formatted format name 'ID3v1'
+        """
+        return "ID3v1"
+
+    """
     - Supports both reading and writing metadata using direct file manipulation.
 
     Format Structure:
@@ -246,7 +257,8 @@ class _Id3v1Manager(_MetadataManager):
             raise MetadataFieldNotSupportedByMetadataFormatError(msg)
         for unified_metadata_key in unified_metadata:
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
-                msg = f"{unified_metadata_key} metadata not supported by this format"
+                metadata_format_name = self._get_formatted_metadata_format_name()
+                msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         # Read the entire file

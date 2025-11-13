@@ -329,7 +329,8 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                     app_metadata_value = None
 
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
-                msg = f"{unified_metadata_key} metadata not supported by this format"
+                metadata_format_name = self._get_formatted_metadata_format_name()
+                msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
             if raw_metadata_key:

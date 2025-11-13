@@ -14,7 +14,7 @@ class TestCopyrightReading:
             temp_file_with_metadata({"title": "Test Song"}, "id3v1") as test_file,
             pytest.raises(
                 MetadataFieldNotSupportedByMetadataFormatError,
-                match="UnifiedMetadataKey.COPYRIGHT metadata not supported by this format",
+                match="UnifiedMetadataKey.COPYRIGHT metadata not supported by ID3v1 format",
             ),
         ):
             get_unified_metadata_field(test_file, UnifiedMetadataKey.COPYRIGHT, metadata_format=MetadataFormat.ID3V1)

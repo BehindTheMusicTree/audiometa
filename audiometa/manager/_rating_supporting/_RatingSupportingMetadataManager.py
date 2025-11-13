@@ -35,6 +35,21 @@ class _RatingSupportingMetadataManager(_MetadataManager):
             metadata_keys_direct_map_write=metadata_keys_direct_map_write,
         )
 
+    def _get_formatted_metadata_format_name(self) -> str:
+        """Get the formatted metadata format name from the class name.
+
+        Returns:
+            The formatted format name (e.g., 'RIFF', 'ID3v2', 'Vorbis')
+        """
+        metadata_format_name = self.__class__.__name__.replace("Manager", "").upper()
+        if metadata_format_name == "RIFF":
+            return "RIFF"
+        if metadata_format_name == "ID3V2":
+            return "ID3v2"
+        if metadata_format_name == "VORBIS":
+            return "Vorbis"
+        return metadata_format_name
+
     @staticmethod
     def validate_rating_value(rating_value: int, normalized_rating_max_value: int | None) -> None:
         """Validate rating value based on normalized_rating_max_value.
@@ -173,13 +188,7 @@ class _RatingSupportingMetadataManager(_MetadataManager):
             not self.metadata_keys_direct_map_write
             or UnifiedMetadataKey.RATING not in self.metadata_keys_direct_map_write
         ):
-            metadata_format_name = self.__class__.__name__.replace("Manager", "").upper()
-            if metadata_format_name == "RIFF":
-                metadata_format_name = "RIFF"
-            elif metadata_format_name == "ID3V2":
-                metadata_format_name = "ID3v2"
-            elif metadata_format_name == "VORBIS":
-                metadata_format_name = "Vorbis"
+            metadata_format_name = self._get_formatted_metadata_format_name()
             msg = f"{UnifiedMetadataKey.RATING} metadata not supported by {metadata_format_name} format"
             raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 

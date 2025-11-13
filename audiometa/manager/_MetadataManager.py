@@ -42,6 +42,15 @@ class _MetadataManager:
         self.metadata_keys_direct_map_write = metadata_keys_direct_map_write
         self.update_using_mutagen_metadata = update_using_mutagen_metadata
 
+    @abstractmethod
+    def _get_formatted_metadata_format_name(self) -> str:
+        """Get the formatted metadata format name.
+
+        Returns:
+            The formatted format name (e.g., 'RIFF', 'ID3v2', 'Vorbis')
+        """
+        raise NotImplementedError
+
     @staticmethod
     def find_safe_separator(values: list[str]) -> str:
         """Find a separator that doesn't appear in any of the provided values.
@@ -478,7 +487,8 @@ class _MetadataManager:
 
     def get_unified_metadata_field(self, unified_metadata_key: UnifiedMetadataKey) -> UnifiedMetadataValue:
         if unified_metadata_key not in self.metadata_keys_direct_map_read:
-            msg = f"{unified_metadata_key} metadata not supported by this format"
+            metadata_format_name = self._get_formatted_metadata_format_name()
+            msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
             raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         if self.raw_clean_metadata_uppercase_keys is None:
@@ -609,7 +619,8 @@ class _MetadataManager:
                         app_metadata_value = None
 
                 if unified_metadata_key not in self.metadata_keys_direct_map_write:
-                    msg = f"{unified_metadata_key} metadata not supported by this format"
+                    metadata_format_name = self._get_formatted_metadata_format_name()
+                    msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
                     raise MetadataFieldNotSupportedByMetadataFormatError(msg)
                 raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
                 if raw_metadata_key:

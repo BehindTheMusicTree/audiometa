@@ -688,7 +688,8 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         for unified_metadata_key in list(unified_metadata.keys()):
             app_metadata_value = unified_metadata[unified_metadata_key]
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
-                msg = f"{unified_metadata_key} metadata not supported by this format"
+                metadata_format_name = self._get_formatted_metadata_format_name()
+                msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
             if raw_metadata_key:

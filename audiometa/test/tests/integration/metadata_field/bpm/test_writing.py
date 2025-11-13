@@ -43,7 +43,7 @@ class TestBpmWriting:
             # ID3v1 format raises exception for unsupported metadata when format is forced
             with pytest.raises(
                 MetadataFieldNotSupportedByMetadataFormatError,
-                match="UnifiedMetadataKey.BPM metadata not supported by this format",
+                match="UnifiedMetadataKey.BPM metadata not supported by ID3v1 format",
             ):
                 update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V1)
 

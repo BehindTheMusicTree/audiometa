@@ -15,7 +15,7 @@ class TestComposerDeleting:
             temp_file_with_metadata({}, "mp3") as test_file,
             pytest.raises(
                 MetadataFieldNotSupportedByMetadataFormatError,
-                match="UnifiedMetadataKey.COMPOSERS metadata not supported by this format",
+                match="UnifiedMetadataKey.COMPOSERS metadata not supported by ID3v1 format",
             ),
         ):
             update_metadata(

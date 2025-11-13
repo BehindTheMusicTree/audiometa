@@ -17,7 +17,7 @@ class TestLyricsReading:
             temp_file_with_metadata({"title": "Test Song"}, "id3v1") as test_file,
             pytest.raises(
                 MetadataFieldNotSupportedByMetadataFormatError,
-                match="UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS metadata not supported by this format",
+                match="UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS metadata not supported by ID3v1 format",
             ),
         ):
             get_unified_metadata_field(

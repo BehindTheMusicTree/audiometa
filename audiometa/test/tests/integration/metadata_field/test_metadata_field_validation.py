@@ -20,7 +20,7 @@ class TestMetadataFieldValidation:
     def test_replaygain_not_supported_by_riff(self, sample_wav_file: Path):
         with pytest.raises(
             MetadataFieldNotSupportedByMetadataFormatError,
-            match="UnifiedMetadataKey.REPLAYGAIN metadata not supported by this format",
+            match="UnifiedMetadataKey.REPLAYGAIN metadata not supported by RIFF format",
         ):
             get_unified_metadata_field(
                 sample_wav_file, UnifiedMetadataKey.REPLAYGAIN, metadata_format=MetadataFormat.RIFF
@@ -29,7 +29,7 @@ class TestMetadataFieldValidation:
     def test_replaygain_not_supported_by_id3v1(self, sample_mp3_file: Path):
         with pytest.raises(
             MetadataFieldNotSupportedByMetadataFormatError,
-            match="UnifiedMetadataKey.REPLAYGAIN metadata not supported by this format",
+            match="UnifiedMetadataKey.REPLAYGAIN metadata not supported by ID3v1 format",
         ):
             get_unified_metadata_field(
                 sample_mp3_file, UnifiedMetadataKey.REPLAYGAIN, metadata_format=MetadataFormat.ID3V1
@@ -38,7 +38,7 @@ class TestMetadataFieldValidation:
     def test_album_artists_not_supported_by_id3v1(self, sample_mp3_file: Path):
         with pytest.raises(
             MetadataFieldNotSupportedByMetadataFormatError,
-            match="UnifiedMetadataKey.ALBUM_ARTISTS metadata not supported by this format",
+            match="UnifiedMetadataKey.ALBUM_ARTISTS metadata not supported by ID3v1 format",
         ):
             get_unified_metadata_field(
                 sample_mp3_file, UnifiedMetadataKey.ALBUM_ARTISTS, metadata_format=MetadataFormat.ID3V1
