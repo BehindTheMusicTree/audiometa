@@ -90,7 +90,9 @@ def read_metadata(args: argparse.Namespace) -> None:
                     if not args.continue_on_error:
                         sys.exit(1)
             else:
-                pass
+                sys.stdout.write(output)
+                if not output.endswith("\n"):
+                    sys.stdout.write("\n")
 
         except (FileTypeNotSupportedError, FileNotFoundError):
             if not args.continue_on_error:
