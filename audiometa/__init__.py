@@ -547,6 +547,7 @@ def update_metadata(
         MetadataFieldNotSupportedByLibError: If any key in unified_metadata is not a valid UnifiedMetadataKey enum value
         MetadataWritingConflictParametersError: If both metadata_strategy and metadata_format are specified
         InvalidRatingValueError: If invalid rating values are provided
+        InvalidMetadataFieldFormatError: If release date or track number format is invalid
 
     Note:
         Cannot specify both metadata_strategy and metadata_format simultaneously. Choose one approach:
@@ -620,6 +621,23 @@ def update_metadata(
     # Handle strategy-specific behavior before writing
     # Validate provided unified_metadata value types before attempting any writes
     _validate_unified_metadata_types(unified_metadata)
+
+    # Validate release date format if present and non-empty
+    if UnifiedMetadataKey.RELEASE_DATE in unified_metadata:
+        release_date_value = unified_metadata[UnifiedMetadataKey.RELEASE_DATE]
+        if release_date_value is not None and isinstance(release_date_value, str) and release_date_value:
+            from .manager._MetadataManager import _MetadataManager
+
+            _MetadataManager.validate_release_date(release_date_value)
+
+    # Validate track number format if present and non-empty
+    if UnifiedMetadataKey.TRACK_NUMBER in unified_metadata:
+        track_number_value = unified_metadata[UnifiedMetadataKey.TRACK_NUMBER]
+        if track_number_value is not None:
+            from .manager._MetadataManager import _MetadataManager
+
+            if isinstance(track_number_value, str | int):
+                _MetadataManager.validate_track_number(track_number_value)
 
     _handle_metadata_strategy(
         audio_file,
