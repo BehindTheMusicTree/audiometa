@@ -30,6 +30,29 @@ def format_output(data: Any, output_format: str) -> str:
         return str(data)
 
 
+def handle_file_operation_error(exception: Exception, file_path: Path | str, continue_on_error: bool) -> None:
+    """Handle exceptions from file operations and write appropriate error messages to stderr.
+
+    Args:
+        exception: The exception that was caught
+        file_path: The path to the file being operated on
+        continue_on_error: Whether to continue on errors or exit
+    """
+    if isinstance(exception, FileNotFoundError):
+        error_msg = f"Error: File not found: {file_path}\n"
+    elif isinstance(exception, FileTypeNotSupportedError):
+        error_msg = f"Error: File type not supported: {file_path}\n"
+    elif isinstance(exception, PermissionError | OSError):
+        error_msg = f"Error: {exception!s}\n"
+    else:
+        error_msg = f"Error: {exception!s}\n"
+
+    sys.stderr.write(error_msg)
+
+    if not continue_on_error:
+        sys.exit(1)
+
+
 def format_as_table(data: dict[str, Any]) -> str:
     """Format metadata as a simple table."""
     lines = []
@@ -86,20 +109,15 @@ def read_metadata(args: argparse.Namespace) -> None:
                 try:
                     with Path(args.output).open("w") as f:
                         f.write(output)
-                except (PermissionError, OSError):
-                    if not args.continue_on_error:
-                        sys.exit(1)
+                except (PermissionError, OSError) as e:
+                    handle_file_operation_error(e, args.output, args.continue_on_error)
             else:
                 sys.stdout.write(output)
                 if not output.endswith("\n"):
                     sys.stdout.write("\n")
 
-        except (FileTypeNotSupportedError, FileNotFoundError):
-            if not args.continue_on_error:
-                sys.exit(1)
-        except Exception:
-            if not args.continue_on_error:
-                sys.exit(1)
+        except (FileTypeNotSupportedError, FileNotFoundError, PermissionError, OSError, Exception) as e:
+            handle_file_operation_error(e, file_path, args.continue_on_error)
 
 
 def write_metadata(args: argparse.Namespace) -> None:
@@ -147,12 +165,8 @@ def write_metadata(args: argparse.Namespace) -> None:
             else:
                 pass
 
-        except (FileTypeNotSupportedError, FileNotFoundError):
-            if not args.continue_on_error:
-                sys.exit(1)
-        except Exception:
-            if not args.continue_on_error:
-                sys.exit(1)
+        except (FileTypeNotSupportedError, FileNotFoundError, PermissionError, OSError, Exception) as e:
+            handle_file_operation_error(e, file_path, args.continue_on_error)
 
 
 def delete_metadata(args: argparse.Namespace) -> None:
@@ -169,12 +183,8 @@ def delete_metadata(args: argparse.Namespace) -> None:
             else:
                 pass
 
-        except (FileTypeNotSupportedError, FileNotFoundError):
-            if not args.continue_on_error:
-                sys.exit(1)
-        except Exception:
-            if not args.continue_on_error:
-                sys.exit(1)
+        except (FileTypeNotSupportedError, FileNotFoundError, PermissionError, OSError, Exception) as e:
+            handle_file_operation_error(e, file_path, args.continue_on_error)
 
 
 def expand_file_patterns(patterns: list[str], recursive: bool = False, continue_on_error: bool = False) -> list[Path]:
@@ -209,6 +219,8 @@ def expand_file_patterns(patterns: list[str], recursive: bool = False, continue_
     if not files:
         if continue_on_error:
             return []
+        error_msg = "Error: No files found\n"
+        sys.stderr.write(error_msg)
         sys.exit(1)
 
     return files
