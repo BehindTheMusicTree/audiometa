@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, TypeVar, cast
 
 from mutagen._file import FileType as MutagenMetadata
 
+from audiometa.exceptions import InvalidMetadataFieldFormatError
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 if TYPE_CHECKING:
@@ -74,6 +75,79 @@ class _MetadataManager:
             List of valid (non-empty) values
         """
         return [value for value in values if value is not None and value != ""]
+
+    @staticmethod
+    def validate_release_date(release_date: str) -> None:
+        """Validate release date format.
+
+        Release dates must be in one of the following formats:
+        - YYYY (4 digits) - for year-only dates (e.g., "2024")
+        - YYYY-MM-DD (ISO-like format) - for full dates (e.g., "2024-01-01")
+        - Empty string is allowed (represents no date)
+
+        Args:
+            release_date: The release date string to validate
+
+        Raises:
+            InvalidMetadataFieldFormatError: If the release date format is invalid
+
+        Examples:
+            >>> _MetadataManager.validate_release_date("2024")  # Valid
+            >>> _MetadataManager.validate_release_date("2024-01-01")  # Valid
+            >>> _MetadataManager.validate_release_date("")  # Valid (empty string)
+            >>> _MetadataManager.validate_release_date("2024/01/01")  # Raises InvalidMetadataFieldFormatError
+        """
+        if release_date and not (re.match(r"^\d{4}$", release_date) or re.match(r"^\d{4}-\d{2}-\d{2}$", release_date)):
+            raise InvalidMetadataFieldFormatError(
+                UnifiedMetadataKey.RELEASE_DATE.value, "YYYY (4 digits) or YYYY-MM-DD format", release_date
+            )
+
+    @staticmethod
+    def validate_track_number(track_number: str | int) -> None:
+        """Validate track number format.
+
+        Track numbers must be in one of the following formats:
+        - Simple number: "5", "12", "99" (string or int)
+        - Number with separator and optional total: "5/12", "5-12", "5/", "5-"
+        - Empty string is allowed (represents no track number)
+
+        Args:
+            track_number: The track number to validate (string or int)
+
+        Raises:
+            InvalidMetadataFieldFormatError: If the track number format is invalid
+
+        Examples:
+            >>> _MetadataManager.validate_track_number("5")  # Valid
+            >>> _MetadataManager.validate_track_number(5)  # Valid
+            >>> _MetadataManager.validate_track_number("5/12")  # Valid
+            >>> _MetadataManager.validate_track_number("5-12")  # Valid
+            >>> _MetadataManager.validate_track_number("")  # Valid (empty string)
+            >>> _MetadataManager.validate_track_number("/12")  # Raises InvalidMetadataFieldFormatError
+            >>> _MetadataManager.validate_track_number("5/12/15")  # Raises InvalidMetadataFieldFormatError
+            >>> _MetadataManager.validate_track_number("abc")  # Raises InvalidMetadataFieldFormatError
+        """
+        if isinstance(track_number, int):
+            if track_number < 0:
+                raise InvalidMetadataFieldFormatError(
+                    UnifiedMetadataKey.TRACK_NUMBER.value, "non-negative integer or string format", str(track_number)
+                )
+            return
+
+        if not isinstance(track_number, str):
+            raise InvalidMetadataFieldFormatError(
+                UnifiedMetadataKey.TRACK_NUMBER.value, "string or int", str(type(track_number).__name__)
+            )
+
+        if not track_number:
+            return
+
+        if not re.match(r"^\d+([-/]\d*)?$", track_number):
+            raise InvalidMetadataFieldFormatError(
+                UnifiedMetadataKey.TRACK_NUMBER.value,
+                "simple number (e.g., '5') or number with separator and optional total (e.g., '5/12', '5-12')",
+                track_number,
+            )
 
     @abstractmethod
     def _extract_mutagen_metadata(self) -> MutagenMetadata:

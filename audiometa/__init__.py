@@ -10,7 +10,6 @@ For detailed metadata support information, see the README.md file.
 """
 
 import contextlib
-import re
 import warnings
 from pathlib import Path
 from typing import Any, Union, cast
@@ -19,7 +18,6 @@ from ._audio_file import _AudioFile
 from .exceptions import (
     FileCorruptedError,
     FileTypeNotSupportedError,
-    InvalidMetadataFieldFormatError,
     InvalidMetadataFieldTypeError,
     MetadataFieldNotSupportedByLibError,
     MetadataFieldNotSupportedByMetadataFormatError,
@@ -257,7 +255,7 @@ def get_unified_metadata_field(
         except MetadataFieldNotSupportedByLibError:
             print("Field not supported by any format in the library")
     """
-    unified_metadata_key = _validate_and_normalize_unified_metadata_key(unified_metadata_key)
+    unified_metadata_key = _ensure_unified_metadata_key(unified_metadata_key)
 
     audio_file = _AudioFile(file)
 
@@ -305,16 +303,17 @@ def get_unified_metadata_field(
         return None
 
 
-def _validate_and_normalize_unified_metadata_key(key: str | UnifiedMetadataKey) -> UnifiedMetadataKey:
-    """Validate and normalize a key to a UnifiedMetadataKey enum instance.
+def _ensure_unified_metadata_key(key: str | UnifiedMetadataKey) -> UnifiedMetadataKey:
+    """Ensure a key is a UnifiedMetadataKey enum instance.
 
     This function accepts both UnifiedMetadataKey enum instances and string values that match
-    enum values. This provides runtime validation since Python doesn't enforce type hints at runtime,
-    allowing the function to catch invalid inputs (e.g., invalid strings) that would otherwise cause
-    confusing errors later in the code.
+    enum values. Converts string keys to enum instances when they match. This provides runtime
+    validation since Python doesn't enforce type hints at runtime, allowing the function to catch
+    invalid inputs (e.g., invalid strings) that would otherwise cause confusing errors later in
+    the code.
 
     Args:
-        key: The metadata key to validate. Can be a UnifiedMetadataKey enum instance or a string
+        key: The metadata key to ensure. Can be a UnifiedMetadataKey enum instance or a string
             matching an enum value (e.g., "title", "artist").
 
     Returns:
@@ -339,6 +338,9 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
 
     Raises InvalidMetadataFieldTypeError when a value does not match the expected type. None values are allowed (used to
     indicate removal of a field).
+
+    Note: This function only validates types, not formats. Format validation (e.g., release date, track number)
+    is handled separately.
     """
     if not unified_metadata:
         return
@@ -346,8 +348,6 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
     from typing import get_args, get_origin
 
     for key, value in unified_metadata.items():
-        _validate_and_normalize_unified_metadata_key(key)
-
         # Allow None to mean "remove this field"
         if value is None:
             continue
@@ -390,15 +390,110 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
                 key.value, getattr(expected_type, "__name__", str(expected_type)), value
             )
 
-        # Format validation for specific fields
-        if (
-            key == UnifiedMetadataKey.RELEASE_DATE
-            and isinstance(value, str)
-            and value
-            and not (re.match(r"^\d{4}$", value) or re.match(r"^\d{4}-\d{2}-\d{2}$", value))
-        ):
-            # Accept empty string (represents no date), YYYY (4 digits) or YYYY-MM-DD (ISO-like format)
-            raise InvalidMetadataFieldFormatError(key.value, "YYYY (4 digits) or YYYY-MM-DD format", value)
+
+def validate_metadata_for_update(
+    unified_metadata: dict[UnifiedMetadataKey, Any] | UnifiedMetadata,
+    normalized_rating_max_value: int | None = None,
+) -> None:
+    """Validate unified metadata values before updating metadata in a file.
+
+    This function validates that a metadata dictionary contains at least one field and validates
+    the types and formats of values. None values (which indicate field removal), empty strings,
+    empty lists, and lists containing None values are all considered valid metadata values.
+
+    Additionally validates rating, release date, and track number values if present (and non-empty):
+    - Rating values are validated using the same validation logic as the rating-supporting
+      metadata managers
+    - Release date values are validated for correct format (YYYY or YYYY-MM-DD)
+    - Track number values are validated for correct format (simple number or number with separator)
+
+    Note: For list-type fields (e.g., ARTISTS, GENRES), lists containing None values like
+    [None, None] are allowed. During writing, None values are automatically filtered out,
+    and if all values are filtered out, the field is removed (set to None).
+
+    String keys that match UnifiedMetadataKey enum values are automatically converted to
+    enum instances and validated. This allows using both string keys (e.g., "title") and
+    enum keys (e.g., UnifiedMetadataKey.TITLE) for validation.
+
+    Args:
+        unified_metadata: Dictionary containing metadata to validate. Keys can be strings
+            matching UnifiedMetadataKey enum values or UnifiedMetadataKey enum instances.
+        normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
+            When provided, ratings are validated against this scale. Defaults to None (raw values).
+
+    Raises:
+        ValueError: If no metadata fields are specified (empty dict)
+        InvalidRatingValueError: If rating value is invalid
+        InvalidMetadataFieldFormatError: If release date or track number format is invalid
+        MetadataFieldNotSupportedByLibError: If a string key doesn't match any UnifiedMetadataKey enum value
+
+    Examples:
+        >>> from audiometa import validate_metadata_for_update, UnifiedMetadataKey
+        >>> validate_metadata_for_update({UnifiedMetadataKey.TITLE: "Song Title"})
+        >>> validate_metadata_for_update({"title": "Song Title"})  # Valid
+        >>> validate_metadata_for_update({UnifiedMetadataKey.TITLE: ""})
+        >>> validate_metadata_for_update({UnifiedMetadataKey.ARTISTS: []})
+        >>> validate_metadata_for_update({UnifiedMetadataKey.ARTISTS: [None, None]})
+        >>> validate_metadata_for_update({UnifiedMetadataKey.TITLE: None})
+        >>> validate_metadata_for_update({UnifiedMetadataKey.RATING: 50}, normalized_rating_max_value=100)
+        >>> validate_metadata_for_update({UnifiedMetadataKey.RATING: 0}, normalized_rating_max_value=100)
+        >>> validate_metadata_for_update({UnifiedMetadataKey.RATING: 100}, normalized_rating_max_value=100)
+        >>> validate_metadata_for_update({UnifiedMetadataKey.RATING: -1})  # Error
+        >>> validate_metadata_for_update({UnifiedMetadataKey.RATING: 101}, normalized_rating_max_value=100)  # Error
+        >>> validate_metadata_for_update({UnifiedMetadataKey.RATING: 33}, normalized_rating_max_value=100)  # Error
+        >>> validate_metadata_for_update({UnifiedMetadataKey.RELEASE_DATE: "2024-01-01"})
+        >>> validate_metadata_for_update({UnifiedMetadataKey.RELEASE_DATE: "2024/01/01"})  # Error
+        >>> validate_metadata_for_update({UnifiedMetadataKey.TRACK_NUMBER: "5"})  # Valid
+        >>> validate_metadata_for_update({UnifiedMetadataKey.TRACK_NUMBER: 5})  # Valid
+        >>> validate_metadata_for_update({UnifiedMetadataKey.TRACK_NUMBER: "5/12"})  # Valid
+        >>> validate_metadata_for_update({UnifiedMetadataKey.TRACK_NUMBER: "/12"})  # Error
+    """
+    if not unified_metadata:
+        msg = "no metadata fields specified"
+        raise ValueError(msg)
+
+    # Convert string keys to UnifiedMetadataKey enum instances
+    normalized_metadata: dict[UnifiedMetadataKey, Any] = {}
+    for key, value in unified_metadata.items():
+        normalized_key = _ensure_unified_metadata_key(key)
+        normalized_metadata[normalized_key] = value
+
+    # Validate types
+    _validate_unified_metadata_types(normalized_metadata)
+
+    # Validate rating if present and non-empty
+    if UnifiedMetadataKey.RATING in normalized_metadata:
+        rating_value = normalized_metadata[UnifiedMetadataKey.RATING]
+        if rating_value is not None:
+            if isinstance(rating_value, int | float):
+                from .manager._rating_supporting._RatingSupportingMetadataManager import (
+                    _RatingSupportingMetadataManager,
+                )
+
+                rating_int = int(rating_value)
+                _RatingSupportingMetadataManager.validate_rating_value(rating_int, normalized_rating_max_value)
+            else:
+                from .exceptions import InvalidRatingValueError
+
+                msg = f"Rating value must be numeric, got {type(rating_value).__name__}"
+                raise InvalidRatingValueError(msg)
+
+    # Validate release date if present and non-empty
+    if UnifiedMetadataKey.RELEASE_DATE in normalized_metadata:
+        release_date_value = normalized_metadata[UnifiedMetadataKey.RELEASE_DATE]
+        if release_date_value is not None and isinstance(release_date_value, str) and release_date_value:
+            from .manager._MetadataManager import _MetadataManager
+
+            _MetadataManager.validate_release_date(release_date_value)
+
+    # Validate track number if present and non-empty
+    if UnifiedMetadataKey.TRACK_NUMBER in normalized_metadata:
+        track_number_value = normalized_metadata[UnifiedMetadataKey.TRACK_NUMBER]
+        if track_number_value is not None:
+            from .manager._MetadataManager import _MetadataManager
+
+            if isinstance(track_number_value, str | int):
+                _MetadataManager.validate_track_number(track_number_value)
 
 
 def update_metadata(

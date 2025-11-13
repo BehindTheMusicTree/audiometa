@@ -35,6 +35,56 @@ class _RatingSupportingMetadataManager(_MetadataManager):
             metadata_keys_direct_map_write=metadata_keys_direct_map_write,
         )
 
+    @staticmethod
+    def validate_rating_value(rating_value: int, normalized_rating_max_value: int | None) -> None:
+        """Validate rating value based on normalized_rating_max_value.
+
+        Rules:
+        - When normalized_rating_max_value is None: value must be >= 0 (any non-negative integer is allowed)
+        - When normalized_rating_max_value is provided: value must be between 0 and normalized_rating_max_value
+          and when converted to output values (value/max * 100 or value/max * 255), at least one must exist
+          in a writing profile (BASE_100_PROPORTIONAL or BASE_255_NON_PROPORTIONAL)
+
+        Args:
+            rating_value: The rating value to validate
+            normalized_rating_max_value: Maximum value for rating normalization, or None for raw values
+
+        Raises InvalidRatingValueError if validation fails.
+        """
+        if normalized_rating_max_value is None:
+            # Rating is written as-is - must be non-negative
+            if rating_value < 0:
+                msg = f"Rating value {rating_value} is invalid. Rating values must be non-negative (>= 0)."
+                raise InvalidRatingValueError(msg)
+        else:
+            # Value is normalized - must be non-negative and within max
+            if rating_value < 0:
+                msg = f"Rating value {rating_value} is invalid. Rating values must be non-negative (>= 0)."
+                raise InvalidRatingValueError(msg)
+            if rating_value > normalized_rating_max_value:
+                msg = (
+                    f"Rating value {rating_value} is out of range. "
+                    f"Value must be between 0 and {normalized_rating_max_value} (inclusive)."
+                )
+                raise InvalidRatingValueError(msg)
+            # Calculate ratio and check if output values exist in writing profiles
+            ratio = rating_value / normalized_rating_max_value
+            output_100 = round(ratio * 100)
+            output_255 = round(ratio * 255)
+
+            # Check if output_100 exists in BASE_100_PROPORTIONAL profile
+            in_base_100 = output_100 in RatingWriteProfile.BASE_100_PROPORTIONAL
+            # Check if output_255 exists in BASE_255_NON_PROPORTIONAL profile
+            in_base_255 = output_255 in RatingWriteProfile.BASE_255_NON_PROPORTIONAL
+
+            if not in_base_100 and not in_base_255:
+                msg = (
+                    f"Rating value {rating_value} is not valid for max value {normalized_rating_max_value}. "
+                    f"Calculated output values ({output_100} for 100-scale, {output_255} for 255-scale) "
+                    f"do not exist in any supported writing profile."
+                )
+                raise InvalidRatingValueError(msg)
+
     @abstractmethod
     def _get_raw_rating_by_traktor_or_not(self, raw_clean_metadata: RawMetadataDict) -> tuple[int | None, bool]:
         """Return True if the rating is from Traktor, False otherwise."""
@@ -81,51 +131,6 @@ class _RatingSupportingMetadataManager(_MetadataManager):
         result = self.rating_write_profile[star_rating_base_10]
         return int(result) if result is not None else 0
 
-    def _validate_rating_value(self, rating_value: int) -> None:
-        """Validate rating value based on normalized_rating_max_value.
-
-        Rules:
-        - When normalized_rating_max_value is None: value must be >= 0 (any non-negative integer is allowed)
-        - When normalized_rating_max_value is provided: value must be between 0 and normalized_rating_max_value
-          and when converted to output values (value/max * 100 or value/max * 255), at least one must exist
-          in a writing profile (BASE_100_PROPORTIONAL or BASE_255_NON_PROPORTIONAL)
-
-        Raises InvalidRatingValueError if validation fails.
-        """
-        if self.normalized_rating_max_value is None:
-            # Rating is written as-is - must be non-negative
-            if rating_value < 0:
-                msg = f"Rating value {rating_value} is invalid. Rating values must be non-negative (>= 0)."
-                raise InvalidRatingValueError(msg)
-        else:
-            # Value is normalized - must be non-negative and within max
-            if rating_value < 0:
-                msg = f"Rating value {rating_value} is invalid. Rating values must be non-negative (>= 0)."
-                raise InvalidRatingValueError(msg)
-            if rating_value > self.normalized_rating_max_value:
-                msg = (
-                    f"Rating value {rating_value} is out of range. "
-                    f"Value must be between 0 and {self.normalized_rating_max_value} (inclusive)."
-                )
-                raise InvalidRatingValueError(msg)
-            # Calculate ratio and check if output values exist in writing profiles
-            ratio = rating_value / self.normalized_rating_max_value
-            output_100 = round(ratio * 100)
-            output_255 = round(ratio * 255)
-
-            # Check if output_100 exists in BASE_100_PROPORTIONAL profile
-            in_base_100 = output_100 in RatingWriteProfile.BASE_100_PROPORTIONAL
-            # Check if output_255 exists in BASE_255_NON_PROPORTIONAL profile
-            in_base_255 = output_255 in RatingWriteProfile.BASE_255_NON_PROPORTIONAL
-
-            if not in_base_100 and not in_base_255:
-                msg = (
-                    f"Rating value {rating_value} is not valid for max value {self.normalized_rating_max_value}. "
-                    f"Calculated output values ({output_100} for 100-scale, {output_255} for 255-scale) "
-                    f"do not exist in any supported writing profile."
-                )
-                raise InvalidRatingValueError(msg)
-
     def _validate_rating_in_unified_metadata(self, unified_metadata: UnifiedMetadata) -> None:
         """Validate rating value in unified metadata if present.
 
@@ -140,7 +145,7 @@ class _RatingSupportingMetadataManager(_MetadataManager):
             if value is not None:
                 if isinstance(value, int | float):
                     rating_int = int(value)
-                    self._validate_rating_value(rating_int)
+                    self.validate_rating_value(rating_int, self.normalized_rating_max_value)
                 else:
                     msg = f"Rating value must be numeric, got {type(value).__name__}"
                     raise InvalidRatingValueError(msg)

@@ -37,6 +37,7 @@ A powerful, unified Python library for reading and writing audio metadata across
     - [Reading All Metadata](#reading-all-metadata)
     - [Reading Specific Metadata Fields (Quick Start)](#reading-specific-metadata-fields-quick-start)
     - [Reading Full Metadata From All Formats Including Headers and Technical Info](#reading-full-metadata-from-all-formats-including-headers-and-technical-info)
+  - [Validate Metadata Before Update](#validate-metadata-before-update)
   - [Writing Metadata](#writing-metadata)
   - [Deleting Metadata](#deleting-metadata)
     - [Delete All Metadata (Complete Removal)](#delete-all-metadata-complete-removal)
@@ -54,9 +55,9 @@ A powerful, unified Python library for reading and writing audio metadata across
     - [Reading All Metadata From A ID3v2 Format With Version](#reading-all-metadata-from-a-id3v2-format-with-version)
     - [Reading Specific Metadata Fields](#reading-specific-metadata-fields)
     - [Reading Full Metadata From All Formats Including Headers and Technical Info](#reading-full-metadata-from-all-formats-including-headers-and-technical-info-1)
+  - [Pre-Update Validation](#pre-update-validation)
   - [Writing Metadata (API Reference)](#writing-metadata-api-reference)
     - [Metadata Dictionary Structure](#metadata-dictionary-structure)
-    - [Validation](#validation)
     - [Writing Defaults by Audio Format](#writing-defaults-by-audio-format)
     - [Writing Strategies](#writing-strategies)
       - [Available Strategies](#available-strategies)
@@ -118,6 +119,7 @@ A powerful, unified Python library for reading and writing audio metadata across
         - [Rating Writing Profiles](#rating-writing-profiles)
         - [Rating Validation Rules](#rating-validation-rules)
     - [Half-Star Rating Support](#half-star-rating-support)
+  - [Release Date Validation Rules](#release-date-validation-rules)
   - [Track Number](#track-number)
     - [ID3v1 Track Number Format](#id3v1-track-number-format)
     - [ID3v2 Track Number Format](#id3v2-track-number-format)
@@ -489,6 +491,37 @@ from audiometa import get_full_metadata
 
 full_metadata = get_full_metadata("song.mp3")
 ```
+
+### Validate Metadata Before Update
+
+Before updating metadata in a file, it's recommended to validate your metadata to catch errors early:
+
+```python
+from audiometa import validate_metadata_for_update, UnifiedMetadataKey
+
+# Validate metadata before updating
+metadata = {
+    UnifiedMetadataKey.TITLE: 'New Song Title',
+    UnifiedMetadataKey.ARTISTS: ['Artist Name'],
+    UnifiedMetadataKey.ALBUM: 'Album Name',
+    UnifiedMetadataKey.RATING: 85,
+}
+
+try:
+    validate_metadata_for_update(metadata)
+    print("Metadata is valid!")
+except Exception as e:
+    print(f"Metadata validation failed: {e}")
+```
+
+This validation checks for:
+
+- **Type correctness**: Ensures values match expected types (strings for title, lists for artists, etc.)
+- **Format rules**: Validates field formats (e.g., release dates must be in ISO 8601 format)
+- **Value ranges**: Checks ratings, track numbers, and other numeric values are within valid ranges
+- **Empty values**: Verifies at least one field is provided
+
+See [Pre-Update Validation Function](#pre-update-validation-function) for detailed validation rules and examples.
 
 ### Writing Metadata
 
@@ -910,7 +943,63 @@ print(f"Metadata overhead: {full_info['headers']['id3v2']['header_size_bytes']} 
 print(f"Audio data ratio: {(full_info['technical_info']['file_size_bytes'] - full_info['headers']['id3v2']['header_size_bytes']) / full_info['technical_info']['file_size_bytes'] * 100:.1f}%")
 ```
 
+### Pre-Update Validation
+
+Before updating metadata, the library provides validation to ensure your data is correct:
+
+**Validation Rules**
+
+The library validates metadata value types and formats when keys are provided as `UnifiedMetadataKey` instances:
+
+- `None` values are allowed and indicate field removal.
+- For fields whose expected type is `list[...]` (for example `ARTISTS` or `GENRES_NAMES`) the validator accepts only lists. Each list element is checked against the expected inner type (e.g., `str` for `ARTISTS`).
+- For plain types (`str`, `int`, etc.) the value must be an instance of that type.
+- On type mismatch the library raises `InvalidMetadataFieldTypeError`.
+- **Rating Validation**: See [Rating Validation Rules](#rating-validation-rules) for detailed rules on rating values.
+- **Release Date Validation**: See [Release Date Validation Rules](#release-date-validation-rules) for detailed rules on release date formats.
+
+Note: The validator uses the `UnifiedMetadataKey` enum to determine expected types. String keys that match `UnifiedMetadataKey` enum values (e.g., `"title"`, `"artists"`) are automatically converted to enum instances and validated. You can use either string keys or `UnifiedMetadataKey` enum instances - both are validated the same way. Using `UnifiedMetadataKey` enum instances provides better IDE support and type checking.
+
+**`validate_metadata_for_update(unified_metadata, normalized_rating_max_value=None)`**
+
+Validates unified metadata values before updating metadata in a file. Validates that a metadata dictionary contains at least one field and validates types, formats, and values (rating, release date, track number) if present. For detailed validation rules, see [Rating Validation Rules](#rating-validation-rules) and [Release Date Validation Rules](#release-date-validation-rules).
+
+```python
+from audiometa import validate_metadata_for_update, UnifiedMetadataKey
+
+# Valid metadata
+validate_metadata_for_update({UnifiedMetadataKey.TITLE: "Song Title"})
+
+# Valid: empty string is allowed (represents setting field to empty)
+validate_metadata_for_update({UnifiedMetadataKey.TITLE: ""})
+
+# Valid: None value is allowed (represents field removal)
+validate_metadata_for_update({UnifiedMetadataKey.TITLE: None})
+
+# Valid: empty list is allowed
+validate_metadata_for_update({UnifiedMetadataKey.ARTISTS: []})
+
+# Valid: list with None values is allowed (None values will be filtered during writing)
+validate_metadata_for_update({UnifiedMetadataKey.ARTISTS: [None, None]})
+
+# Valid: rating with normalization (see Rating Validation Rules for details)
+validate_metadata_for_update({UnifiedMetadataKey.RATING: 50}, normalized_rating_max_value=100)
+
+# Invalid: negative rating
+validate_metadata_for_update({UnifiedMetadataKey.RATING: -1})
+# Raises: InvalidRatingValueError
+
+# Valid: release date
+validate_metadata_for_update({UnifiedMetadataKey.RELEASE_DATE: "2024-01-01"})
+
+# Invalid: invalid release date format
+validate_metadata_for_update({UnifiedMetadataKey.RELEASE_DATE: "2024/01/01"})
+# Raises: InvalidMetadataFieldFormatError
+```
+
 ### Writing Metadata (API Reference)
+
+For validation before writing, see [Pre-Update Validation](#pre-update-validation).
 
 #### Metadata Dictionary Structure
 
@@ -929,24 +1018,9 @@ metadata = {
 }
 ```
 
-#### Validation
+**`update_metadata(file_path, metadata, **options)`\*\*
 
-The library validates metadata value types and formats passed to `update_metadata` when keys are provided as `UnifiedMetadataKey` instances. Rules:
-
-- `None` values are allowed and indicate field removal.
-- For fields whose expected type is `list[...]` (for example `ARTISTS` or `GENRES_NAMES`) the validator accepts only lists. Each list element is checked against the expected inner type (e.g., `str` for `ARTISTS`).
-- For plain types (`str`, `int`, etc.) the value must be an instance of that type.
-- On type mismatch the library raises `InvalidMetadataFieldTypeError`.
-- **Date Format Validation**: The `RELEASE_DATE` field accepts two formats:
-  - `YYYY` (4 digits) - for year-only dates (e.g., `"2024"`)
-  - `YYYY-MM-DD` (ISO-like format) - for full dates (e.g., `"2024-01-01"`)
-  - Invalid formats raise `InvalidMetadataFieldFormatError` (e.g., `"2024/01/01"`, `"2024-1-1"`, `"not-a-date"`)
-
-Note: the validator currently uses the `UnifiedMetadataKey` enum to determine expected types. Calls that use plain string keys (the older examples in this README) are accepted by the API but are not validated by this mechanism unless you pass `UnifiedMetadataKey` instances. You can continue using string keys, or prefer `UnifiedMetadataKey` for explicit validation and IDE-friendly code.
-
-\*\*`update_metadata(file_path, metadata, **options)`\*\*
-
-Updates metadata in a file.
+Updates metadata in a file. The function automatically calls pre-update validation on the metadata before writing (see [Pre-Update Validation](#pre-update-validation) for validation rules).
 
 **Note:** `file_path` can be a string, `pathlib.Path` object, or `_AudioFile` instance.
 
@@ -1940,7 +2014,7 @@ update_metadata("song.flac", {"rating": 5})  # 2.5 stars → BASE_100_PROPORTION
 
 ##### Rating Validation Rules
 
-AudioMeta validates rating values based on whether normalization is enabled:
+AudioMeta validates rating values based on whether normalization is enabled. You can also validate ratings independently using `_RatingSupportingMetadataManager.validate_rating_value()` (see [Pre-Update Validation Function](#pre-update-validation-function) above).
 
 **When `normalized_rating_max_value` is not provided (raw mode)**:
 
@@ -2015,6 +2089,67 @@ When normalization is enabled, ratings are converted to file-specific values usi
 **Error Handling**:
 
 Invalid rating values raise `InvalidRatingValueError` with a descriptive message indicating why the value is invalid.
+
+##### Release Date Validation Rules
+
+The `RELEASE_DATE` field accepts two formats:
+
+**Valid Formats:**
+
+1. **YYYY format** (4 digits) - for year-only dates
+   - Examples: `"2024"`, `"1900"`, `"1970"`, `"0000"`, `"9999"`
+   - Use when you only know the year
+
+2. **YYYY-MM-DD format** (ISO-like format) - for full dates
+   - Examples: `"2024-01-01"`, `"2024-12-31"`, `"1900-01-01"`, `"1970-06-15"`
+   - Month and day must be zero-padded (2 digits each)
+   - Use when you have the complete date
+
+3. **Empty string** - allowed and represents no date
+   - Example: `""`
+
+**Invalid Formats:**
+
+The following formats will raise `InvalidMetadataFieldFormatError`:
+
+- Wrong separator: `"2024/01/01"`, `"2024.01.01"`, `"2024_01_01"`, `"2024 01 01"`
+- Incomplete date: `"2024-1-1"`, `"2024-1-01"`, `"2024-01-1"`
+- Short year: `"24"`, `"202"`, `"20"`
+- Long year: `"20245"`, `"20245-01-01"`
+- Non-numeric: `"not-a-date"`, `"2024-abc-01"`, `"abcd-01-01"`
+- Incomplete format: `"2024-01"`, `"2024-"`, `"-01-01"`, `"2024-01-"`
+
+**Examples:**
+
+```python
+from audiometa import update_metadata
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+
+# Valid: YYYY format
+update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: "2024"})
+
+# Valid: YYYY-MM-DD format
+update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: "2024-01-01"})
+
+# Valid: empty string
+update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: ""})
+
+# Invalid: wrong separator
+update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: "2024/01/01"})
+# Raises: InvalidMetadataFieldFormatError
+
+# Invalid: incomplete date (single digit month/day)
+update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: "2024-1-1"})
+# Raises: InvalidMetadataFieldFormatError
+
+# Invalid: short year
+update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: "24"})
+# Raises: InvalidMetadataFieldFormatError
+```
+
+**Error Handling**:
+
+Invalid release date formats raise `InvalidMetadataFieldFormatError` with a descriptive message indicating the expected format and the invalid value provided.
 
 ### Track Number
 

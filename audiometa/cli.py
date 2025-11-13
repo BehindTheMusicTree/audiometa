@@ -7,7 +7,14 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from audiometa import UnifiedMetadataKey, delete_all_metadata, get_full_metadata, get_unified_metadata, update_metadata
+from audiometa import (
+    UnifiedMetadataKey,
+    delete_all_metadata,
+    get_full_metadata,
+    get_unified_metadata,
+    update_metadata,
+    validate_metadata_for_update,
+)
 from audiometa.exceptions import FileTypeNotSupportedError
 from audiometa.utils.types import UnifiedMetadata
 
@@ -133,12 +140,14 @@ def _write_metadata(args: argparse.Namespace) -> None:
     # Validate rating
     if args.rating is not None:
         if args.rating < 0:
+            sys.stderr.write("Error: rating cannot be negative\n")
             sys.exit(1)
         metadata[UnifiedMetadataKey.RATING] = args.rating
 
     # Validate year
     if args.year is not None:
         if args.year < 0:
+            sys.stderr.write("Error: year cannot be negative\n")
             sys.exit(1)
         metadata[UnifiedMetadataKey.RELEASE_DATE] = str(args.year)
 
@@ -154,7 +163,10 @@ def _write_metadata(args: argparse.Namespace) -> None:
     if args.comment and args.comment.strip():
         metadata[UnifiedMetadataKey.COMMENT] = args.comment
 
-    if not metadata:
+    try:
+        validate_metadata_for_update(metadata)
+    except ValueError as e:
+        sys.stderr.write(f"Error: {e}\n")
         sys.exit(1)
 
     for file_path in files:

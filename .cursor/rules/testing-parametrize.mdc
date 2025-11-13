@@ -15,16 +15,16 @@ Use `@pytest.mark.parametrize` to test the **same validation or behavior with mu
 
 ```python
 def test_valid_track_number_as_int(self):
-    validate_unified_metadata_values_before_update({UnifiedMetadataKey.TRACK_NUMBER: 1})
-    validate_unified_metadata_values_before_update({UnifiedMetadataKey.TRACK_NUMBER: 5})
-    validate_unified_metadata_values_before_update({UnifiedMetadataKey.TRACK_NUMBER: 99})
+    validate_metadata_for_update({UnifiedMetadataKey.TRACK_NUMBER: 1})
+    validate_metadata_for_update({UnifiedMetadataKey.TRACK_NUMBER: 5})
+    validate_metadata_for_update({UnifiedMetadataKey.TRACK_NUMBER: 99})
 
 def test_invalid_rating_type_raises_error(self):
     with pytest.raises(InvalidMetadataFieldTypeError):
-        validate_unified_metadata_values_before_update({UnifiedMetadataKey.RATING: "invalid"})
+        validate_metadata_for_update({UnifiedMetadataKey.RATING: "invalid"})
 
     with pytest.raises(InvalidMetadataFieldTypeError):
-        validate_unified_metadata_values_before_update({UnifiedMetadataKey.RATING: {}})
+        validate_metadata_for_update({UnifiedMetadataKey.RATING: {}})
 ```
 
 ## ✅ CORRECT - Use parametrize:
@@ -35,7 +35,7 @@ def test_invalid_rating_type_raises_error(self):
     [1, 5, 99],
 )
 def test_valid_track_number_as_int(self, track_number):
-    validate_unified_metadata_values_before_update({UnifiedMetadataKey.TRACK_NUMBER: track_number})
+    validate_metadata_for_update({UnifiedMetadataKey.TRACK_NUMBER: track_number})
 
 @pytest.mark.parametrize(
     "invalid_value",
@@ -43,7 +43,7 @@ def test_valid_track_number_as_int(self, track_number):
 )
 def test_invalid_rating_type_raises_error(self, invalid_value):
     with pytest.raises(InvalidMetadataFieldTypeError):
-        validate_unified_metadata_values_before_update({UnifiedMetadataKey.RATING: invalid_value})
+        validate_metadata_for_update({UnifiedMetadataKey.RATING: invalid_value})
 ```
 
 ## When NOT to Use parametrize
