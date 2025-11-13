@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_unified_metadata, get_unified_metadata_field, update_metadata
+from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 from audiometa.utils.metadata_format import MetadataFormat
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
@@ -9,52 +9,31 @@ from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 @pytest.mark.integration
 class TestId3v2RatingWriting:
     @pytest.mark.parametrize(
-        ("star_rating", "expected_normalized_rating"),
+        ("value", "expected"),
         [
             (0, 0),
-            (0.5, 10),
-            (1, 20),
-            (1.5, 30),
-            (2, 40),
-            (2.5, 50),
-            (3, 60),
-            (3.5, 70),
-            (4, 80),
-            (4.5, 90),
-            (5, 100),
+            (0.5, 13),
+            (1, 1),
+            (1.5, 54),
+            (2, 64),
+            (2.5, 118),
+            (3, 128),
+            (3.5, 186),
+            (4, 196),
+            (4.5, 242),
+            (5, 255),
         ],
     )
-    def test_write_star_rating(self, expected_normalized_rating):
+    def test_write_base_255_non_proportional_values(self, value, expected):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
 
         with temp_file_with_metadata(basic_metadata, "mp3") as test_file:
-            test_metadata = {UnifiedMetadataKey.RATING: expected_normalized_rating}
+            test_metadata = {UnifiedMetadataKey.RATING: value}
             update_metadata(
-                test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2
+                test_file, test_metadata, normalized_rating_max_value=5, metadata_format=MetadataFormat.ID3V2
             )
-            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
-            rating = metadata.get(UnifiedMetadataKey.RATING)
-            assert rating is not None
-            assert rating == expected_normalized_rating
-
-    def test_write_base_255_non_proportional_values(self):
-        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-
-        # Test values that correspond to BASE_255_NON_PROPORTIONAL profile
-        test_values = [0, 1, 64, 128, 196, 255]  # 0, 1, 2, 3, 4, 5 stars in base 255
-
-        with temp_file_with_metadata(basic_metadata, "mp3") as test_file:
-            for value in test_values:
-                test_metadata = {UnifiedMetadataKey.RATING: value}
-                update_metadata(
-                    test_file, test_metadata, normalized_rating_max_value=255, metadata_format=MetadataFormat.ID3V2
-                )
-                rating = get_unified_metadata_field(
-                    test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=255
-                )
-                assert rating is not None
-                # The value may be normalized/clamped, so just check it's in valid range
-                assert 0 <= rating <= 255
+            rating = get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING)
+            assert rating == expected
 
     def test_write_none_removes_rating(self):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
