@@ -30,7 +30,7 @@ def format_output(data: Any, output_format: str) -> str:
         return str(data)
 
 
-def handle_file_operation_error(exception: Exception, file_path: Path | str, continue_on_error: bool) -> None:
+def _handle_file_operation_error(exception: Exception, file_path: Path | str, continue_on_error: bool) -> None:
     """Handle exceptions from file operations and write appropriate error messages to stderr.
 
     Args:
@@ -83,7 +83,7 @@ def format_as_table(data: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def read_metadata(args: argparse.Namespace) -> None:
+def _read_metadata(args: argparse.Namespace) -> None:
     """Read and display metadata from audio file(s)."""
     files = expand_file_patterns(
         args.files, getattr(args, "recursive", False), getattr(args, "continue_on_error", False)
@@ -110,17 +110,17 @@ def read_metadata(args: argparse.Namespace) -> None:
                     with Path(args.output).open("w") as f:
                         f.write(output)
                 except (PermissionError, OSError) as e:
-                    handle_file_operation_error(e, args.output, args.continue_on_error)
+                    _handle_file_operation_error(e, args.output, args.continue_on_error)
             else:
                 sys.stdout.write(output)
                 if not output.endswith("\n"):
                     sys.stdout.write("\n")
 
         except (FileTypeNotSupportedError, FileNotFoundError, PermissionError, OSError, Exception) as e:
-            handle_file_operation_error(e, file_path, args.continue_on_error)
+            _handle_file_operation_error(e, file_path, args.continue_on_error)
 
 
-def write_metadata(args: argparse.Namespace) -> None:
+def _write_metadata(args: argparse.Namespace) -> None:
     """Write metadata to audio file(s)."""
     files = expand_file_patterns(
         args.files, getattr(args, "recursive", False), getattr(args, "continue_on_error", False)
@@ -166,10 +166,10 @@ def write_metadata(args: argparse.Namespace) -> None:
                 pass
 
         except (FileTypeNotSupportedError, FileNotFoundError, PermissionError, OSError, Exception) as e:
-            handle_file_operation_error(e, file_path, args.continue_on_error)
+            _handle_file_operation_error(e, file_path, args.continue_on_error)
 
 
-def delete_metadata(args: argparse.Namespace) -> None:
+def _delete_metadata(args: argparse.Namespace) -> None:
     """Delete metadata from audio file(s)."""
     files = expand_file_patterns(
         args.files, getattr(args, "recursive", False), getattr(args, "continue_on_error", False)
@@ -184,7 +184,7 @@ def delete_metadata(args: argparse.Namespace) -> None:
                 pass
 
         except (FileTypeNotSupportedError, FileNotFoundError, PermissionError, OSError, Exception) as e:
-            handle_file_operation_error(e, file_path, args.continue_on_error)
+            _handle_file_operation_error(e, file_path, args.continue_on_error)
 
 
 def expand_file_patterns(patterns: list[str], recursive: bool = False, continue_on_error: bool = False) -> list[Path]:
@@ -226,7 +226,7 @@ def expand_file_patterns(patterns: list[str], recursive: bool = False, continue_
     return files
 
 
-def create_parser() -> argparse.ArgumentParser:
+def _create_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser."""
     parser = argparse.ArgumentParser(
         description="AudioMeta CLI - Command-line interface for audio metadata operations",
@@ -261,7 +261,7 @@ Examples:
     read_parser.add_argument(
         "--continue-on-error", action="store_true", help="Continue processing other files on error"
     )
-    read_parser.set_defaults(func=read_metadata)
+    read_parser.set_defaults(func=_read_metadata)
 
     # Unified command
     unified_parser = subparsers.add_parser("unified", help="Read unified metadata only")
@@ -278,7 +278,7 @@ Examples:
     unified_parser.add_argument(
         "--continue-on-error", action="store_true", help="Continue processing other files on error"
     )
-    unified_parser.set_defaults(func=read_metadata, format_type="unified")
+    unified_parser.set_defaults(func=_read_metadata, format_type="unified")
 
     # Write command
     write_parser = subparsers.add_parser("write", help="Write metadata to audio file(s)")
@@ -294,7 +294,7 @@ Examples:
     write_parser.add_argument(
         "--continue-on-error", action="store_true", help="Continue processing other files on error"
     )
-    write_parser.set_defaults(func=write_metadata)
+    write_parser.set_defaults(func=_write_metadata)
 
     # Delete command
     delete_parser = subparsers.add_parser("delete", help="Delete all metadata from audio file(s)")
@@ -303,14 +303,14 @@ Examples:
     delete_parser.add_argument(
         "--continue-on-error", action="store_true", help="Continue processing other files on error"
     )
-    delete_parser.set_defaults(func=delete_metadata)
+    delete_parser.set_defaults(func=_delete_metadata)
 
     return parser
 
 
 def main() -> None:
     """Main CLI entry point."""
-    parser = create_parser()
+    parser = _create_parser()
     args = parser.parse_args()
 
     if not args.command:
