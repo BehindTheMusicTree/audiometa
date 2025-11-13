@@ -41,7 +41,7 @@ class _RatingSupportingMetadataManager(_MetadataManager):
         Returns:
             The formatted format name (e.g., 'RIFF', 'ID3v2', 'Vorbis')
         """
-        metadata_format_name = self.__class__.__name__.replace("Manager", "").upper()
+        metadata_format_name = self.__class__.__name__.replace("Manager", "").lstrip("_").upper()
         if metadata_format_name == "RIFF":
             return "RIFF"
         if metadata_format_name == "ID3V2":
