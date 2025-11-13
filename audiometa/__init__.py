@@ -401,7 +401,7 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
 
 def update_metadata(
     file: PublicFileType,
-    unified_metadata: UnifiedMetadata,
+    unified_metadata: dict[UnifiedMetadataKey, Any] | UnifiedMetadata,
     normalized_rating_max_value: int | None = None,
     id3v2_version: tuple[int, int, int] | None = None,
     metadata_strategy: MetadataWritingStrategy | None = None,
