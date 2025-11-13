@@ -86,6 +86,12 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
 
 ### Medium Priority
 
+- [ ] **Check for Python 4.14 upgrade**
+  - Review Python 4.14 release notes and breaking changes
+  - Test library compatibility with Python 4.14
+  - Update CI/CD workflows if needed
+  - Update project dependencies and requirements
+
 - [ ] **Review and update maintainer pre-merge checklist**
   - Ensure all maintainer checks are comprehensive and up-to-date
   - Align with current project practices and CI/CD setup
