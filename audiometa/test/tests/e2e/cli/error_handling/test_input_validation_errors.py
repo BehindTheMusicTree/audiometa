@@ -26,8 +26,9 @@ class TestCLIInputValidationErrors:
     def test_cli_rating_value_allowed_without_normalization(self):
         with temp_file_with_metadata({}, "mp3") as temp_file_path:
             # Any integer rating value should be allowed when normalized_rating_max_value is not provided
+            # Using a valid ID3v2 profile value (196 = 4 stars in BASE_255_NON_PROPORTIONAL profile)
             result = subprocess.run(
-                [sys.executable, "-m", "audiometa", "write", str(temp_file_path), "--rating", "150"],
+                [sys.executable, "-m", "audiometa", "write", str(temp_file_path), "--rating", "196"],
                 capture_output=True,
                 text=True,
                 check=False,
