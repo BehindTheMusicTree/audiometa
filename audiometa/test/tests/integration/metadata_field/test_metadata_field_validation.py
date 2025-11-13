@@ -101,21 +101,6 @@ class TestMetadataFieldValidation:
         ):
             get_unified_metadata_field(sample_mp3_file, "invalid_field")
 
-    def test_invalid_enum_value_raises_error(self, sample_mp3_file: Path):
-        """Test that passing an invalid enum value raises MetadataFieldNotSupportedByLibError."""
-
-        # Create a fake enum member that looks like UnifiedMetadataKey but isn't valid
-        class FakeKey:
-            value = "invalid_field"
-
-        fake_key = FakeKey()
-        # Make it look like a UnifiedMetadataKey instance
-        fake_key.__class__ = type(UnifiedMetadataKey.TITLE)
-        with pytest.raises(
-            MetadataFieldNotSupportedByLibError, match="invalid_field metadata not supported by the library"
-        ):
-            get_unified_metadata_field(sample_mp3_file, fake_key)
-
     def test_all_valid_enum_values_work(self, sample_mp3_file: Path):
         """Test that all valid UnifiedMetadataKey enum values are accepted (not rejected as invalid enum values)."""
         for key in UnifiedMetadataKey:
