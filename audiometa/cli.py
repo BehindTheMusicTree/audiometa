@@ -217,7 +217,7 @@ def expand_file_patterns(patterns: list[str], recursive: bool = False, continue_
         else:
             # Try glob pattern
             pattern_path = Path(pattern)
-            if "*" in pattern or "?" in pattern:
+            if "*" in pattern or "?" in pattern or "[" in pattern:
                 # Use glob for patterns
                 if pattern_path.is_absolute():
                     matches = list(pattern_path.parent.glob(pattern_path.name))
@@ -226,13 +226,15 @@ def expand_file_patterns(patterns: list[str], recursive: bool = False, continue_
             else:
                 matches = [pattern_path]
             for match in matches:
-                if match.is_file():
+                # Skip hidden files (those starting with .)
+                if not match.name.startswith(".") and match.is_file():
                     files.append(match)
 
     if not files:
         if continue_on_error:
+            sys.stderr.write("Warning: No valid audio files found\n")
             return []
-        error_msg = "Error: No files found\n"
+        error_msg = "Error: No valid audio files found\n"
         sys.stderr.write(error_msg)
         sys.exit(1)
 
