@@ -26,6 +26,36 @@ alwaysApply: true
       raise TypeError(f"expected str, got {type(value).__name__}")
   ```
 
+## No Print Statements in Production Code
+
+- **Never use `print` statements in production code** (test code is allowed to use print)
+- Use proper output mechanisms instead:
+  - For CLI output: Use `sys.stdout.write()` or `sys.stderr.write()` for error messages
+  - For logging: Use the `logging` module with appropriate log levels
+  - For debugging: Use `logging.debug()` instead of print statements
+- The ruff linter (T201 rule) will flag print statements in production code
+- Print statements in docstring examples are allowed (they're string literals, not executable code)
+- Example:
+  ```python
+  # ❌ Bad
+  print("Processing file...")
+  print(f"Result: {result}")
+  print(error_message, file=sys.stderr)
+
+  # ✅ Good - CLI output
+  sys.stdout.write(output)
+  if not output.endswith("\n"):
+      sys.stdout.write("\n")
+  sys.stderr.write(f"Error: {error_message}\n")
+
+  # ✅ Good - Logging
+  import logging
+  logger = logging.getLogger(__name__)
+  logger.info("Processing file...")
+  logger.debug(f"Result: {result}")
+  logger.error(error_message)
+  ```
+
 ## Avoid Unnecessary Comments
 
 Do NOT add comments for functions, classes, or modules that are self-explanatory. The function name, class name, and parameters should clearly indicate what they do.
