@@ -96,11 +96,14 @@ class TestMetadataFieldValidation:
 
     def test_invalid_string_key_raises_error(self, sample_mp3_file: Path):
         """Test that passing an invalid string raises MetadataFieldNotSupportedByLibError."""
-        with pytest.raises(MetadataFieldNotSupportedByLibError, match="invalid_field metadata not supported by the library"):
+        with pytest.raises(
+            MetadataFieldNotSupportedByLibError, match="invalid_field metadata not supported by the library"
+        ):
             get_unified_metadata_field(sample_mp3_file, "invalid_field")
 
     def test_invalid_enum_value_raises_error(self, sample_mp3_file: Path):
         """Test that passing an invalid enum value raises MetadataFieldNotSupportedByLibError."""
+
         # Create a fake enum member that looks like UnifiedMetadataKey but isn't valid
         class FakeKey:
             value = "invalid_field"
@@ -108,7 +111,9 @@ class TestMetadataFieldValidation:
         fake_key = FakeKey()
         # Make it look like a UnifiedMetadataKey instance
         fake_key.__class__ = type(UnifiedMetadataKey.TITLE)
-        with pytest.raises(MetadataFieldNotSupportedByLibError, match="invalid_field metadata not supported by the library"):
+        with pytest.raises(
+            MetadataFieldNotSupportedByLibError, match="invalid_field metadata not supported by the library"
+        ):
             get_unified_metadata_field(sample_mp3_file, fake_key)
 
     def test_all_valid_enum_values_work(self, sample_mp3_file: Path):
@@ -119,10 +124,10 @@ class TestMetadataFieldValidation:
             try:
                 result = get_unified_metadata_field(sample_mp3_file, key)
                 # Result can be None if field is not present, which is valid
-                assert result is None or isinstance(result, (str, int, float, list))
+                assert result is None or isinstance(result, str | int | float | list)
             except MetadataFieldNotSupportedByLibError as e:
                 # Only fail if the error message indicates invalid enum value
-                # (not "not supported by any format")
+                # It's okay if it raises for "not supported by any format" - that's different
                 if "not supported by any format" not in str(e):
                     raise
 
