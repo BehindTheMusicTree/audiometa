@@ -171,14 +171,18 @@ class _RatingSupportingMetadataManager(_MetadataManager):
             value = unified_metadata[UnifiedMetadataKey.RATING]
             if value is not None:
                 if isinstance(value, int | float):
-                    # In raw mode (no normalization), float values are not allowed
-                    # Raw rating values must be integers as they're written directly to file formats
+                    # In raw mode (no normalization), only accept floats that can be parsed to int
+                    # This allows the library to accept values like 196.0 as 196
                     if self.normalized_rating_max_value is None and isinstance(value, float):
-                        msg = (
-                            f"Rating value {value} is invalid. Float values are only supported when "
-                            f"normalized_rating_max_value is provided. In raw mode, rating values must be integers."
-                        )
-                        raise InvalidRatingValueError(msg)
+                        if value.is_integer():
+                            value = int(value)
+                            unified_metadata[UnifiedMetadataKey.RATING] = value
+                        else:
+                            msg = (
+                                f"Rating value {value} is invalid. In raw mode, float values must be whole numbers "
+                                f"(e.g., 196.0). Half-star values like {value} require normalization."
+                            )
+                            raise InvalidRatingValueError(msg)
                     self.validate_rating_value(value, self.normalized_rating_max_value)
                 else:
                     msg = f"Rating value must be numeric, got {type(value).__name__}"

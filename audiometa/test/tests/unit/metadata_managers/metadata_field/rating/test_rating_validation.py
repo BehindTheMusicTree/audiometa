@@ -18,12 +18,20 @@ class TestRatingValidation:
 
     @pytest.mark.parametrize(
         "rating",
-        [1.5, 75.7, 0.0],
+        [1.5, 75.7],
     )
     def test_invalid_rating_float_in_raw_mode_raises_error(self, rating):
         with pytest.raises(InvalidRatingValueError) as exc_info:
             validate_metadata_for_update({UnifiedMetadataKey.RATING: rating})
-        assert "Float values are only supported when normalized_rating_max_value is provided" in str(exc_info.value)
+        assert "In raw mode, float values must be whole numbers" in str(exc_info.value)
+
+    @pytest.mark.parametrize(
+        "rating",
+        [0.0, 196.0, 128.0],
+    )
+    def test_valid_rating_whole_number_float_in_raw_mode(self, rating):
+        # Whole-number floats like 0.0, 196.0 are accepted and converted to int
+        validate_metadata_for_update({UnifiedMetadataKey.RATING: rating})
 
     @pytest.mark.parametrize(
         "rating",

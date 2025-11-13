@@ -303,7 +303,7 @@ Examples:
     write_parser.add_argument("--album", help="Album name")
     write_parser.add_argument("--year", type=int, help="Release year")
     write_parser.add_argument("--genre", help="Genre")
-    write_parser.add_argument("--rating", type=float, help="Rating value (int or float)")
+    write_parser.add_argument("--rating", type=float, help="Rating value (integer or whole-number float like 196.0)")
     write_parser.add_argument("--comment", help="Comment")
     write_parser.add_argument("--recursive", "-r", action="store_true", help="Process directories recursively")
     write_parser.add_argument(

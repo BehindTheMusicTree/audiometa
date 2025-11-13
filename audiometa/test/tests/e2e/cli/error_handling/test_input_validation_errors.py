@@ -37,6 +37,19 @@ class TestCLIInputValidationErrors:
             # Should succeed - no write profile validation when normalized_rating_max_value is None
             assert result.returncode == 0
 
+    def test_cli_rating_whole_number_float_allowed(self):
+        with temp_file_with_metadata({}, "mp3") as temp_file_path:
+            # Whole-number floats like 196.0 should be accepted and converted to integers
+            result = subprocess.run(
+                [sys.executable, "-m", "audiometa", "write", str(temp_file_path), "--rating", "196.0"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            # Should succeed - whole-number floats are converted to integers in raw mode
+            assert result.returncode == 0
+
     def test_cli_rating_value_non_multiple_of_10_allowed(self):
         with temp_file_with_metadata({}, "mp3") as temp_file_path:
             result = subprocess.run(

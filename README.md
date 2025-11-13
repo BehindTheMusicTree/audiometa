@@ -2018,20 +2018,25 @@ AudioMeta validates rating values based on whether normalization is enabled. You
 
 **When `normalized_rating_max_value` is not provided (raw mode)**:
 
-The rating value is written as-is. Any non-negative number (int or float, >= 0) is allowed.
+The rating value is written as-is. Any non-negative integer is allowed. Whole-number floats (like `196.0`) are also accepted and automatically converted to integers.
 
 ```python
 from audiometa import update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 
-# Any non-negative integer or float rating value is allowed when normalized_rating_max_value is not provided
+# Any non-negative integer rating value is allowed when normalized_rating_max_value is not provided
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.ID3V2)
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 75}, metadata_format=MetadataFormat.ID3V2)
-update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 1.5}, metadata_format=MetadataFormat.ID3V2)
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 0}, metadata_format=MetadataFormat.ID3V2)
 update_metadata("song.flac", {UnifiedMetadataKey.RATING: 50}, metadata_format=MetadataFormat.VORBIS)
-update_metadata("song.flac", {UnifiedMetadataKey.RATING: 128.7}, metadata_format=MetadataFormat.VORBIS)
+
+# Whole-number floats are accepted and converted to integers
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 196.0}, metadata_format=MetadataFormat.ID3V2)  # Treated as 196
+
+# Invalid: fractional floats require normalization
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 1.5}, metadata_format=MetadataFormat.ID3V2)
+# Error: Rating value 1.5 is invalid. In raw mode, float values must be whole numbers (e.g., 196.0). Half-star values like 1.5 require normalization.
 
 # Invalid: negative values are rejected
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: -1}, metadata_format=MetadataFormat.ID3V2)
