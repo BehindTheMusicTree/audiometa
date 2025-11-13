@@ -206,7 +206,7 @@ def get_unified_metadata(
 
 def get_unified_metadata_field(
     file: PublicFileType,
-    unified_metadata_key: UnifiedMetadataKey,
+    unified_metadata_key: str | UnifiedMetadataKey,
     normalized_rating_max_value: int | None = None,
     id3v2_version: tuple[int, int, int] | None = None,
     metadata_format: MetadataFormat | None = None,
@@ -257,12 +257,7 @@ def get_unified_metadata_field(
         except MetadataFieldNotSupportedByLibError:
             print("Field not supported by any format in the library")
     """
-    # This check validates that the key is either an instance of UnifiedMetadataKey OR is one of
-    # the valid enum values (e.g., a string matching an enum value). Type checkers flag it as unreachable
-    # because the parameter is typed as UnifiedMetadataKey, but this is intentional defensive programming.
-    if not isinstance(unified_metadata_key, UnifiedMetadataKey) and unified_metadata_key not in UnifiedMetadataKey:  # pyright: ignore[reportUnreachable]
-        msg = f"{unified_metadata_key} metadata not supported by the library."
-        raise MetadataFieldNotSupportedByLibError(msg)
+    unified_metadata_key = _validate_and_normalize_unified_metadata_key(unified_metadata_key)
 
     audio_file = _AudioFile(file)
 
@@ -310,6 +305,33 @@ def get_unified_metadata_field(
         return None
 
 
+def _validate_and_normalize_unified_metadata_key(key: str | UnifiedMetadataKey) -> UnifiedMetadataKey:
+    """Validate and normalize a key to a UnifiedMetadataKey enum instance.
+
+    This function accepts both UnifiedMetadataKey enum instances and string values that match
+    enum values. This provides runtime validation since Python doesn't enforce type hints at runtime,
+    allowing the function to catch invalid inputs (e.g., invalid strings) that would otherwise cause
+    confusing errors later in the code.
+
+    Args:
+        key: The metadata key to validate. Can be a UnifiedMetadataKey enum instance or a string
+            matching an enum value (e.g., "title", "artist").
+
+    Returns:
+        The normalized UnifiedMetadataKey enum instance.
+
+    Raises:
+        MetadataFieldNotSupportedByLibError: When the key is not a valid UnifiedMetadataKey
+            (neither an enum instance nor a string matching an enum value).
+    """
+    if isinstance(key, UnifiedMetadataKey):
+        return key
+    if isinstance(key, str) and key in UnifiedMetadataKey:
+        return UnifiedMetadataKey[key]
+    msg = f"{key} metadata not supported by the library."
+    raise MetadataFieldNotSupportedByLibError(msg)
+
+
 def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
     """Validate types of values in unified_metadata against UnifiedMetadataKey.get_optional_type().
 
@@ -322,14 +344,7 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
     from typing import get_args, get_origin
 
     for key, value in unified_metadata.items():
-        # Runtime validation: Python doesn't enforce type hints at runtime, so invalid inputs
-        # (e.g., strings instead of UnifiedMetadataKey enum) would cause confusing errors later.
-        # This check validates that the key is either an instance of UnifiedMetadataKey OR is one of
-        # the valid enum values (e.g., a string matching an enum value). Type checkers flag it as unreachable
-        # because the dict is typed as UnifiedMetadata, but this is intentional defensive programming.
-        if not isinstance(key, UnifiedMetadataKey) and key not in UnifiedMetadataKey:  # pyright: ignore[reportUnreachable]
-            msg = f"{key} metadata not supported by the library."
-            raise MetadataFieldNotSupportedByLibError(msg)
+        _validate_and_normalize_unified_metadata_key(key)
 
         # Allow None to mean "remove this field"
         if value is None:
