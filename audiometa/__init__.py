@@ -257,12 +257,10 @@ def get_unified_metadata_field(
         except MetadataFieldNotSupportedByLibError:
             print("Field not supported by any format in the library")
     """
-    # Runtime validation: Python doesn't enforce type hints at runtime, so invalid inputs
-    # (e.g., strings instead of UnifiedMetadataKey enum) would cause confusing errors later.
     # This check validates that the key is either an instance of UnifiedMetadataKey OR is one of
-    # the valid enum values (e.g., a string matching an enum value). Mypy flags it as unreachable
+    # the valid enum values (e.g., a string matching an enum value). Type checkers flag it as unreachable
     # because the parameter is typed as UnifiedMetadataKey, but this is intentional defensive programming.
-    if not isinstance(unified_metadata_key, UnifiedMetadataKey) and unified_metadata_key not in UnifiedMetadataKey:
+    if not isinstance(unified_metadata_key, UnifiedMetadataKey) and unified_metadata_key not in UnifiedMetadataKey:  # pyright: ignore[reportUnreachable]
         msg = f"{unified_metadata_key} metadata not supported by the library."
         raise MetadataFieldNotSupportedByLibError(msg)
 
@@ -327,9 +325,9 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
         # Runtime validation: Python doesn't enforce type hints at runtime, so invalid inputs
         # (e.g., strings instead of UnifiedMetadataKey enum) would cause confusing errors later.
         # This check validates that the key is either an instance of UnifiedMetadataKey OR is one of
-        # the valid enum values (e.g., a string matching an enum value). Mypy flags it as unreachable
+        # the valid enum values (e.g., a string matching an enum value). Type checkers flag it as unreachable
         # because the dict is typed as UnifiedMetadata, but this is intentional defensive programming.
-        if not isinstance(key, UnifiedMetadataKey) and key not in UnifiedMetadataKey:
+        if not isinstance(key, UnifiedMetadataKey) and key not in UnifiedMetadataKey:  # pyright: ignore[reportUnreachable]
             msg = f"{key} metadata not supported by the library."
             raise MetadataFieldNotSupportedByLibError(msg)
 
