@@ -227,10 +227,18 @@ class TestGetFullMetadata:
             get_full_metadata("non_existent_file.mp3")
 
         # Test with unsupported file type
+        import tempfile
+
         from audiometa.exceptions import FileTypeNotSupportedError
 
-        with pytest.raises(FileTypeNotSupportedError):
-            get_full_metadata("test.txt")
+        with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as tmp_file:
+            tmp_path = tmp_file.name
+
+        try:
+            with pytest.raises(FileTypeNotSupportedError):
+                get_full_metadata(tmp_path)
+        finally:
+            Path(tmp_path).unlink()
 
     def test_get_full_metadata_performance_optimization(self, sample_mp3_file: Path):
         """Test that performance optimization flags work correctly."""
