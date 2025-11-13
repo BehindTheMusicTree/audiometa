@@ -1,6 +1,6 @@
 import re
 from abc import abstractmethod
-from typing import TYPE_CHECKING, TypeVar, cast
+from typing import TYPE_CHECKING, TypeVar, Union, cast
 
 from mutagen._file import FileType as MutagenMetadata
 
@@ -527,10 +527,26 @@ class _MetadataManager:
                 return track_str
             return None
 
+        from typing import get_args, get_origin
+
+        origin = get_origin(unified_metadata_key_optional_type)
         if unified_metadata_key_optional_type is int:
             return int(value[0]) if value else None
         if unified_metadata_key_optional_type is float:
             return float(value[0]) if value else None
+        if origin is not None and (origin == Union or (hasattr(origin, "__name__") and origin.__name__ == "UnionType")):
+            # Handle union types like int | float
+            arg_types = get_args(unified_metadata_key_optional_type)
+            if int in arg_types and float in arg_types:
+                # For int | float, prefer int if it's a whole number, otherwise float
+                try:
+                    num_value = float(value[0]) if value else None
+                    if num_value is not None and num_value.is_integer():
+                        return int(num_value)
+                    else:  # noqa: RET505
+                        return num_value
+                except (ValueError, TypeError):
+                    return None
         if unified_metadata_key_optional_type is str:
             return str(value[0]) if value else None
         if unified_metadata_key_optional_type == list[str]:

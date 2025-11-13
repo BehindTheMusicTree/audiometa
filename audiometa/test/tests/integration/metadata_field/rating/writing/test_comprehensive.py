@@ -125,3 +125,53 @@ class TestComprehensiveRatingWriting:
                 )
                 # Rating removal behavior may vary - check if it's None or 0
                 assert rating is None or rating == 0
+
+    def test_write_float_rating_values_normalized_mode(self):
+        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
+
+        # Test float values with max=10 (half-star ratings)
+        with temp_file_with_metadata(basic_metadata, "mp3") as test_file:
+            test_values = [1.5, 2.5, 3.5, 4.5, 7.5]
+            for value in test_values:
+                test_metadata = {UnifiedMetadataKey.RATING: value}
+                update_metadata(
+                    test_file, test_metadata, normalized_rating_max_value=10, metadata_format=MetadataFormat.ID3V2
+                )
+                rating = get_unified_metadata_field(
+                    test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=10
+                )
+                assert rating is not None
+                assert rating > 0
+
+        # Test float values with max=100
+        with temp_file_with_metadata(basic_metadata, "flac") as test_file:
+            test_values = [1.5, 7.5, 15.0, 25.5, 50.0]
+            for value in test_values:
+                test_metadata = {UnifiedMetadataKey.RATING: value}
+                update_metadata(
+                    test_file,
+                    test_metadata,
+                    normalized_rating_max_value=100,
+                    metadata_format=MetadataFormat.VORBIS,
+                )
+                rating = get_unified_metadata_field(
+                    test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100
+                )
+                assert rating is not None
+                assert rating >= 0
+
+    def test_write_float_rating_values_raw_mode(self):
+        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
+
+        # Test float values in raw mode (no normalization) - should raise error
+        from audiometa.exceptions import InvalidRatingValueError
+
+        with temp_file_with_metadata(basic_metadata, "mp3") as test_file:
+            test_values = [1.5, 75.7, 128.5, 255.0]
+            for value in test_values:
+                test_metadata = {UnifiedMetadataKey.RATING: value}
+                with pytest.raises(InvalidRatingValueError) as exc_info:
+                    update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V2)
+                assert "Float values are only supported when normalized_rating_max_value is provided" in str(
+                    exc_info.value
+                )

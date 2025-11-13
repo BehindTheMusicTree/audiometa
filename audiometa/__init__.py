@@ -347,7 +347,9 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
 
     from typing import get_args, get_origin
 
-    for key, value in unified_metadata.items():
+    for raw_key, value in unified_metadata.items():
+        key = _ensure_unified_metadata_key(raw_key)
+
         # Allow None to mean "remove this field"
         if value is None:
             continue
@@ -374,13 +376,12 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
                 raise InvalidMetadataFieldTypeError(
                     key.value, f"list[{getattr(item_type, '__name__', str(item_type))}]", value
                 )
-        elif origin == Union:
-            # Handle Union types (e.g., Union[int, str])
+        elif origin == Union or (origin is not None and hasattr(origin, "__name__") and origin.__name__ == "UnionType"):
+            # Handle Union types (e.g., Union[int, str] or int | float)
             arg_types = get_args(expected_type)
             if not isinstance(value, arg_types):
-                raise InvalidMetadataFieldTypeError(
-                    key.value, f"Union[{', '.join(getattr(t, '__name__', str(t)) for t in arg_types)}]", value
-                )
+                type_names = ", ".join(getattr(t, "__name__", str(t)) if t is not None else "None" for t in arg_types)
+                raise InvalidMetadataFieldTypeError(key.value, f"Union[{type_names}]", value)
         # expected_type is a plain type like str or int
         elif not isinstance(value, expected_type):
             # Special case for TRACK_NUMBER: allow int for writing convenience (returns string when reading)
@@ -436,6 +437,7 @@ def validate_metadata_for_update(
         >>> validate_metadata_for_update({UnifiedMetadataKey.ARTISTS: [None, None]})
         >>> validate_metadata_for_update({UnifiedMetadataKey.TITLE: None})
         >>> validate_metadata_for_update({UnifiedMetadataKey.RATING: 50}, normalized_rating_max_value=100)
+        >>> validate_metadata_for_update({UnifiedMetadataKey.RATING: 1.5}, normalized_rating_max_value=10)
         >>> validate_metadata_for_update({UnifiedMetadataKey.RATING: 0}, normalized_rating_max_value=100)
         >>> validate_metadata_for_update({UnifiedMetadataKey.RATING: 100}, normalized_rating_max_value=100)
         >>> validate_metadata_for_update({UnifiedMetadataKey.RATING: -1})  # Error
@@ -466,12 +468,21 @@ def validate_metadata_for_update(
         rating_value = normalized_metadata[UnifiedMetadataKey.RATING]
         if rating_value is not None:
             if isinstance(rating_value, int | float):
+                # In raw mode (no normalization), float values are not allowed
+                # Raw rating values must be integers as they're written directly to file formats
+                if normalized_rating_max_value is None and isinstance(rating_value, float):
+                    from .exceptions import InvalidRatingValueError
+
+                    msg = (
+                        f"Rating value {rating_value} is invalid. Float values are only supported when "
+                        f"normalized_rating_max_value is provided. In raw mode, rating values must be integers."
+                    )
+                    raise InvalidRatingValueError(msg)
                 from .manager._rating_supporting._RatingSupportingMetadataManager import (
                     _RatingSupportingMetadataManager,
                 )
 
-                rating_int = int(rating_value)
-                _RatingSupportingMetadataManager.validate_rating_value(rating_int, normalized_rating_max_value)
+                _RatingSupportingMetadataManager.validate_rating_value(rating_value, normalized_rating_max_value)
             else:
                 from .exceptions import InvalidRatingValueError
 
@@ -515,6 +526,8 @@ def update_metadata(
         unified_metadata: Dictionary containing metadata to write
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             When provided, ratings are normalized to this scale. Defaults to None (raw values).
+            Half-star ratings (e.g., 1.5, 2.5, 3.5) are supported to be consistent with classic star rating
+            systems that allow half-star increments.
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
         metadata_strategy: Writing strategy (SYNC, PRESERVE, CLEANUP). Defaults to SYNC.
             Ignored when metadata_format is specified.

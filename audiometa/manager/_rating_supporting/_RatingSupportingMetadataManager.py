@@ -10,6 +10,9 @@ from ...utils.rating_profiles import RatingReadProfile, RatingWriteProfile
 from ...utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 from .._MetadataManager import _MetadataManager
 
+# Maximum star rating index (0-10, where 0=0 stars, 1=0.5 stars, 2=1 star, ..., 10=5 stars)
+MAX_STAR_RATING_INDEX = 10
+
 
 class _RatingSupportingMetadataManager(_MetadataManager):
     TRAKTOR_RATING_TAG_MAIL = "traktor@native-instruments.de"
@@ -51,17 +54,20 @@ class _RatingSupportingMetadataManager(_MetadataManager):
         return metadata_format_name
 
     @staticmethod
-    def validate_rating_value(rating_value: int, normalized_rating_max_value: int | None) -> None:
+    def validate_rating_value(rating_value: float, normalized_rating_max_value: int | None) -> None:
         """Validate rating value based on normalized_rating_max_value.
 
         Rules:
-        - When normalized_rating_max_value is None: value must be >= 0 (any non-negative integer is allowed)
+        - When normalized_rating_max_value is None: value must be >= 0 (any non-negative number is allowed)
         - When normalized_rating_max_value is provided: value must be between 0 and normalized_rating_max_value
           and when converted to output values (value/max * 100 or value/max * 255), at least one must exist
           in a writing profile (BASE_100_PROPORTIONAL or BASE_255_NON_PROPORTIONAL)
 
+        Half-star ratings (e.g., 1.5, 2.5, 3.5) are supported to be consistent with classic star rating
+        systems that allow half-star increments.
+
         Args:
-            rating_value: The rating value to validate
+            rating_value: The rating value to validate (int or float). Supports half-star ratings (e.g., 1.5, 2.5).
             normalized_rating_max_value: Maximum value for rating normalization, or None for raw values
 
         Raises InvalidRatingValueError if validation fails.
@@ -82,21 +88,25 @@ class _RatingSupportingMetadataManager(_MetadataManager):
                     f"Value must be between 0 and {normalized_rating_max_value} (inclusive)."
                 )
                 raise InvalidRatingValueError(msg)
-            # Calculate ratio and check if output values exist in writing profiles
-            ratio = rating_value / normalized_rating_max_value
-            output_100 = round(ratio * 100)
-            output_255 = round(ratio * 255)
+            # Convert normalized rating to star rating index (0-10, where 0=0 stars, 1=0.5 stars, 2=1 star, etc.)
+            # Use round() to properly handle half-star ratings (consistent with classic star rating systems)
+            star_rating_index = round((rating_value * 10) / normalized_rating_max_value)
+            if star_rating_index < 0 or star_rating_index > MAX_STAR_RATING_INDEX:
+                msg = (
+                    f"Rating value {rating_value} results in invalid star rating index {star_rating_index}. "
+                    f"Index must be between 0 and 10."
+                )
+                raise InvalidRatingValueError(msg)
 
-            # Check if output_100 exists in BASE_100_PROPORTIONAL profile
-            in_base_100 = output_100 in RatingWriteProfile.BASE_100_PROPORTIONAL
-            # Check if output_255 exists in BASE_255_NON_PROPORTIONAL profile
-            in_base_255 = output_255 in RatingWriteProfile.BASE_255_NON_PROPORTIONAL
+            # Check if profile values at this star rating index exist in writing profiles
+            profile_value_100 = RatingWriteProfile.BASE_100_PROPORTIONAL[star_rating_index]
+            profile_value_255 = RatingWriteProfile.BASE_255_NON_PROPORTIONAL[star_rating_index]
 
-            if not in_base_100 and not in_base_255:
+            # At least one profile must have a valid value at this index
+            if profile_value_100 is None and profile_value_255 is None:
                 msg = (
                     f"Rating value {rating_value} is not valid for max value {normalized_rating_max_value}. "
-                    f"Calculated output values ({output_100} for 100-scale, {output_255} for 255-scale) "
-                    f"do not exist in any supported writing profile."
+                    f"Star rating index {star_rating_index} does not exist in any supported writing profile."
                 )
                 raise InvalidRatingValueError(msg)
 
@@ -137,12 +147,14 @@ class _RatingSupportingMetadataManager(_MetadataManager):
             return None
         return file_rating
 
-    def _convert_normalized_rating_to_file_rating(self, normalized_rating: int) -> int | None:
+    def _convert_normalized_rating_to_file_rating(self, normalized_rating: float) -> int | None:
         if not self.normalized_rating_max_value:
             msg = "normalized_rating_max_value must be set."
             raise ConfigurationError(msg)
 
-        star_rating_base_10 = int((normalized_rating * 10) / self.normalized_rating_max_value)
+        # Convert normalized rating to star rating index (0-10, where 0=0 stars, 1=0.5 stars, 2=1 star, etc.)
+        # Use round() to properly handle half-star ratings (consistent with classic star rating systems)
+        star_rating_base_10 = round((normalized_rating * 10) / self.normalized_rating_max_value)
         result = self.rating_write_profile[star_rating_base_10]
         return int(result) if result is not None else 0
 
@@ -159,8 +171,15 @@ class _RatingSupportingMetadataManager(_MetadataManager):
             value = unified_metadata[UnifiedMetadataKey.RATING]
             if value is not None:
                 if isinstance(value, int | float):
-                    rating_int = int(value)
-                    self.validate_rating_value(rating_int, self.normalized_rating_max_value)
+                    # In raw mode (no normalization), float values are not allowed
+                    # Raw rating values must be integers as they're written directly to file formats
+                    if self.normalized_rating_max_value is None and isinstance(value, float):
+                        msg = (
+                            f"Rating value {value} is invalid. Float values are only supported when "
+                            f"normalized_rating_max_value is provided. In raw mode, rating values must be integers."
+                        )
+                        raise InvalidRatingValueError(msg)
+                    self.validate_rating_value(value, self.normalized_rating_max_value)
                 else:
                     msg = f"Rating value must be numeric, got {type(value).__name__}"
                     raise InvalidRatingValueError(msg)
@@ -203,14 +222,16 @@ class _RatingSupportingMetadataManager(_MetadataManager):
         ):
             # Only process rating if it's handled directly by the base class
             # (i.e., when using mutagen-based approach)
-            value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore[assignment]
+            value: int | float | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore[assignment]
             if value is not None:
                 if self.normalized_rating_max_value is None:
-                    # When no normalization, write value as-is (already validated above)
+                    # When no normalization, write value as-is (already validated above - must be int, floats rejected)
                     pass
                 else:
                     try:
-                        normalized_rating = int(float(value))
+                        # Preserve float values to support half-star ratings (consistent with classic star rating
+                        # systems)
+                        normalized_rating = float(value)
                         file_rating = self._convert_normalized_rating_to_file_rating(
                             normalized_rating=normalized_rating
                         )

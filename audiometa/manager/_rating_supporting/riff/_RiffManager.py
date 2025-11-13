@@ -568,7 +568,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
         ):
             # Convert normalized rating to file rating for RIFF format
             try:
-                normalized_rating = int(float(value))
+                # Preserve float values to support half-star ratings (consistent with classic star rating systems)
+                normalized_rating = float(value)
                 file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
                 value = file_rating
             except (TypeError, ValueError):

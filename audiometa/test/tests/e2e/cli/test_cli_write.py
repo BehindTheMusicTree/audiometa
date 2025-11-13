@@ -49,3 +49,64 @@ class TestCLIWrite:
             )
             assert result.returncode == 0
             assert "Updated metadata" in result.stdout
+
+    def test_cli_write_rating_integer(self):
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "audiometa",
+                    "write",
+                    str(test_file),
+                    "--rating",
+                    "50",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert result.returncode == 0
+            assert "Updated metadata" in result.stdout
+
+    def test_cli_write_rating_float(self):
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "audiometa",
+                    "write",
+                    str(test_file),
+                    "--rating",
+                    "1.5",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert result.returncode == 0
+            assert "Updated metadata" in result.stdout
+
+    def test_cli_write_rating_float_with_other_metadata(self):
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "audiometa",
+                    "write",
+                    str(test_file),
+                    "--title",
+                    "Test Song",
+                    "--artist",
+                    "Test Artist",
+                    "--rating",
+                    "7.5",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert result.returncode == 0
+            assert "Updated metadata" in result.stdout

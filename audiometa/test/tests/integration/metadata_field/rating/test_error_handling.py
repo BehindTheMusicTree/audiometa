@@ -31,20 +31,26 @@ class TestRatingErrorHandling:
             update_metadata(nonexistent_file, {UnifiedMetadataKey.RATING: 85})
 
     def test_write_fractional_values(self):
+        # Fractional values are now supported for half-star ratings (consistent with classic star rating systems)
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
-        with temp_file_with_metadata(basic_metadata, "mp3") as test_file, pytest.raises(InvalidMetadataFieldTypeError):
+        with temp_file_with_metadata(basic_metadata, "mp3") as test_file:
+            # 25.5/100 maps to index 3 (1.5 stars), which is valid
             update_metadata(
                 test_file,
                 {UnifiedMetadataKey.RATING: 25.5},
                 normalized_rating_max_value=100,
                 metadata_format=MetadataFormat.ID3V2,
             )
+            # Verify it was written correctly
+            rating = get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            assert rating == 30  # 1.5 stars = 30 on 100-scale
 
     def test_rating_invalid_string_value(self):
         with (
             temp_file_with_metadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file,
             pytest.raises(
-                InvalidMetadataFieldTypeError, match="Invalid type for metadata field 'rating': expected int, got str"
+                InvalidMetadataFieldTypeError,
+                match="Invalid type for metadata field 'rating': expected Union\\[int, float\\], got str",
             ),
         ):
             update_metadata(test_file, {UnifiedMetadataKey.RATING: "invalid"}, normalized_rating_max_value=100)
@@ -95,7 +101,7 @@ class TestRatingErrorHandling:
 
     def test_rating_with_normalized_max_validates_profile_values(self):
         with temp_file_with_metadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
-            # Valid: 50/100 * 100 = 50, which is in BASE_100_PROPORTIONAL profile
+            # Valid: 50/100 maps to star rating index 5 (2.5 stars), which is valid
             update_metadata(
                 test_file,
                 {UnifiedMetadataKey.RATING: 50},
@@ -103,16 +109,18 @@ class TestRatingErrorHandling:
                 metadata_format=MetadataFormat.ID3V2,
             )
 
-            # Invalid: 37/100 * 100 = 37 (not in BASE_100_PROPORTIONAL)
-            # 37/100 * 255 = 94 (not in BASE_255_NON_PROPORTIONAL)
+            # Invalid: 37/100 maps to star rating index 4 (2 stars), which is valid
+            # But 110/100 would map to index 11, which is > 10 (invalid)
             with pytest.raises(InvalidRatingValueError) as exc_info:
                 update_metadata(
                     test_file,
-                    {UnifiedMetadataKey.RATING: 37},
+                    {UnifiedMetadataKey.RATING: 110},
                     normalized_rating_max_value=100,
                     metadata_format=MetadataFormat.ID3V2,
                 )
-            assert "do not exist in any supported writing profile" in str(exc_info.value)
+            assert "out of range" in str(exc_info.value) or "do not exist in any supported writing profile" in str(
+                exc_info.value
+            )
 
     def test_invalid_rating_value_error_non_numeric_string(self):
         with temp_file_with_metadata({}, "mp3") as test_file:

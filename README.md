@@ -2018,19 +2018,20 @@ AudioMeta validates rating values based on whether normalization is enabled. You
 
 **When `normalized_rating_max_value` is not provided (raw mode)**:
 
-The rating value is written as-is. Any non-negative integer value (>= 0) is allowed.
+The rating value is written as-is. Any non-negative number (int or float, >= 0) is allowed.
 
 ```python
 from audiometa import update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 
-# Any non-negative integer rating value is allowed when normalized_rating_max_value is not provided
+# Any non-negative integer or float rating value is allowed when normalized_rating_max_value is not provided
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.ID3V2)
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 75}, metadata_format=MetadataFormat.ID3V2)
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 1.5}, metadata_format=MetadataFormat.ID3V2)
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 0}, metadata_format=MetadataFormat.ID3V2)
 update_metadata("song.flac", {UnifiedMetadataKey.RATING: 50}, metadata_format=MetadataFormat.VORBIS)
-update_metadata("song.flac", {UnifiedMetadataKey.RATING: 128}, metadata_format=MetadataFormat.VORBIS)
+update_metadata("song.flac", {UnifiedMetadataKey.RATING: 128.7}, metadata_format=MetadataFormat.VORBIS)
 
 # Invalid: negative values are rejected
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: -1}, metadata_format=MetadataFormat.ID3V2)
@@ -2039,11 +2040,14 @@ update_metadata("song.mp3", {UnifiedMetadataKey.RATING: -1}, metadata_format=Met
 
 **When `normalized_rating_max_value` is provided (normalized mode)**:
 
-The rating value is normalized and must map to a valid profile value. AudioMeta calculates `(value / max) * 100` and `(value / max) * 255`, then checks if at least one of these rounded values exists in a supported writing profile (BASE_100_PROPORTIONAL or BASE_255_NON_PROPORTIONAL).
+The rating value (int or float) is normalized and must map to a valid profile value. AudioMeta calculates `(value / max) * 100` and `(value / max) * 255`, then checks if at least one of these rounded values exists in a supported writing profile (BASE_100_PROPORTIONAL or BASE_255_NON_PROPORTIONAL).
 
 ```python
 # Valid: 50/100 * 100 = 50, which is in BASE_100_PROPORTIONAL profile
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 50}, normalized_rating_max_value=100)
+
+# Valid: 1.5/10 * 100 = 15, which is in BASE_100_PROPORTIONAL profile
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 1.5}, normalized_rating_max_value=10)
 
 # Invalid: 37/100 * 100 = 37 (not in BASE_100_PROPORTIONAL)
 # 37/100 * 255 = 94 (not in BASE_255_NON_PROPORTIONAL)
@@ -2061,6 +2065,9 @@ update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 101}, normalized_rating_
 # With max=10, any integer 0-10 is valid (all map to valid profile values)
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 7}, normalized_rating_max_value=10)
 
+# With max=10, float values like 1.5, 2.5, etc. are also valid if they map to valid profile values
+update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 1.5}, normalized_rating_max_value=10)  # Valid: 1.5/10 * 100 = 15 (in BASE_100_PROPORTIONAL)
+
 # With max=255, valid values include those that map to BASE_255_NON_PROPORTIONAL or BASE_100_PROPORTIONAL
 # Examples: 0, 1, 13, 25, 50, 54, 64, 76, 102, 118, 128, 153, 178, 186, 196, 204, 229, 242, 255
 update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 128}, normalized_rating_max_value=255)  # Valid: maps to 128 in BASE_255_NON_PROPORTIONAL
@@ -2069,17 +2076,22 @@ update_metadata("song.mp3", {UnifiedMetadataKey.RATING: 50}, normalized_rating_m
 
 #### Half-Star Rating Support
 
-AudioMeta fully supports half-star ratings (0.5, 1.5, 2.5, 3.5, 4.5 stars) across all the formats:
+AudioMeta fully supports half-star ratings (0.5, 1.5, 2.5, 3.5, 4.5 stars) across all the formats. You can use float values directly:
 
 ```python
 # Reading half-star ratings
 metadata = get_unified_metadata("half_star_rated.mp3")
 rating = metadata.get('rating')  # Could be 1.0, 3.0, 5.0, 7.0, 9.0 for half-stars
 
-# Writing half-star ratings
-update_metadata("song.mp3", {"rating": 7})   # 3.5 stars
-update_metadata("song.flac", {"rating": 5})  # 2.5 stars
-update_metadata("song.wav", {"rating": 9})   # 4.5 stars
+# Writing half-star ratings using integers (normalized mode)
+update_metadata("song.mp3", {"rating": 7}, normalized_rating_max_value=10)   # 3.5 stars
+update_metadata("song.flac", {"rating": 5}, normalized_rating_max_value=10)  # 2.5 stars
+update_metadata("song.wav", {"rating": 9}, normalized_rating_max_value=10)   # 4.5 stars
+
+# Writing half-star ratings using float values (normalized mode)
+update_metadata("song.mp3", {"rating": 1.5}, normalized_rating_max_value=10)   # 1.5 stars
+update_metadata("song.flac", {"rating": 2.5}, normalized_rating_max_value=10)  # 2.5 stars
+update_metadata("song.wav", {"rating": 4.5}, normalized_rating_max_value=10)   # 4.5 stars
 ```
 
 **Why profile-based validation?**

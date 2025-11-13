@@ -507,10 +507,12 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                         raw_mutagen_metadata[self.VorbisKey.RATING] = [str(app_metadata_value)]
                 else:
                     try:
+                        # Preserve float values to support half-star ratings (consistent with classic star rating
+                        # systems)
                         if isinstance(app_metadata_value, int | float):
-                            normalized_rating = int(float(app_metadata_value))
+                            normalized_rating = float(app_metadata_value)
                         else:
-                            normalized_rating = int(float(str(app_metadata_value)))
+                            normalized_rating = float(str(app_metadata_value))
                         file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating)
                         raw_mutagen_metadata[self.VorbisKey.RATING] = [str(file_rating)]
                     except (TypeError, ValueError) as e:

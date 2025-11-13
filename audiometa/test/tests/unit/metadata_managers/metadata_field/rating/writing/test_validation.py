@@ -19,6 +19,9 @@ class TestRatingValidation:
         _RatingSupportingMetadataManager.validate_rating_value(128, None)
         _RatingSupportingMetadataManager.validate_rating_value(255, None)
         _RatingSupportingMetadataManager.validate_rating_value(1000, None)
+        _RatingSupportingMetadataManager.validate_rating_value(1.5, None)
+        _RatingSupportingMetadataManager.validate_rating_value(75.7, None)
+        _RatingSupportingMetadataManager.validate_rating_value(0.0, None)
 
     def test_validate_rating_value_raw_mode_negative_rejected(self):
         with pytest.raises(InvalidRatingValueError) as exc_info:
@@ -29,6 +32,10 @@ class TestRatingValidation:
             _RatingSupportingMetadataManager.validate_rating_value(-100, None)
         assert "must be non-negative" in str(exc_info.value)
 
+        with pytest.raises(InvalidRatingValueError) as exc_info:
+            _RatingSupportingMetadataManager.validate_rating_value(-0.5, None)
+        assert "must be non-negative" in str(exc_info.value)
+
     def test_validate_rating_value_normalized_mode_valid_values(self):
         # Valid values: those that map to BASE_100_PROPORTIONAL profile
         # (value/100 * 100) must be in [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
@@ -36,23 +43,41 @@ class TestRatingValidation:
         for value in valid_values:
             _RatingSupportingMetadataManager.validate_rating_value(value, 100)
 
+    def test_validate_rating_value_normalized_mode_valid_float_values(self):
+        # Valid float values: 1.5/10 * 100 = 15 (in BASE_100_PROPORTIONAL)
+        _RatingSupportingMetadataManager.validate_rating_value(1.5, 10)
+        # 2.5/10 * 100 = 25 (in BASE_100_PROPORTIONAL)
+        _RatingSupportingMetadataManager.validate_rating_value(2.5, 10)
+        # 7.5/10 * 100 = 75 (in BASE_100_PROPORTIONAL)
+        _RatingSupportingMetadataManager.validate_rating_value(7.5, 10)
+        # 50.0/100 * 100 = 50 (in BASE_100_PROPORTIONAL)
+        _RatingSupportingMetadataManager.validate_rating_value(50.0, 100)
+
     def test_validate_rating_value_normalized_mode_negative_rejected(self):
         with pytest.raises(InvalidRatingValueError) as exc_info:
             _RatingSupportingMetadataManager.validate_rating_value(-1, 100)
         assert "must be non-negative" in str(exc_info.value)
 
-    def test_validate_rating_value_normalized_mode_over_max_rejected(self):
+    @pytest.mark.parametrize(
+        "rating",
+        [101, 100.1, 101.5],
+    )
+    def test_validate_rating_value_normalized_mode_over_max_rejected(self, rating):
         with pytest.raises(InvalidRatingValueError) as exc_info:
-            _RatingSupportingMetadataManager.validate_rating_value(101, 100)
+            _RatingSupportingMetadataManager.validate_rating_value(rating, 100)
         assert "out of range" in str(exc_info.value)
         assert "must be between 0 and 100" in str(exc_info.value)
 
     def test_validate_rating_value_normalized_mode_invalid_profile_value(self):
-        # 33/100 * 100 = 33, which is not in BASE_100_PROPORTIONAL
-        # 33/100 * 255 = 84, which is not in BASE_255_NON_PROPORTIONAL
+        # 33/100 maps to star rating index 3 (1.5 stars), which is valid
+        # This test verifies that values mapping to valid star rating indices are accepted
+        # Note: The old validation checked if output values exist, but the conversion uses star rating indices
+        _RatingSupportingMetadataManager.validate_rating_value(33, 100)
+
+        # Test a value that would map to an invalid star rating index (> 10)
         with pytest.raises(InvalidRatingValueError) as exc_info:
-            _RatingSupportingMetadataManager.validate_rating_value(33, 100)
-        assert "do not exist in any supported writing profile" in str(exc_info.value)
+            _RatingSupportingMetadataManager.validate_rating_value(110, 100)
+        assert "out of range" in str(exc_info.value)
 
     def test_validate_rating_value_normalized_mode_different_max_values(self):
         """Test profile-based validation with different max values."""
@@ -76,14 +101,17 @@ class TestRatingValidation:
         for value in valid_values_255_also_100:
             _RatingSupportingMetadataManager.validate_rating_value(value, 255)
 
-        # Invalid: values that don't map to any profile
-        # 37/255 * 100 = 15 (round), not in BASE_100_PROPORTIONAL
-        # 37/255 * 255 = 37 (round), not in BASE_255_NON_PROPORTIONAL
-        invalid_values_255 = [37, 99, 200]
-        for value in invalid_values_255:
-            with pytest.raises(InvalidRatingValueError) as exc_info:
-                _RatingSupportingMetadataManager.validate_rating_value(value, 255)
-            assert "do not exist in any supported writing profile" in str(exc_info.value)
+        # Values that map to valid star rating indices are accepted
+        # The conversion uses star rating indices (0-10), not direct output values
+        # 37/255 -> index 1 (0.5 stars) -> valid
+        # 99/255 -> index 4 (2 stars) -> valid
+        # 200/255 -> index 8 (4 stars) -> valid
+        # All these values map to valid star rating indices, so they are accepted
+
+        # Test a value that would map to an invalid star rating index (> 10)
+        with pytest.raises(InvalidRatingValueError) as exc_info:
+            _RatingSupportingMetadataManager.validate_rating_value(256, 255)
+        assert "out of range" in str(exc_info.value)
 
     def test_validate_rating_in_unified_metadata_valid(self):
         manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=100)
@@ -104,11 +132,13 @@ class TestRatingValidation:
             manager._validate_rating_in_unified_metadata({UnifiedMetadataKey.RATING: {"not": "valid"}})
         assert "Rating value must be numeric" in str(exc_info.value)
 
-    def test_validate_rating_in_unified_metadata_float_converted(self):
+    def test_validate_rating_in_unified_metadata_float_accepted(self):
         manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=100)
 
-        # Float should be accepted (converted to int internally)
+        # Float should be accepted
         manager._validate_rating_in_unified_metadata({UnifiedMetadataKey.RATING: 50.0})
+        manager._validate_rating_in_unified_metadata({UnifiedMetadataKey.RATING: 1.5})
+        manager._validate_rating_in_unified_metadata({UnifiedMetadataKey.RATING: 7.5})
 
     def test_validate_rating_in_unified_metadata_none_ignored(self):
         manager = Id3v2Manager(audio_file=MagicMock(), normalized_rating_max_value=100)
