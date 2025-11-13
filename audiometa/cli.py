@@ -15,7 +15,7 @@ from audiometa import (
     update_metadata,
     validate_metadata_for_update,
 )
-from audiometa.exceptions import FileTypeNotSupportedError
+from audiometa.exceptions import FileTypeNotSupportedError, InvalidRatingValueError
 from audiometa.utils.types import UnifiedMetadata
 
 
@@ -165,7 +165,7 @@ def _write_metadata(args: argparse.Namespace) -> None:
 
     try:
         validate_metadata_for_update(metadata)
-    except ValueError as e:
+    except (ValueError, InvalidRatingValueError) as e:
         sys.stderr.write(f"Error: {e}\n")
         sys.exit(1)
 
