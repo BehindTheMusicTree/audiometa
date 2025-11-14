@@ -7,7 +7,29 @@ $ErrorActionPreference = "Stop"
 # Load pinned versions from system-dependencies.toml
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
 $versionOutput = python3 "$SCRIPT_DIR\ci\load-system-dependency-versions.py" powershell
-Invoke-Expression $versionOutput
+if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($versionOutput)) {
+    Write-Host "ERROR: Failed to load versions from system-dependencies.toml"
+    exit 1
+}
+# Join array output into single string and execute
+$versionOutputString = $versionOutput -join "`n"
+Invoke-Expression $versionOutputString
+
+# Verify versions were loaded
+if ([string]::IsNullOrEmpty($PINNED_FFMPEG) -or
+    [string]::IsNullOrEmpty($PINNED_FLAC) -or
+    [string]::IsNullOrEmpty($PINNED_MEDIAINFO) -or
+    [string]::IsNullOrEmpty($PINNED_ID3V2) -or
+    [string]::IsNullOrEmpty($PINNED_BWFMETAEDIT)) {
+    Write-Host "ERROR: Failed to load all required versions from system-dependencies.toml"
+    Write-Host "Loaded versions:"
+    Write-Host "  PINNED_FFMPEG=$PINNED_FFMPEG"
+    Write-Host "  PINNED_FLAC=$PINNED_FLAC"
+    Write-Host "  PINNED_MEDIAINFO=$PINNED_MEDIAINFO"
+    Write-Host "  PINNED_ID3V2=$PINNED_ID3V2"
+    Write-Host "  PINNED_BWFMETAEDIT=$PINNED_BWFMETAEDIT"
+    exit 1
+}
 
 Write-Host "Installing pinned package versions..."
 
