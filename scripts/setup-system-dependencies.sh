@@ -42,7 +42,7 @@ install_ubuntu() {
 
     echo -e "${YELLOW}Installing pinned package versions from Ubuntu repos...${NC}"
     # Load pinned versions from system-dependencies.toml
-    eval "$(python3 "${SCRIPT_DIR}/ci/load-system-dependency-versions.py" bash)"
+    eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash)"
 
     # Verify versions are available before installing
     if ! apt-cache show ffmpeg="$PINNED_FFMPEG" &>/dev/null; then
@@ -115,7 +115,7 @@ install_macos() {
 
     echo -e "${YELLOW}Installing pinned package versions via Homebrew...${NC}"
     # Load pinned versions from system-dependencies.toml
-    eval "$(python3 "${SCRIPT_DIR}/ci/load-system-dependency-versions.py" bash)"
+    eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash)"
 
     # Homebrew version pinning: Only ffmpeg supports @version syntax
     # Other packages (flac, mediainfo/media-info, id3v2, bwfmetaedit) don't support version pinning

@@ -7,7 +7,7 @@ set -e
 
 # Load pinned versions from system-dependencies.toml
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VERSION_OUTPUT=$(python3 "${SCRIPT_DIR}/ci/load-system-dependency-versions.py" bash)
+VERSION_OUTPUT=$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash)
 if [ $? -ne 0 ] || [ -z "$VERSION_OUTPUT" ]; then
   echo "ERROR: Failed to load versions from system-dependencies.toml"
   exit 1
@@ -29,7 +29,7 @@ if [ -z "$PINNED_FFMPEG" ] || [ -z "$PINNED_FLAC" ] || [ -z "$PINNED_MEDIAINFO" 
 fi
 
 # Source common utilities
-source "${SCRIPT_DIR}/ci/macos-common.sh"
+source "${SCRIPT_DIR}/macos-common.sh"
 
 HOMEBREW_PREFIX=$(get_homebrew_prefix)
 

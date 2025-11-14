@@ -85,4 +85,3 @@ sudo dpkg -i "$DEB_FILE" || sudo apt-get install -f -y
 rm -f "$DEB_FILE"
 echo "bwfmetaedit ${PINNED_VERSION} installed successfully"
 
-

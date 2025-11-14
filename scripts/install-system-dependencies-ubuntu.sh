@@ -10,7 +10,7 @@ sudo apt-get update
 
 # Load pinned versions from system-dependencies.toml
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-eval "$(python3 "${SCRIPT_DIR}/ci/load-system-dependency-versions.py" bash)"
+eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash)"
 
 echo "Installing pinned package versions..."
 
@@ -140,7 +140,7 @@ echo "Installing id3v2..."
 
 # Install bwfmetaedit using shared script
 echo "Installing bwfmetaedit..."
-"${SCRIPT_DIR}/ci/install-bwfmetaedit-ubuntu.sh"
+"${SCRIPT_DIR}/install-bwfmetaedit-ubuntu.sh"
 
 echo "Verifying installed tools are available in PATH..."
 MISSING_TOOLS=()

@@ -6,10 +6,10 @@ suitable for shell scripts (bash/PowerShell).
 
 Usage:
     # For bash scripts:
-    eval "$(python3 scripts/ci/load-system-dependency-versions.py bash)"
+    eval "$(python3 scripts/load-system-dependency-versions.py bash)"
 
     # For PowerShell scripts:
-    python3 scripts/ci/load-system-dependency-versions.py powershell | Out-String | Invoke-Expression
+    python3 scripts/load-system-dependency-versions.py powershell | Out-String | Invoke-Expression
 """
 
 import sys
@@ -20,7 +20,7 @@ from pathlib import Path
 def load_versions():
     """Load versions from system-dependencies.toml."""
     script_dir = Path(__file__).parent
-    config_path = script_dir.parent.parent / "system-dependencies.toml"
+    config_path = script_dir.parent / "system-dependencies.toml"
 
     if not config_path.exists():
         sys.stderr.write(f"ERROR: Configuration file not found: {config_path}\n")

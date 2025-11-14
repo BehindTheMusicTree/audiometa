@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 
 # Load pinned versions from system-dependencies.toml
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
-$versionOutput = python3 "$SCRIPT_DIR\ci\load-system-dependency-versions.py" powershell
+$versionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($versionOutput)) {
     Write-Host "ERROR: Failed to load versions from system-dependencies.toml"
     exit 1
