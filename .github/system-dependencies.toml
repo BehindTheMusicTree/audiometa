@@ -1,0 +1,93 @@
+# System Dependencies Configuration
+# This file documents the system dependencies required for development and testing.
+# CI and local setup scripts should reference this file to ensure version consistency.
+#
+# Version pinning strategy:
+# - Use "latest" for packages that should track the latest available version
+# - Use specific versions (e.g., "1.2.3") to pin exact versions
+# - For Ubuntu: versions are Ubuntu release-specific (check with: apt-cache policy <package>)
+# - For macOS: Homebrew versions can be pinned using @version syntax
+# - For Windows: Chocolatey supports --version flag
+
+[ubuntu]
+# Ubuntu package versions (install via apt-get)
+# Format: "package=version" for pinned versions (fails if not available, no fallback)
+# To check available versions: apt-cache policy <package> or apt-cache madison <package>
+# Note: Exact versions depend on Ubuntu release. CI uses ubuntu-latest.
+# Version format example: "7:7.1.0-1ubuntu2" (epoch:version-release)
+# IMPORTANT: Verify these versions match what's available in ubuntu-latest:
+#   Run in CI: apt-cache madison <package> to see available versions
+#   Update these pinned versions to match what CI actually installs
+ffmpeg = "7:7.1.0-1ubuntu2"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+flac = "1.4.3-3build1"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+mediainfo = "24.06-1"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+id3v2 = "0.1.12-8build2"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+
+# bwfmetaedit: Try repos first, then download pinned version from MediaArea
+# Pinned version: 24.05 (fails if not available, no fallback)
+bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "24.05" }
+
+[macos]
+# macOS package versions (install via Homebrew)
+# Format: "package@version" for pinned versions (fails if not available, no fallback)
+# To check available versions: brew info <package> or brew search <package>
+# Note: Homebrew version format example: "ffmpeg@7.1" or "flac@1.4.3"
+# IMPORTANT: Verify these versions match what's available in macos-latest:
+#   Run in CI: brew info <package> to see available versions
+#   Update these pinned versions to match what CI actually installs
+ffmpeg = "7.1"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+flac = "1.4.3"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+mediainfo = "24.06"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+bwfmetaedit = "24.05"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+id3v2 = "0.1.12"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+
+[windows]
+# Windows package versions (install via Chocolatey)
+# Format: Use --version flag: choco install package --version=1.2.3 (fails if not available, no fallback)
+# To check available versions: choco search <package> --exact
+# Note: Chocolatey version format example: "7.1.0" or "24.06"
+# IMPORTANT: Verify these versions match what's available in windows-latest:
+#   Run in CI: choco search <package> --exact to see available versions
+#   Update these pinned versions to match what CI actually installs
+ffmpeg = "7.1.0"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+flac = "1.4.3"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+mediainfo = "24.06"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+id3v2 = "0.1.12"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+
+# bwfmetaedit: Download pinned version from MediaArea (not available in Chocolatey)
+# Pinned version: 24.05 (fails if not available, no fallback)
+bwfmetaedit = { source = "mediaarea", pinned_version = "24.05" }
+
+[verification]
+# Commands to verify tool installation and versions
+# These are used by CI and can be run locally to verify setup
+ubuntu = [
+    "ffprobe -version",
+    "flac --version",
+    "metaflac --version || echo 'metaflac not found (should be bundled with flac)'",
+    "mediainfo --version",
+    "bwfmetaedit --version || echo 'bwfmetaedit not found'",
+    "id3v2 --version || echo 'id3v2 not found'",
+    "which mid3v2 && mid3v2 --version || echo 'mid3v2 not found (mutagen provides it, may not be in PATH)'"
+]
+
+macos = [
+    "ffprobe -version",
+    "flac --version",
+    "metaflac --version || echo 'metaflac not found (should be bundled with flac)'",
+    "mediainfo --version",
+    "bwfmetaedit --version || echo 'bwfmetaedit not found'",
+    "id3v2 --version || echo 'id3v2 not found'",
+    "which mid3v2 && mid3v2 --version || echo 'mid3v2 not found (mutagen provides it, may not be in PATH)'"
+]
+
+windows = [
+    "ffprobe -version",
+    "flac --version",
+    "metaflac --version",
+    "mediainfo --version",
+    "if (Get-Command bwfmetaedit -ErrorAction SilentlyContinue) { bwfmetaedit --version } else { Write-Host 'bwfmetaedit not found' }",
+    "if (Get-Command id3v2 -ErrorAction SilentlyContinue) { id3v2 --version } else { Write-Host 'id3v2 not found' }",
+    "if (Get-Command mid3v2 -ErrorAction SilentlyContinue) { mid3v2 --version } else { Write-Host 'mid3v2 not found (mutagen provides it, may not be in PATH)' }"
+]
+

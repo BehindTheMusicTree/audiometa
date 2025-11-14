@@ -62,6 +62,14 @@ jobs:
   test:
     name: Test Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
+    # System Dependencies Version Alignment Pattern:
+    # All system dependencies (ffmpeg, flac, mediainfo, id3v2, bwfmetaedit) use versions pinned in
+    # .github/system-dependencies.toml and scripts/ci/install-*.sh files.
+    # This ensures CI and local development environments use the exact same tool versions, preventing
+    # version drift and inconsistent test behavior across environments.
+    # Installation scripts fail immediately if pinned versions are not available (no fallback),
+    # ensuring strict version enforcement and making version mismatches immediately visible.
+    # See .github/system-dependencies.toml for the complete configuration and version pinning strategy.
     strategy:
       fail-fast: false
       matrix:
@@ -79,57 +87,16 @@ jobs:
 
       - name: Install system dependencies (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg flac mediainfo id3v2
-
-      - name: Install bwfmetaedit (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          # Download and install bwfmetaedit (not available in Ubuntu repos)
-          wget https://mediaarea.net/download/binary/bwfmetaedit/24.05/bwfmetaedit_24.05-1_amd64.xUbuntu_24.04.deb
-          sudo dpkg -i bwfmetaedit_24.05-1_amd64.xUbuntu_24.04.deb || sudo apt-get install -f -y
-          rm bwfmetaedit_24.05-1_amd64.xUbuntu_24.04.deb
+        run: bash scripts/ci/install-system-dependencies-ubuntu.sh
 
       - name: Install system dependencies (macOS)
         if: matrix.os == 'macos-latest'
-        run: |
-          brew install ffmpeg flac mediainfo bwfmetaedit id3v2
+        run: bash scripts/ci/install-system-dependencies-macos.sh
 
       - name: Install system dependencies (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
-        run: |
-          choco install ffmpeg flac mediainfo id3v2 -y
-
-      - name: Install bwfmetaedit (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          # Download and install bwfmetaedit (not available in Chocolatey)
-          $url = "https://mediaarea.net/download/binary/bwfmetaedit/24.05/BWFMetaEdit_CLI_24.05_Windows_x64.zip"
-          $tempDir = "$env:TEMP\bwfmetaedit"
-          $installDir = "C:\Program Files\BWFMetaEdit"
-
-          Write-Host "Downloading BWF MetaEdit..."
-          New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
-          Invoke-WebRequest -Uri $url -OutFile "$tempDir\bwfmetaedit.zip" -UseBasicParsing
-
-          Write-Host "Extracting..."
-          Expand-Archive -Path "$tempDir\bwfmetaedit.zip" -DestinationPath $tempDir -Force
-
-          Write-Host "Installing..."
-          New-Item -ItemType Directory -Force -Path $installDir | Out-Null
-          $exe = Get-ChildItem -Path $tempDir -Filter "bwfmetaedit.exe" -Recurse | Select-Object -First 1
-          Copy-Item -Path $exe.FullName -Destination "$installDir\bwfmetaedit.exe" -Force
-
-          Write-Host "Adding to PATH..."
-          echo "$installDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-          Write-Host "Cleanup..."
-          Remove-Item -Path $tempDir -Recurse -Force
-
-          Write-Host "BWF MetaEdit installed successfully!"
+        run: .\scripts\ci\install-system-dependencies-windows.ps1
 
       - name: Install Python dependencies
         # Installs exact tool versions from pyproject.toml
@@ -145,29 +112,6 @@ jobs:
           key: pytest-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/*.py') }}
           restore-keys: |
             pytest-${{ runner.os }}-${{ matrix.python-version }}-
-
-      - name: Verify external tools (Linux/macOS)
-        if: matrix.os != 'windows-latest'
-        run: |
-          ffprobe -version
-          flac --version
-          metaflac --version || echo "metaflac not found (should be bundled with flac)"
-          mediainfo --version
-          bwfmetaedit --version || echo "bwfmetaedit not found"
-          id3v2 --version || echo "id3v2 not found"
-          which mid3v2 && mid3v2 --version || echo "mid3v2 not found (mutagen provides it, may not be in PATH)"
-
-      - name: Verify external tools (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          ffprobe -version
-          flac --version
-          metaflac --version
-          mediainfo --version
-          if (Get-Command bwfmetaedit -ErrorAction SilentlyContinue) { bwfmetaedit --version } else { Write-Host "bwfmetaedit not found" }
-          if (Get-Command id3v2 -ErrorAction SilentlyContinue) { id3v2 --version } else { Write-Host "id3v2 not found" }
-          if (Get-Command mid3v2 -ErrorAction SilentlyContinue) { mid3v2 --version } else { Write-Host "mid3v2 not found (mutagen provides it, may not be in PATH)" }
 
       - name: Run unit tests
         run: pytest -m unit --cov=audiometa --cov-report=xml --cov-report=term

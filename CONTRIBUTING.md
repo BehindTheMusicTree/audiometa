@@ -112,7 +112,7 @@ Currently, this project has a solo maintainer, but the role may expand as the pr
 
 Ensure you're using:
 
-- Python 3.12 or higher
+- Python 3.12 or 3.13
 
 - Virtual environment with dependencies:
 
@@ -122,6 +122,28 @@ Ensure you're using:
   .venv\Scripts\activate     # (Windows)
   pip install -e ".[dev]"
   ```
+
+- **System dependencies** (required for testing):
+
+  To ensure your local environment matches CI exactly, use the automated setup script:
+
+  ```bash
+  # Linux/macOS
+  ./scripts/setup-system-dependencies.sh
+
+  # Windows
+  .\scripts\ci\install-system-dependencies-windows.ps1
+  ```
+
+  This installs the same versions as CI. Configuration is documented in `.github/system-dependencies.toml`.
+
+  **Required tools:**
+  - `ffmpeg` / `ffprobe` - Audio file analysis
+  - `flac` / `metaflac` - FLAC file operations
+  - `mediainfo` - Media information extraction
+  - `id3v2` - ID3v2 tag manipulation
+  - `bwfmetaedit` - BWF metadata editing (for WAV files)
+  - `mid3v2` - Provided by mutagen (Python package)
 
 ## 🧱 Development Workflow
 

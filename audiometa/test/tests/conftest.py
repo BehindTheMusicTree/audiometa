@@ -1,8 +1,176 @@
 """Test configuration for audiometa-python tests."""
 
+import platform
+import subprocess
+import tomllib
 from pathlib import Path
 
 import pytest
+
+
+def _load_dependencies_pinned_versions():
+    """Load pinned versions from .github/system-dependencies.toml."""
+    config_path = Path(__file__).parent.parent.parent.parent / ".github" / "system-dependencies.toml"
+
+    if not config_path.exists():
+        return None
+
+    try:
+        with config_path.open("rb") as f:
+            config = tomllib.load(f)
+
+        pinned_versions = {}
+
+        # Extract versions for each OS
+        for os_type in ["ubuntu", "macos", "windows"]:
+            if os_type not in config:
+                continue
+
+            os_config = config[os_type]
+            for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit"]:
+                if tool not in os_config:
+                    continue
+
+                version_value = os_config[tool]
+                # Handle both string values and dict values (for bwfmetaedit)
+                if isinstance(version_value, str):
+                    version = version_value
+                elif isinstance(version_value, dict) and "pinned_version" in version_value:
+                    version = version_value["pinned_version"]
+                else:
+                    continue
+
+                if tool not in pinned_versions:
+                    pinned_versions[tool] = {}
+                pinned_versions[tool][os_type] = version
+    except Exception:
+        return None
+    else:
+        return pinned_versions
+
+
+def pytest_configure(_config):
+    """Verify system dependency versions match pinned versions before running tests."""
+    # Load pinned versions from .github/system-dependencies.toml (single source of truth)
+    pinned_versions = _load_dependencies_pinned_versions()
+
+    if not pinned_versions:
+        # Skip verification if config file not found or can't be parsed
+        return
+
+    def get_os_type():
+        """Detect OS type for version checking."""
+        system = platform.system().lower()
+        if system == "linux":
+            return "ubuntu"
+        if system == "darwin":
+            return "macos"
+        if system == "windows":
+            return "windows"
+        return None
+
+    def get_installed_version_ubuntu(package):
+        """Get installed package version on Ubuntu."""
+        try:
+            result = subprocess.run(["dpkg", "-l"], capture_output=True, text=True, check=True)
+            for line in result.stdout.split("\n"):
+                if line.startswith("ii") and package in line:
+                    parts = line.split()
+                    if len(parts) >= 3:
+                        return parts[2]
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
+        return None
+
+    def get_installed_version_macos(package):
+        """Get installed package version on macOS."""
+        try:
+            result = subprocess.run(
+                ["brew", "list", "--versions", package],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            if result.stdout:
+                return result.stdout.strip().split()[-1]
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
+        return None
+
+    def get_installed_version_windows(package):
+        """Get installed package version on Windows."""
+        try:
+            result = subprocess.run(
+                ["choco", "list", "--local-only", package, "--exact"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            for line in result.stdout.split("\n"):
+                if package in line and not line.startswith("Chocolatey"):
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        return parts[1]
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
+        return None
+
+    def check_tool_available(tool_name):
+        """Check if tool is available in PATH."""
+        try:
+            subprocess.run(
+                [tool_name, "--version"],
+                capture_output=True,
+                check=True,
+            )
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return False
+        else:
+            return True
+
+    # Only verify versions if we can detect the OS and tools are available
+    os_type = get_os_type()
+    if not os_type:
+        return  # Skip verification if OS not detected
+
+    has_errors = False
+    errors = []
+
+    for tool, versions in pinned_versions.items():
+        expected_version = versions.get(os_type)
+        if not expected_version:
+            continue
+
+        # Check if tool is available
+        tool_command = "ffprobe" if tool == "ffmpeg" else tool
+        if not check_tool_available(tool_command):
+            errors.append(f"{tool}: NOT INSTALLED")
+            has_errors = True
+            continue
+
+        # Get installed version
+        if os_type == "ubuntu":
+            installed = get_installed_version_ubuntu(tool)
+        elif os_type == "macos":
+            installed = get_installed_version_macos(tool)
+        else:  # windows
+            installed = get_installed_version_windows(tool)
+
+        if not installed:
+            errors.append(f"{tool}: VERSION CHECK FAILED")
+            has_errors = True
+        elif installed != expected_version:
+            errors.append(f"{tool}: version mismatch (expected {expected_version}, got {installed})")
+            has_errors = True
+
+    if has_errors:
+        error_msg = "System dependency version verification failed:\n" + "\n".join(f"  - {e}" for e in errors)
+        error_msg += (
+            "\n\nUpdate .github/system-dependencies.toml and "
+            "scripts/ci/install-system-dependencies-*.sh with correct versions."
+        )
+        error_msg += "\nThis ensures tests use the same tool versions as CI."
+        pytest.exit(error_msg, returncode=1)
 
 
 def pytest_collection_modifyitems(items):
