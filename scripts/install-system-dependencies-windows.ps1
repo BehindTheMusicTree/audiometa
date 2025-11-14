@@ -168,8 +168,9 @@ if (-not $wslInstalled) {
 $ubuntuAvailable = $false
 $wslCheck = Get-Command wsl -ErrorAction SilentlyContinue
 if ($wslCheck) {
-    $wslListOutput = wsl -l -q 2>&1
-    $ubuntuAvailable = $wslListOutput | Select-String -Pattern "Ubuntu"
+    $wslListOutput = wsl -l -q 2>&1 | Out-String
+    $ubuntuMatch = $wslListOutput | Select-String -Pattern "Ubuntu"
+    $ubuntuAvailable = $null -ne $ubuntuMatch
 }
 
 if (-not $ubuntuAvailable) {
@@ -204,28 +205,48 @@ if (-not $ubuntuAvailable) {
     Write-Host "Checking if Ubuntu is now available..."
     $wslListOutput = wsl -l -q 2>&1 | Out-String
     Write-Host "WSL list output: $wslListOutput"
-    $ubuntuAvailable = $wslListOutput | Select-String -Pattern "Ubuntu"
+    $ubuntuMatch = $wslListOutput | Select-String -Pattern "Ubuntu"
+    $ubuntuAvailable = $null -ne $ubuntuMatch
 
     if (-not $ubuntuAvailable) {
-        Write-Host ""
-        Write-Host "ERROR: Ubuntu distribution not available after installation attempt."
-        Write-Host "WSL installation on Windows typically requires a system restart, which is not possible in CI."
-        Write-Host ""
-        $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
-        if ($isCI) {
-            Write-Host "Ubuntu installation is required for id3v2 but cannot be completed in CI without a restart."
-            Write-Host ""
-            Write-Host "To enable id3v2 in CI:"
-            Write-Host "  1. Use a Windows runner with WSL Ubuntu pre-installed"
-            Write-Host "  2. Or configure WSL Ubuntu in your CI workflow before running this script"
-        } else {
-            Write-Host "Ubuntu installation failed. Please install Ubuntu manually:"
-            Write-Host "  1. Run: wsl --install -d Ubuntu"
-            Write-Host "  2. Restart your computer if prompted"
-            Write-Host "  3. Run this script again"
+        # Check if Ubuntu was actually installed (exit code 1 might be from OOBE setup failure, not installation)
+        $installSucceeded = $ubuntuInstallOutput -match "Distribution successfully installed" -or $ubuntuInstallOutput -match "successfully installed"
+        if ($installSucceeded) {
+            Write-Host "WARNING: Ubuntu installation succeeded but may not be fully initialized."
+            Write-Host "The OOBE (Out of Box Experience) setup may have failed, but Ubuntu is installed."
+            Write-Host "Attempting to use Ubuntu anyway..."
+            # Try to run a simple command to see if Ubuntu works
+            $testOutput = wsl -d Ubuntu echo "test" 2>&1 | Out-String
+            if ($LASTEXITCODE -eq 0 -or $testOutput -match "test") {
+                Write-Host "Ubuntu is working despite OOBE failure. Proceeding..."
+                $ubuntuAvailable = $true
+            } else {
+                Write-Host "Ubuntu is installed but not responding. May need manual setup."
+                Write-Host "Test output: $testOutput"
+            }
         }
-        Write-Host ""
-        exit 1
+
+        if (-not $ubuntuAvailable) {
+            Write-Host ""
+            Write-Host "ERROR: Ubuntu distribution not available after installation attempt."
+            Write-Host "WSL installation on Windows typically requires a system restart, which is not possible in CI."
+            Write-Host ""
+            $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
+            if ($isCI) {
+                Write-Host "Ubuntu installation is required for id3v2 but cannot be completed in CI without a restart."
+                Write-Host ""
+                Write-Host "To enable id3v2 in CI:"
+                Write-Host "  1. Use a Windows runner with WSL Ubuntu pre-installed"
+                Write-Host "  2. Or configure WSL Ubuntu in your CI workflow before running this script"
+            } else {
+                Write-Host "Ubuntu installation failed. Please install Ubuntu manually:"
+                Write-Host "  1. Run: wsl --install -d Ubuntu"
+                Write-Host "  2. Restart your computer if prompted"
+                Write-Host "  3. Run this script again"
+            }
+            Write-Host ""
+            exit 1
+        }
     } else {
         Write-Host "Ubuntu distribution is now available!"
     }
@@ -234,8 +255,9 @@ if (-not $ubuntuAvailable) {
 # Verify Ubuntu is actually available and working before proceeding
 if ($failedPackages -notcontains "id3v2") {
     # Double-check Ubuntu is available by trying to list distributions
-    $wslListOutput = wsl -l -q 2>&1
-    $ubuntuAvailable = $wslListOutput | Select-String -Pattern "Ubuntu"
+    $wslListOutput = wsl -l -q 2>&1 | Out-String
+    $ubuntuMatch = $wslListOutput | Select-String -Pattern "Ubuntu"
+    $ubuntuAvailable = $null -ne $ubuntuMatch
     if (-not $ubuntuAvailable) {
         Write-Host "ERROR: Ubuntu distribution not available in WSL after installation attempt."
         Write-Host "WSL output: $wslListOutput"
