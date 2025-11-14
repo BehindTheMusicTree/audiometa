@@ -29,6 +29,7 @@ class TestComprehensiveRatingWriting:
                 test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=255
             )
             assert rating_255 is not None
+            assert isinstance(rating_255, int | float)
             assert rating_255 > 0
 
     def test_cross_metadata_format_rating_consistency(self):
@@ -43,6 +44,7 @@ class TestComprehensiveRatingWriting:
             )
             rating = get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
+            assert isinstance(rating, int | float)
             assert rating > 0
 
         # Test RIFF metadata format
@@ -53,6 +55,7 @@ class TestComprehensiveRatingWriting:
             )
             rating = get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
+            assert isinstance(rating, int | float)
             assert rating > 0
 
         # Test Vorbis metadata format
@@ -63,6 +66,7 @@ class TestComprehensiveRatingWriting:
             )
             rating = get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
+            assert isinstance(rating, int | float)
             assert rating > 0
 
     def test_metadata_format_specific_rating_profiles(self):
@@ -80,6 +84,7 @@ class TestComprehensiveRatingWriting:
                     test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=255
                 )
                 assert rating is not None
+                assert isinstance(rating, int | float)
                 assert 0 <= rating <= 255
 
         # Test Vorbis with base 100 proportional values
@@ -141,6 +146,7 @@ class TestComprehensiveRatingWriting:
                     test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=10
                 )
                 assert rating is not None
+                assert isinstance(rating, int | float)
                 assert rating > 0
 
         # Test float values with max=100
@@ -158,17 +164,29 @@ class TestComprehensiveRatingWriting:
                     test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100
                 )
                 assert rating is not None
+                assert isinstance(rating, int | float)
                 assert rating >= 0
 
-    @pytest.mark.parametrize("rating_value", [1.5, 75.7, 128.5, 255.0])
+    @pytest.mark.parametrize("rating_value", [1.5, 75.7, 128.5])
     def test_write_float_rating_values_raw_mode(self, rating_value):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
 
-        # Test float values in raw mode (no normalization) - should raise error
+        # Test fractional float values in raw mode (no normalization) - should raise error
         from audiometa.exceptions import InvalidRatingValueError
 
         with temp_file_with_metadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: rating_value}
             with pytest.raises(InvalidRatingValueError) as exc_info:
                 update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V2)
-            assert "Float values are only supported when normalized_rating_max_value is provided" in str(exc_info.value)
+            assert "In raw mode, float values must be whole numbers" in str(exc_info.value)
+
+    @pytest.mark.parametrize("rating_value", [0.0, 128.0, 196.0, 255.0])
+    def test_write_whole_number_float_rating_values_raw_mode(self, rating_value):
+        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
+
+        # Test whole-number float values in raw mode (no normalization) - should be accepted and converted to int
+        with temp_file_with_metadata(basic_metadata, "mp3") as test_file:
+            test_metadata = {UnifiedMetadataKey.RATING: rating_value}
+            update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V2)
+            rating = get_unified_metadata_field(test_file, UnifiedMetadataKey.RATING)
+            assert rating == int(rating_value)
