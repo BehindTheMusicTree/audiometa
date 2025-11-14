@@ -35,6 +35,9 @@ if ([string]::IsNullOrEmpty($PINNED_FFMPEG) -or
 
 Write-Host "Installing pinned package versions..."
 
+# Check if running in CI environment
+$isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
+
 # Chocolatey version pinning format: choco install package --version=1.2.3
 # Check exit code after each installation (choco doesn't throw exceptions)
 $failedPackages = @()
@@ -77,7 +80,6 @@ if (-not (Install-ChocoPackage "flac" $PINNED_FLAC)) {
 
 # mediainfo: Only needed for integration tests (verification), not e2e tests
 # Skip installation on Windows CI since we only run e2e tests
-$isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
 if (-not $isCI) {
     if (-not (Install-ChocoPackage "mediainfo" $PINNED_MEDIAINFO)) {
         $failedPackages += "mediainfo"
@@ -86,9 +88,24 @@ if (-not $isCI) {
     Write-Host "Skipping mediainfo installation (not needed for e2e tests on Windows CI)"
 }
 
-# id3v2: Required for tests but not available in Chocolatey
+# id3v2: Optional on Windows CI (not needed for e2e tests)
 # Install via WSL (Windows Subsystem for Linux) since id3v2 is a Linux tool
-Write-Host "Installing id3v2 via WSL..."
+#
+# Why skip WSL installation in CI:
+# 1. Windows CI only runs e2e tests (unit/integration tests run on Ubuntu/macOS)
+# 2. e2e tests don't use id3v2 (they use mutagen for MP3, metaflac for FLAC, bwfmetaedit for WAV)
+# 3. WSL installation requires a system restart in most cases, which is not possible in CI
+# 4. WSL installation adds significant complexity to CI setup (DISM, feature enabling, Ubuntu distro setup)
+# 5. WSL installation attempts often fail in CI environments due to restart requirements and complexity
+# 6. Version verification in pytest already skips id3v2 on Windows
+#
+# For local development: WSL installation is attempted if not in CI, allowing full test coverage
+if ($isCI) {
+    Write-Host "Skipping id3v2 installation (not needed for e2e tests on Windows CI)"
+    $failedPackages += "id3v2"
+    $wslRequiredPackages += "id3v2"
+} else {
+    Write-Host "Installing id3v2 via WSL..."
 
 # Check if WSL is installed and Ubuntu distribution is available
 $wslInstalled = Get-Command wsl -ErrorAction SilentlyContinue
@@ -129,19 +146,13 @@ if (-not $wslInstalled) {
     if ($LASTEXITCODE -ne 0) {
         Write-Host ""
         Write-Host "WARNING: WSL installation failed (exit code: $LASTEXITCODE)."
-        Write-Host "This usually means WSL requires a system restart, which is not possible in CI."
+        Write-Host "This usually means WSL requires a system restart."
         Write-Host "Full WSL output: $wslInstallOutput"
         Write-Host ""
-        $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
-        if ($isCI) {
-            Write-Host "id3v2 will not be available in CI (WSL required)."
-            Write-Host "Tests requiring id3v2 will be skipped on Windows."
-        } else {
-            Write-Host "id3v2 installation skipped. To install WSL manually:"
-            Write-Host "  1. Run: wsl --install -d Ubuntu"
-            Write-Host "  2. Restart your computer if prompted"
-            Write-Host "  3. Run this script again"
-        }
+        Write-Host "id3v2 installation skipped. To install WSL manually:"
+        Write-Host "  1. Run: wsl --install -d Ubuntu"
+        Write-Host "  2. Restart your computer if prompted"
+        Write-Host "  3. Run this script again"
         Write-Host ""
         # Don't exit - continue with other package installations
         $failedPackages += "id3v2"
@@ -157,13 +168,7 @@ if (-not $wslInstalled) {
             Write-Host "WARNING: WSL installed but not available (may require restart)."
             Write-Host "WSL installation requires a system restart to be fully functional."
             Write-Host ""
-            $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
-            if ($isCI) {
-                Write-Host "id3v2 will not be available in CI (WSL not available)."
-                Write-Host "Tests requiring id3v2 will be skipped on Windows."
-            } else {
-                Write-Host "id3v2 installation skipped. Please restart your computer and run this script again."
-            }
+            Write-Host "id3v2 installation skipped. Please restart your computer and run this script again."
             Write-Host ""
             # Don't exit - continue with other package installations
             $failedPackages += "id3v2"
@@ -250,22 +255,12 @@ if (-not $ubuntuAvailable) {
     if (-not $ubuntuAvailable) {
             Write-Host ""
             Write-Host "WARNING: Ubuntu distribution not available after installation attempt."
-            Write-Host "WSL installation on Windows typically requires a system restart, which is not possible in CI."
+            Write-Host "WSL installation on Windows typically requires a system restart."
             Write-Host ""
-            $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
-            if ($isCI) {
-                Write-Host "id3v2 will not be available in CI (WSL Ubuntu required)."
-                Write-Host "Tests requiring id3v2 will be skipped on Windows."
-                Write-Host ""
-                Write-Host "To enable id3v2 in CI:"
-                Write-Host "  1. Use a Windows runner with WSL Ubuntu pre-installed"
-                Write-Host "  2. Or configure WSL Ubuntu in your CI workflow before running this script"
-            } else {
-                Write-Host "id3v2 installation skipped. To install manually:"
-                Write-Host "  1. Run: wsl --install -d Ubuntu"
-                Write-Host "  2. Restart your computer if prompted"
-                Write-Host "  3. Run this script again"
-            }
+            Write-Host "id3v2 installation skipped. To install manually:"
+            Write-Host "  1. Run: wsl --install -d Ubuntu"
+            Write-Host "  2. Restart your computer if prompted"
+            Write-Host "  3. Run this script again"
             Write-Host ""
             # Don't exit - continue with other package installations
             $failedPackages += "id3v2"
@@ -273,10 +268,11 @@ if (-not $ubuntuAvailable) {
     } else {
         Write-Host "Ubuntu distribution is now available!"
     }
+    }
 }
 
-# Verify Ubuntu is actually available and working before proceeding
-if ($failedPackages -notcontains "id3v2") {
+# Verify Ubuntu is actually available and working before proceeding (only if not in CI)
+if (-not $isCI -and $failedPackages -notcontains "id3v2") {
     # Double-check Ubuntu is available by trying to list distributions
     $wslListOutput = wsl -l -q 2>&1 | Out-String
     $ubuntuMatch = $wslListOutput | Select-String -Pattern "Ubuntu"
@@ -308,8 +304,8 @@ if ($failedPackages -notcontains "id3v2") {
     }
 }
 
-# Create wrapper script to make id3v2 accessible from Windows (if installation succeeded)
-if ($failedPackages -notcontains "id3v2") {
+# Create wrapper script to make id3v2 accessible from Windows (if installation succeeded, and not in CI)
+if (-not $isCI -and $failedPackages -notcontains "id3v2") {
     $wrapperDir = "C:\Program Files\id3v2-wrapper"
     New-Item -ItemType Directory -Force -Path $wrapperDir | Out-Null
     $wrapperScript = @"
@@ -324,9 +320,6 @@ wsl id3v2 %*
 
 # Check if any packages failed
 if ($failedPackages.Count -gt 0) {
-    # Detect CI environment
-    $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
-
     # Separate WSL-required packages from version-related failures
     $versionRelatedFailures = $failedPackages | Where-Object { $wslRequiredPackages -notcontains $_ }
     $wslRelatedFailures = $failedPackages | Where-Object { $wslRequiredPackages -contains $_ }
@@ -457,7 +450,6 @@ if ($needInstall) {
 
 # exiftool: Not needed for e2e tests
 # Skip installation on Windows CI since we only run e2e tests
-$isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
 if (-not $isCI) {
     Write-Host "Installing exiftool (pinned version)..."
 
@@ -597,7 +589,6 @@ $tools = @("ffprobe", "flac", "metaflac", "mediainfo", "id3v2", "exiftool")
 
 foreach ($tool in $tools) {
     # Skip optional tools in CI (not needed for e2e tests)
-    $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
     if ($isCI -and ($tool -eq "mediainfo" -or $tool -eq "exiftool")) {
         Write-Host "  ${tool}: Skipped (not needed for e2e tests on Windows CI)"
         continue
@@ -658,7 +649,6 @@ if ($missingTools.Count -gt 0) {
 }
 
 # Check if WSL-required packages are missing - warn but don't fail (id3v2 is optional on Windows)
-$isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
 if ($wslRequiredPackages.Count -gt 0) {
     Write-Host ""
     Write-Host "WARNING: WSL-required packages could not be installed:"
