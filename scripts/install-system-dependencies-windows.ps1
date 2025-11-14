@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 
 # Load pinned versions from system-dependencies.toml
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
-$versionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell
+$versionOutput = python3 "$SCRIPT_DIR\ci\load-system-dependency-versions.py" powershell
 Invoke-Expression $versionOutput
 
 Write-Host "Installing pinned package versions..."
