@@ -81,7 +81,15 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg flac mediainfo bwfmetaedit
+          sudo apt-get install -y ffmpeg flac mediainfo
+
+      - name: Install bwfmetaedit (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          # Download and install bwfmetaedit (not available in Ubuntu repos)
+          wget https://mediaarea.net/download/binary/bwfmetaedit/24.05/bwfmetaedit_24.05-1_amd64.xUbuntu_24.04.deb
+          sudo dpkg -i bwfmetaedit_24.05-1_amd64.xUbuntu_24.04.deb || sudo apt-get install -f -y
+          rm bwfmetaedit_24.05-1_amd64.xUbuntu_24.04.deb
 
       - name: Install system dependencies (macOS)
         if: matrix.os == 'macos-latest'
