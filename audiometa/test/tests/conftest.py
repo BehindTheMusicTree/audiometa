@@ -208,35 +208,52 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
         # For Chocolatey packages (ffmpeg, flac, mediainfo)
         # Use Chocolatey as the source of truth for pinned versions
         # Match the parsing logic from install-system-dependencies-windows.ps1:
-        # choco list $PackageName --local-only --exact | Select-String -Pattern "^$PackageName\s+(\S+)"
+        # choco list $PackageName --local-only --exact 2>&1 | Select-String -Pattern "^$PackageName\s+(\S+)"
         try:
             result = subprocess.run(
                 ["choco", "list", "--local-only", package, "--exact"],
                 capture_output=True,
                 text=True,
-                check=True,
+                check=False,  # Don't fail on non-zero exit - package might not be installed
             )
+            # Check both stdout and stderr (Chocolatey redirects stderr to stdout with 2>&1)
+            output = result.stdout + result.stderr
+
+            if not output.strip():
+                # Empty output - package not found in Chocolatey
+                return None
+
             # Parse Chocolatey output: package name at start of line, whitespace, then version
-            # Pattern matches: "^ffmpeg 7.1.0" or "ffmpeg|7.1.0" (pipe-separated format)
+            # Pattern matches: "^ffmpeg 7.1.0" (space-separated) or "ffmpeg|7.1.0" (pipe-separated)
+            # Match PowerShell Select-String pattern: ^PackageName\s+(\S+)
             pattern = rf"^{re.escape(package)}\s+(\S+)"
-            for raw_line in result.stdout.split("\n"):
+            for raw_line in output.split("\n"):
                 line = raw_line.strip()
                 if not line or line.startswith("Chocolatey"):
                     continue
+                # Try space-separated format: "ffmpeg 7.1.0"
                 match = re.match(pattern, line, re.IGNORECASE)
                 if match:
                     version = match.group(1)
                     # Validate version format (digits and dots)
                     if re.match(r"^\d+\.\d+", version):
                         return version
-                # Also try pipe-separated format: "ffmpeg|7.1.0"
+                # Try pipe-separated format: "ffmpeg|7.1.0"
                 if "|" in line:
                     parts = line.split("|")
                     if len(parts) >= 2 and parts[0].strip().lower() == package.lower():
                         version = parts[1].strip()
                         if re.match(r"^\d+\.\d+", version):
                             return version
-        except (subprocess.CalledProcessError, FileNotFoundError):
+                # Try tab-separated format: "ffmpeg\t7.1.0"
+                if "\t" in line:
+                    parts = line.split("\t")
+                    if len(parts) >= 2 and parts[0].strip().lower() == package.lower():
+                        version = parts[1].strip()
+                        if re.match(r"^\d+\.\d+", version):
+                            return version
+        except FileNotFoundError:
+            # Chocolatey not found
             pass
         return None
 
@@ -311,7 +328,15 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                 errors.append(f"{tool}: NOT INSTALLED")
                 has_errors = True
                 continue
-            errors.append(f"{tool}: VERSION CHECK FAILED")
+            # Tool is available but version detection failed
+            # This usually means the version detection logic couldn't parse the output
+            if os_type == "windows" and tool in ["ffmpeg", "flac", "mediainfo"]:
+                errors.append(
+                    f"{tool}: VERSION CHECK FAILED "
+                    "(Chocolatey parsing failed - tool may not be installed via Chocolatey)"
+                )
+            else:
+                errors.append(f"{tool}: VERSION CHECK FAILED")
             has_errors = True
             continue
         if os_type == "macos":
