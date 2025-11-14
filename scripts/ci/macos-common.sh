@@ -148,7 +148,8 @@ get_tool_version() {
       version_output=$("$tool_path" --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
       ;;
     mediainfo)
-      version_output=$("$tool_path" --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+      # mediainfo outputs: "MediaInfo Command line, MediaInfoLib - v25.10"
+      version_output=$("$tool_path" --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -n1 || echo "")
       ;;
     id3v2)
       version_output=$("$tool_path" --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")

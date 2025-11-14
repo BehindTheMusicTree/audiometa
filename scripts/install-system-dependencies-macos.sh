@@ -26,26 +26,121 @@ if [ -z "$PINNED_FFMPEG" ] || [ -z "$PINNED_FLAC" ] || [ -z "$PINNED_MEDIAINFO" 
   exit 1
 fi
 
-echo "Installing pinned package versions..."
-
 # Source common utilities
 source "${SCRIPT_DIR}/ci/macos-common.sh"
 
-# Install each package using focused scripts
-echo "Installing ffmpeg..."
-"${SCRIPT_DIR}/ci/install-ffmpeg-macos.sh" "${PINNED_FFMPEG}"
+HOMEBREW_PREFIX=$(get_homebrew_prefix)
 
-echo "Installing mediainfo..."
-"${SCRIPT_DIR}/ci/install-mediainfo-macos.sh" "${PINNED_MEDIAINFO}"
+# Function to install a Homebrew package with version verification
+install_homebrew_package() {
+  local tool_name="$1"
+  local brew_package="$2"
+  local pinned_version="$3"
+  local binary_paths="$4"  # Optional: space-separated list of binary paths to remove
 
-echo "Installing flac..."
-"${SCRIPT_DIR}/ci/install-flac-macos.sh" "${PINNED_FLAC}"
+  echo "Installing ${tool_name}..."
 
-echo "Installing id3v2..."
-"${SCRIPT_DIR}/ci/install-id3v2-macos.sh" "${PINNED_ID3V2}"
+  # Check if already installed with correct version
+  if command -v "$tool_name" &>/dev/null; then
+    INSTALLED_VERSION=$(get_tool_version "$tool_name")
+    if check_version_match "$tool_name" "$INSTALLED_VERSION" "$pinned_version"; then
+      echo "  ${tool_name} ${INSTALLED_VERSION} already installed (matches pinned version ${pinned_version})"
+      return 0
+    else
+      echo "  Removing existing ${tool_name} version ${INSTALLED_VERSION} (installing pinned version ${pinned_version})..."
+      remove_homebrew_package "$brew_package" "$binary_paths"
+    fi
+  fi
 
-echo "Installing bwfmetaedit..."
-"${SCRIPT_DIR}/ci/install-bwfmetaedit-macos.sh" "${PINNED_BWFMETAEDIT}"
+  # Install via Homebrew
+  brew install "$brew_package" || {
+    echo "ERROR: Failed to install ${tool_name} via Homebrew."
+    exit 1
+  }
+
+  # Verify installed version matches pinned version
+  INSTALLED_VERSION=$(get_tool_version "$tool_name")
+  if [ -z "$INSTALLED_VERSION" ]; then
+    echo "ERROR: Failed to get installed ${tool_name} version."
+    exit 1
+  fi
+
+  if ! check_version_match "$tool_name" "$INSTALLED_VERSION" "$pinned_version"; then
+    echo "ERROR: Installed ${tool_name} version ${INSTALLED_VERSION} does not match pinned version ${pinned_version}."
+    echo "Homebrew may have installed a different version than expected."
+    exit 1
+  fi
+
+  echo "  ${tool_name} ${INSTALLED_VERSION} installed successfully (matches pinned version ${pinned_version})"
+}
+
+# Function to install ffmpeg (special case: uses @version syntax)
+install_ffmpeg() {
+  local pinned_version="$1"
+
+  echo "Installing ffmpeg..."
+
+  # Check if ffmpeg is already installed
+  NEED_INSTALL=1
+  if command -v ffmpeg &>/dev/null; then
+    INSTALLED_VERSION=$(ffmpeg -version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+
+    if [ -n "$INSTALLED_VERSION" ]; then
+      INSTALLED_MAJOR=$(echo "$INSTALLED_VERSION" | cut -d. -f1)
+      PINNED_MAJOR=$(echo "$pinned_version" | cut -d. -f1)
+
+      if [ "$INSTALLED_MAJOR" = "$PINNED_MAJOR" ]; then
+        echo "  ffmpeg ${INSTALLED_VERSION} already installed (matches pinned version ${pinned_version})"
+        NEED_INSTALL=0
+        # ffmpeg@7 is keg-only, ensure it's in PATH
+        FFMPEG_BIN_PATH="${HOMEBREW_PREFIX}/opt/ffmpeg@${pinned_version}/bin"
+        if [ -d "$FFMPEG_BIN_PATH" ]; then
+          export PATH="$FFMPEG_BIN_PATH:$PATH"
+          if [ -n "$GITHUB_PATH" ]; then
+            echo "$FFMPEG_BIN_PATH" >> "$GITHUB_PATH"
+          fi
+        fi
+      else
+        echo "  Removing existing ffmpeg version ${INSTALLED_VERSION} (installing pinned version ${pinned_version})..."
+        brew uninstall ffmpeg 2>/dev/null || brew uninstall ffmpeg@${INSTALLED_MAJOR} 2>/dev/null || true
+      fi
+    else
+      echo "  ffmpeg installed but version could not be determined, removing..."
+      brew uninstall ffmpeg 2>/dev/null || true
+    fi
+  fi
+
+  # Install ffmpeg with version pinning if needed
+  if [ "$NEED_INSTALL" -eq 1 ]; then
+    echo "  Installing ffmpeg@${pinned_version}..."
+    brew install ffmpeg@${pinned_version} || {
+      echo "ERROR: Pinned ffmpeg version ${pinned_version} not available."
+      echo "Check available versions with: brew search ffmpeg"
+      exit 1
+    }
+    # ffmpeg@7 is keg-only, so we need to add it to PATH
+    FFMPEG_BIN_PATH="${HOMEBREW_PREFIX}/opt/ffmpeg@${pinned_version}/bin"
+    if [ -d "$FFMPEG_BIN_PATH" ]; then
+      export PATH="$FFMPEG_BIN_PATH:$PATH"
+      if [ -n "$GITHUB_PATH" ]; then
+        echo "$FFMPEG_BIN_PATH" >> "$GITHUB_PATH"
+      fi
+    fi
+  fi
+
+  echo "  ffmpeg ${pinned_version} installed successfully"
+}
+
+echo "Installing pinned package versions..."
+
+# Install ffmpeg (special case: uses @version syntax)
+install_ffmpeg "${PINNED_FFMPEG}"
+
+# Install other packages via Homebrew
+install_homebrew_package "flac" "flac" "${PINNED_FLAC}" "/usr/local/bin/flac /usr/local/bin/metaflac"
+install_homebrew_package "mediainfo" "media-info" "${PINNED_MEDIAINFO}" "/usr/local/bin/mediainfo"
+install_homebrew_package "id3v2" "id3v2" "${PINNED_ID3V2}" "/usr/local/bin/id3v2"
+install_homebrew_package "bwfmetaedit" "bwfmetaedit" "${PINNED_BWFMETAEDIT}" "/usr/local/bin/bwfmetaedit"
 
 # Ensure /usr/local/bin is in PATH for verification (tools may be installed there)
 if [ -d "/usr/local/bin" ] && [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
@@ -56,6 +151,7 @@ if [ -d "/usr/local/bin" ] && [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
 fi
 
 # Verify installed versions match pinned versions
+echo ""
 echo "Verifying installed versions..."
 INSTALLED_FLAC=$(get_tool_version "flac")
 INSTALLED_MEDIAINFO=$(get_tool_version "mediainfo")
@@ -98,6 +194,7 @@ fi
 
 echo "All installed versions match pinned versions."
 
+echo ""
 echo "Verifying installed tools are available in PATH..."
 MISSING_TOOLS=()
 
@@ -114,7 +211,6 @@ if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
   echo ""
   echo "Installation may have failed. Check the output above for errors."
   echo ""
-  HOMEBREW_PREFIX=$(get_homebrew_prefix)
   echo "Note: On macOS, you may need to add Homebrew's bin directory to PATH:"
   echo "  export PATH=\"${HOMEBREW_PREFIX}/bin:\$PATH\""
   echo ""

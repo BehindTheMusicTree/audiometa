@@ -28,18 +28,15 @@ id3v2 = "0.1.12+dfsg-7"  # Pinned version (fails if not available) - VERIFY THIS
 bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "25.04.1" }
 
 [macos]
-# macOS package versions (installed from binaries/source for exact version pinning)
-# ffmpeg: Installed via Homebrew using @version syntax (e.g., ffmpeg@7)
-# flac: Built from source (GitHub releases) - exact version pinning
-# mediainfo: Downloaded from MediaArea as binary - exact version pinning
-# id3v2: Built from source (SourceForge) - exact version pinning
-# bwfmetaedit: Downloaded from MediaArea as binary - exact version pinning
-# All packages are verified to match pinned versions after installation (major.minor must match)
-ffmpeg = "7"  # Pinned version using Homebrew @version syntax (fails if not available)
-flac = "1.4.3"  # Pinned version - built from source (exact version)
-mediainfo = "24.12"  # Pinned version - downloaded from MediaArea (exact version)
-bwfmetaedit = "25.04.1"  # Pinned version - downloaded from MediaArea (exact version)
-id3v2 = "0.1.12"  # Pinned version - built from source (exact version)
+# macOS packages are installed via Homebrew and verified against these versions.
+# Homebrew does not support installing pinned versions (except ffmpeg@7), so we install the latest stable.
+# When Homebrew updates package versions, the installation script's version check will fail.
+# Update these versions to match Homebrew's latest stable versions when that happens.
+ffmpeg = "7"
+flac = "1.5.0"
+mediainfo = "25.10"
+bwfmetaedit = "25.04.1"
+id3v2 = "0.1.12"
 
 [windows]
 # Windows package versions (install via Chocolatey)
