@@ -146,6 +146,66 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
 
     def get_installed_version_windows(package):
         """Get installed package version on Windows."""
+        # Handle different installation methods on Windows
+        if package == "id3v2":
+            # id3v2 is installed via WSL
+            try:
+                result = subprocess.run(
+                    ["wsl", "id3v2", "--version"],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                if result.stdout or result.stderr:
+                    output = result.stdout + result.stderr
+                    # Extract version like "id3v2 0.1.12"
+                    match = re.search(r"(\d+\.\d+\.\d+)", output)
+                    if match:
+                        return match.group(1)
+            except FileNotFoundError:
+                pass
+            return None
+
+        if package == "bwfmetaedit":
+            # bwfmetaedit is manually installed to C:\Program Files\BWFMetaEdit
+            exe_path = r"C:\Program Files\BWFMetaEdit\bwfmetaedit.exe"
+            try:
+                result = subprocess.run(
+                    [exe_path, "--version"],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                if result.stdout or result.stderr:
+                    output = result.stdout + result.stderr
+                    # Extract version like "BWF MetaEdit, version 25.04.1"
+                    match = re.search(r"(\d+\.\d+\.\d+)", output)
+                    if match:
+                        return match.group(1)
+            except FileNotFoundError:
+                pass
+            return None
+
+        if package == "exiftool":
+            # exiftool is manually installed to C:\Program Files\ExifTool
+            exe_path = r"C:\Program Files\ExifTool\exiftool.exe"
+            try:
+                result = subprocess.run(
+                    [exe_path, "-ver"],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                if result.stdout:
+                    # exiftool -ver outputs just the version number (e.g., "13.40")
+                    version = result.stdout.strip()
+                    if re.match(r"^\d+\.\d+", version):
+                        return version
+            except FileNotFoundError:
+                pass
+            return None
+
+        # For Chocolatey packages (ffmpeg, flac, mediainfo)
         try:
             result = subprocess.run(
                 ["choco", "list", "--local-only", package, "--exact"],
@@ -163,7 +223,31 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
         return None
 
     def check_tool_available(tool_name):
-        """Check if tool is available in PATH."""
+        """Check if tool is available in PATH or default Windows locations."""
+        # On Windows, check default installation paths for manually installed tools
+        current_os_type = get_os_type()
+        if current_os_type == "windows":
+            if tool_name == "bwfmetaedit":
+                exe_path = r"C:\Program Files\BWFMetaEdit\bwfmetaedit.exe"
+                if Path(exe_path).exists():
+                    return True
+            elif tool_name == "exiftool":
+                exe_path = r"C:\Program Files\ExifTool\exiftool.exe"
+                if Path(exe_path).exists():
+                    return True
+            elif tool_name == "id3v2":
+                # id3v2 is available via WSL wrapper or directly via WSL
+                wrapper_path = r"C:\Program Files\id3v2-wrapper\id3v2.bat"
+                if Path(wrapper_path).exists():
+                    return True
+                # Also check if WSL is available
+                try:
+                    subprocess.run(["wsl", "--version"], capture_output=True, check=False)
+                except FileNotFoundError:
+                    pass
+                else:
+                    return True
+
         try:
             # Some tools (like ffprobe) output version to stderr and return non-zero
             # So we check both stdout and stderr, and don't require check=True
@@ -191,14 +275,7 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
         if not expected_version:
             continue
 
-        # Check if tool is available
-        tool_command = "ffprobe" if tool == "ffmpeg" else tool
-        if not check_tool_available(tool_command):
-            errors.append(f"{tool}: NOT INSTALLED")
-            has_errors = True
-            continue
-
-        # Get installed version
+        # Get installed version first (on Windows, this checks specific installation paths)
         if os_type == "ubuntu":
             installed = get_installed_version_ubuntu(tool)
         elif os_type == "macos":
@@ -208,10 +285,18 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
         else:  # windows
             installed = get_installed_version_windows(tool)
 
+        # Check if tool is available (for Windows, version check above may have found it)
+        # For other OSes, check PATH availability
         if not installed:
+            tool_command = "ffprobe" if tool == "ffmpeg" else tool
+            if not check_tool_available(tool_command):
+                errors.append(f"{tool}: NOT INSTALLED")
+                has_errors = True
+                continue
             errors.append(f"{tool}: VERSION CHECK FAILED")
             has_errors = True
-        elif os_type == "macos":
+            continue
+        if os_type == "macos":
             # For macOS, only ffmpeg supports version pinning via @version syntax
             # Other packages (flac, mediainfo, id3v2, bwfmetaedit) don't support version pinning
             # and install the latest available version, so we skip strict version checking for them
@@ -248,6 +333,24 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
             installed_normalized = installed.split("-")[0] if "-" in installed else installed
             if installed_normalized != expected_version:
                 errors.append(f"{tool}: version mismatch (expected {expected_version}, got {installed})")
+                has_errors = True
+        elif os_type == "windows" and tool == "id3v2":
+            # For id3v2 on Windows (installed via WSL), compare base version
+            # Expected format: "0.1.12+dfsg-7", installed format: "0.1.12"
+            expected_base = expected_version.split("+")[0].split("-")[0]
+            if installed != expected_base:
+                errors.append(f"{tool}: version mismatch (expected {expected_base}, got {installed})")
+                has_errors = True
+        elif os_type == "windows" and tool == "bwfmetaedit":
+            # For bwfmetaedit on Windows, compare major.minor versions
+            # Expected format: "24.10", installed format: "25.04.1"
+            installed_major_minor = ".".join(installed.split(".")[:2])
+            expected_major_minor = ".".join(expected_version.split(".")[:2])
+            if installed_major_minor != expected_major_minor:
+                errors.append(
+                    f"{tool}: version mismatch (expected {expected_major_minor}, "
+                    f"got {installed_major_minor} from {installed})"
+                )
                 has_errors = True
         elif installed != expected_version:
             errors.append(f"{tool}: version mismatch (expected {expected_version}, got {installed})")
