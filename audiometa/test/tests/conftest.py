@@ -49,7 +49,7 @@ def _load_dependencies_pinned_versions():
         return pinned_versions
 
 
-def pytest_configure(_config):
+def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
     """Verify system dependency versions match pinned versions before running tests."""
     # Load pinned versions from .github/system-dependencies.toml (single source of truth)
     pinned_versions = _load_dependencies_pinned_versions()
