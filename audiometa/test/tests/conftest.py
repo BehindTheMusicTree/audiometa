@@ -168,19 +168,21 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
 
         if package == "bwfmetaedit":
             # bwfmetaedit is manually installed to C:\Program Files\BWFMetaEdit
+            # Match the PowerShell script's approach: use simple pattern to find any version number
             exe_path = r"C:\Program Files\BWFMetaEdit\bwfmetaedit.exe"
             try:
-                # Try --version first
+                # Try --version first (matches PowerShell script: & $exePath --version 2>&1)
                 result = subprocess.run(
                     [exe_path, "--version"],
                     capture_output=True,
                     text=True,
                     check=False,
                 )
+                # Combine stdout and stderr (PowerShell uses 2>&1)
                 output = result.stdout + result.stderr
 
-                # If --version doesn't work, try without arguments (some tools show version on startup)
-                if not output or result.returncode != 0:
+                # If --version doesn't work or returns no output, try without arguments
+                if not output.strip() or result.returncode != 0:
                     result = subprocess.run(
                         [exe_path],
                         capture_output=True,
@@ -190,20 +192,14 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                     output = result.stdout + result.stderr
 
                 if output:
-                    # Extract version like "BWF MetaEdit, version 25.04.1" or "version 25.04.1"
-                    # Try multiple patterns to handle different output formats
-                    patterns = [
-                        r"version\s+(\d+\.\d+\.\d+)",  # "version 25.04.1"
-                        r"BWF\s+MetaEdit[,\s]+version\s+(\d+\.\d+\.\d+)",  # "BWF MetaEdit, version 25.04.1"
-                        r"(\d+\.\d+\.\d+)",  # Just version number (first match)
-                    ]
-                    for pattern in patterns:
-                        match = re.search(pattern, output, re.IGNORECASE)
-                        if match:
-                            version = match.group(1)
-                            # Validate it looks like a version (at least major.minor)
-                            if re.match(r"^\d+\.\d+", version):
-                                return version
+                    # Match PowerShell script pattern: Select-String -Pattern '(\d+\.\d+\.\d+)'
+                    # Find any three-part version number in the output
+                    match = re.search(r"(\d+\.\d+\.\d+)", output)
+                    if match:
+                        version = match.group(1)
+                        # Validate it looks like a version (at least major.minor)
+                        if re.match(r"^\d+\.\d+", version):
+                            return version
             except FileNotFoundError:
                 pass
             except Exception:
