@@ -441,22 +441,87 @@ if ($needInstallExiftool) {
 }
 
 Write-Host "Verifying installed tools are available in PATH..."
-$missingTools = @()
-$tools = @("ffprobe", "flac", "metaflac", "mediainfo", "id3v2", "exiftool")
-foreach ($tool in $tools) {
-    if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) {
-        $missingTools += $tool
+
+# Refresh PATH to include Chocolatey-installed tools
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+# Also add manually installed directories to PATH for this session
+$manualPaths = @(
+    "C:\Program Files\BWFMetaEdit",
+    "C:\Program Files\ExifTool",
+    "C:\Program Files\id3v2-wrapper"
+)
+
+foreach ($path in $manualPaths) {
+    if (Test-Path $path -and $env:Path -notlike "*$path*") {
+        $env:Path = "$path;$env:Path"
     }
 }
 
-if ($missingTools.Count -ne 0) {
-    Write-Host "ERROR: The following tools are not available in PATH after installation:"
+# Refresh PATH in GitHub Actions if available
+if ($env:GITHUB_PATH) {
+    foreach ($path in $manualPaths) {
+        if (Test-Path $path) {
+            echo "$path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        }
+    }
+}
+
+$missingTools = @()
+$tools = @("ffprobe", "flac", "metaflac", "mediainfo", "id3v2", "exiftool")
+
+foreach ($tool in $tools) {
+    # Skip id3v2 if WSL isn't available (already handled earlier)
+    if ($tool -eq "id3v2" -and $wslRequiredPackages -contains "id3v2") {
+        Write-Host "  $tool: Skipped (WSL not available)"
+        continue
+    }
+
+    # Check if tool is available
+    $toolFound = $false
+    $toolPath = Get-Command $tool -ErrorAction SilentlyContinue
+
+    if ($toolPath) {
+        $toolFound = $true
+        Write-Host "  $tool: Found at $($toolPath.Source)"
+    } else {
+        # Check common installation directories
+        $commonPaths = @(
+            "C:\Program Files\Chocolatey\bin\$tool.exe",
+            "C:\ProgramData\chocolatey\bin\$tool.exe",
+            "C:\Program Files\$tool\$tool.exe",
+            "C:\Program Files (x86)\$tool\$tool.exe"
+        )
+
+        foreach ($commonPath in $commonPaths) {
+            if (Test-Path $commonPath) {
+                $toolFound = $true
+                Write-Host "  $tool: Found at $commonPath (not in PATH, but installed)"
+                # Add to PATH for this session
+                $dir = Split-Path -Parent $commonPath
+                if ($env:Path -notlike "*$dir*") {
+                    $env:Path = "$dir;$env:Path"
+                }
+                break
+            }
+        }
+
+        if (-not $toolFound) {
+            $missingTools += $tool
+            Write-Host "  $tool: Not found"
+        }
+    }
+}
+
+if ($missingTools.Count -gt 0) {
+    Write-Host ""
+    Write-Host "ERROR: The following tools are not available after installation:"
     foreach ($tool in $missingTools) {
         Write-Host "  - $tool"
     }
     Write-Host ""
     Write-Host "Installation may have failed. Check the output above for errors."
-    Write-Host "Note: PATH changes may require a new shell session to take effect."
+    Write-Host "Note: Some tools may require a new shell session for PATH changes to take effect."
     exit 1
 }
 
