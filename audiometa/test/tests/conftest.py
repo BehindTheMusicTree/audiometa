@@ -28,7 +28,7 @@ def _load_dependencies_pinned_versions():
                 continue
 
             os_config = config[os_type]
-            for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit"]:
+            for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool"]:
                 if tool not in os_config:
                     continue
 

@@ -38,6 +38,13 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: validate-system-dependencies
+        name: Validate system-dependencies.toml versions
+        entry: python3 .pre-commit-hooks/validate-system-dependencies.py
+        language: system
+        files: ^system-dependencies\.toml$
+        pass_filenames: false
+        always_run: false
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
