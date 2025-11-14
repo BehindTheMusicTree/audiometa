@@ -23,15 +23,14 @@ def load_versions():
     config_path = script_dir.parent.parent / "system-dependencies.toml"
 
     if not config_path.exists():
-        print(f"ERROR: Configuration file not found: {config_path}", file=sys.stderr)
+        sys.stderr.write(f"ERROR: Configuration file not found: {config_path}\n")
         sys.exit(1)
 
     try:
         with config_path.open("rb") as f:
-            config = tomllib.load(f)
-        return config
+            return tomllib.load(f)
     except Exception as e:
-        print(f"ERROR: Failed to parse {config_path}: {e}", file=sys.stderr)
+        sys.stderr.write(f"ERROR: Failed to parse {config_path}: {e}\n")
         sys.exit(1)
 
 
@@ -43,7 +42,7 @@ def get_version_value(os_config, tool):
     version_value = os_config[tool]
     if isinstance(version_value, str):
         return version_value  # Return string version as-is
-    elif isinstance(version_value, dict) and "pinned_version" in version_value:
+    if isinstance(version_value, dict) and "pinned_version" in version_value:
         return version_value["pinned_version"]
     return None
 
@@ -69,7 +68,7 @@ def output_bash(config):
             version = get_version_value(os_config, tool)
             if version:
                 var_name = f"PINNED_{tool.upper().replace('-', '_')}"
-                print(f'export {var_name}="{version}"  # {os_type}')
+                sys.stdout.write(f'export {var_name}="{version}"  # {os_type}\n')
 
 
 def output_powershell(config):
@@ -93,13 +92,14 @@ def output_powershell(config):
             version = get_version_value(os_config, tool)
             if version:
                 var_name = f"$PINNED_{tool.upper().replace('-', '_')}"
-                print(f'{var_name} = "{version}"  # {os_type}')
+                sys.stdout.write(f'{var_name} = "{version}"  # {os_type}\n')
 
 
 def main():
     """Main entry point."""
-    if len(sys.argv) < 2:
-        print("Usage: python3 load-system-dependency-versions.py [bash|powershell]", file=sys.stderr)
+    min_args = 2
+    if len(sys.argv) < min_args:
+        sys.stderr.write("Usage: python3 load-system-dependency-versions.py [bash|powershell]\n")
         sys.exit(1)
 
     output_format = sys.argv[1].lower()
@@ -116,11 +116,11 @@ def main():
     elif system == "windows":
         os_type = "windows"
     else:
-        print(f"ERROR: Unsupported OS: {system}", file=sys.stderr)
+        sys.stderr.write(f"ERROR: Unsupported OS: {system}\n")
         sys.exit(1)
 
     if os_type not in config:
-        print(f"ERROR: No configuration found for {os_type}", file=sys.stderr)
+        sys.stderr.write(f"ERROR: No configuration found for {os_type}\n")
         sys.exit(1)
 
     os_config = config[os_type]
@@ -140,7 +140,7 @@ def main():
             version = get_version_value(os_config, tool)
             if version is not None:
                 var_name = f"PINNED_{tool.upper().replace('-', '_')}"
-                print(f'{var_name}="{version}"')
+                sys.stdout.write(f'{var_name}="{version}"\n')
     elif output_format == "powershell":
         for tool in [
             "ffmpeg",
@@ -156,10 +156,10 @@ def main():
             version = get_version_value(os_config, tool)
             if version is not None:
                 var_name = f"PINNED_{tool.upper().replace('-', '_')}"
-                print(f'${var_name} = "{version}"')
+                sys.stdout.write(f'${var_name} = "{version}"\n')
     else:
-        print(f"ERROR: Unknown output format: {output_format}", file=sys.stderr)
-        print("Supported formats: bash, powershell", file=sys.stderr)
+        sys.stderr.write(f"ERROR: Unknown output format: {output_format}\n")
+        sys.stderr.write("Supported formats: bash, powershell\n")
         sys.exit(1)
 
 

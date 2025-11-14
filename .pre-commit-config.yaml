@@ -74,17 +74,17 @@ repos:
         name: ruff-format
         entry: ruff format --line-length=120
         language: system
-        files: ^(audiometa/|\.pre-commit-hooks/).*\.py$
+        files: ^(audiometa/|\.pre-commit-hooks/|scripts/).*\.py$
       - id: ruff
         name: ruff
         entry: ruff check --fix --line-length=120
         language: system
-        files: ^(audiometa/|\.pre-commit-hooks/).*\.py$
+        files: ^(audiometa/|\.pre-commit-hooks/|scripts/).*\.py$
       - id: isort
         name: isort
         entry: isort --profile black --line-length=120
         language: system
-        files: ^(audiometa/|\.pre-commit-hooks/).*\.py$
+        files: ^(audiometa/|\.pre-commit-hooks/|scripts/).*\.py$
       - id: mypy
         name: mypy
         # Note: pytest type stubs are not available as a separate package (types-pytest doesn't exist)
