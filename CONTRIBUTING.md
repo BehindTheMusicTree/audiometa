@@ -311,9 +311,25 @@ pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-un
 
 **Note:** CI tests run on pinned OS versions for consistency. OS versions are pinned to ensure package version availability and consistency with pinned package versions. This prevents breakages when GitHub Actions updates `-latest` runners. See `.github/workflows/ci.yml` for the specific pinned versions.
 
-**System dependency version verification:** Before running any tests, pytest automatically verifies that installed system dependency versions (ffmpeg, flac, mediainfo, id3v2, bwfmetaedit) match the pinned versions defined in `system-dependencies.toml`. If versions don't match, pytest will exit with an error message before running tests. This ensures tests always run with the exact same tool versions as CI and local development environments. To fix version mismatches, update your system dependencies using the setup script: `./scripts/setup-system-dependencies.sh` (Linux/macOS) or `.\scripts\install-system-dependencies-windows.ps1` (Windows).
+**System dependency version verification:** Before running any tests, pytest automatically verifies that installed system dependency versions (ffmpeg, flac, mediainfo, id3v2, bwfmetaedit, exiftool) match the pinned versions defined in `system-dependencies.toml`. If versions don't match, pytest will exit with an error message before running tests. This ensures tests always run with the exact same tool versions as CI and local development environments. To fix version mismatches, update your system dependencies using the setup script: `./scripts/setup-system-dependencies.sh` (Linux/macOS) or `.\scripts\install-system-dependencies-windows.ps1` (Windows).
+
+**Note:** On Windows, version verification skips optional tools (`id3v2`, `mediainfo`, `exiftool`) that are not needed for e2e tests. See the Windows CI differences section below for details.
 
 **Windows WSL requirement:** On Windows, the `id3v2` tool is not available as a native Windows binary. The installation script automatically installs **WSL (Windows Subsystem for Linux)** and uses it to install `id3v2` via Ubuntu's package manager. This ensures version pinning consistency with Ubuntu CI. A wrapper script (`id3v2.bat`) is created to make `id3v2` accessible from Windows command line. If WSL installation requires a restart, the script will prompt you to restart and run it again.
+
+**Windows CI differences:** Windows CI only runs e2e tests (unit and integration tests run on Ubuntu and macOS). As a result, some dependencies are skipped in Windows CI to reduce installation complexity:
+
+- **Skipped in Windows CI:**
+  - `mediainfo` - Only used in integration tests for verification, not needed for e2e tests
+  - `exiftool` - Not used in e2e tests
+  - `id3v2` - Optional (only needed for FLAC files with ID3v2 tags, which e2e tests don't use)
+
+- **Required in Windows CI:**
+  - `ffmpeg` / `ffprobe` - Needed for `get_bitrate()` and `get_duration_in_sec()` on WAV files
+  - `flac` / `metaflac` - Needed for FLAC metadata writing via Vorbis
+  - `bwfmetaedit` - Needed for WAV metadata writing via RIFF
+
+The installation script automatically detects CI environment and skips unnecessary dependencies. Version verification in pytest also skips these optional tools on Windows.
 
 For detailed test documentation, including test principles, markers, and advanced usage, see [`audiometa/test/README.md`](audiometa/test/README.md).
 

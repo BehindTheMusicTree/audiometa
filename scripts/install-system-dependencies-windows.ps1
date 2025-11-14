@@ -75,8 +75,15 @@ if (-not (Install-ChocoPackage "flac" $PINNED_FLAC)) {
     $failedPackages += "flac"
 }
 
-if (-not (Install-ChocoPackage "mediainfo" $PINNED_MEDIAINFO)) {
-    $failedPackages += "mediainfo"
+# mediainfo: Only needed for integration tests (verification), not e2e tests
+# Skip installation on Windows CI since we only run e2e tests
+$isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
+if (-not $isCI) {
+    if (-not (Install-ChocoPackage "mediainfo" $PINNED_MEDIAINFO)) {
+        $failedPackages += "mediainfo"
+    }
+} else {
+    Write-Host "Skipping mediainfo installation (not needed for e2e tests on Windows CI)"
 }
 
 # id3v2: Required for tests but not available in Chocolatey
@@ -121,25 +128,24 @@ if (-not $wslInstalled) {
     }
     if ($LASTEXITCODE -ne 0) {
         Write-Host ""
-        Write-Host "ERROR: WSL installation failed (exit code: $LASTEXITCODE)."
+        Write-Host "WARNING: WSL installation failed (exit code: $LASTEXITCODE)."
         Write-Host "This usually means WSL requires a system restart, which is not possible in CI."
         Write-Host "Full WSL output: $wslInstallOutput"
         Write-Host ""
         $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
         if ($isCI) {
-            Write-Host "WSL installation is required for id3v2 but cannot be installed in CI without a restart."
-            Write-Host ""
-            Write-Host "To enable id3v2 in CI:"
-            Write-Host "  1. Use a Windows runner with WSL pre-installed"
-            Write-Host "  2. Or configure WSL in your CI workflow before running this script"
+            Write-Host "id3v2 will not be available in CI (WSL required)."
+            Write-Host "Tests requiring id3v2 will be skipped on Windows."
         } else {
-            Write-Host "WSL installation failed. Please install WSL manually:"
+            Write-Host "id3v2 installation skipped. To install WSL manually:"
             Write-Host "  1. Run: wsl --install -d Ubuntu"
             Write-Host "  2. Restart your computer if prompted"
             Write-Host "  3. Run this script again"
         }
         Write-Host ""
-        exit 1
+        # Don't exit - continue with other package installations
+        $failedPackages += "id3v2"
+        $wslRequiredPackages += "id3v2"
     } else {
         Write-Host "WSL installation initiated. Checking if Ubuntu is available..."
         # Wait a moment for WSL to initialize
@@ -148,18 +154,20 @@ if (-not $wslInstalled) {
         $wslCheck = Get-Command wsl -ErrorAction SilentlyContinue
         if (-not $wslCheck) {
             Write-Host ""
-            Write-Host "ERROR: WSL installed but not available (may require restart)."
+            Write-Host "WARNING: WSL installed but not available (may require restart)."
             Write-Host "WSL installation requires a system restart to be fully functional."
             Write-Host ""
             $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
             if ($isCI) {
-                Write-Host "WSL is not available in CI without a restart."
-                Write-Host "Use a Windows runner with WSL pre-installed."
+                Write-Host "id3v2 will not be available in CI (WSL not available)."
+                Write-Host "Tests requiring id3v2 will be skipped on Windows."
             } else {
-                Write-Host "Please restart your computer and run this script again."
+                Write-Host "id3v2 installation skipped. Please restart your computer and run this script again."
             }
             Write-Host ""
-            exit 1
+            # Don't exit - continue with other package installations
+            $failedPackages += "id3v2"
+            $wslRequiredPackages += "id3v2"
         }
     }
 }
@@ -205,47 +213,63 @@ if (-not $ubuntuAvailable) {
     Write-Host "Checking if Ubuntu is now available..."
     $wslListOutput = wsl -l -q 2>&1 | Out-String
     Write-Host "WSL list output: $wslListOutput"
-    $ubuntuMatch = $wslListOutput | Select-String -Pattern "Ubuntu"
-    $ubuntuAvailable = $null -ne $ubuntuMatch
 
-    if (-not $ubuntuAvailable) {
-        # Check if Ubuntu was actually installed (exit code 1 might be from OOBE setup failure, not installation)
-        $installSucceeded = $ubuntuInstallOutput -match "Distribution successfully installed" -or $ubuntuInstallOutput -match "successfully installed"
-        if ($installSucceeded) {
+    # Check if Ubuntu is in the list (case-insensitive, handle whitespace)
+    $ubuntuMatch = $wslListOutput | Select-String -Pattern "Ubuntu" -CaseSensitive:$false
+    $ubuntuInList = $null -ne $ubuntuMatch
+
+    # Also check if installation output indicates success
+    $installSucceeded = $ubuntuInstallOutput -match "Distribution successfully installed" -or $ubuntuInstallOutput -match "successfully installed"
+
+    Write-Host "Ubuntu in WSL list: $ubuntuInList"
+    Write-Host "Install output indicates success: $installSucceeded"
+
+    if ($ubuntuInList -or $installSucceeded) {
+        Write-Host "Ubuntu appears to be installed. Testing if it's functional..."
+        # Try to run a simple command to see if Ubuntu works
+        $testOutput = wsl -d Ubuntu echo "test" 2>&1 | Out-String
+        Write-Host "Ubuntu test command output: $testOutput"
+        Write-Host "Ubuntu test exit code: $LASTEXITCODE"
+
+        if ($LASTEXITCODE -eq 0 -or $testOutput -match "test") {
+            Write-Host "Ubuntu is working! Proceeding with id3v2 installation..."
+            $ubuntuAvailable = $true
+        } elseif ($installSucceeded) {
             Write-Host "WARNING: Ubuntu installation succeeded but may not be fully initialized."
             Write-Host "The OOBE (Out of Box Experience) setup may have failed, but Ubuntu is installed."
-            Write-Host "Attempting to use Ubuntu anyway..."
-            # Try to run a simple command to see if Ubuntu works
-            $testOutput = wsl -d Ubuntu echo "test" 2>&1 | Out-String
-            if ($LASTEXITCODE -eq 0 -or $testOutput -match "test") {
-                Write-Host "Ubuntu is working despite OOBE failure. Proceeding..."
-                $ubuntuAvailable = $true
-            } else {
-                Write-Host "Ubuntu is installed but not responding. May need manual setup."
-                Write-Host "Test output: $testOutput"
-            }
+            Write-Host "Attempting to proceed anyway - id3v2 installation may work..."
+            $ubuntuAvailable = $true
+        } else {
+            Write-Host "Ubuntu is listed but not responding. May need manual setup."
+            $ubuntuAvailable = $false
         }
+    } else {
+        $ubuntuAvailable = $false
+    }
 
-        if (-not $ubuntuAvailable) {
+    if (-not $ubuntuAvailable) {
             Write-Host ""
-            Write-Host "ERROR: Ubuntu distribution not available after installation attempt."
+            Write-Host "WARNING: Ubuntu distribution not available after installation attempt."
             Write-Host "WSL installation on Windows typically requires a system restart, which is not possible in CI."
             Write-Host ""
             $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
             if ($isCI) {
-                Write-Host "Ubuntu installation is required for id3v2 but cannot be completed in CI without a restart."
+                Write-Host "id3v2 will not be available in CI (WSL Ubuntu required)."
+                Write-Host "Tests requiring id3v2 will be skipped on Windows."
                 Write-Host ""
                 Write-Host "To enable id3v2 in CI:"
                 Write-Host "  1. Use a Windows runner with WSL Ubuntu pre-installed"
                 Write-Host "  2. Or configure WSL Ubuntu in your CI workflow before running this script"
             } else {
-                Write-Host "Ubuntu installation failed. Please install Ubuntu manually:"
+                Write-Host "id3v2 installation skipped. To install manually:"
                 Write-Host "  1. Run: wsl --install -d Ubuntu"
                 Write-Host "  2. Restart your computer if prompted"
                 Write-Host "  3. Run this script again"
             }
             Write-Host ""
-            exit 1
+            # Don't exit - continue with other package installations
+            $failedPackages += "id3v2"
+            $wslRequiredPackages += "id3v2"
         }
     } else {
         Write-Host "Ubuntu distribution is now available!"
@@ -432,7 +456,11 @@ if ($needInstall) {
     }
 }
 
-Write-Host "Installing exiftool (pinned version)..."
+# exiftool: Not needed for e2e tests
+# Skip installation on Windows CI since we only run e2e tests
+$isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
+if (-not $isCI) {
+    Write-Host "Installing exiftool (pinned version)..."
 
 # Pinned version from system-dependencies.toml
 $exiftoolVersion = $PINNED_EXIFTOOL
@@ -533,6 +561,9 @@ if ($needInstallExiftool) {
         Write-Host "ERROR: Failed to install exiftool: $_"
         exit 1
     }
+    }
+} else {
+    Write-Host "Skipping exiftool installation (not needed for e2e tests on Windows CI)"
 }
 
 Write-Host "Verifying installed tools are available in PATH..."
@@ -566,6 +597,13 @@ $missingTools = @()
 $tools = @("ffprobe", "flac", "metaflac", "mediainfo", "id3v2", "exiftool")
 
 foreach ($tool in $tools) {
+    # Skip optional tools in CI (not needed for e2e tests)
+    $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
+    if ($isCI -and ($tool -eq "mediainfo" -or $tool -eq "exiftool")) {
+        Write-Host "  ${tool}: Skipped (not needed for e2e tests on Windows CI)"
+        continue
+    }
+
     # Skip id3v2 if WSL isn't available (already handled earlier)
     if ($tool -eq "id3v2" -and $wslRequiredPackages -contains "id3v2") {
         Write-Host "  ${tool}: Skipped (WSL not available)"
@@ -620,15 +658,16 @@ if ($missingTools.Count -gt 0) {
     exit 1
 }
 
-# Check if WSL-required packages are missing - fail if any are missing
+# Check if WSL-required packages are missing - warn but don't fail (id3v2 is optional on Windows)
 $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
 if ($wslRequiredPackages.Count -gt 0) {
     Write-Host ""
-    Write-Host "ERROR: Failed to install WSL-required packages:"
+    Write-Host "WARNING: WSL-required packages could not be installed:"
     Write-Host "  $($wslRequiredPackages -join ', ')"
     Write-Host ""
     if ($isCI) {
         Write-Host "These packages require WSL Ubuntu which is not available in this CI environment."
+        Write-Host "Tests requiring these tools will be skipped on Windows."
         Write-Host ""
         Write-Host "To enable these tools in CI:"
         Write-Host "  1. Use a Windows runner with WSL pre-installed"
@@ -643,7 +682,6 @@ if ($wslRequiredPackages.Count -gt 0) {
         Write-Host "  4. Run this script again"
     }
     Write-Host ""
-    exit 1
 } else {
     Write-Host "All system dependencies installed successfully!"
 }

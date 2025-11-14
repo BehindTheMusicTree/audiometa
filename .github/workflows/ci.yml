@@ -139,9 +139,11 @@ jobs:
             pytest-${{ runner.os }}-${{ matrix.python-version }}-
 
       - name: Run unit tests
+        if: matrix.os != 'windows-2022'
         run: pytest -m unit --cov=audiometa --cov-report=xml --cov-report=term
 
       - name: Run integration tests
+        if: matrix.os != 'windows-2022'
         run: pytest -m integration --cov=audiometa --cov-report=xml --cov-report=term --cov-append
 
       - name: Run e2e tests

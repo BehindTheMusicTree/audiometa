@@ -57,11 +57,20 @@ libsndfile = "1.2.2"
 # IMPORTANT: Verify these versions match what's available in the pinned Windows CI version:
 #   Run in CI: choco search <package> --exact to see available versions
 #   Update these pinned versions to match what CI actually installs
-ffmpeg = "7.1.0"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-flac = "1.3.4"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-mediainfo = "24.12"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+ffmpeg = "7.1.0"
+flac = "1.3.4"
+
+# mediainfo: Only needed for integration tests (verification), not e2e tests
+# Skipped in Windows CI since we only run e2e tests on Windows
+# Still installed locally for full test coverage
+mediainfo = "24.12"
+
 # id3v2: Not available in Chocolatey. Installed via WSL (Windows Subsystem for Linux) using Ubuntu package.
 # Uses Ubuntu version format since it's installed via WSL/Ubuntu apt-get.
+# OPTIONAL in Windows CI: Only needed for FLAC files with ID3v2 tags, which e2e tests don't use.
+# The installation script skips id3v2 installation if WSL is not available (common in CI).
+# Version verification in pytest also skips id3v2 on Windows.
+# For local development, id3v2 is installed if WSL is available.
 id3v2 = "0.1.12+dfsg-7"  # Pinned version via WSL Ubuntu (same as Ubuntu CI) - VERIFY THIS VERSION
 
 # bwfmetaedit: Download pinned version from MediaArea (not available in Chocolatey)
@@ -71,6 +80,7 @@ bwfmetaedit = { source = "mediaarea", pinned_version = "24.10" }
 # Note: Windows version may differ from macOS/Linux due to release availability
 # Check https://exiftool.org/ for available Windows versions
 # Pinned to latest available version (fetched from https://exiftool.org/ver.txt)
+# OPTIONAL in Windows CI: Not used in e2e tests, skipped in Windows CI
 exiftool = { source = "exiftool_org", pinned_version = "13.41" }
 
 [verification]

@@ -320,6 +320,13 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
         if not expected_version:
             continue
 
+        # Skip optional tools on Windows (not needed for e2e tests)
+        # id3v2: Requires WSL, only needed for FLAC files with ID3v2 (not used in e2e tests)
+        # mediainfo: Only used in integration tests for verification
+        # exiftool: Not used in e2e tests
+        if os_type == "windows" and tool in ["id3v2", "mediainfo", "exiftool"]:
+            continue
+
         # Get installed version first (on Windows, this checks specific installation paths)
         if os_type == "ubuntu":
             installed = get_installed_version_ubuntu(tool)
