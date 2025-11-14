@@ -414,6 +414,15 @@ The following hooks run in execution order:
 16. **prettier**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, preserves list numbering
     - Manual: `prettier --write "**/*.md"`
 
+17. **py-psscriptanalyzer**: Lints PowerShell scripts (`.ps1` files) - checks for code quality issues, style violations, and potential bugs
+    - Manual: `pre-commit run py-psscriptanalyzer --all-files`
+    - Checks Error and Warning severity levels
+    - Ensures PowerShell scripts follow best practices
+
+18. **py-psscriptanalyzer-format**: Formats PowerShell scripts (`.ps1` files) - applies consistent formatting
+    - Manual: `pre-commit run py-psscriptanalyzer-format --all-files`
+    - Automatically formats PowerShell code to ensure consistency
+
 ##### How File-Modifying Hooks Work
 
 **Important**: All hooks that modify files (formatting, sorting, fixing) will cause your commit to fail if they make changes. This is intentional and is a safety feature built into pre-commit.
@@ -426,6 +435,7 @@ The following hooks run in execution order:
 - `ruff` (with `--fix`) - Auto-fixes linting issues
 - `docformatter` - Formats docstrings
 - `fix-long-comments` - Wraps long comment lines
+- `py-psscriptanalyzer-format` - Formats PowerShell scripts
 
 **Why commits fail:**
 When a hook modifies a file, it updates the file in your working directory but not in the staging area. Git detects this mismatch (staged version ≠ working directory version) and refuses to commit to prevent committing code that doesn't match what's on disk.
