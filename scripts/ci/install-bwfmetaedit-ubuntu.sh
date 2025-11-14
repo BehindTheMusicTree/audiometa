@@ -27,18 +27,18 @@ PINNED_VERSION="${PINNED_BWFMETAEDIT}"
 
 # Check if bwfmetaedit is already installed
 if command -v bwfmetaedit &>/dev/null; then
-  INSTALLED_VERSION=$(bwfmetaedit --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+  # Check exact deb package version (matches conftest.py verification)
+  INSTALLED_DEB_VERSION=$(dpkg -l | grep "^ii.*bwfmetaedit" | awk '{print $3}' || echo "")
 
-  if [ -n "$INSTALLED_VERSION" ]; then
-    # Extract major.minor version for comparison
-    INSTALLED_MAJOR_MINOR=$(echo "$INSTALLED_VERSION" | cut -d. -f1,2)
-    PINNED_MAJOR_MINOR=$(echo "$PINNED_VERSION" | cut -d. -f1,2)
+  if [ -n "$INSTALLED_DEB_VERSION" ]; then
+    # Expected deb package version format: {version}-1 (e.g., 25.04.1-1)
+    EXPECTED_DEB_VERSION="${PINNED_VERSION}-1"
 
-    if [ "$INSTALLED_MAJOR_MINOR" = "$PINNED_MAJOR_MINOR" ]; then
-      echo "bwfmetaedit ${INSTALLED_VERSION} already installed (matches pinned version ${PINNED_VERSION})"
+    if [ "$INSTALLED_DEB_VERSION" = "$EXPECTED_DEB_VERSION" ]; then
+      echo "bwfmetaedit ${INSTALLED_DEB_VERSION} already installed (matches pinned version ${PINNED_VERSION})"
       exit 0
     else
-      echo "Removing existing bwfmetaedit version ${INSTALLED_VERSION} (installing pinned version ${PINNED_VERSION})..."
+      echo "Removing existing bwfmetaedit version ${INSTALLED_DEB_VERSION} (installing pinned version ${PINNED_VERSION})..."
       sudo apt-get remove -y bwfmetaedit 2>/dev/null || sudo dpkg -r bwfmetaedit 2>/dev/null || true
     fi
   else

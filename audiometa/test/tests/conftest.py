@@ -184,6 +184,14 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                     )
                     has_errors = True
             # For other packages, skip version checking since Homebrew doesn't support version pinning
+        elif os_type == "ubuntu" and tool == "bwfmetaedit":
+            # For bwfmetaedit on Ubuntu, normalize deb package version by stripping revision suffix
+            # Expected: "25.04.1" (from pinned_version), Installed: "25.04.1-1" (deb package format)
+            # Strip deb revision suffix (e.g., "-1", "-2") before comparison
+            installed_normalized = installed.split("-")[0] if "-" in installed else installed
+            if installed_normalized != expected_version:
+                errors.append(f"{tool}: version mismatch (expected {expected_version}, got {installed})")
+                has_errors = True
         elif installed != expected_version:
             errors.append(f"{tool}: version mismatch (expected {expected_version}, got {installed})")
             has_errors = True
