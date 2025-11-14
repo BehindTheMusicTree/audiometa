@@ -206,36 +206,9 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
             return None
 
         # For Chocolatey packages (ffmpeg, flac, mediainfo)
-        # First try to get version directly from the tool (more reliable)
-        tool_commands = {
-            "ffmpeg": ["ffprobe", "-version"],
-            "flac": ["flac", "--version"],
-            "mediainfo": ["mediainfo", "--version"],
-        }
-
-        if package in tool_commands:
-            cmd, version_flag = tool_commands[package]
-            try:
-                result = subprocess.run(
-                    [cmd, version_flag],
-                    capture_output=True,
-                    text=True,
-                    check=False,
-                )
-                output = result.stdout + result.stderr
-                if output:
-                    if package == "mediainfo":
-                        match = re.search(r"v(\d+\.\d+)", output, re.IGNORECASE)
-                        if match:
-                            return match.group(1)
-                    else:
-                        match = re.search(r"(\d+\.\d+(?:\.\d+)?)", output)
-                        if match:
-                            return match.group(1)
-            except FileNotFoundError:
-                pass
-
-        # Fallback to Chocolatey if direct tool version check fails
+        # Use Chocolatey as the source of truth for pinned versions
+        # Match the parsing logic from install-system-dependencies-windows.ps1:
+        # choco list $PackageName --local-only --exact | Select-String -Pattern "^$PackageName\s+(\S+)"
         try:
             result = subprocess.run(
                 ["choco", "list", "--local-only", package, "--exact"],
@@ -243,21 +216,26 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                 text=True,
                 check=True,
             )
-            # Parse Chocolatey output format: PackageName Version or multiple lines with headers
+            # Parse Chocolatey output: package name at start of line, whitespace, then version
+            # Pattern matches: "^ffmpeg 7.1.0" or "ffmpeg|7.1.0" (pipe-separated format)
+            pattern = rf"^{re.escape(package)}\s+(\S+)"
             for raw_line in result.stdout.split("\n"):
                 line = raw_line.strip()
                 if not line or line.startswith("Chocolatey"):
                     continue
-                # Match lines like "ffmpeg 7.1.0" or "ffmpeg|7.1.0"
-                if package.lower() in line.lower():
-                    # Try splitting by space or pipe
-                    parts = re.split(r"\s+|\|", line)
-                    for i, part in enumerate(parts):
-                        if package.lower() in part.lower() and i + 1 < len(parts):
-                            version = parts[i + 1].strip()
-                            # Validate version format (digits and dots)
-                            if re.match(r"^\d+\.\d+", version):
-                                return version
+                match = re.match(pattern, line, re.IGNORECASE)
+                if match:
+                    version = match.group(1)
+                    # Validate version format (digits and dots)
+                    if re.match(r"^\d+\.\d+", version):
+                        return version
+                # Also try pipe-separated format: "ffmpeg|7.1.0"
+                if "|" in line:
+                    parts = line.split("|")
+                    if len(parts) >= 2 and parts[0].strip().lower() == package.lower():
+                        version = parts[1].strip()
+                        if re.match(r"^\d+\.\d+", version):
+                            return version
         except (subprocess.CalledProcessError, FileNotFoundError):
             pass
         return None
