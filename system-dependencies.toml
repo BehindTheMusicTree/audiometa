@@ -20,12 +20,11 @@
 #   Update these pinned versions to match what CI actually installs
 ffmpeg = "7:7.1.0-1ubuntu2"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 flac = "1.4.3-3build1"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-mediainfo = "24.06-1"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+mediainfo = "24.12-1"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 id3v2 = "0.1.12-8build2"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 
 # bwfmetaedit: Try repos first, then download pinned version from MediaArea
-# Pinned version: 24.05 (fails if not available, no fallback)
-bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "24.05" }
+bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "24.10" }
 
 [macos]
 # macOS package versions (install via Homebrew)
@@ -37,26 +36,25 @@ bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "24.05" }
 #   Update these pinned versions to match what CI actually installs
 ffmpeg = "7.1"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 flac = "1.4.3"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-mediainfo = "24.06"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-bwfmetaedit = "24.05"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+mediainfo = "24.12"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+bwfmetaedit = "24.10"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 id3v2 = "0.1.12"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 
 [windows]
 # Windows package versions (install via Chocolatey)
 # Format: Use --version flag: choco install package --version=1.2.3 (fails if not available, no fallback)
 # To check available versions: choco search <package> --exact
-# Note: Chocolatey version format example: "7.1.0" or "24.06"
+# Note: Chocolatey version format example: "7.1.0" or "24.12"
 # IMPORTANT: Verify these versions match what's available in windows-latest:
 #   Run in CI: choco search <package> --exact to see available versions
 #   Update these pinned versions to match what CI actually installs
 ffmpeg = "7.1.0"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 flac = "1.4.3"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-mediainfo = "24.06"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+mediainfo = "24.12"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 id3v2 = "0.1.12"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 
 # bwfmetaedit: Download pinned version from MediaArea (not available in Chocolatey)
-# Pinned version: 24.05 (fails if not available, no fallback)
-bwfmetaedit = { source = "mediaarea", pinned_version = "24.05" }
+bwfmetaedit = { source = "mediaarea", pinned_version = "24.10" }
 
 [verification]
 # Commands to verify tool installation and versions

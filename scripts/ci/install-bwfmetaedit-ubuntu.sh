@@ -1,9 +1,13 @@
 #!/bin/bash
 # Install bwfmetaedit for Ubuntu CI
-# Pinned version: 24.05 (fails if not available, no fallback)
+# Pinned version from system-dependencies.toml (fails if not available, no fallback)
 # See system-dependencies.toml for version configuration
 
 set -e
+
+# Load pinned versions from system-dependencies.toml
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash)"
 
 # Try installing from Ubuntu repos first
 if sudo apt-get install -y bwfmetaedit 2>/dev/null; then
@@ -14,8 +18,8 @@ else
   UBUNTU_VERSION=$(grep VERSION_ID /etc/os-release | cut -d'"' -f2 | cut -d. -f1,2)
   echo "Detected Ubuntu version: ${UBUNTU_VERSION}"
 
-  # Pinned version: 24.05 (must be available, no fallback)
-  PINNED_VERSION="24.05"
+  # Pinned version from system-dependencies.toml
+  PINNED_VERSION="${PINNED_BWFMETAEDIT}"
   URL="https://mediaarea.net/download/binary/bwfmetaedit/${PINNED_VERSION}/bwfmetaedit_${PINNED_VERSION}-1_amd64.xUbuntu_${UBUNTU_VERSION}.deb"
 
   if ! wget -q --spider "$URL" 2>/dev/null; then

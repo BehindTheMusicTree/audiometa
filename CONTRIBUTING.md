@@ -132,7 +132,7 @@ Ensure you're using:
   ./scripts/setup-system-dependencies.sh
 
   # Windows
-  .\scripts\ci\install-system-dependencies-windows.ps1
+  .\scripts\install-system-dependencies-windows.ps1
   ```
 
   This installs the same versions as CI. Configuration is documented in `system-dependencies.toml`.
@@ -311,7 +311,7 @@ pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-un
 
 **Note:** CI tests only run on latest OS versions: `ubuntu-latest`, `macos-latest`, `windows-latest`.
 
-**System dependency version verification:** Before running any tests, pytest automatically verifies that installed system dependency versions (ffmpeg, flac, mediainfo, id3v2, bwfmetaedit) match the pinned versions defined in `system-dependencies.toml`. If versions don't match, pytest will exit with an error message before running tests. This ensures tests always run with the exact same tool versions as CI and local development environments. To fix version mismatches, update your system dependencies using the setup script: `./scripts/setup-system-dependencies.sh` (Linux/macOS) or `.\scripts\ci\install-system-dependencies-windows.ps1` (Windows).
+**System dependency version verification:** Before running any tests, pytest automatically verifies that installed system dependency versions (ffmpeg, flac, mediainfo, id3v2, bwfmetaedit) match the pinned versions defined in `system-dependencies.toml`. If versions don't match, pytest will exit with an error message before running tests. This ensures tests always run with the exact same tool versions as CI and local development environments. To fix version mismatches, update your system dependencies using the setup script: `./scripts/setup-system-dependencies.sh` (Linux/macOS) or `.\scripts\install-system-dependencies-windows.ps1` (Windows).
 
 For detailed test documentation, including test principles, markers, and advanced usage, see [`audiometa/test/README.md`](audiometa/test/README.md).
 

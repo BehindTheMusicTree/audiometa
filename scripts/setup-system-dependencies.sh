@@ -141,7 +141,7 @@ install_windows() {
     echo "   https://chocolatey.org/install"
     echo ""
     echo "2. Run the installation script in PowerShell (as Administrator):"
-    echo "   .\\scripts\\ci\\install-system-dependencies-windows.ps1"
+    echo "   .\\scripts\\install-system-dependencies-windows.ps1"
     echo ""
     echo "This installs all system dependencies including bwfmetaedit (pinned version)."
     echo "Or see .github/workflows/ci.yml for the complete Windows installation steps."

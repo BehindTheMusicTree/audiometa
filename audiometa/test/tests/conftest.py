@@ -166,8 +166,7 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
     if has_errors:
         error_msg = "System dependency version verification failed:\n" + "\n".join(f"  - {e}" for e in errors)
         error_msg += (
-            "\n\nUpdate system-dependencies.toml and "
-            "scripts/ci/install-system-dependencies-*.sh with correct versions."
+            "\n\nUpdate system-dependencies.toml and scripts/install-system-dependencies-*.sh with correct versions."
         )
         error_msg += "\nThis ensures tests use the same tool versions as CI."
         pytest.exit(error_msg, returncode=1)

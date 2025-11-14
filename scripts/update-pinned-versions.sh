@@ -23,7 +23,7 @@ echo ""
 
 read -p "Enter ffmpeg version (e.g., 7:7.1.0-1ubuntu2): " FFMPEG_VERSION
 read -p "Enter flac version (e.g., 1.4.3-3build1): " FLAC_VERSION
-read -p "Enter mediainfo version (e.g., 24.06-1): " MEDIAINFO_VERSION
+read -p "Enter mediainfo version (e.g., 24.12-1): " MEDIAINFO_VERSION
 read -p "Enter id3v2 version (e.g., 0.1.12-8build2): " ID3V2_VERSION
 
 if [ -z "$FFMPEG_VERSION" ] || [ -z "$FLAC_VERSION" ] || [ -z "$MEDIAINFO_VERSION" ] || [ -z "$ID3V2_VERSION" ]; then

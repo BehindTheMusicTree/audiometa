@@ -87,16 +87,16 @@ jobs:
 
       - name: Install system dependencies (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
-        run: bash scripts/ci/install-system-dependencies-ubuntu.sh
+        run: bash scripts/install-system-dependencies-ubuntu.sh
 
       - name: Install system dependencies (macOS)
         if: matrix.os == 'macos-latest'
-        run: bash scripts/ci/install-system-dependencies-macos.sh
+        run: bash scripts/install-system-dependencies-macos.sh
 
       - name: Install system dependencies (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
-        run: .\scripts\ci\install-system-dependencies-windows.ps1
+        run: .\scripts\install-system-dependencies-windows.ps1
 
       - name: Install Python dependencies
         # Installs exact tool versions from pyproject.toml

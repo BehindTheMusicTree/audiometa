@@ -1,11 +1,16 @@
 # Install bwfmetaedit for Windows CI
-# Pinned version: 24.05 (fails if not available, no fallback)
+# Pinned version from system-dependencies.toml (fails if not available, no fallback)
 # See system-dependencies.toml for version configuration
 
 $ErrorActionPreference = "Stop"
 
-# Pinned version: 24.05 (from system-dependencies.toml)
-$version = "24.05"
+# Load pinned versions from system-dependencies.toml
+$SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
+$versionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell
+Invoke-Expression $versionOutput
+
+# Pinned version from system-dependencies.toml
+$version = $PINNED_BWFMETAEDIT
 $url = "https://mediaarea.net/download/binary/bwfmetaedit/${version}/BWFMetaEdit_CLI_${version}_Windows_x64.zip"
 $tempDir = "$env:TEMP\bwfmetaedit"
 $installDir = "C:\Program Files\BWFMetaEdit"

@@ -249,7 +249,7 @@ To ensure your local environment matches CI exactly, use the automated setup scr
 ./scripts/setup-system-dependencies.sh
 
 # Windows
-.\scripts\ci\install-system-dependencies-windows.ps1
+.\scripts\install-system-dependencies-windows.ps1
 ```
 
 This script installs the same versions as CI, ensuring consistency. See `system-dependencies.toml` for the complete configuration.

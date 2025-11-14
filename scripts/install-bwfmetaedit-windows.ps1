@@ -1,10 +1,17 @@
 # BWF MetaEdit Installation Script for Windows
 # This script downloads and installs BWF MetaEdit from MediaArea
+# Pinned version from system-dependencies.toml
 
 $ErrorActionPreference = "Stop"
 
+# Load pinned versions from system-dependencies.toml
+$SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
+$versionOutput = python3 "$SCRIPT_DIR\ci\load-system-dependency-versions.py" powershell
+Invoke-Expression $versionOutput
+
 # Configuration
-$downloadUrl = "https://mediaarea.net/download/binary/bwfmetaedit/24.05/BWFMetaEdit_CLI_24.05_Windows_x64.zip"
+$version = $PINNED_BWFMETAEDIT
+$downloadUrl = "https://mediaarea.net/download/binary/bwfmetaedit/${version}/BWFMetaEdit_CLI_${version}_Windows_x64.zip"
 $tempDir = "$env:TEMP\bwfmetaedit"
 $installDir = "$env:ProgramFiles\BWFMetaEdit"
 $zipFile = "$tempDir\bwfmetaedit.zip"
