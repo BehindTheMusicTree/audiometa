@@ -305,19 +305,19 @@ if [ -n "$GITHUB_ENV" ]; then
   echo "PKG_CONFIG_PATH=${HOMEBREW_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH:-}" >> "$GITHUB_ENV"
 fi
 
-# Verify pkg-config can find libsndfile (used by soundfile during installation)
-if ! pkg-config --exists libsndfile 2>/dev/null; then
-  echo "ERROR: pkg-config cannot find libsndfile."
-  echo "This will cause soundfile installation to fail."
-  echo ""
-  echo "Homebrew prefix: $HOMEBREW_PREFIX"
-  echo "Library location: $LIBSNDFILE_LIB"
-  echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
-  echo ""
-  echo "Try:"
-  echo "  1. Reinstall libsndfile: brew reinstall libsndfile"
-  echo "  2. Verify pkg-config path: pkg-config --variable=prefix libsndfile"
-  exit 1
+# Verify pkg-config can find libsndfile (optional - soundfile is prebuilt, but useful for diagnostics)
+# Check if .pc file exists first
+LIBSNDFILE_PC="${HOMEBREW_PREFIX}/lib/pkgconfig/sndfile.pc"
+if [ -f "$LIBSNDFILE_PC" ]; then
+  if pkg-config --exists libsndfile 2>/dev/null; then
+    echo "  pkg-config can find libsndfile"
+  else
+    echo "WARNING: pkg-config file exists but pkg-config cannot find libsndfile."
+    echo "This is not critical (soundfile is prebuilt), but may indicate configuration issues."
+    echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
+  fi
+else
+  echo "  Note: pkg-config file not found (not critical - soundfile is prebuilt)"
 fi
 
 # Try to import soundfile if available (it may be installed as part of Python dependencies)
@@ -356,10 +356,18 @@ except Exception:
   else
     # soundfile not installed yet, but verify library file exists and is loadable
     # This check MUST pass or installation should fail
-    # Use DYLD_LIBRARY_PATH to ensure Python can find the library
-    if DYLD_LIBRARY_PATH="${HOMEBREW_PREFIX}/lib:${DYLD_LIBRARY_PATH:-}" python3 -c "import ctypes; ctypes.CDLL('$LIBSNDFILE_LIB')" 2>/dev/null; then
+    # Try loading without DYLD_LIBRARY_PATH first (Homebrew libs should be findable)
+    # Then try with DYLD_LIBRARY_PATH as fallback
+    LIB_LOADABLE=0
+    if python3 -c "import ctypes; ctypes.CDLL('$LIBSNDFILE_LIB')" 2>/dev/null; then
       echo "  libsndfile library found and loadable at: $LIBSNDFILE_LIB"
-    else
+      LIB_LOADABLE=1
+    elif DYLD_LIBRARY_PATH="${HOMEBREW_PREFIX}/lib:${DYLD_LIBRARY_PATH:-}" python3 -c "import ctypes; ctypes.CDLL('$LIBSNDFILE_LIB')" 2>/dev/null; then
+      echo "  libsndfile library found and loadable at: $LIBSNDFILE_LIB (with DYLD_LIBRARY_PATH)"
+      LIB_LOADABLE=1
+    fi
+
+    if [ "$LIB_LOADABLE" -eq 0 ]; then
       echo "ERROR: libsndfile library found but cannot be loaded by Python."
       echo "Library location: $LIBSNDFILE_LIB"
       echo ""
@@ -377,9 +385,13 @@ except Exception:
       echo "  - Library is readable: $([ -r "$LIBSNDFILE_LIB" ] && echo "YES" || echo "NO")"
       echo "  - Homebrew prefix: $HOMEBREW_PREFIX"
       echo ""
+      echo "Debugging:"
+      echo "  - Check library dependencies: otool -L $LIBSNDFILE_LIB"
+      echo "  - Check library info: file $LIBSNDFILE_LIB"
+      echo ""
       echo "Try:"
       echo "  1. Reinstall libsndfile: brew reinstall libsndfile"
-      echo "  2. Verify library: otool -L $LIBSNDFILE_LIB"
+      echo "  2. Check if library dependencies are installed"
       exit 1
     fi
   fi
