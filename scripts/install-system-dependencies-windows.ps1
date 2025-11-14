@@ -42,6 +42,20 @@ function Install-ChocoPackage {
         [string]$PackageName,
         [string]$Version
     )
+
+    # Check if package is already installed
+    $installedPackage = choco list $PackageName --local-only --exact 2>&1 | Select-String -Pattern "^$PackageName\s+(\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+
+    if ($installedPackage) {
+        if ($installedPackage -eq $Version) {
+            Write-Host "$PackageName $installedPackage already installed (matches pinned version $Version)"
+            return $true
+        } else {
+            Write-Host "Removing existing $PackageName version $installedPackage (installing pinned version $Version)..."
+            choco uninstall $PackageName -y 2>&1 | Out-Null
+        }
+    }
+
     Write-Host "Installing $PackageName..."
     & choco install $PackageName --version=$Version -y 2>&1 | Out-Host
     if ($LASTEXITCODE -ne 0) {
@@ -103,31 +117,37 @@ if (-not $ubuntuAvailable) {
 
 # Install id3v2 in WSL Ubuntu with pinned version
 Write-Host "Installing id3v2 version $PINNED_ID3V2 in WSL Ubuntu..."
+
+# Check if id3v2 is already installed in WSL
 wsl sudo apt-get update -qq
-wsl sudo apt-get install -y "id3v2=$PINNED_ID3V2"
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "WARNING: Failed to install id3v2 version $PINNED_ID3V2. Trying latest version..."
-    wsl sudo apt-get install -y id3v2
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "ERROR: Failed to install id3v2 in WSL."
-        $failedPackages += "id3v2"
+$installedId3v2Version = wsl dpkg -l id3v2 2>&1 | Select-String -Pattern "^ii\s+id3v2\s+(\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+
+if ($installedId3v2Version) {
+    if ($installedId3v2Version -eq $PINNED_ID3V2) {
+        Write-Host "id3v2 $installedId3v2Version already installed in WSL (matches pinned version $PINNED_ID3V2)"
     } else {
-        Write-Host "id3v2 (latest) installed in WSL successfully."
-        # Create wrapper script to make id3v2 accessible from Windows
-        $wrapperDir = "C:\Program Files\id3v2-wrapper"
-        New-Item -ItemType Directory -Force -Path $wrapperDir | Out-Null
-        $wrapperScript = @"
-@echo off
-wsl id3v2 %*
-"@
-        $wrapperScript | Out-File -FilePath "$wrapperDir\id3v2.bat" -Encoding ASCII
-        if ($env:GITHUB_PATH) {
-            echo "$wrapperDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        Write-Host "Removing existing id3v2 version $installedId3v2Version (installing pinned version $PINNED_ID3V2)..."
+        wsl sudo apt-get remove -y id3v2 2>&1 | Out-Null
+        wsl sudo apt-get install -y "id3v2=$PINNED_ID3V2"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "ERROR: Failed to install id3v2 version $PINNED_ID3V2 in WSL."
+            $failedPackages += "id3v2"
+        } else {
+            Write-Host "id3v2 version $PINNED_ID3V2 installed in WSL successfully."
         }
     }
 } else {
-    Write-Host "id3v2 version $PINNED_ID3V2 installed in WSL successfully."
-    # Create wrapper script to make id3v2 accessible from Windows
+    wsl sudo apt-get install -y "id3v2=$PINNED_ID3V2"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "ERROR: Failed to install id3v2 version $PINNED_ID3V2 in WSL."
+        $failedPackages += "id3v2"
+    } else {
+        Write-Host "id3v2 version $PINNED_ID3V2 installed in WSL successfully."
+    }
+}
+
+# Create wrapper script to make id3v2 accessible from Windows (if installation succeeded)
+if ($failedPackages -notcontains "id3v2") {
     $wrapperDir = "C:\Program Files\id3v2-wrapper"
     New-Item -ItemType Directory -Force -Path $wrapperDir | Out-Null
     $wrapperScript = @"
@@ -153,36 +173,80 @@ Write-Host "Installing bwfmetaedit (pinned version)..."
 
 # Pinned version from system-dependencies.toml
 $version = $PINNED_BWFMETAEDIT
-$url = "https://mediaarea.net/download/binary/bwfmetaedit/${version}/BWFMetaEdit_CLI_${version}_Windows_x64.zip"
-$tempDir = "$env:TEMP\bwfmetaedit"
 $installDir = "C:\Program Files\BWFMetaEdit"
+$exePath = "$installDir\bwfmetaedit.exe"
 
-try {
-    Write-Host "Downloading BWF MetaEdit..."
-    New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
-    Invoke-WebRequest -Uri $url -OutFile "$tempDir\bwfmetaedit.zip" -UseBasicParsing
+# Check if bwfmetaedit is already installed
+$needInstall = $true
+if (Test-Path $exePath) {
+    try {
+        $installedVersionOutput = & $exePath --version 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            $installedVersion = $installedVersionOutput | Select-String -Pattern '(\d+\.\d+\.\d+)' | ForEach-Object { $_.Matches[0].Value }
+            if ($installedVersion) {
+                $installedMajorMinor = ($installedVersion -split '\.')[0..1] -join '.'
+                $pinnedMajorMinor = ($version -split '\.')[0..1] -join '.'
 
-    Write-Host "Extracting..."
-    Expand-Archive -Path "$tempDir\bwfmetaedit.zip" -DestinationPath $tempDir -Force
-
-    Write-Host "Installing..."
-    New-Item -ItemType Directory -Force -Path $installDir | Out-Null
-    $exe = Get-ChildItem -Path $tempDir -Filter "bwfmetaedit.exe" -Recurse | Select-Object -First 1
-    if (-not $exe) {
-        throw "bwfmetaedit.exe not found in downloaded archive"
+                if ($installedMajorMinor -eq $pinnedMajorMinor) {
+                    Write-Host "bwfmetaedit $installedVersion already installed (matches pinned version $version)"
+                    $needInstall = $false
+                } else {
+                    Write-Host "Removing existing bwfmetaedit version $installedVersion (installing pinned version $version)..."
+                    Remove-Item -Path $exePath -Force -ErrorAction SilentlyContinue
+                    if (Test-Path $installDir) {
+                        $dirContents = Get-ChildItem -Path $installDir -ErrorAction SilentlyContinue
+                        if (-not $dirContents) {
+                            Remove-Item -Path $installDir -Force -ErrorAction SilentlyContinue
+                        }
+                    }
+                }
+            }
+        }
+    } catch {
+        Write-Host "bwfmetaedit installed but version could not be determined, removing..."
+        Remove-Item -Path $exePath -Force -ErrorAction SilentlyContinue
+        if (Test-Path $installDir) {
+            $dirContents = Get-ChildItem -Path $installDir -ErrorAction SilentlyContinue
+            if (-not $dirContents) {
+                Remove-Item -Path $installDir -Force -ErrorAction SilentlyContinue
+            }
+        }
     }
-    Copy-Item -Path $exe.FullName -Destination "$installDir\bwfmetaedit.exe" -Force
+}
 
-    Write-Host "Adding to PATH..."
-    if ($env:GITHUB_PATH) {
-        echo "$installDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+# Install if needed
+if ($needInstall) {
+    $url = "https://mediaarea.net/download/binary/bwfmetaedit/${version}/BWFMetaEdit_CLI_${version}_Windows_x64.zip"
+    $tempDir = "$env:TEMP\bwfmetaedit"
+
+    try {
+        Write-Host "Downloading BWF MetaEdit..."
+        New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
+        Invoke-WebRequest -Uri $url -OutFile "$tempDir\bwfmetaedit.zip" -UseBasicParsing
+
+        Write-Host "Extracting..."
+        Expand-Archive -Path "$tempDir\bwfmetaedit.zip" -DestinationPath $tempDir -Force
+
+        Write-Host "Installing..."
+        New-Item -ItemType Directory -Force -Path $installDir | Out-Null
+        $exe = Get-ChildItem -Path $tempDir -Filter "bwfmetaedit.exe" -Recurse | Select-Object -First 1
+        if (-not $exe) {
+            throw "bwfmetaedit.exe not found in downloaded archive"
+        }
+        Copy-Item -Path $exe.FullName -Destination $exePath -Force
+
+        Write-Host "Adding to PATH..."
+        if ($env:GITHUB_PATH) {
+            echo "$installDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        }
+
+        Write-Host "Cleanup..."
+        Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Host "bwfmetaedit $version installed successfully"
+    } catch {
+        Write-Host "ERROR: Failed to install bwfmetaedit: $_"
+        exit 1
     }
-
-    Write-Host "Cleanup..."
-    Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
-} catch {
-    Write-Host "ERROR: Failed to install bwfmetaedit: $_"
-    exit 1
 }
 
 Write-Host "Verifying installed tools are available in PATH..."

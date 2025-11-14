@@ -23,17 +23,16 @@ flac = "1.4.3+ds-2.1ubuntu2"  # Pinned version (fails if not available) - VERIFY
 mediainfo = "24.01.1-1build2"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 id3v2 = "0.1.12+dfsg-7"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 
-# bwfmetaedit: Try repos first, then download from MediaArea if not available
-# If not in repos, script will try to find a compatible version from MediaArea
-# Note: MediaArea may not have packages for all Ubuntu versions
+# bwfmetaedit: Download from MediaArea (not available in Ubuntu repos)
 # Check https://mediaarea.net/BWFMetaEdit/Download/Ubuntu for available versions
-bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "latest_available" }
+bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "25.04.1" }
 
 [macos]
 # macOS package versions (install via Homebrew)
 # IMPORTANT: Only ffmpeg supports version pinning via @version syntax in Homebrew
-# Other packages (flac, mediainfo/media-info, id3v2, bwfmetaedit) don't support version pinning
+# Other packages (flac, mediainfo/media-info, id3v2) don't support version pinning
 # during installation, but we verify installed versions match expected versions after installation.
+# bwfmetaedit is downloaded from MediaArea with pinned version (same as Ubuntu/Windows)
 # If versions don't match, installation fails to ensure reproducibility.
 # To check available versions: brew info <package> or brew search <package>
 # Note: Homebrew version format example: "ffmpeg@7" (major version only for versioned packages)
@@ -41,7 +40,7 @@ bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "latest_availabl
 ffmpeg = "7"  # Pinned version using @version syntax (fails if not available)
 flac = "1.4.3"  # Expected version - verified after installation (major.minor must match)
 mediainfo = "24.12"  # Expected version - Homebrew package is "media-info", verified after installation
-bwfmetaedit = "24.10"  # Expected version - verified after installation
+bwfmetaedit = "25.04.1"  # Pinned version - downloaded from MediaArea
 id3v2 = "0.1.12"  # Expected version - verified after installation
 
 [windows]

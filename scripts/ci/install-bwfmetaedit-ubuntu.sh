@@ -9,81 +9,62 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash)"
 
-# Try installing from Ubuntu repos first
-if sudo apt-get install -y bwfmetaedit 2>/dev/null; then
-  echo "bwfmetaedit installed from Ubuntu repos"
-  INSTALLED_VERSION=$(bwfmetaedit --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown")
-  echo "Installed version: ${INSTALLED_VERSION}"
-else
-  # If not in repos, try to download from MediaArea
-  # Detect Ubuntu version from /etc/os-release
-  UBUNTU_VERSION=$(grep VERSION_ID /etc/os-release | cut -d'"' -f2 | cut -d. -f1,2)
-  echo "Detected Ubuntu version: ${UBUNTU_VERSION}"
-  echo "bwfmetaedit not found in Ubuntu repos, trying MediaArea..."
+# Detect Ubuntu version from /etc/os-release
+UBUNTU_VERSION_FULL=$(grep VERSION_ID /etc/os-release | cut -d'"' -f2)
+UBUNTU_VERSION=$(echo "${UBUNTU_VERSION_FULL}" | cut -d. -f1,2)
+UBUNTU_MAJOR=$(echo "${UBUNTU_VERSION}" | cut -d. -f1)
 
-  # Pinned version from system-dependencies.toml
-  PINNED_VERSION="${PINNED_BWFMETAEDIT}"
+# Get Ubuntu codename
+UBUNTU_CODENAME=$(grep VERSION_CODENAME /etc/os-release 2>/dev/null | cut -d= -f2 || echo "")
 
-  # If pinned_version is "latest_available", try to find a compatible version
-  if [ "${PINNED_VERSION}" = "latest_available" ]; then
-    echo "No specific version pinned, checking MediaArea for available versions..."
-    # Try common recent versions in reverse order (newest first)
-    VERSIONS_TO_TRY=("24.12" "24.10" "24.05" "24.01" "23.10" "23.05")
-    URL=""
-    for version in "${VERSIONS_TO_TRY[@]}"; do
-      URL_PATTERNS=(
-        "https://mediaarea.net/download/binary/bwfmetaedit/${version}/bwfmetaedit_${version}-1_amd64.xUbuntu_${UBUNTU_VERSION}.deb"
-        "https://mediaarea.net/download/binary/bwfmetaedit/${version}/bwfmetaedit_${version}_amd64.xUbuntu_${UBUNTU_VERSION}.deb"
-      )
-      for url_pattern in "${URL_PATTERNS[@]}"; do
-        if wget -q --spider "$url_pattern" 2>/dev/null; then
-          URL="$url_pattern"
-          PINNED_VERSION="$version"
-          echo "Found available version: ${version}"
-          break 2
-        fi
-      done
-    done
-  else
-    # Try different URL patterns that MediaArea might use for pinned version
-    URL_PATTERNS=(
-      "https://mediaarea.net/download/binary/bwfmetaedit/${PINNED_VERSION}/bwfmetaedit_${PINNED_VERSION}-1_amd64.xUbuntu_${UBUNTU_VERSION}.deb"
-      "https://mediaarea.net/download/binary/bwfmetaedit/${PINNED_VERSION}/bwfmetaedit_${PINNED_VERSION}_amd64.xUbuntu_${UBUNTU_VERSION}.deb"
-    )
-
-    URL=""
-    for url_pattern in "${URL_PATTERNS[@]}"; do
-      if wget -q --spider "$url_pattern" 2>/dev/null; then
-        URL="$url_pattern"
-        break
-      fi
-    done
-  fi
-
-  if [ -z "$URL" ]; then
-    echo "ERROR: bwfmetaedit not available in Ubuntu repos and no compatible version found on MediaArea for Ubuntu ${UBUNTU_VERSION}"
-    echo ""
-    if [ "${PINNED_VERSION}" != "latest_available" ]; then
-      echo "Tried pinned version: ${PINNED_VERSION}"
-      echo "Tried URLs:"
-      for url_pattern in "${URL_PATTERNS[@]}"; do
-        echo "  - $url_pattern"
-      done
-    fi
-    echo ""
-    echo "To resolve this:"
-    echo "  1. Check if bwfmetaedit is available in Ubuntu repos: apt-cache search bwfmetaedit"
-    echo "  2. Visit https://mediaarea.net/BWFMetaEdit/Download/Ubuntu"
-    echo "  3. Check available versions for Ubuntu ${UBUNTU_VERSION}"
-    echo "  4. Update system-dependencies.toml with a compatible pinned_version or use 'latest_available'"
-    exit 1
-  fi
-
-  echo "Installing bwfmetaedit version ${PINNED_VERSION} from MediaArea for Ubuntu ${UBUNTU_VERSION}"
-  wget "$URL"
-  DEB_FILE=$(basename "$URL")
-  sudo dpkg -i "$DEB_FILE" || sudo apt-get install -f -y
-  rm -f "$DEB_FILE"
+echo "Detected Ubuntu version: ${UBUNTU_VERSION_FULL} (${UBUNTU_VERSION})"
+if [ -n "${UBUNTU_CODENAME}" ]; then
+  echo "Ubuntu codename: ${UBUNTU_CODENAME}"
 fi
+
+# Pinned version from system-dependencies.toml
+PINNED_VERSION="${PINNED_BWFMETAEDIT}"
+
+# Check if bwfmetaedit is already installed
+if command -v bwfmetaedit &>/dev/null; then
+  INSTALLED_VERSION=$(bwfmetaedit --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+
+  if [ -n "$INSTALLED_VERSION" ]; then
+    # Extract major.minor version for comparison
+    INSTALLED_MAJOR_MINOR=$(echo "$INSTALLED_VERSION" | cut -d. -f1,2)
+    PINNED_MAJOR_MINOR=$(echo "$PINNED_VERSION" | cut -d. -f1,2)
+
+    if [ "$INSTALLED_MAJOR_MINOR" = "$PINNED_MAJOR_MINOR" ]; then
+      echo "bwfmetaedit ${INSTALLED_VERSION} already installed (matches pinned version ${PINNED_VERSION})"
+      exit 0
+    else
+      echo "Removing existing bwfmetaedit version ${INSTALLED_VERSION} (installing pinned version ${PINNED_VERSION})..."
+      sudo apt-get remove -y bwfmetaedit 2>/dev/null || sudo dpkg -r bwfmetaedit 2>/dev/null || true
+    fi
+  else
+    echo "bwfmetaedit installed but version could not be determined, removing..."
+    sudo apt-get remove -y bwfmetaedit 2>/dev/null || sudo dpkg -r bwfmetaedit 2>/dev/null || true
+  fi
+fi
+
+# MediaArea URL format: bwfmetaedit_{version}-1_amd64.{prefix}{ubuntu_version}.deb
+# Ubuntu 24.04+ uses "Ubuntu_" prefix (capital U), older versions use "xUbuntu_" (lowercase x)
+
+# Determine URL based on Ubuntu version
+if [ "${UBUNTU_MAJOR}" -ge 24 ]; then
+  URL="https://mediaarea.net/download/binary/bwfmetaedit/${PINNED_VERSION}/bwfmetaedit_${PINNED_VERSION}-1_amd64.Ubuntu_${UBUNTU_VERSION}.deb"
+  UBUNTU_FORMAT="${UBUNTU_VERSION}"
+else
+  URL="https://mediaarea.net/download/binary/bwfmetaedit/${PINNED_VERSION}/bwfmetaedit_${PINNED_VERSION}-1_amd64.xUbuntu_${UBUNTU_VERSION}.deb"
+  UBUNTU_FORMAT="${UBUNTU_VERSION}"
+fi
+
+echo "Downloading bwfmetaedit version ${PINNED_VERSION} for Ubuntu ${UBUNTU_FORMAT} from MediaArea..."
+wget "$URL"
+DEB_FILE=$(basename "$URL")
+echo "Installing ${DEB_FILE}..."
+sudo dpkg -i "$DEB_FILE" || sudo apt-get install -f -y
+rm -f "$DEB_FILE"
+echo "bwfmetaedit ${PINNED_VERSION} installed successfully"
 
 
