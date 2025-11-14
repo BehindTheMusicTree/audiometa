@@ -341,6 +341,7 @@ Write-Host "Installing exiftool (pinned version)..."
 
 # Pinned version from system-dependencies.toml
 $exiftoolVersion = $PINNED_EXIFTOOL
+
 $exiftoolInstallDir = "C:\Program Files\ExifTool"
 $exiftoolExePath = "$exiftoolInstallDir\exiftool.exe"
 
@@ -404,7 +405,6 @@ if ($needInstallExiftool) {
             Write-Host "The pinned version may not be available for Windows download."
             Write-Host "ExifTool Windows downloads use format: exiftool-VERSION_64.zip"
             Write-Host "Check available versions at: https://exiftool.org/"
-            Write-Host "Update system-dependencies.toml with a version that has a Windows release."
             throw "Could not download exiftool version ${exiftoolVersion}. Version may not be available for Windows."
         }
 
