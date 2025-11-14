@@ -182,13 +182,19 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                     # Try multiple patterns to handle different output formats
                     patterns = [
                         r"version\s+(\d+\.\d+\.\d+)",  # "version 25.04.1"
-                        r"(\d+\.\d+\.\d+)",  # Just version number
+                        r"(\d+\.\d+\.\d+)",  # Just version number (first match)
                     ]
                     for pattern in patterns:
                         match = re.search(pattern, output, re.IGNORECASE)
                         if match:
-                            return match.group(1)
+                            version = match.group(1)
+                            # Validate it looks like a version (at least major.minor)
+                            if re.match(r"^\d+\.\d+", version):
+                                return version
             except FileNotFoundError:
+                pass
+            except Exception:
+                # Tool might exist but fail to run - try alternative paths or methods
                 pass
             return None
 
@@ -362,10 +368,21 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                         text=True,
                         check=False,
                     )
-                    if result.stderr:  # ffprobe outputs version to stderr
-                        match = re.search(r"ffprobe version (\S+)", result.stderr)
-                        if match:
-                            installed = match.group(1).split("-")[0]  # Remove build suffix if present
+                    # ffprobe outputs version to stderr, but check both stdout and stderr
+                    output = result.stdout + result.stderr
+                    if output:
+                        # Try multiple patterns to handle different output formats
+                        patterns = [
+                            r"ffprobe version (\S+)",  # "ffprobe version 7.1.0"
+                            r"version (\S+)",  # "version 7.1.0"
+                            r"ffprobe\s+(\d+\.\d+\.\d+)",  # "ffprobe 7.1.0"
+                            r"(\d+\.\d+\.\d+)",  # Just version number
+                        ]
+                        for pattern in patterns:
+                            match = re.search(pattern, output, re.IGNORECASE)
+                            if match:
+                                installed = match.group(1).split("-")[0].split("+")[0]  # Remove build suffix if present
+                                break
                 except Exception:
                     pass
             elif os_type == "windows" and tool == "flac":
@@ -377,10 +394,19 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                         text=True,
                         check=False,
                     )
-                    if result.stdout:
-                        match = re.search(r"flac\s+(\d+\.\d+\.\d+)", result.stdout, re.IGNORECASE)
-                        if match:
-                            installed = match.group(1)
+                    output = result.stdout + result.stderr
+                    if output:
+                        # Try multiple patterns to handle different output formats
+                        patterns = [
+                            r"flac\s+(\d+\.\d+\.\d+)",  # "flac 1.3.4"
+                            r"version\s+(\d+\.\d+\.\d+)",  # "version 1.3.4"
+                            r"(\d+\.\d+\.\d+)",  # Just version number
+                        ]
+                        for pattern in patterns:
+                            match = re.search(pattern, output, re.IGNORECASE)
+                            if match:
+                                installed = match.group(1)
+                                break
                 except Exception:
                     pass
 
@@ -389,7 +415,13 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                 if os_type == "windows" and tool in ["ffmpeg", "flac", "mediainfo"]:
                     errors.append(
                         f"{tool}: VERSION CHECK FAILED "
-                        "(Chocolatey parsing failed and direct tool version check also failed)"
+                        "(Chocolatey parsing failed and direct tool version check also failed - "
+                        "tool may be installed but version detection logic needs improvement)"
+                    )
+                elif os_type == "windows" and tool == "bwfmetaedit":
+                    errors.append(
+                        f"{tool}: VERSION CHECK FAILED "
+                        "(Tool may be installed but version output format not recognized)"
                     )
                 else:
                     errors.append(f"{tool}: VERSION CHECK FAILED")
