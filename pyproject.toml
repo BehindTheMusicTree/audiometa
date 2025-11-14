@@ -27,7 +27,6 @@ classifiers = [
 ]
 dependencies = [
     "mutagen==1.45.0",
-    "pytaglib==3.0.1",
 ]
 
 [project.scripts]

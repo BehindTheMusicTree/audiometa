@@ -3,8 +3,6 @@ import struct
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
-import taglib  # type: ignore[import-not-found]
-
 if TYPE_CHECKING:
     from ...._audio_file import _AudioFile
 from ....exceptions import FileCorruptedError, InvalidRatingValueError, MetadataFieldNotSupportedByMetadataFormatError
@@ -30,8 +28,8 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
     Implementation Details:
     - Reading: Custom FLAC parsing to preserve original Vorbis comment key casing
-    - Writing: TagLib library to maintain proper key casing per Vorbis specification
-    - The Vorbis specification recommends uppercase keys, which TagLib preserves during writing
+    - Writing: External metaflac tool to maintain proper key casing per Vorbis specification
+    - The Vorbis specification recommends uppercase keys, which metaflac preserves during writing
     - Custom parsing for reading avoids mutagen's lowercase conversion behavior
 
     Compatible Extensions:
@@ -124,7 +122,6 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
         This is a custom implementation for extracting Vorbis comments because:
             - Mutagen does not preserve original key case
-            - taglib merges duplicate keys with multiple values into a single value
         Returns a dict: {key: [values]}.
         """
         comments: dict[str, list[str]] = {}
@@ -436,18 +433,16 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
     def get_header_info(self) -> dict:
         try:
-            # Use TagLib to get file information
-            file_obj = taglib.File(self.audio_file.file_path)
+            # Use custom parsing to get file information
+            metadata = self._extract_mutagen_metadata()
+            comment_count = sum(len(values) for values in metadata.values() if values)
 
-            # TagLib provides basic info
             info = {
                 "present": True,
-                "vendor_string": "TagLib",  # TagLib doesn't provide vendor string directly
-                "comment_count": sum(len(values) for values in file_obj.tags.values() if values),
+                "vendor_string": None,  # Vendor string not available via custom parsing
+                "comment_count": comment_count,
                 "block_size": 4096,  # Default Vorbis comment block size
             }
-
-            file_obj.close()
         except Exception:
             return {"present": False, "vendor_string": None, "comment_count": 0, "block_size": 0}
         else:
@@ -455,14 +450,14 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
     def get_raw_metadata_info(self) -> dict:
         try:
-            # Use TagLib to get metadata
-            file_obj = taglib.File(self.audio_file.file_path)
+            # Use custom parsing to get metadata
+            metadata = self._extract_mutagen_metadata()
 
             return {
-                "raw_data": None,  # TagLib handles this internally
+                "raw_data": None,  # Custom parsing handles this internally
                 "parsed_fields": {},
                 "frames": {},
-                "comments": dict(file_obj.tags),  # Convert to regular dict
+                "comments": dict(metadata),  # Convert to regular dict
                 "chunk_structure": {},
             }
         except Exception:
