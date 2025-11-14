@@ -160,18 +160,15 @@ class TestComprehensiveRatingWriting:
                 assert rating is not None
                 assert rating >= 0
 
-    def test_write_float_rating_values_raw_mode(self):
+    @pytest.mark.parametrize("rating_value", [1.5, 75.7, 128.5, 255.0])
+    def test_write_float_rating_values_raw_mode(self, rating_value):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
 
         # Test float values in raw mode (no normalization) - should raise error
         from audiometa.exceptions import InvalidRatingValueError
 
         with temp_file_with_metadata(basic_metadata, "mp3") as test_file:
-            test_values = [1.5, 75.7, 128.5, 255.0]
-            for value in test_values:
-                test_metadata = {UnifiedMetadataKey.RATING: value}
-                with pytest.raises(InvalidRatingValueError) as exc_info:
-                    update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V2)
-                assert "Float values are only supported when normalized_rating_max_value is provided" in str(
-                    exc_info.value
-                )
+            test_metadata = {UnifiedMetadataKey.RATING: rating_value}
+            with pytest.raises(InvalidRatingValueError) as exc_info:
+                update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.ID3V2)
+            assert "Float values are only supported when normalized_rating_max_value is provided" in str(exc_info.value)
