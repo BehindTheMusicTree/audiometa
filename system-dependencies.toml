@@ -24,7 +24,7 @@ mediainfo = "24.01.1-1build2"  # Pinned version (fails if not available) - VERIF
 id3v2 = "0.1.12+dfsg-7"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 
 # bwfmetaedit: Try repos first, then download pinned version from MediaArea
-bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "24.10" }
+bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "24.12" }
 
 [macos]
 # macOS package versions (install via Homebrew)
@@ -48,9 +48,11 @@ id3v2 = "0.1.12"  # Reference version only - Homebrew installs latest (no versio
 #   Run in CI: choco search <package> --exact to see available versions
 #   Update these pinned versions to match what CI actually installs
 ffmpeg = "7.1.0"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-flac = "1.4.3"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+flac = "1.3.4"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 mediainfo = "24.12"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-id3v2 = "0.1.12"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+# id3v2: Not available in Chocolatey with version pinning. Installation script will try without version pinning.
+# If that fails, id3v2 may need to be installed manually from source.
+id3v2 = ""  # Empty string indicates to install latest available version (no pinning)
 
 # bwfmetaedit: Download pinned version from MediaArea (not available in Chocolatey)
 bwfmetaedit = { source = "mediaarea", pinned_version = "24.10" }
