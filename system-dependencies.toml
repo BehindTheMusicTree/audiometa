@@ -13,9 +13,9 @@
 # Ubuntu package versions (install via apt-get)
 # Format: "package=version" for pinned versions (fails if not available, no fallback)
 # To check available versions: apt-cache policy <package> or apt-cache madison <package>
-# Note: Exact versions depend on Ubuntu release. CI uses ubuntu-latest.
+# Note: Exact versions depend on Ubuntu release. CI uses a pinned Ubuntu version for consistency.
 # Version format example: "7:7.1.0-1ubuntu2" (epoch:version-release)
-# IMPORTANT: Verify these versions match what's available in ubuntu-latest:
+# IMPORTANT: Verify these versions match what's available in the pinned Ubuntu CI version:
 #   Run in CI: apt-cache madison <package> to see available versions
 #   Update these pinned versions to match what CI actually installs
 ffmpeg = "7:6.1.1-3ubuntu5"  # Pinned version (fails if not available) - VERIFY THIS VERSION
@@ -24,7 +24,9 @@ mediainfo = "24.01.1-1build2"  # Pinned version (fails if not available) - VERIF
 id3v2 = "0.1.12+dfsg-7"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 
 # bwfmetaedit: Try repos first, then download pinned version from MediaArea
-bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "24.12" }
+# Note: Version must be available for the pinned Ubuntu CI version
+# Check https://mediaarea.net/BWFMetaEdit/Download/Ubuntu for available versions
+bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "24.10" }
 
 [macos]
 # macOS package versions (install via Homebrew)
@@ -44,7 +46,7 @@ id3v2 = "0.1.12"  # Reference version only - Homebrew installs latest (no versio
 # Format: Use --version flag: choco install package --version=1.2.3 (fails if not available, no fallback)
 # To check available versions: choco search <package> --exact
 # Note: Chocolatey version format example: "7.1.0" or "24.12"
-# IMPORTANT: Verify these versions match what's available in windows-latest:
+# IMPORTANT: Verify these versions match what's available in the pinned Windows CI version:
 #   Run in CI: choco search <package> --exact to see available versions
 #   Update these pinned versions to match what CI actually installs
 ffmpeg = "7.1.0"  # Pinned version (fails if not available) - VERIFY THIS VERSION

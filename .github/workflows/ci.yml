@@ -91,7 +91,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # Pin OS versions for consistency with pinned package versions
+        # Using -latest can cause package availability issues when OS versions change
+        os: [ubuntu-24.04, macos-14, windows-2022]
         python-version: ["3.12", "3.13"]
 
     steps:
@@ -104,15 +106,15 @@ jobs:
           cache: "pip"
 
       - name: Install system dependencies (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-24.04'
         run: bash scripts/install-system-dependencies-ubuntu.sh
 
       - name: Install system dependencies (macOS)
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-14'
         run: bash scripts/install-system-dependencies-macos.sh
 
       - name: Install system dependencies (Windows)
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2022'
         shell: pwsh
         run: .\scripts\install-system-dependencies-windows.ps1
 
@@ -146,7 +148,7 @@ jobs:
   ci-success:
     name: CI Success
     needs: [lint, test]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: always()
     steps:
       - name: Check all jobs succeeded

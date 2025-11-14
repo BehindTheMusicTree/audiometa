@@ -309,7 +309,7 @@ pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-un
 
 **Note:** CI runs tests separately by marker (`unit`, `integration`, `e2e`) with coverage. The coverage threshold of 85% applies to the combined total.
 
-**Note:** CI tests only run on latest OS versions: `ubuntu-latest`, `macos-latest`, `windows-latest`.
+**Note:** CI tests run on pinned OS versions for consistency. OS versions are pinned to ensure package version availability and consistency with pinned package versions. This prevents breakages when GitHub Actions updates `-latest` runners. See `.github/workflows/ci.yml` for the specific pinned versions.
 
 **System dependency version verification:** Before running any tests, pytest automatically verifies that installed system dependency versions (ffmpeg, flac, mediainfo, id3v2, bwfmetaedit) match the pinned versions defined in `system-dependencies.toml`. If versions don't match, pytest will exit with an error message before running tests. This ensures tests always run with the exact same tool versions as CI and local development environments. To fix version mismatches, update your system dependencies using the setup script: `./scripts/setup-system-dependencies.sh` (Linux/macOS) or `.\scripts\install-system-dependencies-windows.ps1` (Windows).
 

@@ -63,4 +63,24 @@ echo "  bwfmetaedit: ${INSTALLED_BWFMETAEDIT} (expected: ${PINNED_BWFMETAEDIT})"
 # doesn't support version pinning. The versions are documented in system-dependencies.toml
 # for reference, but may differ from what's actually installed.
 
+echo "Verifying installed tools are available in PATH..."
+MISSING_TOOLS=()
+for tool in ffprobe flac metaflac mediainfo id3v2; do
+  if ! command -v "$tool" &>/dev/null; then
+    MISSING_TOOLS+=("$tool")
+  fi
+done
+
+if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
+  echo "ERROR: The following tools are not available in PATH after installation:"
+  printf '  - %s\n' "${MISSING_TOOLS[@]}"
+  echo ""
+  echo "Installation may have failed. Check the output above for errors."
+  echo "Note: On macOS, you may need to add Homebrew's bin directory to PATH:"
+  echo "  export PATH=\"/opt/homebrew/bin:\$PATH\"  # Apple Silicon"
+  echo "  export PATH=\"/usr/local/bin:\$PATH\"     # Intel"
+  exit 1
+fi
+
+echo "All system dependencies installed successfully!"
 

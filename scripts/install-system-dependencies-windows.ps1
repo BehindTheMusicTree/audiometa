@@ -185,6 +185,26 @@ try {
     exit 1
 }
 
+Write-Host "Verifying installed tools are available in PATH..."
+$missingTools = @()
+$tools = @("ffprobe", "flac", "metaflac", "mediainfo", "id3v2")
+foreach ($tool in $tools) {
+    if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) {
+        $missingTools += $tool
+    }
+}
+
+if ($missingTools.Count -ne 0) {
+    Write-Host "ERROR: The following tools are not available in PATH after installation:"
+    foreach ($tool in $missingTools) {
+        Write-Host "  - $tool"
+    }
+    Write-Host ""
+    Write-Host "Installation may have failed. Check the output above for errors."
+    Write-Host "Note: PATH changes may require a new shell session to take effect."
+    exit 1
+}
+
 Write-Host "All system dependencies installed successfully!"
 
 

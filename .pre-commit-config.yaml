@@ -115,11 +115,17 @@ repos:
         additional_dependencies:
           - prettier@^3.0.0
 
-  - repo: https://github.com/thetestlabs/py-psscriptanalyzer
-    rev: v0.3.1
+  - repo: local
     hooks:
       - id: py-psscriptanalyzer
-        args: ["--severity", "Error", "Warning"]
+        name: PowerShell ScriptAnalyzer
+        entry: bash -c '.pre-commit-hooks/psscriptanalyzer-wrapper.sh "$@"' --
+        language: system
         files: \.ps1$
+        pass_filenames: true
       - id: py-psscriptanalyzer-format
+        name: PowerShell ScriptAnalyzer Format
+        entry: bash -c '.pre-commit-hooks/psscriptanalyzer-format-wrapper.sh "$@"' --
+        language: system
         files: \.ps1$
+        pass_filenames: true
