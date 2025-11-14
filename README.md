@@ -1449,7 +1449,7 @@ audiometa delete music/ --recursive
 ## Requirements
 
 - Python 3.12+
-- mutagen >= 1.45.0
+- mutagen==1.45.0
 - ffprobe (for WAV file processing)
 - flac (for FLAC MD5 validation)
 
