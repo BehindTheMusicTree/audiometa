@@ -16,8 +16,7 @@ from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestSmartParsingScenarios:
-    """
-    Test the smart parsing scenarios described in the README:
+    """Test the smart parsing scenarios described in the README:
 
     - Modern formats (ID3v2, Vorbis) + Multiple entries: No separator parsing
     - Modern formats (ID3v2, Vorbis) + Single entry: Applies separator parsing
@@ -177,7 +176,7 @@ class TestSmartParsingScenarios:
             assert artists == ["Artist One", "Artist Two"]
 
     def test_mixed_scenario_modern_format_with_both_patterns(self):
-        """Test mixed scenario: ID3v2 concatenates multiple entries, single entries get parsed"""
+        """Test mixed scenario: ID3v2 concatenates multiple entries, single entries get parsed."""
         with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
             # Set artists as multiple separate entries (ID3v2 will concatenate them)
             ID3v2MetadataSetter.set_artists(

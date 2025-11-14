@@ -13,7 +13,9 @@ from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 class TestGenreSmartReading:
     def test_single_entry_text_with_codes_and_separators_and_without_parentheses(self):
         """Test single genre entry with text with codes and separators without parentheses:
-        '17/6' -> ['Rock', 'Grunge']"""
+
+        '17/6' -> ['Rock', 'Grunge']
+        """
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with text with codes and separators without parentheses
             ID3v2MetadataSetter.set_genres(test_file, ["17/6"], version="2.4")
@@ -123,7 +125,9 @@ class TestGenreSmartReading:
 
     def test_single_entry_text_with_semicolon_separators(self):
         """Test single genre entry with text with semicolon separators:
-        'Rock; Alternative' -> ['Rock', 'Alternative']"""
+
+        'Rock; Alternative' -> ['Rock', 'Alternative']
+        """
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with text with separators
             ID3v2MetadataSetter.set_genres(test_file, ["Rock; Alternative"], version="2.4")
@@ -153,7 +157,7 @@ class TestGenreSmartReading:
             assert genres == ["Rock", "Blues"]
 
     def test_multiple_entries_return_as_is(self):
-        """Test multiple genre entries: separate TCON frames, return as-is without parsing"""
+        """Test multiple genre entries: separate TCON frames, return as-is without parsing."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set multiple genres in separate frames
             ID3v2MetadataSetter.set_genres(test_file, ["Rock/Grunge", "Blues"], in_separate_frames=True, version="2.4")
@@ -165,7 +169,7 @@ class TestGenreSmartReading:
             assert set(genres) == {"Rock/Grunge", "Blues"}
 
     def test_code_to_name_conversion_with_unknown_code(self):
-        """Test code conversion: '(17)' -> 'Rock', (unknown code) -> unknown code in parentheses should be ignored"""
+        """Test code conversion: '(17)' -> 'Rock', (unknown code) -> unknown code in parentheses should be ignored."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with known and unknown codes
             ID3v2MetadataSetter.set_genres(test_file, ["(17)", "(999)"], version="2.4")
