@@ -133,6 +133,20 @@ if [ "$NEED_INSTALL" -eq 1 ]; then
   hdiutil detach "$MOUNT_POINT" -quiet || true
   rm -f "$DMG_FILE"
 
+  # Ensure /usr/local/bin is in PATH (may not be in CI environments)
+  if [ -d "/usr/local/bin" ]; then
+    case ":$PATH:" in
+      *:/usr/local/bin:*)
+        ;;
+      *)
+        export PATH="/usr/local/bin:$PATH"
+        if [ -n "$GITHUB_PATH" ]; then
+          echo "/usr/local/bin" >> "$GITHUB_PATH"
+        fi
+        ;;
+    esac
+  fi
+
   echo "mediainfo ${PINNED_VERSION} installed successfully"
 fi
 

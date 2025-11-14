@@ -83,6 +83,14 @@ if [ "$NEED_INSTALL" -eq 1 ]; then
 
   sudo chmod +x /usr/local/bin/id3v2
 
+  # Ensure /usr/local/bin is in PATH (may not be in CI environments)
+  if [ -d "/usr/local/bin" ] && [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
+    export PATH="/usr/local/bin:$PATH"
+    if [ -n "$GITHUB_PATH" ]; then
+      echo "/usr/local/bin" >> "$GITHUB_PATH"
+    fi
+  fi
+
   cd /
   rm -rf "$BUILD_DIR"
 
