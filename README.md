@@ -76,12 +76,6 @@ A powerful, unified Python library for reading and writing audio metadata across
   - [Release Date Validation Rules](#release-date-validation-rules)
   - [Track Number](#track-number)
   - [Lyrics Support](#lyrics-support)
-    - [Synchronized Lyrics](#synchronized-lyrics)
-    - [Unsynchronized Lyrics](#unsynchronized-lyrics)
-      - [ID3v1 Unsynchronized Lyrics](#id3v1-unsynchronized-lyrics)
-      - [ID3v2 Unsynchronized Lyrics](#id3v2-unsynchronized-lyrics)
-      - [RIFF Unsynchronized Lyrics](#riff-unsynchronized-lyrics)
-      - [Vorbis Unsynchronized Lyrics](#vorbis-unsynchronized-lyrics)
   - [Unsupported Metadata Handling](#unsupported-metadata-handling)
     - [Format-Specific Limitations](#format-specific-limitations-unsupported)
     - [Atomic Write Operations](#atomic-write-operations)
@@ -1259,6 +1253,7 @@ For detailed guides on specific topics, see:
 - [Genre Handling](docs/GENRE_HANDLING.md) - Comprehensive genre support across formats
 - [Rating Handling](docs/RATING_HANDLING.md) - Rating profiles and normalization
 - [Track Number Handling](docs/TRACK_NUMBER.md) - Track number formats and handling across metadata standards
+- [Lyrics Support](docs/LYRICS_SUPPORT.md) - Synchronized and unsynchronized lyrics support across formats
 
 ### Metadata Support by Format
 
@@ -1448,40 +1443,16 @@ For comprehensive details on track number formats, reading/writing behavior, and
 
 Two types of lyrics are supported: synchronized lyrics (synchronized with music, for karaoke) and unsynchronized lyrics (plain text).
 
-#### Synchronized Lyrics
+**Quick Summary:**
 
-TODO: Implement synchronized lyrics support in future versions.
+- **Synchronized Lyrics**: Not currently supported (planned for future versions)
+- **Unsynchronized Lyrics**: Supported across formats with limitations:
+  - **ID3v1**: Not supported
+  - **ID3v2**: Supported via USLT frame (single entry, default language `eng`)
+  - **RIFF**: Supported via UNSYNCHRONIZED_LYRICS chunk (no language codes)
+  - **Vorbis**: Supported via UNSYNCHRONIZED_LYRICS field (no language codes)
 
-#### Unsynchronized Lyrics
-
-Unsynchronized lyrics are supported differently across formats:
-
-##### ID3v1 Unsynchronized Lyrics
-
-ID3v1 does not support unsynchronized lyrics due to its limited structure.
-
-##### ID3v2 Unsynchronized Lyrics
-
-ID3v2 supports unsynchronized lyrics through the `USLT` (Unsynchronized Lyrics/Text transcription) frame. Multiple `USLT` frames can be used to store lyrics in different languages or formats within the same file.
-
-The library does not currently support language codes or multiple lyrics entries and will write only a single `USLT` frame with default language code `eng`.
-
-TODO: Implement full multi-language support in future versions.
-
-##### RIFF Unsynchronized Lyrics
-
-RIFF INFO chunks do not have native support for lyrics. The library supports storing unsynchronized lyrics in the `UNSYNCHRONIZED_LYRICS` chunk.
-
-It does not support language codes or multiple lyrics entries due to lack of standardization.
-
-##### Vorbis Unsynchronized Lyrics
-
-Vorbis comments support lyrics through the `UNSYNCHRONIZED_LYRICS` field.
-It does not support language codes or multiple lyrics entries due to lack of standardization.
-
-#### Synchronized Lyrics
-
-Synchronized lyrics (SYLT frames in ID3v2) are not currently supported by the library.
+For comprehensive details on lyrics support, format-specific behavior, and current limitations, see the [Lyrics Support Guide](docs/LYRICS_SUPPORT.md).
 
 ### Unsupported Metadata Handling
 
