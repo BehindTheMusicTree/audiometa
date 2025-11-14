@@ -34,7 +34,7 @@ bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "25.04.1" }
 # Update these versions to match Homebrew's latest stable versions when that happens.
 ffmpeg = "7"
 flac = "1.5.0"
-mediainfo = "25.10"
+mediainfo = "25.09"
 bwfmetaedit = "25.04.1"
 id3v2 = "0.1.12"
 
