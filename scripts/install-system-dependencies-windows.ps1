@@ -34,13 +34,42 @@ if ([string]::IsNullOrEmpty($PINNED_FFMPEG) -or
 Write-Host "Installing pinned package versions..."
 
 # Chocolatey version pinning format: choco install package --version=1.2.3
-try {
-    choco install ffmpeg --version=$PINNED_FFMPEG -y
-    choco install flac --version=$PINNED_FLAC -y
-    choco install mediainfo --version=$PINNED_MEDIAINFO -y
-    choco install id3v2 --version=$PINNED_ID3V2 -y
-} catch {
-    Write-Host "ERROR: Pinned versions not available."
+# Check exit code after each installation (choco doesn't throw exceptions)
+$failedPackages = @()
+
+function Install-ChocoPackage {
+    param(
+        [string]$PackageName,
+        [string]$Version
+    )
+    Write-Host "Installing $PackageName..."
+    & choco install $PackageName --version=$Version -y 2>&1 | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        return $false
+    }
+    return $true
+}
+
+if (-not (Install-ChocoPackage "ffmpeg" $PINNED_FFMPEG)) {
+    $failedPackages += "ffmpeg"
+}
+
+if (-not (Install-ChocoPackage "flac" $PINNED_FLAC)) {
+    $failedPackages += "flac"
+}
+
+if (-not (Install-ChocoPackage "mediainfo" $PINNED_MEDIAINFO)) {
+    $failedPackages += "mediainfo"
+}
+
+if (-not (Install-ChocoPackage "id3v2" $PINNED_ID3V2)) {
+    $failedPackages += "id3v2"
+}
+
+# Check if any packages failed
+if ($failedPackages.Count -gt 0) {
+    Write-Host "ERROR: Failed to install the following packages: $($failedPackages -join ', ')"
+    Write-Host "Pinned versions may not be available."
     Write-Host "Update system-dependencies.toml with correct versions."
     Write-Host "Check available versions with: choco search <package> --exact"
     exit 1
@@ -54,23 +83,33 @@ $url = "https://mediaarea.net/download/binary/bwfmetaedit/${version}/BWFMetaEdit
 $tempDir = "$env:TEMP\bwfmetaedit"
 $installDir = "C:\Program Files\BWFMetaEdit"
 
-Write-Host "Downloading BWF MetaEdit..."
-New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
-Invoke-WebRequest -Uri $url -OutFile "$tempDir\bwfmetaedit.zip" -UseBasicParsing
+try {
+    Write-Host "Downloading BWF MetaEdit..."
+    New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
+    Invoke-WebRequest -Uri $url -OutFile "$tempDir\bwfmetaedit.zip" -UseBasicParsing
 
-Write-Host "Extracting..."
-Expand-Archive -Path "$tempDir\bwfmetaedit.zip" -DestinationPath $tempDir -Force
+    Write-Host "Extracting..."
+    Expand-Archive -Path "$tempDir\bwfmetaedit.zip" -DestinationPath $tempDir -Force
 
-Write-Host "Installing..."
-New-Item -ItemType Directory -Force -Path $installDir | Out-Null
-$exe = Get-ChildItem -Path $tempDir -Filter "bwfmetaedit.exe" -Recurse | Select-Object -First 1
-Copy-Item -Path $exe.FullName -Destination "$installDir\bwfmetaedit.exe" -Force
+    Write-Host "Installing..."
+    New-Item -ItemType Directory -Force -Path $installDir | Out-Null
+    $exe = Get-ChildItem -Path $tempDir -Filter "bwfmetaedit.exe" -Recurse | Select-Object -First 1
+    if (-not $exe) {
+        throw "bwfmetaedit.exe not found in downloaded archive"
+    }
+    Copy-Item -Path $exe.FullName -Destination "$installDir\bwfmetaedit.exe" -Force
 
-Write-Host "Adding to PATH..."
-echo "$installDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+    Write-Host "Adding to PATH..."
+    if ($env:GITHUB_PATH) {
+        echo "$installDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+    }
 
-Write-Host "Cleanup..."
-Remove-Item -Path $tempDir -Recurse -Force
+    Write-Host "Cleanup..."
+    Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+} catch {
+    Write-Host "ERROR: Failed to install bwfmetaedit: $_"
+    exit 1
+}
 
 Write-Host "All system dependencies installed successfully!"
 
