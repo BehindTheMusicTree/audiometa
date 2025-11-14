@@ -224,32 +224,42 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                 return None
 
             # Parse Chocolatey output: package name at start of line, whitespace, then version
-            # Pattern matches: "^ffmpeg 7.1.0" (space-separated) or "ffmpeg|7.1.0" (pipe-separated)
+            # Chocolatey outputs versions like "v7.1.0" or "7.1.0" (may have "v" prefix)
             # Match PowerShell Select-String pattern: ^PackageName\s+(\S+)
+            # Pattern captures version which may start with "v" prefix
             pattern = rf"^{re.escape(package)}\s+(\S+)"
             for raw_line in output.split("\n"):
                 line = raw_line.strip()
                 if not line or line.startswith("Chocolatey"):
                     continue
-                # Try space-separated format: "ffmpeg 7.1.0"
+                # Try space-separated format: "ffmpeg v7.1.0" or "ffmpeg 7.1.0"
                 match = re.match(pattern, line, re.IGNORECASE)
                 if match:
                     version = match.group(1)
+                    # Strip "v" prefix if present (Chocolatey outputs "v7.1.0")
+                    if version.startswith(("v", "V")):
+                        version = version[1:]
                     # Validate version format (digits and dots)
                     if re.match(r"^\d+\.\d+", version):
                         return version
-                # Try pipe-separated format: "ffmpeg|7.1.0"
+                # Try pipe-separated format: "ffmpeg|v7.1.0" or "ffmpeg|7.1.0"
                 if "|" in line:
                     parts = line.split("|")
                     if len(parts) >= 2 and parts[0].strip().lower() == package.lower():
                         version = parts[1].strip()
+                        # Strip "v" prefix if present
+                        if version.startswith(("v", "V")):
+                            version = version[1:]
                         if re.match(r"^\d+\.\d+", version):
                             return version
-                # Try tab-separated format: "ffmpeg\t7.1.0"
+                # Try tab-separated format: "ffmpeg\tv7.1.0" or "ffmpeg\t7.1.0"
                 if "\t" in line:
                     parts = line.split("\t")
                     if len(parts) >= 2 and parts[0].strip().lower() == package.lower():
                         version = parts[1].strip()
+                        # Strip "v" prefix if present
+                        if version.startswith(("v", "V")):
+                            version = version[1:]
                         if re.match(r"^\d+\.\d+", version):
                             return version
         except FileNotFoundError:
