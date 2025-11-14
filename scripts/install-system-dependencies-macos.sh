@@ -285,6 +285,63 @@ fi
 echo "All installed versions match pinned versions."
 
 echo ""
+echo "Verifying libsndfile library is accessible (required by soundfile Python package)..."
+# Check if libsndfile library file exists and is accessible
+LIBSNDFILE_LIB="${HOMEBREW_PREFIX}/lib/libsndfile.dylib"
+if [ ! -f "$LIBSNDFILE_LIB" ]; then
+  echo "ERROR: libsndfile library not found at expected location: $LIBSNDFILE_LIB"
+  echo ""
+  echo "This indicates libsndfile installation may have failed."
+  echo "Verify installation: brew list libsndfile"
+  exit 1
+fi
+
+# Try to import soundfile if available (it may be installed as part of Python dependencies)
+if python3 -c "import soundfile" 2>/dev/null; then
+  echo "  libsndfile is accessible to Python (soundfile import successful)"
+else
+  # Check if soundfile is installed but can't import (this is an error)
+  # Use importlib to check if soundfile module exists
+  SOUNDFILE_CHECK=$(python3 -c "
+import sys
+try:
+    import importlib.util
+    spec = importlib.util.find_spec('soundfile')
+    if spec is not None:
+        sys.exit(0)
+    else:
+        sys.exit(1)
+except Exception:
+    sys.exit(1)
+" 2>/dev/null; echo $?)
+
+  if [ "$SOUNDFILE_CHECK" -eq 0 ]; then
+    echo "ERROR: soundfile Python package is installed but cannot import libsndfile."
+    echo "The soundfile package cannot load libsndfile library."
+    echo ""
+    echo "Library location: $LIBSNDFILE_LIB"
+    echo ""
+    echo "This usually happens when:"
+    echo "  1. libsndfile is installed but not in the library search path"
+    echo "  2. Python was installed before libsndfile"
+    echo ""
+    echo "To fix:"
+    echo "  1. Reinstall soundfile: pip install --force-reinstall soundfile"
+    echo "  2. Or set DYLD_LIBRARY_PATH: export DYLD_LIBRARY_PATH=\"${HOMEBREW_PREFIX}/lib:\$DYLD_LIBRARY_PATH\""
+    exit 1
+  else
+    # soundfile not installed yet, but verify library file exists and is loadable
+    if python3 -c "import ctypes; ctypes.CDLL('$LIBSNDFILE_LIB')" 2>/dev/null; then
+      echo "  libsndfile library found and loadable at: $LIBSNDFILE_LIB"
+    else
+      echo "WARNING: libsndfile library found but may not be accessible to Python."
+      echo "Library location: $LIBSNDFILE_LIB"
+      echo "This may cause issues when soundfile Python package is installed."
+    fi
+  fi
+fi
+
+echo ""
 echo "Verifying installed tools are available in PATH..."
 MISSING_TOOLS=()
 
