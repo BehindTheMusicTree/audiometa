@@ -38,6 +38,7 @@ Write-Host "Installing pinned package versions..."
 # Chocolatey version pinning format: choco install package --version=1.2.3
 # Check exit code after each installation (choco doesn't throw exceptions)
 $failedPackages = @()
+$wslRequiredPackages = @()  # Track packages that require WSL
 
 function Install-ChocoPackage {
     param(
@@ -95,6 +96,7 @@ if (-not $wslInstalled) {
         Write-Host "Please install WSL manually: wsl --install"
         Write-Host "Or enable WSL feature: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux"
         $failedPackages += "id3v2"
+        $wslRequiredPackages += "id3v2"
     } else {
         Write-Host "WSL installed. Please restart and run this script again, or run: wsl --update"
         Write-Host "Then install id3v2 manually in WSL: wsl sudo apt-get update && wsl sudo apt-get install -y id3v2=$PINNED_ID3V2"
@@ -113,6 +115,7 @@ if (-not $ubuntuAvailable) {
         Write-Host "Note: WSL installation may require elevated privileges or a system restart."
         Write-Host "Skipping id3v2 installation (requires WSL Ubuntu)."
         $failedPackages += "id3v2"
+        $wslRequiredPackages += "id3v2"
     } else {
         Write-Host "Ubuntu installed. Please restart and run this script again."
         exit 1
@@ -129,6 +132,7 @@ if ($failedPackages -notcontains "id3v2") {
         Write-Host "WSL output: $wslListOutput"
         Write-Host "Skipping id3v2 installation (requires WSL Ubuntu)."
         $failedPackages += "id3v2"
+        $wslRequiredPackages += "id3v2"
     } else {
         # Install id3v2 in WSL Ubuntu with pinned version using shared script
         Write-Host "Installing id3v2 version $PINNED_ID3V2 in WSL Ubuntu..."
@@ -166,10 +170,43 @@ wsl id3v2 %*
 
 # Check if any packages failed
 if ($failedPackages.Count -gt 0) {
+    Write-Host ""
     Write-Host "ERROR: Failed to install the following packages: $($failedPackages -join ', ')"
-    Write-Host "Pinned versions may not be available."
-    Write-Host "Update system-dependencies.toml with correct versions."
-    Write-Host "Check available versions with: choco search <package> --exact"
+    Write-Host ""
+
+    # Separate WSL-required packages from version-related failures
+    $versionRelatedFailures = $failedPackages | Where-Object { $wslRequiredPackages -notcontains $_ }
+    $wslRelatedFailures = $failedPackages | Where-Object { $wslRequiredPackages -contains $_ }
+
+    if ($versionRelatedFailures.Count -gt 0) {
+        Write-Host "Version-related failures (Chocolatey packages):"
+        foreach ($package in $versionRelatedFailures) {
+            Write-Host "  - $package: Pinned version may not be available in Chocolatey"
+        }
+        Write-Host ""
+        Write-Host "To fix:"
+        Write-Host "  1. Check available versions: choco search <package> --exact"
+        Write-Host "  2. Update system-dependencies.toml with correct versions"
+        Write-Host ""
+    }
+
+    if ($wslRelatedFailures.Count -gt 0) {
+        Write-Host "WSL-required packages (require Windows Subsystem for Linux):"
+        foreach ($package in $wslRelatedFailures) {
+            Write-Host "  - $package: Requires WSL Ubuntu to be installed"
+        }
+        Write-Host ""
+        Write-Host "To fix:"
+        Write-Host "  1. Install WSL: wsl --install -d Ubuntu"
+        Write-Host "  2. Or enable WSL feature: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux"
+        Write-Host "  3. Restart your computer if prompted"
+        Write-Host "  4. Run this script again"
+        Write-Host ""
+        Write-Host "Note: WSL installation may require elevated privileges or a system restart."
+        Write-Host "      In CI environments, ensure WSL is pre-installed or use a runner with WSL support."
+        Write-Host ""
+    }
+
     exit 1
 }
 
