@@ -15,7 +15,7 @@ fi
 eval "$VERSION_OUTPUT"
 
 # Verify versions were loaded
-if [ -z "$PINNED_FFMPEG" ] || [ -z "$PINNED_FLAC" ] || [ -z "$PINNED_MEDIAINFO" ] || [ -z "$PINNED_ID3V2" ] || [ -z "$PINNED_BWFMETAEDIT" ]; then
+if [ -z "$PINNED_FFMPEG" ] || [ -z "$PINNED_FLAC" ] || [ -z "$PINNED_MEDIAINFO" ] || [ -z "$PINNED_ID3V2" ] || [ -z "$PINNED_BWFMETAEDIT" ] || [ -z "$PINNED_EXIFTOOL" ]; then
   echo "ERROR: Failed to load all required versions from system-dependencies.toml"
   echo "Loaded versions:"
   echo "  PINNED_FFMPEG=${PINNED_FFMPEG:-NOT SET}"
@@ -23,6 +23,7 @@ if [ -z "$PINNED_FFMPEG" ] || [ -z "$PINNED_FLAC" ] || [ -z "$PINNED_MEDIAINFO" 
   echo "  PINNED_MEDIAINFO=${PINNED_MEDIAINFO:-NOT SET}"
   echo "  PINNED_ID3V2=${PINNED_ID3V2:-NOT SET}"
   echo "  PINNED_BWFMETAEDIT=${PINNED_BWFMETAEDIT:-NOT SET}"
+  echo "  PINNED_EXIFTOOL=${PINNED_EXIFTOOL:-NOT SET}"
   exit 1
 fi
 
@@ -142,6 +143,9 @@ install_homebrew_package "mediainfo" "media-info" "${PINNED_MEDIAINFO}" "/usr/lo
 install_homebrew_package "id3v2" "id3v2" "${PINNED_ID3V2}" "/usr/local/bin/id3v2"
 install_homebrew_package "bwfmetaedit" "bwfmetaedit" "${PINNED_BWFMETAEDIT}" "/usr/local/bin/bwfmetaedit"
 
+# Install exiftool via Homebrew
+install_homebrew_package "exiftool" "exiftool" "${PINNED_EXIFTOOL}" "/usr/local/bin/exiftool"
+
 # Ensure /usr/local/bin is in PATH for verification (tools may be installed there)
 if [ -d "/usr/local/bin" ] && [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
   export PATH="/usr/local/bin:$PATH"
@@ -199,7 +203,7 @@ echo "Verifying installed tools are available in PATH..."
 MISSING_TOOLS=()
 
 # Check each tool, including ffprobe which comes from ffmpeg@7 (keg-only)
-for tool in ffprobe flac metaflac mediainfo id3v2; do
+for tool in ffprobe flac metaflac mediainfo id3v2 exiftool; do
   if ! command -v "$tool" &>/dev/null; then
     MISSING_TOOLS+=("$tool")
   fi

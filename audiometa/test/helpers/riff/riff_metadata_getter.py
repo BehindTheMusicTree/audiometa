@@ -1,7 +1,8 @@
 """RIFF metadata inspection utilities for testing audio file metadata."""
 
-import subprocess
 from pathlib import Path
+
+from ..common.external_tool_runner import run_external_tool
 
 
 class RIFFMetadataGetter:
@@ -112,7 +113,6 @@ class RIFFMetadataGetter:
     @staticmethod
     def get_title(file_path: Path) -> str:
         """Get the TITLE chunk from RIFF metadata."""
-        result = subprocess.run(
-            ["exiftool", "-TITLE", "-s3", str(file_path)], capture_output=True, text=True, check=True
-        )
+        command = ["exiftool", "-TITLE", "-s3", str(file_path)]
+        result = run_external_tool(command, "exiftool")
         return result.stdout.strip()

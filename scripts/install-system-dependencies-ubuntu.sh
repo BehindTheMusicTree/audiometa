@@ -17,8 +17,9 @@ echo "Installing pinned package versions..."
 # Check available versions before attempting installation
 echo "Checking available package versions..."
 HAS_ERRORS=0
-for package in ffmpeg flac mediainfo id3v2; do
+for package in ffmpeg flac mediainfo id3v2 libimage-exiftool-perl; do
   var_name="PINNED_${package^^}"
+  var_name="${var_name//-/_}"
   pinned_version="${!var_name}"
   echo "Checking $package=$pinned_version..."
 
@@ -92,6 +93,31 @@ if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
   }
 fi
 
+# Install libimage-exiftool-perl with pinned version
+if [ -n "$PINNED_LIBIMAGE_EXIFTOOL_PERL" ]; then
+  echo "Installing libimage-exiftool-perl=${PINNED_LIBIMAGE_EXIFTOOL_PERL}..."
+
+  # Check if already installed with correct version
+  if command -v exiftool &>/dev/null; then
+    INSTALLED_APT_VERSION=$(dpkg -l | grep "^ii.*libimage-exiftool-perl" | awk '{print $3}' || echo "")
+    if [ -n "$INSTALLED_APT_VERSION" ] && [ "$INSTALLED_APT_VERSION" = "$PINNED_LIBIMAGE_EXIFTOOL_PERL" ]; then
+      echo "libimage-exiftool-perl ${INSTALLED_APT_VERSION} already installed (matches pinned version)"
+    else
+      echo "Removing existing libimage-exiftool-perl version ${INSTALLED_APT_VERSION:-unknown} (installing pinned version ${PINNED_LIBIMAGE_EXIFTOOL_PERL})..."
+      sudo apt-get remove -y libimage-exiftool-perl 2>/dev/null || true
+      sudo apt-get install -y "libimage-exiftool-perl=${PINNED_LIBIMAGE_EXIFTOOL_PERL}" || {
+        echo "ERROR: Failed to install pinned version of libimage-exiftool-perl."
+        exit 1
+      }
+    fi
+  else
+    sudo apt-get install -y "libimage-exiftool-perl=${PINNED_LIBIMAGE_EXIFTOOL_PERL}" || {
+      echo "ERROR: Failed to install pinned version of libimage-exiftool-perl."
+      exit 1
+    }
+  fi
+fi
+
 # Install id3v2 using shared script
 echo "Installing id3v2..."
 "${SCRIPT_DIR}/install-id3v2-linux.sh" "${PINNED_ID3V2}"
@@ -102,7 +128,7 @@ echo "Installing bwfmetaedit..."
 
 echo "Verifying installed tools are available in PATH..."
 MISSING_TOOLS=()
-for tool in ffprobe flac metaflac mediainfo id3v2; do
+for tool in ffprobe flac metaflac mediainfo id3v2 exiftool; do
   if ! command -v "$tool" &>/dev/null; then
     MISSING_TOOLS+=("$tool")
   fi

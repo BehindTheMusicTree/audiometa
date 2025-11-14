@@ -3,11 +3,11 @@
 # CI and local setup scripts should reference this file to ensure version consistency.
 #
 # Version pinning strategy:
-# - Use "latest" for packages that should track the latest available version
-# - Use specific versions (e.g., "1.2.3") to pin exact versions
+# - ALWAYS pin specific versions (e.g., "1.2.3") - NEVER use "latest"
 # - For Ubuntu: versions are Ubuntu release-specific (check with: apt-cache policy <package>)
 # - For macOS: Homebrew versions can be pinned using @version syntax
 # - For Windows: Chocolatey supports --version flag
+# - All dependencies MUST have pinned versions for reproducibility
 
 [ubuntu]
 # Ubuntu package versions (install via apt-get)
@@ -22,6 +22,7 @@ ffmpeg = "7:6.1.1-3ubuntu5"
 flac = "1.4.3+ds-2.1ubuntu2"
 mediainfo = "24.01.1-1build2"
 id3v2 = "0.1.12+dfsg-7"
+libimage-exiftool-perl = "12.90+dfsg-1"
 
 # bwfmetaedit: Download from MediaArea (not available in Ubuntu repos)
 # Check https://mediaarea.net/BWFMetaEdit/Download/Ubuntu for available versions
@@ -37,6 +38,7 @@ flac = "1.5.0"
 mediainfo = "25.09"
 bwfmetaedit = "25.04.1"
 id3v2 = "0.1.12"
+exiftool = "13.10"
 
 [windows]
 # Windows package versions (install via Chocolatey)
@@ -56,6 +58,9 @@ id3v2 = "0.1.12+dfsg-7"  # Pinned version via WSL Ubuntu (same as Ubuntu CI) - V
 # bwfmetaedit: Download pinned version from MediaArea (not available in Chocolatey)
 bwfmetaedit = { source = "mediaarea", pinned_version = "24.10" }
 
+# exiftool: Download from official website (not available in Chocolatey)
+exiftool = { source = "exiftool_org", pinned_version = "13.10" }
+
 [verification]
 # Commands to verify tool installation and versions
 # These are used by CI and can be run locally to verify setup
@@ -66,7 +71,8 @@ ubuntu = [
     "mediainfo --version",
     "bwfmetaedit --version || echo 'bwfmetaedit not found'",
     "id3v2 --version || echo 'id3v2 not found'",
-    "which mid3v2 && mid3v2 --version || echo 'mid3v2 not found (mutagen provides it, may not be in PATH)'"
+    "which mid3v2 && mid3v2 --version || echo 'mid3v2 not found (mutagen provides it, may not be in PATH)'",
+    "exiftool -ver || echo 'exiftool not found'"
 ]
 
 macos = [
@@ -76,7 +82,8 @@ macos = [
     "mediainfo --version",
     "bwfmetaedit --version || echo 'bwfmetaedit not found'",
     "id3v2 --version || echo 'id3v2 not found'",
-    "which mid3v2 && mid3v2 --version || echo 'mid3v2 not found (mutagen provides it, may not be in PATH)'"
+    "which mid3v2 && mid3v2 --version || echo 'mid3v2 not found (mutagen provides it, may not be in PATH)'",
+    "exiftool -ver || echo 'exiftool not found'"
 ]
 
 windows = [
@@ -86,6 +93,7 @@ windows = [
     "mediainfo --version",
     "if (Get-Command bwfmetaedit -ErrorAction SilentlyContinue) { bwfmetaedit --version } else { Write-Host 'bwfmetaedit not found' }",
     "if (Get-Command id3v2 -ErrorAction SilentlyContinue) { id3v2 --version } else { Write-Host 'id3v2 not found' }",
-    "if (Get-Command mid3v2 -ErrorAction SilentlyContinue) { mid3v2 --version } else { Write-Host 'mid3v2 not found (mutagen provides it, may not be in PATH)' }"
+    "if (Get-Command mid3v2 -ErrorAction SilentlyContinue) { mid3v2 --version } else { Write-Host 'mid3v2 not found (mutagen provides it, may not be in PATH)' }",
+    "if (Get-Command exiftool -ErrorAction SilentlyContinue) { exiftool -ver } else { Write-Host 'exiftool not found' }"
 ]
 

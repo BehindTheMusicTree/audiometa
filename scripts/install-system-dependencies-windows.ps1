@@ -20,7 +20,8 @@ if ([string]::IsNullOrEmpty($PINNED_FFMPEG) -or
     [string]::IsNullOrEmpty($PINNED_FLAC) -or
     [string]::IsNullOrEmpty($PINNED_MEDIAINFO) -or
     [string]::IsNullOrEmpty($PINNED_ID3V2) -or
-    [string]::IsNullOrEmpty($PINNED_BWFMETAEDIT)) {
+    [string]::IsNullOrEmpty($PINNED_BWFMETAEDIT) -or
+    [string]::IsNullOrEmpty($PINNED_EXIFTOOL)) {
     Write-Host "ERROR: Failed to load all required versions from system-dependencies.toml"
     Write-Host "Loaded versions:"
     Write-Host "  PINNED_FFMPEG=$PINNED_FFMPEG"
@@ -28,6 +29,7 @@ if ([string]::IsNullOrEmpty($PINNED_FFMPEG) -or
     Write-Host "  PINNED_MEDIAINFO=$PINNED_MEDIAINFO"
     Write-Host "  PINNED_ID3V2=$PINNED_ID3V2"
     Write-Host "  PINNED_BWFMETAEDIT=$PINNED_BWFMETAEDIT"
+    Write-Host "  PINNED_EXIFTOOL=$PINNED_EXIFTOOL"
     exit 1
 }
 
@@ -108,6 +110,8 @@ if (-not $ubuntuAvailable) {
     if ($LASTEXITCODE -ne 0) {
         Write-Host "ERROR: Failed to install Ubuntu in WSL."
         Write-Host "Please install Ubuntu manually: wsl --install -d Ubuntu"
+        Write-Host "Note: WSL installation may require elevated privileges or a system restart."
+        Write-Host "Skipping id3v2 installation (requires WSL Ubuntu)."
         $failedPackages += "id3v2"
     } else {
         Write-Host "Ubuntu installed. Please restart and run this script again."
@@ -115,22 +119,35 @@ if (-not $ubuntuAvailable) {
     }
 }
 
-# Install id3v2 in WSL Ubuntu with pinned version using shared script
-Write-Host "Installing id3v2 version $PINNED_ID3V2 in WSL Ubuntu..."
+# Verify Ubuntu is actually available and working before proceeding
+if ($failedPackages -notcontains "id3v2") {
+    # Double-check Ubuntu is available by trying to list distributions
+    $wslListOutput = wsl -l -q 2>&1
+    $ubuntuAvailable = $wslListOutput | Select-String -Pattern "Ubuntu"
+    if (-not $ubuntuAvailable) {
+        Write-Host "ERROR: Ubuntu distribution not available in WSL after installation attempt."
+        Write-Host "WSL output: $wslListOutput"
+        Write-Host "Skipping id3v2 installation (requires WSL Ubuntu)."
+        $failedPackages += "id3v2"
+    } else {
+        # Install id3v2 in WSL Ubuntu with pinned version using shared script
+        Write-Host "Installing id3v2 version $PINNED_ID3V2 in WSL Ubuntu..."
 
-# Convert Windows script path to WSL path
-$wslScriptPath = wsl wslpath -a "$SCRIPT_DIR\install-id3v2-linux.sh"
-if ($LASTEXITCODE -ne 0) {
-    # Fallback: construct WSL path manually if wslpath fails
-    $wslScriptPath = $SCRIPT_DIR -replace '^([A-Z]):', '/mnt/$1' -replace '\\', '/'
-    $wslScriptPath = "$wslScriptPath/install-id3v2-linux.sh"
-}
+        # Convert Windows script path to WSL path
+        $wslScriptPath = wsl wslpath -a "$SCRIPT_DIR\install-id3v2-linux.sh" 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            # Fallback: construct WSL path manually if wslpath fails
+            $wslScriptPath = $SCRIPT_DIR -replace '^([A-Z]):', '/mnt/$1' -replace '\\', '/'
+            $wslScriptPath = "$wslScriptPath/install-id3v2-linux.sh"
+        }
 
-# Call shared installation script via WSL
-wsl bash "$wslScriptPath" "$PINNED_ID3V2"
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "ERROR: Failed to install id3v2 version $PINNED_ID3V2 in WSL."
-    $failedPackages += "id3v2"
+        # Call shared installation script via WSL
+        wsl bash "$wslScriptPath" "$PINNED_ID3V2" 2>&1 | Out-Host
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "ERROR: Failed to install id3v2 version $PINNED_ID3V2 in WSL."
+            $failedPackages += "id3v2"
+        }
+    }
 }
 
 # Create wrapper script to make id3v2 accessible from Windows (if installation succeeded)
@@ -236,9 +253,96 @@ if ($needInstall) {
     }
 }
 
+Write-Host "Installing exiftool (pinned version)..."
+
+# Pinned version from system-dependencies.toml
+$exiftoolVersion = $PINNED_EXIFTOOL
+$exiftoolInstallDir = "C:\Program Files\ExifTool"
+$exiftoolExePath = "$exiftoolInstallDir\exiftool.exe"
+
+# Check if exiftool is already installed
+$needInstallExiftool = $true
+if (Test-Path $exiftoolExePath) {
+    try {
+        $installedVersionOutput = & $exiftoolExePath -ver 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            $installedVersion = $installedVersionOutput.Trim()
+            if ($installedVersion) {
+                $installedMajorMinor = ($installedVersion -split '\.')[0..1] -join '.'
+                $pinnedMajorMinor = ($exiftoolVersion -split '\.')[0..1] -join '.'
+
+                if ($installedMajorMinor -eq $pinnedMajorMinor) {
+                    Write-Host "exiftool $installedVersion already installed (matches pinned version $exiftoolVersion)"
+                    $needInstallExiftool = $false
+                } else {
+                    Write-Host "Removing existing exiftool version $installedVersion (installing pinned version $exiftoolVersion)..."
+                    Remove-Item -Path $exiftoolExePath -Force -ErrorAction SilentlyContinue
+                    if (Test-Path $exiftoolInstallDir) {
+                        $dirContents = Get-ChildItem -Path $exiftoolInstallDir -ErrorAction SilentlyContinue
+                        if (-not $dirContents) {
+                            Remove-Item -Path $exiftoolInstallDir -Force -ErrorAction SilentlyContinue
+                        }
+                    }
+                }
+            }
+        }
+    } catch {
+        Write-Host "exiftool installed but version could not be determined, removing..."
+        Remove-Item -Path $exiftoolExePath -Force -ErrorAction SilentlyContinue
+        if (Test-Path $exiftoolInstallDir) {
+            $dirContents = Get-ChildItem -Path $exiftoolInstallDir -ErrorAction SilentlyContinue
+            if (-not $dirContents) {
+                Remove-Item -Path $exiftoolInstallDir -Force -ErrorAction SilentlyContinue
+            }
+        }
+    }
+}
+
+# Install if needed
+if ($needInstallExiftool) {
+    $url = "https://exiftool.org/exiftool-${exiftoolVersion}.zip"
+    $tempDir = "$env:TEMP\exiftool"
+
+    try {
+        Write-Host "Downloading ExifTool..."
+        New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
+        Invoke-WebRequest -Uri $url -OutFile "$tempDir\exiftool.zip" -UseBasicParsing
+
+        Write-Host "Extracting..."
+        Expand-Archive -Path "$tempDir\exiftool.zip" -DestinationPath $tempDir -Force
+
+        Write-Host "Installing..."
+        New-Item -ItemType Directory -Force -Path $exiftoolInstallDir | Out-Null
+        # ExifTool Windows archive contains exiftool(-k).exe which needs to be renamed
+        $exe = Get-ChildItem -Path $tempDir -Filter "exiftool*.exe" -Recurse | Select-Object -First 1
+        if (-not $exe) {
+            throw "exiftool.exe not found in downloaded archive"
+        }
+        # Copy and rename to exiftool.exe
+        Copy-Item -Path $exe.FullName -Destination $exiftoolExePath -Force
+        # Also copy the lib directory if it exists (contains exiftool_files)
+        $libDir = Get-ChildItem -Path $tempDir -Directory -Filter "*lib*" -Recurse | Select-Object -First 1
+        if ($libDir) {
+            Copy-Item -Path $libDir.FullName -Destination "$exiftoolInstallDir\lib" -Recurse -Force
+        }
+
+        Write-Host "Adding to PATH..."
+        if ($env:GITHUB_PATH) {
+            echo "$exiftoolInstallDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        }
+
+        Write-Host "Cleanup..."
+        Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Host "exiftool $exiftoolVersion installed successfully"
+    } catch {
+        Write-Host "ERROR: Failed to install exiftool: $_"
+        exit 1
+    }
+}
+
 Write-Host "Verifying installed tools are available in PATH..."
 $missingTools = @()
-$tools = @("ffprobe", "flac", "metaflac", "mediainfo", "id3v2")
+$tools = @("ffprobe", "flac", "metaflac", "mediainfo", "id3v2", "exiftool")
 foreach ($tool in $tools) {
     if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) {
         $missingTools += $tool

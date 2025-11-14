@@ -1,0 +1,100 @@
+---
+alwaysApply: true
+---
+
+# Dependency Pinning
+
+## Always Pin Dependencies
+
+**ALWAYS pin specific versions for all dependencies and libraries** - NEVER use "latest", ">=", or unpinned versions.
+
+### Why Pin Versions
+
+- **Reproducibility**: Ensures consistent builds across different environments and time periods
+- **Stability**: Prevents unexpected breakages from dependency updates
+- **Debugging**: Makes it easier to identify issues when they occur
+- **CI/CD**: Ensures CI environments match local development environments
+
+### Where to Pin Versions
+
+1. **Python Dependencies** (`pyproject.toml`):
+   ```toml
+   # ✅ Good - Pinned version
+   dependencies = [
+       "mutagen==1.45.0",
+       "pytaglib==3.0.1",
+   ]
+
+   # ❌ Bad - Unpinned version
+   dependencies = [
+       "mutagen>=1.45.0",  # Don't use >=
+       "pytaglib",  # Don't omit version
+   ]
+   ```
+
+2. **System Dependencies** (`system-dependencies.toml`):
+   ```toml
+   # ✅ Good - Pinned version
+   [ubuntu]
+   ffmpeg = "7:6.1.1-3ubuntu5"
+   exiftool = "13.10"
+
+   # ❌ Bad - Unpinned version
+   [ubuntu]
+   ffmpeg = "latest"  # Never use "latest"
+   exiftool = ">=13.10"  # Don't use >=
+   ```
+
+3. **Development Dependencies** (`pyproject.toml`):
+   ```toml
+   # ✅ Good - Pinned version
+   [project.optional-dependencies]
+   dev = [
+       "ruff==0.6.9",
+       "mypy==1.8.0",
+   ]
+
+   # ❌ Bad - Unpinned version
+   [project.optional-dependencies]
+   dev = [
+       "ruff>=0.6.9",  # Don't use >=
+       "mypy",  # Don't omit version
+   ]
+   ```
+
+### Version Pinning Rules
+
+1. **Use exact versions** (`==` for Python, specific version strings for system packages)
+2. **Never use "latest"** - always specify a concrete version
+3. **Never use ">=" or "~="** - pin exact versions for reproducibility
+4. **Update versions intentionally** - when updating, update the pinned version explicitly
+5. **Document version sources** - add comments explaining where versions come from if needed
+
+### Exception: System Dependencies with Complex Sources
+
+For system dependencies that must be downloaded from external sources (e.g., `bwfmetaedit`, `exiftool` on Windows), use a structured format:
+
+```toml
+# ✅ Good - Structured format with pinned version
+exiftool = { source = "exiftool_org", pinned_version = "13.10" }
+
+# ❌ Bad - Using "latest"
+exiftool = { source = "exiftool_org", pinned_version = "latest" }
+```
+
+### Updating Pinned Versions
+
+When updating a dependency:
+
+1. **Test the new version** locally first
+2. **Update the pinned version** in the configuration file
+3. **Update installation scripts** if needed
+4. **Verify CI still works** with the new version
+5. **Document breaking changes** if any
+
+### Verification
+
+- All dependencies in `pyproject.toml` must use `==` (not `>=` or `~=`)
+- All system dependencies in `system-dependencies.toml` must have specific versions (not "latest")
+- Installation scripts must verify pinned versions match installed versions
+- CI must fail if versions don't match
