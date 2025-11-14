@@ -181,7 +181,7 @@ if ($failedPackages.Count -gt 0) {
     if ($versionRelatedFailures.Count -gt 0) {
         Write-Host "Version-related failures (Chocolatey packages):"
         foreach ($package in $versionRelatedFailures) {
-            Write-Host "  - $package: Pinned version may not be available in Chocolatey"
+            Write-Host "  - ${package}: Pinned version may not be available in Chocolatey"
         }
         Write-Host ""
         Write-Host "To fix:"
@@ -193,7 +193,7 @@ if ($failedPackages.Count -gt 0) {
     if ($wslRelatedFailures.Count -gt 0) {
         Write-Host "WSL-required packages (require Windows Subsystem for Linux):"
         foreach ($package in $wslRelatedFailures) {
-            Write-Host "  - $package: Requires WSL Ubuntu to be installed"
+            Write-Host "  - ${package}: Requires WSL Ubuntu to be installed"
         }
         Write-Host ""
         Write-Host "To fix:"
