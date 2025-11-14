@@ -27,6 +27,7 @@
 #    NOTE: File pattern must be ^audiometa/.*\.py$ (not ^audiometa/) to avoid processing binary files
 # 9. fix-long-comments: Fix long comment lines (custom hook)
 # 10. prettier: Format markdown files (preserves list numbering without zero-padding)
+# 11. psscriptanalyzer: Lint PowerShell scripts (.ps1 files)
 
 repos:
   - repo: local
@@ -113,3 +114,12 @@ repos:
         types_or: [markdown]
         additional_dependencies:
           - prettier@^3.0.0
+
+  - repo: https://github.com/thetestlabs/py-psscriptanalyzer
+    rev: v0.3.1
+    hooks:
+      - id: py-psscriptanalyzer
+        args: ["--severity", "Error", "Warning"]
+        files: \.ps1$
+      - id: py-psscriptanalyzer-format
+        files: \.ps1$

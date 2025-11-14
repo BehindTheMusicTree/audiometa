@@ -18,10 +18,10 @@
 # IMPORTANT: Verify these versions match what's available in ubuntu-latest:
 #   Run in CI: apt-cache madison <package> to see available versions
 #   Update these pinned versions to match what CI actually installs
-ffmpeg = "7:7.1.0-1ubuntu2"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-flac = "1.4.3-3build1"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-mediainfo = "24.12-1"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-id3v2 = "0.1.12-8build2"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+ffmpeg = "7:6.1.1-3ubuntu5"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+flac = "1.4.3+ds-2.1ubuntu2"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+mediainfo = "24.01.1-1build2"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+id3v2 = "0.1.12+dfsg-7"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 
 # bwfmetaedit: Try repos first, then download pinned version from MediaArea
 bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "24.10" }

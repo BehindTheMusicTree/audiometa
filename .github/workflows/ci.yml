@@ -59,6 +59,24 @@ jobs:
         # The mypy overrides in pyproject.toml relax type checking rules for test files
         run: mypy --follow-imports=normal audiometa
 
+      - name: Install PowerShell Core
+        # PowerShell Core is needed for PSScriptAnalyzer to lint .ps1 files
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget apt-transport-https software-properties-common
+          wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
+          sudo dpkg -i packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo apt-get install -y powershell
+          rm packages-microsoft-prod.deb
+
+      - name: Install PSScriptAnalyzer
+        run: pwsh -Command "Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force -SkipPublisherCheck"
+
+      - name: Lint PowerShell scripts
+        run: |
+          pwsh -Command "Get-ChildItem -Path scripts -Filter *.ps1 -Recurse | ForEach-Object { Write-Host \"Checking $($_.FullName)...\"; Invoke-ScriptAnalyzer -Path $_.FullName -Severity Error,Warning }"
+
   test:
     name: Test Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
