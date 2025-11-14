@@ -16,19 +16,36 @@ echo "Installing pinned package versions..."
 
 # Check available versions before attempting installation
 echo "Checking available package versions..."
+HAS_ERRORS=0
 for package in ffmpeg flac mediainfo id3v2; do
   var_name="PINNED_${package^^}"
   pinned_version="${!var_name}"
   echo "Checking $package=$pinned_version..."
-  if ! apt-cache show "$package=$pinned_version" &>/dev/null; then
+
+  # Check if package exists at all
+  if ! apt-cache madison "$package" &>/dev/null || [ -z "$(apt-cache madison "$package" 2>/dev/null)" ]; then
+    echo "ERROR: Package $package is not available in any repository."
+    echo "You may need to enable universe/multiverse repositories or the package name has changed."
+    HAS_ERRORS=1
+    continue
+  fi
+
+  # Check if specific version exists
+  if ! apt-cache madison "$package" 2>/dev/null | grep -q "$pinned_version"; then
     echo "ERROR: Pinned version $pinned_version for $package is not available."
     echo "Available versions for $package:"
-    apt-cache madison "$package" | head -5
+    apt-cache madison "$package" 2>/dev/null | head -5 || echo "  (could not list versions)"
     echo ""
-    echo "Update system-dependencies.toml with a version from the list above."
-    exit 1
+    HAS_ERRORS=1
   fi
 done
+
+if [ $HAS_ERRORS -eq 1 ]; then
+  echo ""
+  echo "Update system-dependencies.toml with versions from the lists above."
+  echo "Use the format from the first column (e.g., '7:8.0.2-1ubuntu1' for ffmpeg)."
+  exit 1
+fi
 
 sudo apt-get install -y \
   ffmpeg="$PINNED_FFMPEG" \
