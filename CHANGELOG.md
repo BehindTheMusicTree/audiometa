@@ -60,7 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Security Policy**: Added SECURITY.md with vulnerability reporting procedures, disclosure policy, and security best practices
 - **Support Documentation**: Added SUPPORT.md with guidance on getting help, reporting issues, and asking questions
 - **CI/CD Pipeline**: Comprehensive GitHub Actions workflow for continuous integration:
-  - Automated linting and code quality checks (ruff, isort, mypy, flake8, assert statement validation)
+  - Automated linting and code quality checks (ruff, isort, mypy, docformatter, assert statement validation)
   - Cross-platform testing on Ubuntu, macOS, and Windows
   - Multi-version Python support (3.12, 3.13)
   - Code coverage enforcement (85% threshold)
