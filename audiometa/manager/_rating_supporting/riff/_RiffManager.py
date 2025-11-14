@@ -244,7 +244,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
         ):
             yield
 
-    def _extract_mutagen_metadata(self) -> RawMetadataDict:  # type: ignore[override]
+    def _extract_mutagen_metadata(self) -> RawMetadataDict:
         """Extract RIFF metadata from WAV files using direct RIFF chunk parsing.
 
         This method reads the WAV file's INFO chunk directly, providing the most reliable way to access RIFF metadata.
@@ -266,7 +266,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 # Create WAVE object with the clean RIFF data
                 wave = WAVE(filename=temp_file.name)
                 info_tags = self._extract_riff_metadata_directly(file_data)  # Use original data for our custom parsing
-                wave.info = info_tags  # type: ignore[assignment]
+                wave.info = info_tags
                 return cast(RawMetadataDict, wave)
             finally:
                 # Clean up temporary file
@@ -286,7 +286,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
 
         # Get metadata from our custom info which contains the directly parsed INFO chunk
         if hasattr(raw_mutagen_metadata_wav, "info") and raw_mutagen_metadata_wav.info is not None:
-            info_tags = raw_mutagen_metadata_wav.info  # type: ignore[unreachable]
+            info_tags = raw_mutagen_metadata_wav.info
             for key, value in info_tags.items():
                 # key is a FourCC string; check against enum member values
                 if any(key == member.value for member in self.RiffTagKey.__members__.values()):

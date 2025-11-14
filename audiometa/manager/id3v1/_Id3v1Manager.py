@@ -172,7 +172,7 @@ class _Id3v1Manager(_MetadataManager):
     ) -> None:
         # Ensure tags exist
         if not hasattr(raw_mutagen_metadata, "tags") or raw_mutagen_metadata.tags is None:
-            raw_mutagen_metadata.tags = {}  # type: ignore[assignment]
+            raw_mutagen_metadata.tags = {}
         # Type narrowing: mypy now knows tags is not None after the assignment above
         tags: dict[Any, Any] = cast(dict[Any, Any], raw_mutagen_metadata.tags)
 
@@ -198,7 +198,7 @@ class _Id3v1Manager(_MetadataManager):
     ) -> None:
         # Ensure tags exist
         if not hasattr(raw_mutagen_metadata, "tags") or raw_mutagen_metadata.tags is None:
-            raw_mutagen_metadata.tags = {}  # type: ignore[assignment]
+            raw_mutagen_metadata.tags = {}
         # Type narrowing: mypy now knows tags is not None after the assignment above
         tags: dict[Any, Any] = cast(dict[Any, Any], raw_mutagen_metadata.tags)
 
@@ -492,7 +492,7 @@ class _Id3v1Manager(_MetadataManager):
                 return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
 
             # Get parsed fields using unified metadata keys
-            parsed_fields: dict[str, Any] = {}  # type: ignore[unreachable]
+            parsed_fields: dict[str, Any] = {}
             # We already checked tags exist and is not None above
             tags = cast(dict[Any, Any], self.raw_mutagen_metadata.tags)
             # Map raw mutagen keys to unified metadata keys
@@ -503,7 +503,7 @@ class _Id3v1Manager(_MetadataManager):
         except Exception:
             return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
         else:
-            return {  # type: ignore[unreachable]
+            return {
                 "raw_data": None,  # ID3v1 is 128 bytes at end of file
                 "parsed_fields": parsed_fields,
                 "frames": {},

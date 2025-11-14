@@ -89,7 +89,7 @@ class _AudioFile:
         if self.file_extension == ".mp3":
             try:
                 audio = MP3(path)
-                return float(audio.info.length)  # type: ignore[attr-defined]
+                return float(audio.info.length)
             except Exception as exc:
                 # If MP3 fails, try other formats as fallback
                 try:
@@ -161,8 +161,8 @@ class _AudioFile:
         if self.file_extension == ".mp3":
             audio = MP3(path)
             # Get MP3 bitrate directly from audio stream
-            if audio.info.bitrate:  # type: ignore[attr-defined]
-                return int(audio.info.bitrate) // 1000  # type: ignore[attr-defined]
+            if audio.info.bitrate:
+                return int(audio.info.bitrate) // 1000
             return 0
         if self.file_extension == ".wav":
             try:
@@ -358,8 +358,8 @@ class _AudioFile:
         if self.file_extension == ".mp3":
             try:
                 audio = MP3(self.file_path)
-                if audio.info.sample_rate is not None:  # type: ignore[attr-defined]
-                    return int(float(audio.info.sample_rate))  # type: ignore[attr-defined]
+                if audio.info.sample_rate is not None:
+                    return int(float(audio.info.sample_rate))
             except Exception:
                 pass
             return 0
@@ -416,8 +416,8 @@ class _AudioFile:
         if self.file_extension == ".mp3":
             try:
                 audio = MP3(self.file_path)
-                if audio.info.channels is not None:  # type: ignore[attr-defined]
-                    return int(float(audio.info.channels))  # type: ignore[attr-defined]
+                if audio.info.channels is not None:
+                    return int(float(audio.info.channels))
             except Exception:
                 pass
             return 0

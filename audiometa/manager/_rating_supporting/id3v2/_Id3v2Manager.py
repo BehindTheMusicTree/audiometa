@@ -306,7 +306,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             normalized_rating_max_value=normalized_rating_max_value,
         )
 
-    def _extract_mutagen_metadata(self) -> RawMetadataDict:  # type: ignore[override]
+    def _extract_mutagen_metadata(self) -> RawMetadataDict:
         try:
             id3 = ID3(self.audio_file.file_path, load_v1=False, translate=False)
 
@@ -420,7 +420,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
         return None, False
 
-    def _update_undirectly_mapped_metadata(  # type: ignore[override]
+    def _update_undirectly_mapped_metadata(
         self,
         raw_mutagen_metadata: ID3,
         app_metadata_value: UnifiedMetadataValue,
@@ -454,7 +454,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         msg = f"Metadata key not handled: {unified_metadata_key}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
-    def _update_formatted_value_in_raw_mutagen_metadata(  # type: ignore[override]
+    def _update_formatted_value_in_raw_mutagen_metadata(
         self,
         raw_mutagen_metadata: ID3,
         raw_metadata_key: RawMetadataKey,
@@ -627,8 +627,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             self._save_with_id3v1_preservation(file_path, id3v1_data)
 
     def update_metadata(self, unified_metadata: UnifiedMetadata) -> None:
-        """
-        Update ID3v2 metadata using hybrid approach: mutagen for most formats, external tools for FLAC.
+        """Update ID3v2 metadata using hybrid approach: mutagen for most formats, external tools for FLAC.
 
         This method automatically chooses the appropriate tool based on the audio file format
         to ensure optimal performance and file integrity.
