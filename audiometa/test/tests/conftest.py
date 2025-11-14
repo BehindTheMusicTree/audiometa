@@ -451,11 +451,21 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
             has_errors = True
 
     if has_errors:
-        error_msg = "System dependency version verification failed:\n" + "\n".join(f"  - {e}" for e in errors)
+        error_msg = "\n" + "=" * 80 + "\n"
+        error_msg += "ERROR: System dependency version verification failed\n"
+        error_msg += "=" * 80 + "\n\n"
+        error_msg += "The following dependencies have version mismatches or are missing:\n\n"
+        error_msg += "\n".join(f"  - {e}" for e in errors)
         error_msg += (
-            "\n\nUpdate system-dependencies.toml and scripts/install-system-dependencies-*.sh with correct versions."
+            "\n\nTo fix:\n"
+            "  1. Update system-dependencies.toml with correct versions\n"
+            "  2. Update scripts/install-system-dependencies-*.sh if needed\n"
+            "  3. Re-run the installation script\n"
         )
-        error_msg += "\nThis ensures tests use the same tool versions as CI."
+        error_msg += "\nThis ensures tests use the same tool versions as CI.\n"
+        error_msg += "\n" + "=" * 80 + "\n"
+        error_msg += "CI STOPPED: Tests will not run until dependency versions are fixed.\n"
+        error_msg += "=" * 80 + "\n"
         pytest.exit(error_msg, returncode=1)
 
 
