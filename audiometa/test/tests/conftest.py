@@ -1,6 +1,7 @@
 """Test configuration for audiometa-python tests."""
 
 import platform
+import re
 import subprocess
 import tomllib
 from pathlib import Path
@@ -84,6 +85,47 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
 
     def get_installed_version_macos(package):
         """Get installed package version on macOS."""
+        # Special handling for ffmpeg: use ffprobe -version since ffmpeg@7 is keg-only
+        # and brew list --versions ffmpeg doesn't work for keg-only packages
+        if package == "ffmpeg":
+            # Try to find ffprobe in common locations (keg-only packages aren't symlinked)
+            ffprobe_paths = ["ffprobe"]  # Try PATH first
+            try:
+                # Get Homebrew prefix
+                brew_prefix_result = subprocess.run(
+                    ["brew", "--prefix"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                if brew_prefix_result.stdout:
+                    brew_prefix = brew_prefix_result.stdout.strip()
+                    # Check common ffmpeg versioned paths
+                    for version in ["7", "6", "5"]:
+                        ffprobe_paths.append(f"{brew_prefix}/opt/ffmpeg@{version}/bin/ffprobe")
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                pass
+
+            for ffprobe_path in ffprobe_paths:
+                try:
+                    result = subprocess.run(
+                        [ffprobe_path, "-version"],
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                    if result.stdout or result.stderr:
+                        # ffprobe outputs version info to stderr
+                        output = result.stdout + result.stderr
+                        # Extract version like "ffprobe version 7.1.2" or "7.1" or "7"
+                        # Pattern matches 1-3 version components (e.g., "7", "7.1", "7.1.2")
+                        match = re.search(r"version\s+(\d+(?:\.\d+)*)", output)
+                        if match:
+                            return match.group(1)
+                except FileNotFoundError:
+                    continue
+            return None
+
         try:
             result = subprocess.run(
                 ["brew", "list", "--versions", package],
