@@ -1,23 +1,43 @@
 # Pre-commit hooks configuration
 # See https://pre-commit.com for more information
 #
+# SETUP: Install dev dependencies first: pip install -e ".[dev]"
+# This ensures pre-commit hooks use the same tool versions as defined in pyproject.toml
+#
 # To install: pre-commit install
 # To run manually: pre-commit run --all-files
 # To run on staged files only: pre-commit run
 #
+# IMPORTANT: All Python tools use language: system, which means they use tools from your
+# active Python environment. Always activate your project's virtual environment
+# before running pre-commit to ensure version consistency with pyproject.toml.
+#
+# EXCEPTION: prettier (Node.js tool) uses external repo with pinned version since it's not
+# a Python package. This is the only tool not managed through pyproject.toml.
+#
 # Pre-commit hooks execution order - order matters!
-# 1. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
-# 2. no-assert: Check for assert statements in production code
-# 3. ruff-format: Format code (replaces black, handles EOF newlines automatically)
-# 4. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
-# 5. isort: Sort imports (configured to work with ruff-format/black)
-# 6. mypy: Type checking on formatted code
-# 7. docformatter: Format docstrings (after code formatting)
+# 1. check-tool-versions: Verify installed tool versions match pyproject.toml (fails fast if versions mismatch)
+# 2. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
+# 3. no-assert: Check for assert statements in production code
+# 4. ruff-format: Format code (replaces black, handles EOF newlines automatically)
+# 5. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
+# 6. isort: Sort imports (configured to work with ruff-format/black)
+# 7. mypy: Type checking on formatted code
+# 8. docformatter: Format docstrings (after code formatting)
 #    NOTE: File pattern must be ^audiometa/.*\.py$ (not ^audiometa/) to avoid processing binary files
-# 8. fix-long-comments: Fix long comment lines (custom hook)
-# 9. prettier: Format markdown files (preserves list numbering without zero-padding)
+# 9. fix-long-comments: Fix long comment lines (custom hook)
+# 10. prettier: Format markdown files (preserves list numbering without zero-padding)
 
 repos:
+  - repo: local
+    hooks:
+      - id: check-tool-versions
+        name: Verify tool versions match pyproject.toml
+        entry: bash -c '.pre-commit-hooks/check-tool-versions.sh'
+        language: system
+        pass_filenames: false
+        always_run: true
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -65,17 +85,15 @@ repos:
         # The mypy overrides in pyproject.toml relax type checking rules for test files
         # Use Python 3.12+ to run mypy so it can parse Python 3.12+ syntax like 'type' statements
         # Python 3.12 and 3.13 both support 'type' statements (PEP 695)
-        entry: python3.12 -m mypy --follow-imports=normal
+        entry: mypy --follow-imports=normal
         language: system
         files: ^audiometa/.*\.py$
         exclude: ^(audiometa/test/|scripts/)
         pass_filenames: true
       - id: docformatter
         name: docformatter
-        entry: docformatter
-        language: python
-        additional_dependencies: ["docformatter[tomli]"]
-        args: ["--in-place", "--wrap-summaries=120", "--wrap-descriptions=120"]
+        entry: docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120
+        language: system
         # IMPORTANT: Must use ^audiometa/.*\.py$ pattern, not ^audiometa/
         # Using ^audiometa/ would match binary files (e.g., .mp3, .flac, .wav in test/assets/)
         # docformatter --in-place would corrupt binary files by treating them as text

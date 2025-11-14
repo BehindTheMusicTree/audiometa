@@ -300,12 +300,27 @@ We use [pre-commit](https://pre-commit.com/) hooks to automatically check code q
 **First-time setup:**
 
 ```bash
-# Install pre-commit (if not already installed)
+# Recommended: Use the setup script (ensures proper environment)
+./scripts/setup-precommit.sh
+
+# Or manually:
+# 1. Activate your virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Linux/macOS
+# .venv\Scripts\activate   # Windows
+
+# 2. Install dev dependencies (this installs the exact tool versions from pyproject.toml)
 pip install -e ".[dev]"
 
-# Install the git hooks
+# 3. Install pre-commit hooks
 pre-commit install
 ```
+
+**Important:** All Python tools use `language: system`, which means they run from your active Python environment. **Always activate your virtual environment before committing** to ensure the hooks use the correct tool versions defined in `pyproject.toml` (matching CI).
+
+**Version enforcement:** A validation hook automatically checks that your installed tool versions (ruff, isort, mypy, docformatter) match those in `pyproject.toml`. If there's a mismatch, pre-commit will fail with clear instructions to fix it. This ensures consistency between local development, pre-commit hooks, and CI.
+
+**Exception:** prettier (for Markdown formatting) is a Node.js tool and uses an external repository with a pinned version - it's the only tool not managed through `pyproject.toml`.
 
 Once installed, pre-commit will automatically run on every commit. You can also run it manually:
 
@@ -321,51 +336,58 @@ pre-commit run
 
 The following hooks run in execution order:
 
-1. **check-yaml**: Validates YAML file syntax
+1. **check-tool-versions**: Validates that installed tool versions (ruff, isort, mypy) match `pyproject.toml`
+   - Manual: `pre-commit run check-tool-versions`
+   - **Runs first** to fail fast if versions don't match (before any other checks)
+   - Ensures consistency between local development, pre-commit hooks, and CI
+   - Also verifies that a virtual environment is active
+
+2. **check-yaml**: Validates YAML file syntax
    - Manual: `pre-commit run check-yaml --all-files`
 
-2. **check-added-large-files**: Prevents committing files larger than 10MB
+3. **check-added-large-files**: Prevents committing files larger than 10MB
    - Manual: `pre-commit run check-added-large-files --all-files`
 
-3. **check-json**: Validates JSON file syntax
+4. **check-json**: Validates JSON file syntax
    - Manual: `pre-commit run check-json --all-files`
 
-4. **check-toml**: Validates TOML file syntax
+5. **check-toml**: Validates TOML file syntax
    - Manual: `pre-commit run check-toml --all-files`
 
-5. **check-merge-conflict**: Detects merge conflict markers
+6. **check-merge-conflict**: Detects merge conflict markers
    - Manual: `pre-commit run check-merge-conflict --all-files`
 
-6. **debug-statements**: Detects debug statements (pdb, ipdb, etc.)
+7. **debug-statements**: Detects debug statements (pdb, ipdb, etc.)
    - Manual: `pre-commit run debug-statements --all-files`
 
-7. **trailing-whitespace**: Automatically removes trailing whitespace from all files
+8. **trailing-whitespace**: Automatically removes trailing whitespace from all files
    - Manual: `pre-commit run trailing-whitespace --all-files`
    - Note: Like all file-modifying hooks, commits will fail if this hook makes changes (see "How File-Modifying Hooks Work" section below)
    - Note: For Python files, `ruff-format` also removes trailing whitespace, making this hook redundant for Python files. However, it's kept because it handles non-Python files (markdown, YAML, etc.) that `ruff-format` cannot process.
 
-8. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
+9. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
    - Manual: `pre-commit run no-assert --all-files`
 
-9. **isort**: Sorts and organizes import statements according to PEP 8
-   - Manual: `isort .`
+10. **isort**: Sorts and organizes import statements according to PEP 8
 
-10. **ruff-format**: Formats Python code (replaces black) - handles code formatting and EOF newlines automatically
+- Manual: `isort .`
+
+11. **ruff-format**: Formats Python code (replaces black) - handles code formatting and EOF newlines automatically
     - Manual: `ruff format .`
 
-11. **ruff**: Auto-fixes linting issues (unused imports/variables, code style, line length, etc.) - replaces autoflake and flake8
+12. **ruff**: Auto-fixes linting issues (unused imports/variables, code style, line length, etc.) - replaces autoflake and flake8
     - Manual: `ruff check --fix .`
 
-12. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
+13. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
     - Manual: `docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 .`
 
-13. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
+14. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
     - Manual: `pre-commit run fix-long-comments --all-files`
 
-14. **mypy**: Static type checking - reports type errors but does not auto-fix
+15. **mypy**: Static type checking - reports type errors but does not auto-fix
     - Manual: `mypy audiometa`
 
-15. **prettier**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, preserves list numbering
+16. **prettier**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, preserves list numbering
     - Manual: `prettier --write "**/*.md"`
 
 ##### How File-Modifying Hooks Work

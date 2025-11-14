@@ -13,9 +13,10 @@ jobs:
     name: Lint and Format Check
     runs-on: ubuntu-latest
     # Tool Version Alignment Pattern:
-    # All linting/formatting tools (ruff, isort, mypy) use versions pinned in pyproject.toml.
+    # All linting/formatting tools (ruff, isort, mypy, docformatter) use versions pinned in pyproject.toml.
     # This ensures CI and pre-commit hooks use the exact same tool versions, preventing
     # version drift and inconsistent formatting/linting behavior.
+    # The "Verify tool versions" step validates this alignment and will fail the build if versions don't match.
     # See .cursor/rules/pre-commit.mdc for the complete pattern documentation.
     steps:
       - uses: actions/checkout@v4
@@ -32,6 +33,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
+
+      - name: Verify tool versions match pyproject.toml
+        # This validation ensures CI uses the exact same tool versions as defined in pyproject.toml
+        # Prevents CI configuration drift and ensures consistency with local pre-commit hooks
+        run: bash .pre-commit-hooks/check-tool-versions.sh
 
       - name: Check for assert statements
         run: |
