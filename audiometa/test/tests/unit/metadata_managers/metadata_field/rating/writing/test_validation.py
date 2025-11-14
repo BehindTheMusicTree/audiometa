@@ -3,9 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from audiometa.exceptions import InvalidRatingValueError
-from audiometa.manager._rating_supporting._RatingSupportingMetadataManager import (
-    _RatingSupportingMetadataManager,
-)
+from audiometa.manager._rating_supporting._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
 from audiometa.manager._rating_supporting.id3v2._Id3v2Manager import _Id3v2Manager as Id3v2Manager
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
