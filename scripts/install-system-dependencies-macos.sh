@@ -183,12 +183,31 @@ if [ "$NEED_INSTALL_BWFMETAEDIT" -eq 1 ]; then
   }
 
   echo "Installing bwfmetaedit..."
-  # Mount DMG (let macOS determine mount point)
-  MOUNT_OUTPUT=$(hdiutil attach "$DMG_FILE" -quiet -nobrowse | tail -1)
-  MOUNT_POINT=$(echo "$MOUNT_OUTPUT" | awk -F'\t' '{print $3}')
+  # Verify DMG file exists and has content
+  if [ ! -f "$DMG_FILE" ] || [ ! -s "$DMG_FILE" ]; then
+    echo "ERROR: DMG file is missing or empty."
+    rm -f "$DMG_FILE"
+    exit 1
+  fi
 
-  if [ -z "$MOUNT_POINT" ]; then
-    echo "ERROR: Failed to mount DMG file."
+  # Mount DMG (let macOS determine mount point)
+  MOUNT_OUTPUT=$(hdiutil attach "$DMG_FILE" -nobrowse 2>&1)
+  MOUNT_EXIT_CODE=$?
+
+  if [ $MOUNT_EXIT_CODE -ne 0 ]; then
+    echo "ERROR: Failed to mount DMG file (exit code: $MOUNT_EXIT_CODE)."
+    echo "hdiutil output:"
+    echo "$MOUNT_OUTPUT"
+    rm -f "$DMG_FILE"
+    exit 1
+  fi
+
+  MOUNT_POINT=$(echo "$MOUNT_OUTPUT" | tail -1 | awk -F'\t' '{print $3}')
+
+  if [ -z "$MOUNT_POINT" ] || [ ! -d "$MOUNT_POINT" ]; then
+    echo "ERROR: Failed to determine mount point or mount point is invalid."
+    echo "hdiutil output:"
+    echo "$MOUNT_OUTPUT"
     rm -f "$DMG_FILE"
     exit 1
   fi
