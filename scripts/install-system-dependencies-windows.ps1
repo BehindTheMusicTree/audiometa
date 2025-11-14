@@ -384,13 +384,29 @@ if (Test-Path $exiftoolExePath) {
 
 # Install if needed
 if ($needInstallExiftool) {
-    $url = "https://exiftool.org/exiftool-${exiftoolVersion}.zip"
+    # ExifTool Windows downloads use format: exiftool-VERSION_64.zip
+    $url = "https://exiftool.org/exiftool-${exiftoolVersion}_64.zip"
     $tempDir = "$env:TEMP\exiftool"
 
     try {
         Write-Host "Downloading ExifTool..."
         New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
-        Invoke-WebRequest -Uri $url -OutFile "$tempDir\exiftool.zip" -UseBasicParsing
+
+        # Try downloading the file
+        try {
+            Invoke-WebRequest -Uri $url -OutFile "$tempDir\exiftool.zip" -UseBasicParsing -ErrorAction Stop
+        } catch {
+            $errorMsg = $_.Exception.Message
+            Write-Host "ERROR: Failed to download exiftool version ${exiftoolVersion}"
+            Write-Host "URL attempted: $url"
+            Write-Host "Error: $errorMsg"
+            Write-Host ""
+            Write-Host "The pinned version may not be available for Windows download."
+            Write-Host "ExifTool Windows downloads use format: exiftool-VERSION_64.zip"
+            Write-Host "Check available versions at: https://exiftool.org/"
+            Write-Host "Update system-dependencies.toml with a version that has a Windows release."
+            throw "Could not download exiftool version ${exiftoolVersion}. Version may not be available for Windows."
+        }
 
         Write-Host "Extracting..."
         Expand-Archive -Path "$tempDir\exiftool.zip" -DestinationPath $tempDir -Force

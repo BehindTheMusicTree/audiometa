@@ -59,7 +59,9 @@ id3v2 = "0.1.12+dfsg-7"  # Pinned version via WSL Ubuntu (same as Ubuntu CI) - V
 bwfmetaedit = { source = "mediaarea", pinned_version = "24.10" }
 
 # exiftool: Download from official website (not available in Chocolatey)
-exiftool = { source = "exiftool_org", pinned_version = "13.10" }
+# Note: Windows version may differ from macOS/Linux due to release availability
+# Check https://exiftool.org/ for available Windows versions
+exiftool = { source = "exiftool_org", pinned_version = "13.41" }
 
 [verification]
 # Commands to verify tool installation and versions
