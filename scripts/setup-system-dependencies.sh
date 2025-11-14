@@ -117,16 +117,21 @@ install_macos() {
     # Load pinned versions from system-dependencies.toml
     eval "$(python3 "${SCRIPT_DIR}/ci/load-system-dependency-versions.py" bash)"
 
-    # Homebrew version pinning format: brew install package@version
-    brew install \
-      ffmpeg@${PINNED_FFMPEG} \
-      flac@${PINNED_FLAC} \
-      mediainfo@${PINNED_MEDIAINFO} \
-      bwfmetaedit@${PINNED_BWFMETAEDIT} \
-      id3v2@${PINNED_ID3V2} || {
-      echo -e "${RED}✗ ERROR: Pinned versions not available.${NC}"
-      echo "Update system-dependencies.toml with correct versions."
-      echo "Check available versions with: brew info <package>"
+    # Homebrew version pinning: Only ffmpeg supports @version syntax
+    # Other packages (flac, mediainfo/media-info, id3v2, bwfmetaedit) don't support version pinning
+    echo -e "${YELLOW}Installing ffmpeg@${PINNED_FFMPEG}...${NC}"
+    brew install ffmpeg@${PINNED_FFMPEG} || {
+      echo -e "${RED}✗ ERROR: Pinned ffmpeg version ${PINNED_FFMPEG} not available.${NC}"
+      echo "Check available versions with: brew search ffmpeg"
+      exit 1
+    }
+
+    # Install packages without version pinning (Homebrew doesn't support @version for these)
+    # Note: mediainfo is called media-info in Homebrew
+    echo -e "${YELLOW}Installing flac, media-info, id3v2, bwfmetaedit (latest available versions)...${NC}"
+    brew install flac media-info id3v2 bwfmetaedit || {
+      echo -e "${RED}✗ ERROR: Failed to install packages.${NC}"
+      echo "Check available packages with: brew search <package>"
       exit 1
     }
 

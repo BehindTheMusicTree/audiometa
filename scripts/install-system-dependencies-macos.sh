@@ -28,17 +28,39 @@ fi
 
 echo "Installing pinned package versions..."
 
-# Homebrew version pinning format: brew install package@version
-brew install \
-  ffmpeg@${PINNED_FFMPEG} \
-  flac@${PINNED_FLAC} \
-  mediainfo@${PINNED_MEDIAINFO} \
-  bwfmetaedit@${PINNED_BWFMETAEDIT} \
-  id3v2@${PINNED_ID3V2} || {
-  echo "ERROR: Pinned versions not available."
-  echo "Update system-dependencies.toml with correct versions."
-  echo "Check available versions with: brew info <package>"
+# Homebrew version pinning: Only ffmpeg supports @version syntax
+# Other packages (flac, mediainfo/media-info, id3v2, bwfmetaedit) don't support version pinning
+# Install ffmpeg with version pinning
+echo "Installing ffmpeg@${PINNED_FFMPEG}..."
+brew install ffmpeg@${PINNED_FFMPEG} || {
+  echo "ERROR: Pinned ffmpeg version ${PINNED_FFMPEG} not available."
+  echo "Check available versions with: brew search ffmpeg"
   exit 1
 }
+
+# Install packages without version pinning (Homebrew doesn't support @version for these)
+# Note: mediainfo is called media-info in Homebrew
+echo "Installing flac, media-info, id3v2, bwfmetaedit (latest available versions)..."
+brew install flac media-info id3v2 bwfmetaedit || {
+  echo "ERROR: Failed to install packages."
+  echo "Check available packages with: brew search <package>"
+  exit 1
+}
+
+# Verify installed versions match expectations (informational only)
+echo "Verifying installed versions..."
+INSTALLED_FLAC=$(brew list --versions flac | awk '{print $2}')
+INSTALLED_MEDIAINFO=$(brew list --versions media-info | awk '{print $2}')
+INSTALLED_ID3V2=$(brew list --versions id3v2 | awk '{print $2}')
+INSTALLED_BWFMETAEDIT=$(brew list --versions bwfmetaedit 2>/dev/null | awk '{print $2}' || echo "not installed")
+
+echo "  flac: ${INSTALLED_FLAC} (expected: ${PINNED_FLAC})"
+echo "  media-info: ${INSTALLED_MEDIAINFO} (expected: ${PINNED_MEDIAINFO})"
+echo "  id3v2: ${INSTALLED_ID3V2} (expected: ${PINNED_ID3V2})"
+echo "  bwfmetaedit: ${INSTALLED_BWFMETAEDIT} (expected: ${PINNED_BWFMETAEDIT})"
+
+# Note: We can't enforce exact version matching for these packages since Homebrew
+# doesn't support version pinning. The versions are documented in system-dependencies.toml
+# for reference, but may differ from what's actually installed.
 
 

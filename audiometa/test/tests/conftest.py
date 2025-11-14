@@ -160,7 +160,9 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
         if os_type == "ubuntu":
             installed = get_installed_version_ubuntu(tool)
         elif os_type == "macos":
-            installed = get_installed_version_macos(tool)
+            # mediainfo is called media-info in Homebrew
+            brew_package = "media-info" if tool == "mediainfo" else tool
+            installed = get_installed_version_macos(brew_package)
         else:  # windows
             installed = get_installed_version_windows(tool)
 
@@ -168,13 +170,20 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
             errors.append(f"{tool}: VERSION CHECK FAILED")
             has_errors = True
         elif os_type == "macos":
-            # For macOS, compare major versions since Homebrew pins by major version
-            # e.g., expected "7" should match installed "7.1" or "7.1_4"
-            installed_major = installed.split(".")[0] if "." in installed else installed
-            expected_major = expected_version.split(".")[0] if "." in expected_version else expected_version
-            if installed_major != expected_major:
-                errors.append(f"{tool}: version mismatch (expected major version {expected_major}, got {installed})")
-                has_errors = True
+            # For macOS, only ffmpeg supports version pinning via @version syntax
+            # Other packages (flac, mediainfo, id3v2, bwfmetaedit) don't support version pinning
+            # and install the latest available version, so we skip strict version checking for them
+            if tool == "ffmpeg":
+                # For ffmpeg, compare major versions since Homebrew pins by major version
+                # e.g., expected "7" should match installed "7.1" or "7.1_4"
+                installed_major = installed.split(".")[0] if "." in installed else installed
+                expected_major = expected_version.split(".")[0] if "." in expected_version else expected_version
+                if installed_major != expected_major:
+                    errors.append(
+                        f"{tool}: version mismatch (expected major version {expected_major}, got {installed})"
+                    )
+                    has_errors = True
+            # For other packages, skip version checking since Homebrew doesn't support version pinning
         elif installed != expected_version:
             errors.append(f"{tool}: version mismatch (expected {expected_version}, got {installed})")
             has_errors = True
