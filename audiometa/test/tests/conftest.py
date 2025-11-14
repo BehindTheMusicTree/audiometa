@@ -170,18 +170,31 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
             # bwfmetaedit is manually installed to C:\Program Files\BWFMetaEdit
             exe_path = r"C:\Program Files\BWFMetaEdit\bwfmetaedit.exe"
             try:
+                # Try --version first
                 result = subprocess.run(
                     [exe_path, "--version"],
                     capture_output=True,
                     text=True,
                     check=False,
                 )
-                if result.stdout or result.stderr:
+                output = result.stdout + result.stderr
+
+                # If --version doesn't work, try without arguments (some tools show version on startup)
+                if not output or result.returncode != 0:
+                    result = subprocess.run(
+                        [exe_path],
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
                     output = result.stdout + result.stderr
+
+                if output:
                     # Extract version like "BWF MetaEdit, version 25.04.1" or "version 25.04.1"
                     # Try multiple patterns to handle different output formats
                     patterns = [
                         r"version\s+(\d+\.\d+\.\d+)",  # "version 25.04.1"
+                        r"BWF\s+MetaEdit[,\s]+version\s+(\d+\.\d+\.\d+)",  # "BWF MetaEdit, version 25.04.1"
                         r"(\d+\.\d+\.\d+)",  # Just version number (first match)
                     ]
                     for pattern in patterns:
@@ -537,6 +550,10 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
         error_msg += "\n" + "=" * 80 + "\n"
         error_msg += "CI STOPPED: Tests will not run until dependency versions are fixed.\n"
         error_msg += "=" * 80 + "\n"
+        # Use pytest.exit() which raises Exit exception to stop pytest immediately
+        # This prevents test collection and execution (you'll see "collected 0 items")
+        # Note: pytest-cov may still show coverage output from module imports during collection,
+        # but NO TESTS ARE RUN - the "collected 0 items" confirms this
         pytest.exit(error_msg, returncode=1)
 
 
