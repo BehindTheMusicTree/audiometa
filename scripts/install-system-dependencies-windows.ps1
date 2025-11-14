@@ -203,21 +203,9 @@ if ($failedPackages.Count -gt 0) {
 
     Write-Host ""
 
-    # In CI, WSL-related failures are warnings (id3v2 tests will be skipped)
-    # Version-related failures are still errors
-    if ($isCI -and $versionRelatedFailures.Count -eq 0 -and $wslRelatedFailures.Count -gt 0) {
-        Write-Host "WARNING: Some packages could not be installed (WSL not available in CI):"
-        Write-Host "  $($wslRelatedFailures -join ', ')"
-        Write-Host ""
-        Write-Host "These packages require WSL Ubuntu which is not available in this CI environment."
-        Write-Host "Tests that require these tools will be skipped."
-        Write-Host ""
-        Write-Host "To enable these tools in CI:"
-        Write-Host "  1. Use a Windows runner with WSL pre-installed"
-        Write-Host "  2. Or configure WSL in your CI workflow before running this script"
-        Write-Host ""
-        # Don't exit - allow script to continue
-    } else {
+    # Version-related failures always exit early (can't install other packages)
+    # WSL-related failures: continue installing other packages, then fail at the end
+    if ($versionRelatedFailures.Count -gt 0) {
         Write-Host "ERROR: Failed to install the following packages: $($failedPackages -join ', ')"
         Write-Host ""
 
@@ -525,22 +513,30 @@ if ($missingTools.Count -gt 0) {
     exit 1
 }
 
-# Check if WSL-required packages are missing
+# Check if WSL-required packages are missing - fail if any are missing
 $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
 if ($wslRequiredPackages.Count -gt 0) {
     Write-Host ""
+    Write-Host "ERROR: Failed to install WSL-required packages:"
+    Write-Host "  $($wslRequiredPackages -join ', ')"
+    Write-Host ""
     if ($isCI) {
-        Write-Host "System dependencies installed (with limitations):"
-        Write-Host "  - Installed: ffmpeg, flac, mediainfo, bwfmetaedit, exiftool"
-        Write-Host "  - Missing (WSL required): $($wslRequiredPackages -join ', ')"
+        Write-Host "These packages require WSL Ubuntu which is not available in this CI environment."
         Write-Host ""
-        Write-Host "Note: Tests requiring WSL-based tools will be skipped in CI."
+        Write-Host "To enable these tools in CI:"
+        Write-Host "  1. Use a Windows runner with WSL pre-installed"
+        Write-Host "  2. Or configure WSL in your CI workflow before running this script"
     } else {
-        Write-Host "WARNING: System dependencies installed, but some tools are missing:"
-        Write-Host "  - Missing (WSL required): $($wslRequiredPackages -join ', ')"
+        Write-Host "These packages require WSL Ubuntu to be installed."
         Write-Host ""
-        Write-Host "Install WSL to enable these tools: wsl --install -d Ubuntu"
+        Write-Host "To fix:"
+        Write-Host "  1. Install WSL: wsl --install -d Ubuntu"
+        Write-Host "  2. Or enable WSL feature: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux"
+        Write-Host "  3. Restart your computer if prompted"
+        Write-Host "  4. Run this script again"
     }
+    Write-Host ""
+    exit 1
 } else {
     Write-Host "All system dependencies installed successfully!"
 }
