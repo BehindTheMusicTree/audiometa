@@ -33,6 +33,11 @@ source "${SCRIPT_DIR}/ci/macos-common.sh"
 
 HOMEBREW_PREFIX=$(get_homebrew_prefix)
 
+# Update Homebrew to ensure we have the latest formula definitions
+# This ensures consistency across CI runs - all runners will use the same formula versions
+echo "Updating Homebrew to ensure latest formula definitions..."
+brew update
+
 # Function to install a Homebrew package with version verification
 install_homebrew_package() {
   local tool_name="$1"
@@ -58,7 +63,8 @@ install_homebrew_package() {
     already_installed=0
   fi
 
-  # Check if already installed with correct version
+  # Check if already installed with correct version (after brew update)
+  # We check after brew update to ensure we're comparing against the latest available version
   if [ "$already_installed" -eq 1 ]; then
     INSTALLED_VERSION=""
     if [ "$is_library" -eq 1 ]; then
@@ -69,23 +75,31 @@ install_homebrew_package() {
     fi
 
     if [ -n "$INSTALLED_VERSION" ] && check_version_match "$tool_name" "$INSTALLED_VERSION" "$pinned_version"; then
+      # Version matches, but we still need to upgrade to ensure we have the latest from updated formulas
+      # brew upgrade will be a no-op if already at latest, but ensures consistency
       echo "  ${tool_name} ${INSTALLED_VERSION} already installed (matches pinned version ${pinned_version})"
-      return 0
+      echo "  Upgrading to ensure latest version from updated Homebrew formulas..."
+      set +e
+      brew upgrade "$brew_package" 2>&1 | grep -v "Already up-to-date" || true
+      set -e
+      # Continue to version verification below (don't return early)
     elif [ -n "$INSTALLED_VERSION" ]; then
       echo "  Removing existing ${tool_name} version ${INSTALLED_VERSION} (installing pinned version ${pinned_version})..."
       remove_homebrew_package "$brew_package" "$binary_paths"
       already_installed=0
     elif [ "$is_library" -eq 1 ]; then
-      # For library packages, if we can't extract version but package is installed, skip installation
+      # For library packages, if we can't extract version but package is installed, upgrade and verify later
+      echo "  ${tool_name} already installed via Homebrew, upgrading to latest..."
+      set +e
+      brew upgrade "$brew_package" 2>&1 | grep -v "Already up-to-date" || true
+      set -e
       # Version verification will be done in the final verification section
-      echo "  ${tool_name} already installed via Homebrew (version verification will be done in final check)"
       return 0
     fi
   fi
 
   # Install via Homebrew if not already installed
   if [ "$already_installed" -eq 0 ]; then
-    # Temporarily disable exit on error to handle "already installed" case
     set +e
     brew install "$brew_package" 2>&1
     local install_status=$?
@@ -94,11 +108,10 @@ install_homebrew_package() {
     if [ $install_status -ne 0 ]; then
       # Check if installation failed because package is already installed
       if brew list "$brew_package" &>/dev/null; then
-        echo "  ${tool_name} already installed via Homebrew, verifying version..."
-        already_installed=1
-        if ! command -v "$tool_name" &>/dev/null; then
-          is_library=1
-        fi
+        echo "  ${tool_name} already installed via Homebrew, upgrading to latest..."
+        set +e
+        brew upgrade "$brew_package" 2>&1 | grep -v "Already up-to-date" || true
+        set -e
       else
         echo "ERROR: Failed to install ${tool_name} via Homebrew."
         exit 1

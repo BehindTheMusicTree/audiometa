@@ -38,9 +38,12 @@ bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "25.04.1" }
 # Homebrew does not support installing pinned versions (except ffmpeg@7), so we install the latest stable.
 # When Homebrew updates package versions, the installation script's version check will fail.
 # Update these versions to match Homebrew's latest stable versions when that happens.
+# Note: mediainfo (media-info in Homebrew) cannot be pinned - Homebrew installs whatever version
+# is currently in the formula. If CI fails with version mismatch, update this pinned version to
+# match what Homebrew currently provides (check with: brew info media-info).
 ffmpeg = "7"
 flac = "1.5.0"
-mediainfo = "25.09"
+mediainfo = "25.10"
 bwfmetaedit = "25.04.1"
 id3v2 = "0.1.12"
 exiftool = "13.36"
