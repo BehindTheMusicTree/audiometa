@@ -194,44 +194,67 @@ wsl id3v2 %*
 
 # Check if any packages failed
 if ($failedPackages.Count -gt 0) {
-    Write-Host ""
-    Write-Host "ERROR: Failed to install the following packages: $($failedPackages -join ', ')"
-    Write-Host ""
+    # Detect CI environment
+    $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
 
     # Separate WSL-required packages from version-related failures
     $versionRelatedFailures = $failedPackages | Where-Object { $wslRequiredPackages -notcontains $_ }
     $wslRelatedFailures = $failedPackages | Where-Object { $wslRequiredPackages -contains $_ }
 
-    if ($versionRelatedFailures.Count -gt 0) {
-        Write-Host "Version-related failures (Chocolatey packages):"
-        foreach ($package in $versionRelatedFailures) {
-            Write-Host "  - ${package}: Pinned version may not be available in Chocolatey"
-        }
-        Write-Host ""
-        Write-Host "To fix:"
-        Write-Host "  1. Check available versions: choco search <package> --exact"
-        Write-Host "  2. Update system-dependencies.toml with correct versions"
-        Write-Host ""
-    }
+    Write-Host ""
 
-    if ($wslRelatedFailures.Count -gt 0) {
-        Write-Host "WSL-required packages (require Windows Subsystem for Linux):"
-        foreach ($package in $wslRelatedFailures) {
-            Write-Host "  - ${package}: Requires WSL Ubuntu to be installed"
-        }
+    # In CI, WSL-related failures are warnings (id3v2 tests will be skipped)
+    # Version-related failures are still errors
+    if ($isCI -and $versionRelatedFailures.Count -eq 0 -and $wslRelatedFailures.Count -gt 0) {
+        Write-Host "WARNING: Some packages could not be installed (WSL not available in CI):"
+        Write-Host "  $($wslRelatedFailures -join ', ')"
         Write-Host ""
-        Write-Host "To fix:"
-        Write-Host "  1. Install WSL: wsl --install -d Ubuntu"
-        Write-Host "  2. Or enable WSL feature: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux"
-        Write-Host "  3. Restart your computer if prompted"
-        Write-Host "  4. Run this script again"
+        Write-Host "These packages require WSL Ubuntu which is not available in this CI environment."
+        Write-Host "Tests that require these tools will be skipped."
         Write-Host ""
-        Write-Host "Note: WSL installation may require elevated privileges or a system restart."
-        Write-Host "      In CI environments, ensure WSL is pre-installed or use a runner with WSL support."
+        Write-Host "To enable these tools in CI:"
+        Write-Host "  1. Use a Windows runner with WSL pre-installed"
+        Write-Host "  2. Or configure WSL in your CI workflow before running this script"
         Write-Host ""
-    }
+        # Don't exit - allow script to continue
+    } else {
+        Write-Host "ERROR: Failed to install the following packages: $($failedPackages -join ', ')"
+        Write-Host ""
 
-    exit 1
+        if ($versionRelatedFailures.Count -gt 0) {
+            Write-Host "Version-related failures (Chocolatey packages):"
+            foreach ($package in $versionRelatedFailures) {
+                Write-Host "  - ${package}: Pinned version may not be available in Chocolatey"
+            }
+            Write-Host ""
+            Write-Host "To fix:"
+            Write-Host "  1. Check available versions: choco search <package> --exact"
+            Write-Host "  2. Update system-dependencies.toml with correct versions"
+            Write-Host ""
+        }
+
+        if ($wslRelatedFailures.Count -gt 0) {
+            Write-Host "WSL-required packages (require Windows Subsystem for Linux):"
+            foreach ($package in $wslRelatedFailures) {
+                Write-Host "  - ${package}: Requires WSL Ubuntu to be installed"
+            }
+            Write-Host ""
+            if (-not $isCI) {
+                Write-Host "To fix:"
+                Write-Host "  1. Install WSL: wsl --install -d Ubuntu"
+                Write-Host "  2. Or enable WSL feature: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux"
+                Write-Host "  3. Restart your computer if prompted"
+                Write-Host "  4. Run this script again"
+                Write-Host ""
+            } else {
+                Write-Host "Note: WSL installation requires elevated privileges or a system restart."
+                Write-Host "      In CI environments, ensure WSL is pre-installed or use a runner with WSL support."
+                Write-Host ""
+            }
+        }
+
+        exit 1
+    }
 }
 
 Write-Host "Installing bwfmetaedit (pinned version)..."
