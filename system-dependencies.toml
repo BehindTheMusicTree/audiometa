@@ -18,10 +18,10 @@
 # IMPORTANT: Verify these versions match what's available in the pinned Ubuntu CI version:
 #   Run in CI: apt-cache madison <package> to see available versions
 #   Update these pinned versions to match what CI actually installs
-ffmpeg = "7:6.1.1-3ubuntu5"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-flac = "1.4.3+ds-2.1ubuntu2"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-mediainfo = "24.01+dfsg-1build2"  # Pinned version (fails if not available) - VERIFY THIS VERSION
-id3v2 = "0.1.12+dfsg-7"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+ffmpeg = "7:6.1.1-3ubuntu5"
+flac = "1.4.3+ds-2.1ubuntu2"
+mediainfo = "24.01.1-1build2"
+id3v2 = "0.1.12+dfsg-7"
 
 # bwfmetaedit: Download from MediaArea (not available in Ubuntu repos)
 # Check https://mediaarea.net/BWFMetaEdit/Download/Ubuntu for available versions

@@ -184,10 +184,25 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                     )
                     has_errors = True
             # For other packages, skip version checking since Homebrew doesn't support version pinning
+        elif os_type == "ubuntu" and tool == "mediainfo":
+            # For mediainfo on Ubuntu, compare major.minor versions only (ignore patch and suffixes)
+            # Repository version format differs from dpkg output (e.g., +dfsg suffix)
+            # Extract major.minor version (first two version components) and compare
+            installed_base = installed.split("+")[0].split("-")[0]
+            expected_base = expected_version.split("-")[0]
+            # Extract major.minor (e.g., "X.Y.Z" -> "X.Y", "X.Y+suffix" -> "X.Y")
+            installed_major_minor = ".".join(installed_base.split(".")[:2])
+            expected_major_minor = ".".join(expected_base.split(".")[:2])
+            if installed_major_minor != expected_major_minor:
+                errors.append(
+                    f"{tool}: version mismatch (expected {expected_major_minor}, "
+                    f"got {installed_major_minor} from {installed})"
+                )
+                has_errors = True
         elif os_type == "ubuntu" and tool == "bwfmetaedit":
             # For bwfmetaedit on Ubuntu, normalize deb package version by stripping revision suffix
-            # Expected: "25.04.1" (from pinned_version), Installed: "25.04.1-1" (deb package format)
-            # Strip deb revision suffix (e.g., "-1", "-2") before comparison
+            # Repository version format includes revision suffix (e.g., "-1", "-2")
+            # Strip deb revision suffix before comparison
             installed_normalized = installed.split("-")[0] if "-" in installed else installed
             if installed_normalized != expected_version:
                 errors.append(f"{tool}: version mismatch (expected {expected_version}, got {installed})")
