@@ -44,8 +44,8 @@ dev = [
     "pre-commit==3.0.0",
     "autoflake==2.0.0",
     "docformatter==1.7.0",
-    "soundfile==0.10.0",
-    "numpy==1.20.0",
+    "soundfile==0.10.1",
+    "numpy==1.26.0",
 ]
 yaml = [
     "PyYAML==6.0",
