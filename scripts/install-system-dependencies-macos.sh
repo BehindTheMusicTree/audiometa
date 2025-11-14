@@ -81,9 +81,9 @@ if [ "$NEED_INSTALL_FFMPEG" -eq 1 ]; then
   fi
 fi
 
-# Install packages without version pinning (Homebrew doesn't support @version for these)
+# Install packages without @version syntax (Homebrew doesn't support @version for these)
 # Note: mediainfo is called media-info in Homebrew
-# Check installed versions and remove if different before installing
+# Check installed versions and remove/reinstall if major.minor doesn't match pinned version
 PACKAGES_TO_INSTALL=()
 
 # Check flac
@@ -146,8 +146,63 @@ if [ "$NEED_INSTALL_ID3V2" -eq 1 ]; then
   PACKAGES_TO_INSTALL+=("id3v2")
 fi
 
-# Install packages if any need installation
+# Verify Homebrew versions match pinned versions before installing
 if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
+  echo "Checking Homebrew versions match pinned versions..."
+  VERSION_MISMATCH=0
+
+  for package in "${PACKAGES_TO_INSTALL[@]}"; do
+    case "$package" in
+      flac)
+        BREW_VERSION=$(brew info flac 2>/dev/null | grep -E "^==>.*stable" | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1 || echo "")
+        PINNED_MAJOR_MINOR=$(echo "$PINNED_FLAC" | cut -d. -f1,2)
+        if [ -n "$BREW_VERSION" ]; then
+          BREW_MAJOR_MINOR=$(echo "$BREW_VERSION" | cut -d. -f1,2)
+          if [ "$BREW_MAJOR_MINOR" != "$PINNED_MAJOR_MINOR" ]; then
+            echo "ERROR: Homebrew flac version ${BREW_VERSION} (major.minor: ${BREW_MAJOR_MINOR}) doesn't match pinned version ${PINNED_FLAC} (major.minor: ${PINNED_MAJOR_MINOR})"
+            VERSION_MISMATCH=1
+          else
+            echo "✓ Homebrew flac version ${BREW_VERSION} matches pinned version ${PINNED_FLAC}"
+          fi
+        fi
+        ;;
+      media-info)
+        BREW_VERSION=$(brew info media-info 2>/dev/null | grep -E "^==>.*stable" | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1 || echo "")
+        PINNED_MAJOR_MINOR=$(echo "$PINNED_MEDIAINFO" | cut -d. -f1,2)
+        if [ -n "$BREW_VERSION" ]; then
+          BREW_MAJOR_MINOR=$(echo "$BREW_VERSION" | cut -d. -f1,2)
+          if [ "$BREW_MAJOR_MINOR" != "$PINNED_MAJOR_MINOR" ]; then
+            echo "ERROR: Homebrew media-info version ${BREW_VERSION} (major.minor: ${BREW_MAJOR_MINOR}) doesn't match pinned version ${PINNED_MEDIAINFO} (major.minor: ${PINNED_MAJOR_MINOR})"
+            VERSION_MISMATCH=1
+          else
+            echo "✓ Homebrew media-info version ${BREW_VERSION} matches pinned version ${PINNED_MEDIAINFO}"
+          fi
+        fi
+        ;;
+      id3v2)
+        BREW_VERSION=$(brew info id3v2 2>/dev/null | grep -E "^==>.*stable" | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1 || echo "")
+        PINNED_MAJOR_MINOR=$(echo "$PINNED_ID3V2" | cut -d. -f1,2)
+        if [ -n "$BREW_VERSION" ]; then
+          BREW_MAJOR_MINOR=$(echo "$BREW_VERSION" | cut -d. -f1,2)
+          if [ "$BREW_MAJOR_MINOR" != "$PINNED_MAJOR_MINOR" ]; then
+            echo "ERROR: Homebrew id3v2 version ${BREW_VERSION} (major.minor: ${BREW_MAJOR_MINOR}) doesn't match pinned version ${PINNED_ID3V2} (major.minor: ${PINNED_MAJOR_MINOR})"
+            VERSION_MISMATCH=1
+          else
+            echo "✓ Homebrew id3v2 version ${BREW_VERSION} matches pinned version ${PINNED_ID3V2}"
+          fi
+        fi
+        ;;
+    esac
+  done
+
+  if [ "$VERSION_MISMATCH" -eq 1 ]; then
+    echo ""
+    echo "ERROR: Cannot install packages - Homebrew versions don't match pinned versions."
+    echo "Homebrew doesn't support @version syntax for these packages, so we cannot install exact versions."
+    echo "Consider installing from source or downloading binaries to ensure version pinning."
+    exit 1
+  fi
+
   echo "Installing ${PACKAGES_TO_INSTALL[*]}..."
   brew install "${PACKAGES_TO_INSTALL[@]}" || {
     echo "ERROR: Failed to install packages."
@@ -312,9 +367,10 @@ echo "  media-info: ${INSTALLED_MEDIAINFO:-not found} (expected: ${PINNED_MEDIAI
 echo "  id3v2: ${INSTALLED_ID3V2:-not found} (expected: ${PINNED_ID3V2})"
 echo "  bwfmetaedit: ${INSTALLED_BWFMETAEDIT:-not found} (expected: ${PINNED_BWFMETAEDIT})"
 
-# Note: Homebrew doesn't support version pinning for flac, mediainfo, id3v2, bwfmetaedit
-# So we only verify they're installed, not that versions match exactly
-# The versions in system-dependencies.toml are for reference only
+# Note: Homebrew doesn't support @version syntax for flac, mediainfo, id3v2, bwfmetaedit
+# The script checks installed versions and removes/reinstalls if major.minor doesn't match,
+# but cannot guarantee exact version matching since Homebrew installs the latest available version.
+# bwfmetaedit is downloaded from MediaArea with exact version pinning.
 
 echo "Verifying installed tools are available in PATH..."
 MISSING_TOOLS=()
