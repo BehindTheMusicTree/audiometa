@@ -45,7 +45,7 @@ dev = [
     "autoflake==2.0.0",
     "docformatter==1.7.0",
     "soundfile==0.10.1",
-    "numpy==1.26.0",
+    "numpy==1.26.4",
 ]
 yaml = [
     "PyYAML==6.0",
