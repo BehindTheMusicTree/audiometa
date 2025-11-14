@@ -525,6 +525,24 @@ if ($missingTools.Count -gt 0) {
     exit 1
 }
 
-Write-Host "All system dependencies installed successfully!"
+# Check if WSL-required packages are missing
+$isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
+if ($wslRequiredPackages.Count -gt 0) {
+    Write-Host ""
+    if ($isCI) {
+        Write-Host "System dependencies installed (with limitations):"
+        Write-Host "  - Installed: ffmpeg, flac, mediainfo, bwfmetaedit, exiftool"
+        Write-Host "  - Missing (WSL required): $($wslRequiredPackages -join ', ')"
+        Write-Host ""
+        Write-Host "Note: Tests requiring WSL-based tools will be skipped in CI."
+    } else {
+        Write-Host "WARNING: System dependencies installed, but some tools are missing:"
+        Write-Host "  - Missing (WSL required): $($wslRequiredPackages -join ', ')"
+        Write-Host ""
+        Write-Host "Install WSL to enable these tools: wsl --install -d Ubuntu"
+    }
+} else {
+    Write-Host "All system dependencies installed successfully!"
+}
 
 
