@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="AudioMeta Logo" width="200"/>
+</p>
+
 # AudioMeta Python
 
 [![CI](https://github.com/Andreas-Garcia/audiometa/actions/workflows/ci.yml/badge.svg)](https://github.com/Andreas-Garcia/audiometa/actions/workflows/ci.yml)
