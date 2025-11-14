@@ -67,8 +67,8 @@ bwfmetaedit = { source = "mediaarea", pinned_version = "24.10" }
 # exiftool: Download from official website (not available in Chocolatey)
 # Note: Windows version may differ from macOS/Linux due to release availability
 # Check https://exiftool.org/ for available Windows versions
-# Updated from 13.41 to 13.40 due to download availability issues
-exiftool = { source = "exiftool_org", pinned_version = "13.40" }
+# Updated to 13.36 to match macOS version (13.40 and 13.41 return 404)
+exiftool = { source = "exiftool_org", pinned_version = "13.36" }
 
 [verification]
 # Commands to verify tool installation and versions
