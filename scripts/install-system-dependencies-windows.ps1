@@ -88,16 +88,32 @@ $wslInstalled = Get-Command wsl -ErrorAction SilentlyContinue
 if (-not $wslInstalled) {
     Write-Host "WSL not found. Attempting to install WSL..."
 
-    # Enable WSL feature (requires admin privileges)
-    Write-Host "Enabling WSL feature..."
-    $enableResult = Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart -ErrorAction SilentlyContinue
-    if ($LASTEXITCODE -ne 0 -and -not $enableResult) {
-        Write-Host "WARNING: Failed to enable WSL feature. May require admin privileges or manual setup."
+    # Enable WSL feature using DISM (more reliable, no restart required)
+    Write-Host "Enabling WSL feature using DISM..."
+    $dismOutput = dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /norestart 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "WARNING: Failed to enable WSL feature via DISM. Trying alternative method..."
+        # Fallback to Enable-WindowsOptionalFeature
+        $enableResult = Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart -ErrorAction SilentlyContinue
+        if ($LASTEXITCODE -ne 0 -and -not $enableResult) {
+            Write-Host "WARNING: Failed to enable WSL feature. May require admin privileges or manual setup."
+        }
+    } else {
+        Write-Host "WSL feature enabled successfully."
     }
 
-    # Try to install WSL
-    Write-Host "Installing WSL..."
-    $wslInstallOutput = wsl --install -d Ubuntu 2>&1
+    # Enable Virtual Machine Platform (required for WSL2, but WSL1 should work without it)
+    Write-Host "Enabling Virtual Machine Platform feature..."
+    dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /norestart 2>&1 | Out-Null
+
+    # Try to install WSL and Ubuntu
+    Write-Host "Installing WSL with Ubuntu..."
+    $wslInstallOutput = wsl --install -d Ubuntu --no-distribution 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        # Try without --no-distribution flag (older WSL versions)
+        Write-Host "Retrying WSL installation without --no-distribution flag..."
+        $wslInstallOutput = wsl --install -d Ubuntu 2>&1
+    }
     if ($LASTEXITCODE -ne 0) {
         Write-Host "WARNING: WSL installation failed or requires restart."
         Write-Host "WSL output: $wslInstallOutput"
@@ -130,27 +146,43 @@ if ($wslCheck) {
 
 if (-not $ubuntuAvailable) {
     Write-Host "Ubuntu distribution not found in WSL. Attempting to install Ubuntu..."
+
+    # First, try to update WSL if available
+    if ($wslCheck) {
+        Write-Host "Updating WSL..."
+        wsl --update 2>&1 | Out-Null
+    }
+
+    # Try to install Ubuntu distribution
+    Write-Host "Installing Ubuntu distribution..."
     $ubuntuInstallOutput = wsl --install -d Ubuntu 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "WARNING: Failed to install Ubuntu in WSL."
+    $installExitCode = $LASTEXITCODE
+
+    # Check if installation succeeded or if Ubuntu is now available
+    if ($installExitCode -eq 0) {
+        Write-Host "Ubuntu installation command succeeded. Waiting for initialization..."
+        Start-Sleep -Seconds 15
+    } else {
+        # Installation command failed, but Ubuntu might still be installing in background
+        Write-Host "WSL install command returned exit code $installExitCode"
         Write-Host "WSL output: $ubuntuInstallOutput"
+        Write-Host "Waiting to check if Ubuntu becomes available..."
+        Start-Sleep -Seconds 20
+    }
+
+    # Check again if Ubuntu is available
+    $wslListOutput = wsl -l -q 2>&1
+    $ubuntuAvailable = $wslListOutput | Select-String -Pattern "Ubuntu"
+
+    if (-not $ubuntuAvailable) {
+        Write-Host "WARNING: Ubuntu distribution not available after installation attempt."
+        Write-Host "WSL list output: $wslListOutput"
         Write-Host ""
         Write-Host "Skipping id3v2 installation (requires WSL Ubuntu)."
         $failedPackages += "id3v2"
         $wslRequiredPackages += "id3v2"
     } else {
-        Write-Host "Ubuntu installation initiated. Waiting for initialization..."
-        # Wait for Ubuntu to initialize
-        Start-Sleep -Seconds 10
-        # Check again if Ubuntu is available
-        $wslListOutput = wsl -l -q 2>&1
-        $ubuntuAvailable = $wslListOutput | Select-String -Pattern "Ubuntu"
-        if (-not $ubuntuAvailable) {
-            Write-Host "WARNING: Ubuntu installed but may not be ready yet."
-            Write-Host "Skipping id3v2 installation (WSL Ubuntu not yet available)."
-            $failedPackages += "id3v2"
-            $wslRequiredPackages += "id3v2"
-        }
+        Write-Host "Ubuntu distribution is now available!"
     }
 }
 
