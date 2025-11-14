@@ -42,29 +42,89 @@ install_homebrew_package() {
 
   echo "Installing ${tool_name}..."
 
+  # Check if this is a library package (no executable) or executable tool
+  local is_library=0
+  local already_installed=0
+
+  # Check if package is already installed via Homebrew
+  if brew list "$brew_package" &>/dev/null; then
+    already_installed=1
+    # Check if it's a library (no executable) or executable tool
+    if ! command -v "$tool_name" &>/dev/null; then
+      is_library=1
+    fi
+  elif command -v "$tool_name" &>/dev/null; then
+    # Executable exists but not via Homebrew (might be system-installed)
+    already_installed=0
+  fi
+
   # Check if already installed with correct version
-  if command -v "$tool_name" &>/dev/null; then
-    INSTALLED_VERSION=$(get_tool_version "$tool_name")
-    if check_version_match "$tool_name" "$INSTALLED_VERSION" "$pinned_version"; then
+  if [ "$already_installed" -eq 1 ]; then
+    INSTALLED_VERSION=""
+    if [ "$is_library" -eq 1 ]; then
+      # For library packages, get version from pkg-config or brew info
+      INSTALLED_VERSION=$(pkg-config --modversion "$brew_package" 2>/dev/null || brew info "$brew_package" 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(_[0-9]+)?' | head -n1 || echo "")
+    else
+      INSTALLED_VERSION=$(get_tool_version "$tool_name")
+    fi
+
+    if [ -n "$INSTALLED_VERSION" ] && check_version_match "$tool_name" "$INSTALLED_VERSION" "$pinned_version"; then
       echo "  ${tool_name} ${INSTALLED_VERSION} already installed (matches pinned version ${pinned_version})"
       return 0
-    else
+    elif [ -n "$INSTALLED_VERSION" ]; then
       echo "  Removing existing ${tool_name} version ${INSTALLED_VERSION} (installing pinned version ${pinned_version})..."
       remove_homebrew_package "$brew_package" "$binary_paths"
+      already_installed=0
+    elif [ "$is_library" -eq 1 ]; then
+      # For library packages, if we can't extract version but package is installed, skip installation
+      # Version verification will be done in the final verification section
+      echo "  ${tool_name} already installed via Homebrew (version verification will be done in final check)"
+      return 0
     fi
   fi
 
-  # Install via Homebrew
-  brew install "$brew_package" || {
-    echo "ERROR: Failed to install ${tool_name} via Homebrew."
-    exit 1
-  }
+  # Install via Homebrew if not already installed
+  if [ "$already_installed" -eq 0 ]; then
+    # Temporarily disable exit on error to handle "already installed" case
+    set +e
+    brew install "$brew_package" 2>&1
+    local install_status=$?
+    set -e
+
+    if [ $install_status -ne 0 ]; then
+      # Check if installation failed because package is already installed
+      if brew list "$brew_package" &>/dev/null; then
+        echo "  ${tool_name} already installed via Homebrew, verifying version..."
+        already_installed=1
+        if ! command -v "$tool_name" &>/dev/null; then
+          is_library=1
+        fi
+      else
+        echo "ERROR: Failed to install ${tool_name} via Homebrew."
+        exit 1
+      fi
+    fi
+  fi
 
   # Verify installed version matches pinned version
-  INSTALLED_VERSION=$(get_tool_version "$tool_name")
+  INSTALLED_VERSION=""
+  if [ "$is_library" -eq 1 ] || ! command -v "$tool_name" &>/dev/null; then
+    # For library packages, get version from pkg-config or brew info
+    INSTALLED_VERSION=$(pkg-config --modversion "$brew_package" 2>/dev/null || brew info "$brew_package" 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(_[0-9]+)?' | head -n1 || echo "")
+  else
+    INSTALLED_VERSION=$(get_tool_version "$tool_name")
+  fi
+
   if [ -z "$INSTALLED_VERSION" ]; then
-    echo "ERROR: Failed to get installed ${tool_name} version."
-    exit 1
+    if [ "$is_library" -eq 1 ]; then
+      # For library packages, if we can't extract version but package is installed, consider it OK
+      # The final verification section will handle version checking
+      echo "  ${tool_name} installed successfully (version verification will be done in final check)"
+      return 0
+    else
+      echo "ERROR: Failed to get installed ${tool_name} version."
+      exit 1
+    fi
   fi
 
   if ! check_version_match "$tool_name" "$INSTALLED_VERSION" "$pinned_version"; then
