@@ -22,7 +22,7 @@ ffmpeg = "7:6.1.1-3ubuntu5"
 flac = "1.4.3+ds-2.1ubuntu2"
 mediainfo = "24.01.1-1build2"
 id3v2 = "0.1.12+dfsg-7"
-libimage-exiftool-perl = "12.90+dfsg-1"
+libimage-exiftool-perl = "12.76+dfsg-1"
 
 # bwfmetaedit: Download from MediaArea (not available in Ubuntu repos)
 # Check https://mediaarea.net/BWFMetaEdit/Download/Ubuntu for available versions
