@@ -28,20 +28,18 @@ id3v2 = "0.1.12+dfsg-7"  # Pinned version (fails if not available) - VERIFY THIS
 bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "25.04.1" }
 
 [macos]
-# macOS package versions (install via Homebrew)
-# IMPORTANT: Only ffmpeg supports version pinning via @version syntax in Homebrew
-# Other packages (flac, mediainfo/media-info, id3v2) don't support version pinning
-# during installation, but we verify installed versions match expected versions after installation.
-# bwfmetaedit is downloaded from MediaArea with pinned version (same as Ubuntu/Windows)
-# If versions don't match, installation fails to ensure reproducibility.
-# To check available versions: brew info <package> or brew search <package>
-# Note: Homebrew version format example: "ffmpeg@7" (major version only for versioned packages)
-# Version verification compares major.minor versions (e.g., "1.4.3" matches "1.4.5")
-ffmpeg = "7"  # Pinned version using @version syntax (fails if not available)
-flac = "1.4.3"  # Expected version - verified after installation (major.minor must match)
-mediainfo = "24.12"  # Expected version - Homebrew package is "media-info", verified after installation
-bwfmetaedit = "25.04.1"  # Pinned version - downloaded from MediaArea
-id3v2 = "0.1.12"  # Expected version - verified after installation
+# macOS package versions (installed from binaries/source for exact version pinning)
+# ffmpeg: Installed via Homebrew using @version syntax (e.g., ffmpeg@7)
+# flac: Built from source (GitHub releases) - exact version pinning
+# mediainfo: Downloaded from MediaArea as binary - exact version pinning
+# id3v2: Built from source (SourceForge) - exact version pinning
+# bwfmetaedit: Downloaded from MediaArea as binary - exact version pinning
+# All packages are verified to match pinned versions after installation (major.minor must match)
+ffmpeg = "7"  # Pinned version using Homebrew @version syntax (fails if not available)
+flac = "1.4.3"  # Pinned version - built from source (exact version)
+mediainfo = "24.12"  # Pinned version - downloaded from MediaArea (exact version)
+bwfmetaedit = "25.04.1"  # Pinned version - downloaded from MediaArea (exact version)
+id3v2 = "0.1.12"  # Pinned version - built from source (exact version)
 
 [windows]
 # Windows package versions (install via Chocolatey)
