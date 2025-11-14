@@ -23,10 +23,11 @@ class TestErrorHandlingWorkflows:
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Original Title"
 
             # 2. Test invalid rating operation - should raise InvalidRatingValueError
-            # Using normalized mode with invalid value (37 doesn't map to any profile value)
+            # Using normalized mode with invalid value (110 is over the max value and results in invalid star rating
+            # index > 10)
             with pytest.raises(InvalidRatingValueError) as exc_info:
-                update_metadata(test_file, {UnifiedMetadataKey.RATING: 37}, normalized_rating_max_value=100)
-            assert "do not exist in any supported writing profile" in str(exc_info.value)
+                update_metadata(test_file, {UnifiedMetadataKey.RATING: 110}, normalized_rating_max_value=100)
+            assert "out of range" in str(exc_info.value) or "invalid star rating index" in str(exc_info.value)
 
             # 3. Test recovery after error - verify the file is still usable
             # The file should still have its original metadata intact
