@@ -23,23 +23,26 @@ flac = "1.4.3+ds-2.1ubuntu2"  # Pinned version (fails if not available) - VERIFY
 mediainfo = "24.01.1-1build2"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 id3v2 = "0.1.12+dfsg-7"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 
-# bwfmetaedit: Try repos first, then download pinned version from MediaArea
-# Note: Version must be available for the pinned Ubuntu CI version
+# bwfmetaedit: Try repos first, then download from MediaArea if not available
+# If not in repos, script will try to find a compatible version from MediaArea
+# Note: MediaArea may not have packages for all Ubuntu versions
 # Check https://mediaarea.net/BWFMetaEdit/Download/Ubuntu for available versions
-bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "24.10" }
+bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "latest_available" }
 
 [macos]
 # macOS package versions (install via Homebrew)
 # IMPORTANT: Only ffmpeg supports version pinning via @version syntax in Homebrew
 # Other packages (flac, mediainfo/media-info, id3v2, bwfmetaedit) don't support version pinning
-# and will install the latest available version. The versions listed below are for reference only.
+# during installation, but we verify installed versions match expected versions after installation.
+# If versions don't match, installation fails to ensure reproducibility.
 # To check available versions: brew info <package> or brew search <package>
 # Note: Homebrew version format example: "ffmpeg@7" (major version only for versioned packages)
+# Version verification compares major.minor versions (e.g., "1.4.3" matches "1.4.5")
 ffmpeg = "7"  # Pinned version using @version syntax (fails if not available)
-flac = "1.4.3"  # Reference version only - Homebrew installs latest (no version pinning support)
-mediainfo = "24.12"  # Reference version only - Homebrew package is "media-info", installs latest
-bwfmetaedit = "24.10"  # Reference version only - Homebrew installs latest (no version pinning support)
-id3v2 = "0.1.12"  # Reference version only - Homebrew installs latest (no version pinning support)
+flac = "1.4.3"  # Expected version - verified after installation (major.minor must match)
+mediainfo = "24.12"  # Expected version - Homebrew package is "media-info", verified after installation
+bwfmetaedit = "24.10"  # Expected version - verified after installation
+id3v2 = "0.1.12"  # Expected version - verified after installation
 
 [windows]
 # Windows package versions (install via Chocolatey)

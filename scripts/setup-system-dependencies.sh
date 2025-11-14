@@ -128,14 +128,72 @@ install_macos() {
 
     # Install packages without version pinning (Homebrew doesn't support @version for these)
     # Note: mediainfo is called media-info in Homebrew
-    echo -e "${YELLOW}Installing flac, media-info, id3v2, bwfmetaedit (latest available versions)...${NC}"
+    # We'll verify installed versions match expected versions after installation
+    echo -e "${YELLOW}Installing flac, media-info, id3v2, bwfmetaedit...${NC}"
     brew install flac media-info id3v2 bwfmetaedit || {
       echo -e "${RED}✗ ERROR: Failed to install packages.${NC}"
       echo "Check available packages with: brew search <package>"
       exit 1
     }
 
-    echo -e "${GREEN}✓ All packages installed${NC}"
+    # Verify installed versions match expected versions (fail if mismatch)
+    echo -e "${YELLOW}Verifying installed versions match expected versions...${NC}"
+    HAS_VERSION_MISMATCH=0
+
+    INSTALLED_FLAC=$(brew list --versions flac | awk '{print $2}')
+    INSTALLED_MEDIAINFO=$(brew list --versions media-info | awk '{print $2}')
+    INSTALLED_ID3V2=$(brew list --versions id3v2 | awk '{print $2}')
+    INSTALLED_BWFMETAEDIT=$(brew list --versions bwfmetaedit 2>/dev/null | awk '{print $2}' || echo "not installed")
+
+    # Function to check version match (allows patch version differences for compatibility)
+    check_version_match() {
+      local installed=$1
+      local expected=$2
+      local package=$3
+
+      if [ -z "$installed" ] || [ "$installed" = "not installed" ]; then
+        echo -e "${RED}✗ ERROR: $package: version check failed (not installed or version not found)${NC}"
+        return 1
+      fi
+
+      # Extract major.minor version for comparison (e.g., "1.4.3" -> "1.4")
+      INSTALLED_MAJOR_MINOR=$(echo "$installed" | cut -d. -f1,2)
+      EXPECTED_MAJOR_MINOR=$(echo "$expected" | cut -d. -f1,2)
+
+      if [ "$INSTALLED_MAJOR_MINOR" != "$EXPECTED_MAJOR_MINOR" ]; then
+        echo -e "${RED}✗ ERROR: $package: version mismatch (expected ${expected}, got ${installed})${NC}"
+        return 1
+      fi
+
+      echo -e "${GREEN}  ✓${NC} $package: ${installed} (matches expected ${expected})"
+      return 0
+    }
+
+    if ! check_version_match "$INSTALLED_FLAC" "$PINNED_FLAC" "flac"; then
+      HAS_VERSION_MISMATCH=1
+    fi
+
+    if ! check_version_match "$INSTALLED_MEDIAINFO" "$PINNED_MEDIAINFO" "media-info"; then
+      HAS_VERSION_MISMATCH=1
+    fi
+
+    if ! check_version_match "$INSTALLED_ID3V2" "$PINNED_ID3V2" "id3v2"; then
+      HAS_VERSION_MISMATCH=1
+    fi
+
+    if ! check_version_match "$INSTALLED_BWFMETAEDIT" "$PINNED_BWFMETAEDIT" "bwfmetaedit"; then
+      HAS_VERSION_MISMATCH=1
+    fi
+
+    if [ $HAS_VERSION_MISMATCH -eq 1 ]; then
+      echo ""
+      echo -e "${RED}✗ ERROR: Installed versions do not match expected versions from system-dependencies.toml${NC}"
+      echo "This ensures reproducibility - update system-dependencies.toml with the actual installed versions"
+      echo "or ensure Homebrew has the expected versions available."
+      exit 1
+    fi
+
+    echo -e "${GREEN}✓ All packages installed and verified${NC}"
 }
 
 # Print instructions for Windows
