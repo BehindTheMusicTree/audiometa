@@ -42,7 +42,7 @@ def get_version_value(os_config, tool):
 
     version_value = os_config[tool]
     if isinstance(version_value, str):
-        return version_value
+        return version_value  # Return empty string as-is (used for id3v2 on Windows)
     elif isinstance(version_value, dict) and "pinned_version" in version_value:
         return version_value["pinned_version"]
     return None
@@ -107,14 +107,15 @@ def main():
     if output_format == "bash":
         for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit"]:
             version = get_version_value(os_config, tool)
-            if version:
+            if version is not None:
                 var_name = f"PINNED_{tool.upper()}"
                 print(f"{var_name}=\"{version}\"")
     elif output_format == "powershell":
         for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit"]:
             version = get_version_value(os_config, tool)
-            if version:
+            if version is not None:
                 var_name = f"PINNED_{tool.upper()}"
+                # Output empty string explicitly if version is empty (for id3v2 on Windows)
                 print(f"${var_name} = \"{version}\"")
     else:
         print(f"ERROR: Unknown output format: {output_format}", file=sys.stderr)

@@ -240,6 +240,8 @@ sudo dnf install flac
 - Download from [https://xiph.org/flac/download.html](https://xiph.org/flac/download.html)
 - Add to your system PATH
 
+**Note for Windows users:** The `id3v2` tool is not available as a native Windows binary. The automated installation script uses **WSL (Windows Subsystem for Linux)** to install `id3v2` via Ubuntu's package manager. WSL will be automatically installed if not present. A wrapper script is created to make `id3v2` accessible from Windows command line.
+
 #### Automated Setup (Recommended)
 
 To ensure your local environment matches CI exactly, use the automated setup script:

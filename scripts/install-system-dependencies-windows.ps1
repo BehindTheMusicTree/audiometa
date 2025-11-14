@@ -62,8 +62,82 @@ if (-not (Install-ChocoPackage "mediainfo" $PINNED_MEDIAINFO)) {
     $failedPackages += "mediainfo"
 }
 
-if (-not (Install-ChocoPackage "id3v2" $PINNED_ID3V2)) {
-    $failedPackages += "id3v2"
+# id3v2: Required for tests but not available in Chocolatey
+# Install via WSL (Windows Subsystem for Linux) since id3v2 is a Linux tool
+Write-Host "Installing id3v2 via WSL..."
+
+# Check if WSL is installed and Ubuntu distribution is available
+$wslInstalled = Get-Command wsl -ErrorAction SilentlyContinue
+if (-not $wslInstalled) {
+    Write-Host "WSL not found. Installing WSL..."
+    # Enable WSL feature
+    Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart -ErrorAction SilentlyContinue
+    # Install WSL
+    wsl --install -d Ubuntu --quiet
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "ERROR: Failed to install WSL. id3v2 requires WSL on Windows."
+        Write-Host "Please install WSL manually: wsl --install"
+        Write-Host "Or enable WSL feature: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux"
+        $failedPackages += "id3v2"
+    } else {
+        Write-Host "WSL installed. Please restart and run this script again, or run: wsl --update"
+        Write-Host "Then install id3v2 manually in WSL: wsl sudo apt-get update && wsl sudo apt-get install -y id3v2=$PINNED_ID3V2"
+        exit 1
+    }
+}
+
+# Check if Ubuntu distribution is available in WSL
+$ubuntuAvailable = wsl -l -q 2>&1 | Select-String -Pattern "Ubuntu"
+if (-not $ubuntuAvailable) {
+    Write-Host "Ubuntu distribution not found in WSL. Installing Ubuntu..."
+    wsl --install -d Ubuntu --quiet
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "ERROR: Failed to install Ubuntu in WSL."
+        Write-Host "Please install Ubuntu manually: wsl --install -d Ubuntu"
+        $failedPackages += "id3v2"
+    } else {
+        Write-Host "Ubuntu installed. Please restart and run this script again."
+        exit 1
+    }
+}
+
+# Install id3v2 in WSL Ubuntu with pinned version
+Write-Host "Installing id3v2 version $PINNED_ID3V2 in WSL Ubuntu..."
+wsl sudo apt-get update -qq
+wsl sudo apt-get install -y "id3v2=$PINNED_ID3V2"
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "WARNING: Failed to install id3v2 version $PINNED_ID3V2. Trying latest version..."
+    wsl sudo apt-get install -y id3v2
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "ERROR: Failed to install id3v2 in WSL."
+        $failedPackages += "id3v2"
+    } else {
+        Write-Host "id3v2 (latest) installed in WSL successfully."
+        # Create wrapper script to make id3v2 accessible from Windows
+        $wrapperDir = "C:\Program Files\id3v2-wrapper"
+        New-Item -ItemType Directory -Force -Path $wrapperDir | Out-Null
+        $wrapperScript = @"
+@echo off
+wsl id3v2 %*
+"@
+        $wrapperScript | Out-File -FilePath "$wrapperDir\id3v2.bat" -Encoding ASCII
+        if ($env:GITHUB_PATH) {
+            echo "$wrapperDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        }
+    }
+} else {
+    Write-Host "id3v2 version $PINNED_ID3V2 installed in WSL successfully."
+    # Create wrapper script to make id3v2 accessible from Windows
+    $wrapperDir = "C:\Program Files\id3v2-wrapper"
+    New-Item -ItemType Directory -Force -Path $wrapperDir | Out-Null
+    $wrapperScript = @"
+@echo off
+wsl id3v2 %*
+"@
+    $wrapperScript | Out-File -FilePath "$wrapperDir\id3v2.bat" -Encoding ASCII
+    if ($env:GITHUB_PATH) {
+        echo "$wrapperDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+    }
 }
 
 # Check if any packages failed
