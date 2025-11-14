@@ -106,12 +106,12 @@ if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
   echo ""
   echo "Installation may have failed. Check the output above for errors."
   echo ""
+  HOMEBREW_PREFIX=$(get_homebrew_prefix)
   echo "Note: On macOS, you may need to add Homebrew's bin directory to PATH:"
-  echo "  export PATH=\"/opt/homebrew/bin:\$PATH\"  # Apple Silicon"
-  echo "  export PATH=\"/usr/local/bin:\$PATH\"     # Intel"
+  echo "  export PATH=\"${HOMEBREW_PREFIX}/bin:\$PATH\""
   echo ""
   echo "Note: ffmpeg@7 is keg-only. If ffprobe is missing, ensure PATH includes:"
-  echo "  export PATH=\"/usr/local/opt/ffmpeg@7/bin:\$PATH\""
+  echo "  export PATH=\"${HOMEBREW_PREFIX}/opt/ffmpeg@7/bin:\$PATH\""
   exit 1
 fi
 

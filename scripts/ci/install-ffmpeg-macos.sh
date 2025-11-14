@@ -5,6 +5,9 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/macos-common.sh"
+
 if [ $# -lt 1 ]; then
   echo "ERROR: Pinned version required"
   echo "Usage: $0 <pinned_version>"
@@ -12,6 +15,7 @@ if [ $# -lt 1 ]; then
 fi
 
 PINNED_VERSION="$1"
+HOMEBREW_PREFIX=$(get_homebrew_prefix)
 
 # Check if ffmpeg is already installed and remove if version doesn't match
 NEED_INSTALL=1
@@ -27,7 +31,7 @@ if command -v ffmpeg &>/dev/null; then
       echo "ffmpeg ${INSTALLED_VERSION} already installed (matches pinned version ${PINNED_VERSION})"
       NEED_INSTALL=0
       # ffmpeg@7 is keg-only, ensure it's in PATH
-      FFMPEG_BIN_PATH="/usr/local/opt/ffmpeg@${PINNED_VERSION}/bin"
+      FFMPEG_BIN_PATH="${HOMEBREW_PREFIX}/opt/ffmpeg@${PINNED_VERSION}/bin"
       if [ -d "$FFMPEG_BIN_PATH" ]; then
         export PATH="$FFMPEG_BIN_PATH:$PATH"
         if [ -n "$GITHUB_PATH" ]; then
@@ -53,7 +57,7 @@ if [ "$NEED_INSTALL" -eq 1 ]; then
     exit 1
   }
   # ffmpeg@7 is keg-only, so we need to add it to PATH
-  FFMPEG_BIN_PATH="/usr/local/opt/ffmpeg@${PINNED_VERSION}/bin"
+  FFMPEG_BIN_PATH="${HOMEBREW_PREFIX}/opt/ffmpeg@${PINNED_VERSION}/bin"
   if [ -d "$FFMPEG_BIN_PATH" ]; then
     export PATH="$FFMPEG_BIN_PATH:$PATH"
     # Also add to PATH for verification step

@@ -70,26 +70,65 @@ if [ "$NEED_INSTALL" -eq 1 ]; then
     exit 1
   fi
 
-  # MediaArea DMG structure: MediaInfo.app/Contents/MacOS/mediainfo
-  EXE_PATH="${MOUNT_POINT}/MediaInfo.app/Contents/MacOS/mediainfo"
+  # Check for .pkg file first (newer MediaArea releases)
+  PKG_FILE=$(find "$MOUNT_POINT" -name "*.pkg" -type f | head -1)
 
-  if [ ! -f "$EXE_PATH" ]; then
-    echo "ERROR: mediainfo executable not found at expected location: $EXE_PATH"
-    echo "Contents of mounted DMG:"
-    ls -la "$MOUNT_POINT"
-    hdiutil detach "$MOUNT_POINT" -quiet || true
-    rm -f "$DMG_FILE"
-    exit 1
+  if [ -n "$PKG_FILE" ]; then
+    # Install the .pkg file (non-interactive mode)
+    echo "Installing mediainfo from .pkg installer..."
+    sudo installer -pkg "$PKG_FILE" -target / -allowUntrusted || {
+      echo "ERROR: Failed to install mediainfo from .pkg file."
+      hdiutil detach "$MOUNT_POINT" -quiet || true
+      rm -f "$DMG_FILE"
+      exit 1
+    }
+
+    # After installing .pkg, the executable should be in /usr/local/bin or /opt/local/bin
+    # Check common installation locations
+    if [ -f "/usr/local/bin/mediainfo" ]; then
+      EXE_PATH="/usr/local/bin/mediainfo"
+    elif [ -f "/opt/local/bin/mediainfo" ]; then
+      # Copy to /usr/local/bin for consistency
+      sudo cp "/opt/local/bin/mediainfo" /usr/local/bin/mediainfo
+      EXE_PATH="/usr/local/bin/mediainfo"
+    else
+      # Try to find where installer placed it
+      EXE_PATH=$(find /usr/local /opt/local -name "mediainfo" -type f 2>/dev/null | head -1)
+      if [ -n "$EXE_PATH" ] && [ "$EXE_PATH" != "/usr/local/bin/mediainfo" ]; then
+        sudo cp "$EXE_PATH" /usr/local/bin/mediainfo
+        EXE_PATH="/usr/local/bin/mediainfo"
+      fi
+    fi
+
+    if [ -z "$EXE_PATH" ] || [ ! -f "$EXE_PATH" ]; then
+      echo "ERROR: mediainfo executable not found after .pkg installation."
+      echo "Searched in /usr/local/bin and /opt/local/bin"
+      hdiutil detach "$MOUNT_POINT" -quiet || true
+      rm -f "$DMG_FILE"
+      exit 1
+    fi
+  else
+    # Fallback: MediaArea DMG structure with .app bundle (older releases)
+    EXE_PATH="${MOUNT_POINT}/MediaInfo.app/Contents/MacOS/mediainfo"
+
+    if [ ! -f "$EXE_PATH" ]; then
+      echo "ERROR: mediainfo executable not found at expected location: $EXE_PATH"
+      echo "Contents of mounted DMG:"
+      ls -la "$MOUNT_POINT"
+      hdiutil detach "$MOUNT_POINT" -quiet || true
+      rm -f "$DMG_FILE"
+      exit 1
+    fi
+
+    sudo cp "$EXE_PATH" /usr/local/bin/mediainfo || {
+      echo "ERROR: Failed to copy mediainfo executable."
+      hdiutil detach "$MOUNT_POINT" -quiet || true
+      rm -f "$DMG_FILE"
+      exit 1
+    }
+
+    sudo chmod +x /usr/local/bin/mediainfo
   fi
-
-  sudo cp "$EXE_PATH" /usr/local/bin/mediainfo || {
-    echo "ERROR: Failed to copy mediainfo executable."
-    hdiutil detach "$MOUNT_POINT" -quiet || true
-    rm -f "$DMG_FILE"
-    exit 1
-  }
-
-  sudo chmod +x /usr/local/bin/mediainfo
 
   hdiutil detach "$MOUNT_POINT" -quiet || true
   rm -f "$DMG_FILE"

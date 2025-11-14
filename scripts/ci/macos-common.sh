@@ -123,6 +123,20 @@ get_tool_version() {
   echo "$version_output"
 }
 
+# Function to get Homebrew prefix (handles both Intel and Apple Silicon)
+get_homebrew_prefix() {
+  if command -v brew &>/dev/null; then
+    brew --prefix 2>/dev/null || echo "/opt/homebrew"
+  else
+    # Fallback: detect based on architecture
+    if [ "$(uname -m)" = "arm64" ]; then
+      echo "/opt/homebrew"
+    else
+      echo "/usr/local"
+    fi
+  fi
+}
+
 # Function to remove Homebrew installation of a package
 remove_homebrew_package() {
   local package_name="$1"
