@@ -37,7 +37,7 @@ A powerful, unified Python library for reading and writing audio metadata across
   - [Deleting Metadata](#deleting-metadata)
 - [Core API Reference](#core-api-reference)
   - [Reading Metadata (API Reference)](#reading-metadata-api-reference)
-  - [Pre-Update Validation](#pre-update-validation)
+  - [Pre-Update Validation (API Reference)](#pre-update-validation-api-reference)
   - [Writing Metadata (API Reference)](#writing-metadata-api-reference)
   - [Deleting Metadata (API Reference)](#deleting-metadata-api-reference)
 - [Metadata Field Guide: Support and Handling](#metadata-field-guide-support-and-handling)
@@ -870,7 +870,7 @@ print(f"Metadata overhead: {full_info['headers']['id3v2']['header_size_bytes']} 
 print(f"Audio data ratio: {(full_info['technical_info']['file_size_bytes'] - full_info['headers']['id3v2']['header_size_bytes']) / full_info['technical_info']['file_size_bytes'] * 100:.1f}%")
 ```
 
-### Pre-Update Validation
+### Pre-Update Validation (API Reference)
 
 Before updating metadata, the library provides validation to ensure your data is correct:
 
@@ -926,7 +926,7 @@ validate_metadata_for_update({UnifiedMetadataKey.RELEASE_DATE: "2024/01/01"})
 
 ### Writing Metadata (API Reference)
 
-For validation before writing, see [Pre-Update Validation](#pre-update-validation).
+For validation before writing, see [Pre-Update Validation (API Reference)](#pre-update-validation-api-reference).
 
 #### Metadata Dictionary Structure
 
