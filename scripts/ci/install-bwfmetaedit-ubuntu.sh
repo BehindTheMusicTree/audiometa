@@ -48,18 +48,36 @@ if command -v bwfmetaedit &>/dev/null; then
 fi
 
 # MediaArea URL format: bwfmetaedit_{version}-1_amd64.{prefix}{ubuntu_version}.deb
-# Ubuntu 24.04+ uses "Ubuntu_" prefix (capital U), older versions use "xUbuntu_" (lowercase x)
+# Try different URL patterns that MediaArea might use
+URL_PATTERNS=(
+  "https://mediaarea.net/download/binary/bwfmetaedit/${PINNED_VERSION}/bwfmetaedit_${PINNED_VERSION}-1_amd64.Ubuntu_${UBUNTU_VERSION}.deb"
+  "https://mediaarea.net/download/binary/bwfmetaedit/${PINNED_VERSION}/bwfmetaedit_${PINNED_VERSION}-1_amd64.xUbuntu_${UBUNTU_VERSION}.deb"
+)
 
-# Determine URL based on Ubuntu version
-if [ "${UBUNTU_MAJOR}" -ge 24 ]; then
-  URL="https://mediaarea.net/download/binary/bwfmetaedit/${PINNED_VERSION}/bwfmetaedit_${PINNED_VERSION}-1_amd64.Ubuntu_${UBUNTU_VERSION}.deb"
-  UBUNTU_FORMAT="${UBUNTU_VERSION}"
-else
-  URL="https://mediaarea.net/download/binary/bwfmetaedit/${PINNED_VERSION}/bwfmetaedit_${PINNED_VERSION}-1_amd64.xUbuntu_${UBUNTU_VERSION}.deb"
-  UBUNTU_FORMAT="${UBUNTU_VERSION}"
+URL=""
+for url_pattern in "${URL_PATTERNS[@]}"; do
+  if wget -q --spider "$url_pattern" 2>/dev/null; then
+    URL="$url_pattern"
+    break
+  fi
+done
+
+if [ -z "$URL" ]; then
+  echo "ERROR: bwfmetaedit version ${PINNED_VERSION} not available for Ubuntu ${UBUNTU_VERSION}"
+  echo ""
+  echo "Tried URLs:"
+  for url_pattern in "${URL_PATTERNS[@]}"; do
+    echo "  - $url_pattern"
+  done
+  echo ""
+  echo "To find available versions:"
+  echo "  1. Visit https://mediaarea.net/BWFMetaEdit/Download/Ubuntu"
+  echo "  2. Check available versions for Ubuntu ${UBUNTU_VERSION}"
+  echo "  3. Update system-dependencies.toml with the correct pinned_version"
+  exit 1
 fi
 
-echo "Downloading bwfmetaedit version ${PINNED_VERSION} for Ubuntu ${UBUNTU_FORMAT} from MediaArea..."
+echo "Downloading bwfmetaedit version ${PINNED_VERSION} for Ubuntu ${UBUNTU_VERSION} from MediaArea..."
 wget "$URL"
 DEB_FILE=$(basename "$URL")
 echo "Installing ${DEB_FILE}..."
