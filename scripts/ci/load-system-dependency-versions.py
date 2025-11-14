@@ -55,7 +55,7 @@ def output_bash(config):
             continue
 
         os_config = config[os_type]
-        for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "libimage-exiftool-perl"]:
+        for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "libimage-exiftool-perl", "libsndfile", "libsndfile1"]:
             version = get_version_value(os_config, tool)
             if version:
                 var_name = f"PINNED_{tool.upper().replace('-', '_')}"
@@ -69,7 +69,7 @@ def output_powershell(config):
             continue
 
         os_config = config[os_type]
-        for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "libimage-exiftool-perl"]:
+        for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "libimage-exiftool-perl", "libsndfile", "libsndfile1"]:
             version = get_version_value(os_config, tool)
             if version:
                 var_name = f"$PINNED_{tool.upper().replace('-', '_')}"
@@ -105,13 +105,13 @@ def main():
     os_config = config[os_type]
 
     if output_format == "bash":
-        for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "libimage-exiftool-perl"]:
+        for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "libimage-exiftool-perl", "libsndfile", "libsndfile1"]:
             version = get_version_value(os_config, tool)
             if version is not None:
                 var_name = f"PINNED_{tool.upper().replace('-', '_')}"
                 print(f"{var_name}=\"{version}\"")
     elif output_format == "powershell":
-        for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "libimage-exiftool-perl"]:
+        for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "libimage-exiftool-perl", "libsndfile", "libsndfile1"]:
             version = get_version_value(os_config, tool)
             if version is not None:
                 var_name = f"PINNED_{tool.upper().replace('-', '_')}"

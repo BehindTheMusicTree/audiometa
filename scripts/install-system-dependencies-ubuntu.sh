@@ -17,7 +17,7 @@ echo "Installing pinned package versions..."
 # Check available versions before attempting installation
 echo "Checking available package versions..."
 HAS_ERRORS=0
-for package in ffmpeg flac mediainfo id3v2 libimage-exiftool-perl; do
+for package in ffmpeg flac mediainfo id3v2 libimage-exiftool-perl libsndfile1; do
   var_name="PINNED_${package^^}"
   var_name="${var_name//-/_}"
   pinned_version="${!var_name}"
@@ -31,13 +31,16 @@ for package in ffmpeg flac mediainfo id3v2 libimage-exiftool-perl; do
     continue
   fi
 
-  # Check if specific version exists
-  if ! apt-cache madison "$package" 2>/dev/null | grep -q "$pinned_version"; then
-    echo "ERROR: Pinned version $pinned_version for $package is not available."
-    echo "Available versions for $package:"
-    apt-cache madison "$package" 2>/dev/null | head -5 || echo "  (could not list versions)"
-    echo ""
-    HAS_ERRORS=1
+  # Skip version check for "latest"
+  if [ "$pinned_version" != "latest" ]; then
+    # Check if specific version exists
+    if ! apt-cache madison "$package" 2>/dev/null | grep -q "$pinned_version"; then
+      echo "ERROR: Pinned version $pinned_version for $package is not available."
+      echo "Available versions for $package:"
+      apt-cache madison "$package" 2>/dev/null | head -5 || echo "  (could not list versions)"
+      echo ""
+      HAS_ERRORS=1
+    fi
   fi
 done
 
@@ -50,7 +53,7 @@ fi
 
 # Check installed versions and remove if different
 PACKAGES_TO_INSTALL=()
-for package in ffmpeg flac mediainfo; do
+for package in ffmpeg flac mediainfo libsndfile1; do
   var_name="PINNED_${package^^}"
   pinned_version="${!var_name}"
 
@@ -66,22 +69,35 @@ for package in ffmpeg flac mediainfo; do
       mediainfo)
         INSTALLED_VERSION=$(mediainfo --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
         ;;
+      libsndfile1)
+        # libsndfile1 doesn't have a version command, skip version check
+        INSTALLED_VERSION=""
+        ;;
     esac
 
-    if [ -n "$INSTALLED_VERSION" ]; then
-      # Compare installed version with pinned version (extract epoch:version-release format)
-      INSTALLED_APT_VERSION=$(dpkg -l | grep "^ii.*${package}" | awk '{print $3}' || echo "")
-      if [ -n "$INSTALLED_APT_VERSION" ] && [ "$INSTALLED_APT_VERSION" = "$pinned_version" ]; then
-        echo "${package} ${INSTALLED_APT_VERSION} already installed (matches pinned version)"
+    # Get installed apt version for comparison (works even if INSTALLED_VERSION is empty)
+    INSTALLED_APT_VERSION=$(dpkg -l | grep "^ii.*${package}" | awk '{print $3}' || echo "")
+
+    if [ "$pinned_version" = "latest" ]; then
+      # For "latest", just check if package is installed
+      if [ -n "$INSTALLED_APT_VERSION" ]; then
+        echo "${package} ${INSTALLED_APT_VERSION} already installed (using latest)"
         continue
-      else
-        echo "Removing existing ${package} version ${INSTALLED_APT_VERSION:-$INSTALLED_VERSION} (installing pinned version ${pinned_version})..."
-        sudo apt-get remove -y "$package" 2>/dev/null || true
       fi
+    elif [ -n "$INSTALLED_APT_VERSION" ] && [ "$INSTALLED_APT_VERSION" = "$pinned_version" ]; then
+      echo "${package} ${INSTALLED_APT_VERSION} already installed (matches pinned version)"
+      continue
+    elif [ -n "$INSTALLED_APT_VERSION" ]; then
+      echo "Removing existing ${package} version ${INSTALLED_APT_VERSION} (installing pinned version ${pinned_version})..."
+      sudo apt-get remove -y "$package" 2>/dev/null || true
     fi
   fi
 
-  PACKAGES_TO_INSTALL+=("${package}=${pinned_version}")
+  if [ "$pinned_version" = "latest" ]; then
+    PACKAGES_TO_INSTALL+=("${package}")
+  else
+    PACKAGES_TO_INSTALL+=("${package}=${pinned_version}")
+  fi
 done
 
 # Install packages if any need installation

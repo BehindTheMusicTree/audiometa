@@ -15,7 +15,7 @@ fi
 eval "$VERSION_OUTPUT"
 
 # Verify versions were loaded
-if [ -z "$PINNED_FFMPEG" ] || [ -z "$PINNED_FLAC" ] || [ -z "$PINNED_MEDIAINFO" ] || [ -z "$PINNED_ID3V2" ] || [ -z "$PINNED_BWFMETAEDIT" ] || [ -z "$PINNED_EXIFTOOL" ]; then
+if [ -z "$PINNED_FFMPEG" ] || [ -z "$PINNED_FLAC" ] || [ -z "$PINNED_MEDIAINFO" ] || [ -z "$PINNED_ID3V2" ] || [ -z "$PINNED_BWFMETAEDIT" ] || [ -z "$PINNED_EXIFTOOL" ] || [ -z "$PINNED_LIBSNDFILE" ]; then
   echo "ERROR: Failed to load all required versions from system-dependencies.toml"
   echo "Loaded versions:"
   echo "  PINNED_FFMPEG=${PINNED_FFMPEG:-NOT SET}"
@@ -24,6 +24,7 @@ if [ -z "$PINNED_FFMPEG" ] || [ -z "$PINNED_FLAC" ] || [ -z "$PINNED_MEDIAINFO" 
   echo "  PINNED_ID3V2=${PINNED_ID3V2:-NOT SET}"
   echo "  PINNED_BWFMETAEDIT=${PINNED_BWFMETAEDIT:-NOT SET}"
   echo "  PINNED_EXIFTOOL=${PINNED_EXIFTOOL:-NOT SET}"
+  echo "  PINNED_LIBSNDFILE=${PINNED_LIBSNDFILE:-NOT SET}"
   exit 1
 fi
 
@@ -146,6 +147,9 @@ install_homebrew_package "bwfmetaedit" "bwfmetaedit" "${PINNED_BWFMETAEDIT}" "/u
 # Install exiftool via Homebrew
 install_homebrew_package "exiftool" "exiftool" "${PINNED_EXIFTOOL}" "/usr/local/bin/exiftool"
 
+# Install libsndfile (required by soundfile Python package)
+install_homebrew_package "libsndfile" "libsndfile" "${PINNED_LIBSNDFILE}" ""
+
 # Ensure /usr/local/bin is in PATH for verification (tools may be installed there)
 if [ -d "/usr/local/bin" ] && [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
   export PATH="/usr/local/bin:$PATH"
@@ -163,11 +167,18 @@ INSTALLED_ID3V2=$(get_tool_version "id3v2")
 INSTALLED_BWFMETAEDIT=$(get_tool_version "bwfmetaedit")
 INSTALLED_EXIFTOOL=$(get_tool_version "exiftool")
 
+# Verify libsndfile installation (library, not executable)
+INSTALLED_LIBSNDFILE=""
+if brew list libsndfile &>/dev/null; then
+  INSTALLED_LIBSNDFILE=$(pkg-config --modversion libsndfile 2>/dev/null || brew info libsndfile 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "installed")
+fi
+
 echo "  flac: ${INSTALLED_FLAC:-not found} (expected: ${PINNED_FLAC})"
 echo "  mediainfo: ${INSTALLED_MEDIAINFO:-not found} (expected: ${PINNED_MEDIAINFO})"
 echo "  id3v2: ${INSTALLED_ID3V2:-not found} (expected: ${PINNED_ID3V2})"
 echo "  bwfmetaedit: ${INSTALLED_BWFMETAEDIT:-not found} (expected: ${PINNED_BWFMETAEDIT})"
 echo "  exiftool: ${INSTALLED_EXIFTOOL:-not found} (expected: ${PINNED_EXIFTOOL})"
+echo "  libsndfile: ${INSTALLED_LIBSNDFILE:-not found} (expected: ${PINNED_LIBSNDFILE})"
 
 # Verify versions match (exact match for major.minor)
 VERSION_MISMATCH=0
@@ -195,6 +206,14 @@ fi
 if ! check_version_match "exiftool" "$INSTALLED_EXIFTOOL" "$PINNED_EXIFTOOL"; then
   echo "ERROR: exiftool version mismatch: installed ${INSTALLED_EXIFTOOL}, expected ${PINNED_EXIFTOOL}"
   VERSION_MISMATCH=1
+fi
+
+if [ -z "$INSTALLED_LIBSNDFILE" ]; then
+  echo "ERROR: libsndfile not installed (required by soundfile Python package)"
+  VERSION_MISMATCH=1
+elif [ "$INSTALLED_LIBSNDFILE" != "installed" ] && ! check_version_match "libsndfile" "$INSTALLED_LIBSNDFILE" "$PINNED_LIBSNDFILE"; then
+  echo "WARNING: libsndfile version mismatch: installed ${INSTALLED_LIBSNDFILE}, expected ${PINNED_LIBSNDFILE}"
+  echo "Continuing as library version may still be compatible..."
 fi
 
 if [ "$VERSION_MISMATCH" -eq 1 ]; then

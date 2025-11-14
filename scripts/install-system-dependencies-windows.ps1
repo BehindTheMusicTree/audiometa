@@ -453,7 +453,7 @@ $manualPaths = @(
 )
 
 foreach ($path in $manualPaths) {
-    if (Test-Path $path -and $env:Path -notlike "*$path*") {
+    if ((Test-Path $path) -and ($env:Path -notlike "*$path*")) {
         $env:Path = "$path;$env:Path"
     }
 }

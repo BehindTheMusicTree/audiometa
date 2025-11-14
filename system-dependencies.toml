@@ -23,6 +23,11 @@ flac = "1.4.3+ds-2.1ubuntu2"
 mediainfo = "24.01.1-1build2"
 id3v2 = "0.1.12+dfsg-7"
 libimage-exiftool-perl = "12.76+dfsg-1"
+# libsndfile1: Library dependency (not executable tool) required by soundfile Python package.
+# Uses "latest" because: (1) it's a transitive dependency managed by Ubuntu's package manager,
+# (2) it doesn't have a version command to verify, (3) version is tied to Ubuntu release and
+# Ubuntu provides compatible versions automatically. This is an exception to the version pinning policy.
+libsndfile1 = "latest"
 
 # bwfmetaedit: Download from MediaArea (not available in Ubuntu repos)
 # Check https://mediaarea.net/BWFMetaEdit/Download/Ubuntu for available versions
@@ -39,6 +44,7 @@ mediainfo = "25.09"
 bwfmetaedit = "25.04.1"
 id3v2 = "0.1.12"
 exiftool = "13.36"
+libsndfile = "1.2.2"
 
 [windows]
 # Windows package versions (install via Chocolatey)
