@@ -81,7 +81,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg flac mediainfo
+          sudo apt-get install -y ffmpeg flac mediainfo id3v2
 
       - name: Install bwfmetaedit (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
@@ -94,13 +94,13 @@ jobs:
       - name: Install system dependencies (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          brew install ffmpeg flac mediainfo bwfmetaedit
+          brew install ffmpeg flac mediainfo bwfmetaedit id3v2
 
       - name: Install system dependencies (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          choco install ffmpeg flac mediainfo -y
+          choco install ffmpeg flac mediainfo id3v2 -y
 
       - name: Install bwfmetaedit (Windows)
         if: matrix.os == 'windows-latest'
@@ -154,6 +154,7 @@ jobs:
           metaflac --version || echo "metaflac not found (should be bundled with flac)"
           mediainfo --version
           bwfmetaedit --version || echo "bwfmetaedit not found"
+          id3v2 --version || echo "id3v2 not found"
           which mid3v2 && mid3v2 --version || echo "mid3v2 not found (mutagen provides it, may not be in PATH)"
 
       - name: Verify external tools (Windows)
@@ -165,6 +166,7 @@ jobs:
           metaflac --version
           mediainfo --version
           if (Get-Command bwfmetaedit -ErrorAction SilentlyContinue) { bwfmetaedit --version } else { Write-Host "bwfmetaedit not found" }
+          if (Get-Command id3v2 -ErrorAction SilentlyContinue) { id3v2 --version } else { Write-Host "id3v2 not found" }
           if (Get-Command mid3v2 -ErrorAction SilentlyContinue) { mid3v2 --version } else { Write-Host "mid3v2 not found (mutagen provides it, may not be in PATH)" }
 
       - name: Run unit tests
