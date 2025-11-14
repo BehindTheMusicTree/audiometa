@@ -118,6 +118,11 @@ jobs:
         shell: pwsh
         run: .\scripts\install-system-dependencies-windows.ps1
 
+      - name: Clear pip cache (macOS)
+        # Clear pip cache on macOS to avoid corrupted wheel issues with pytaglib
+        if: matrix.os == 'macos-14'
+        run: pip cache purge || true
+
       - name: Install Python dependencies
         # Installs exact tool versions from pyproject.toml
         # This ensures test environment uses the same tool versions as lint job and pre-commit hooks
