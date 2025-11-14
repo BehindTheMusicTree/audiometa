@@ -20,6 +20,7 @@ A powerful, unified Python library for reading and writing audio metadata across
   - [Supported Audio Formats Per Metadata Format](#supported-audio-formats-per-metadata-format)
   - [Supported Metadata Formats per Audio Format](#supported-metadata-formats-per-audio-format)
   - [Format Capabilities](#format-capabilities)
+- [Supported Fields](#supported-fields)
 - [Installation](#installation)
   - [System Requirements](#system-requirements)
   - [Installing Required Tools](#installing-required-tools)
@@ -39,17 +40,8 @@ A powerful, unified Python library for reading and writing audio metadata across
   - [Pre-Update Validation](#pre-update-validation)
   - [Writing Metadata (API Reference)](#writing-metadata-api-reference)
   - [Deleting Metadata (API Reference)](#deleting-metadata-api-reference)
-- [Error Handling](#error-handling)
 - [Metadata Field Guide: Support and Handling](#metadata-field-guide-support-and-handling)
-  - [Metadata Support by Format](#metadata-support-by-format)
-  - [Multiple Values](#multiple-values)
-  - [Genre Handling](#genre-handling)
-  - [Rating Handling](#rating-handling)
-  - [Release Date Validation Rules](#release-date-validation-rules)
-  - [Track Number](#track-number)
-  - [Lyrics Support](#lyrics-support)
   - [Unsupported Metadata Handling](#unsupported-metadata-handling)
-  - [None vs Empty String Handling](#none-vs-empty-string-handling)
 - [Command Line Interface](#command-line-interface)
   - [Installation](#cli-installation)
   - [Basic Usage](#basic-usage)
@@ -58,7 +50,7 @@ A powerful, unified Python library for reading and writing audio metadata across
   - [Examples](#examples)
 - [Requirements](#requirements)
 - [Changelog](#changelog)
-- [Contributing](CONTRIBUTING.md)
+- [Contributing](#contributing)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security Policy](https://github.com/Andreas-Garcia/audiometa/security/policy)
 - [License](#license)
@@ -151,6 +143,18 @@ When writing Vorbis comments, the library standardizes field names to uppercase 
 - **Limitations**: Some fields not supported (BPM, lyrics, etc.)
 - **Note**: Native metadata format for WAV files
 
+## Supported Fields
+
+AudioMeta supports a comprehensive set of metadata fields across all formats. For a complete reference including:
+
+- **Field support matrix** by format (ID3v1, ID3v2, Vorbis, RIFF)
+- **Multi-value field handling** (artists, genres, composers, etc.)
+- **Format-specific field handling** (genre codes, rating profiles, track numbers)
+- **Validation rules** (release dates, ratings, track numbers)
+- **Special cases** (None vs empty string, unsupported field handling, atomic writes)
+
+See the comprehensive **[Metadata Field Guide: Support and Handling](docs/METADATA_FIELD_GUIDE.md)**.
+
 ## Installation
 
 ```bash
@@ -236,6 +240,20 @@ sudo dnf install flac
 - Download from [https://xiph.org/flac/download.html](https://xiph.org/flac/download.html)
 - Add to your system PATH
 
+#### Automated Setup (Recommended)
+
+To ensure your local environment matches CI exactly, use the automated setup script:
+
+```bash
+# Linux/macOS
+./scripts/setup-system-dependencies.sh
+
+# Windows
+.\scripts\ci\install-system-dependencies-windows.ps1
+```
+
+This script installs the same versions as CI, ensuring consistency. See `.github/system-dependencies.toml` for the complete configuration.
+
 #### Verifying Installation
 
 After installation, verify the tools are available:
@@ -243,6 +261,12 @@ After installation, verify the tools are available:
 ```bash
 ffprobe -version
 flac --version
+```
+
+Or run the setup script's verification:
+
+```bash
+./scripts/setup-system-dependencies.sh  # Will verify after installation
 ```
 
 #### External Tools Usage
@@ -1205,218 +1229,7 @@ except AudioFileMetadataParseError:
     print("Failed to parse audio file metadata")
 ```
 
-## Metadata Field Guide: Support and Handling
-
-This section covers AudioMeta's metadata field support across audio formats (ID3v1, ID3v2, Vorbis, RIFF), including support matrices, multiple value handling, format limitations, and special cases for genres, ratings, and edge cases.
-
-For detailed guides on specific topics, see:
-
-- [Multiple Values Handling](docs/MULTIPLE_VALUES.md) - How AudioMeta handles multi-value fields
-- [Genre Handling](docs/GENRE_HANDLING.md) - Comprehensive genre support across formats
-- [Rating Handling](docs/RATING_HANDLING.md) - Rating profiles and normalization
-- [Track Number Handling](docs/TRACK_NUMBER.md) - Track number formats and handling across metadata standards
-- [Lyrics Support](docs/LYRICS_SUPPORT.md) - Synchronized and unsynchronized lyrics support across formats
-
-### Metadata Support by Format
-
-The library supports a comprehensive set of metadata fields across different audio formats. The table below shows which fields are supported by each format:
-
-| Field               | ID3v1             | ID3v2                      | Vorbis                         | RIFF            | AudioMeta Support     |
-| ------------------- | ----------------- | -------------------------- | ------------------------------ | --------------- | --------------------- |
-| Text Encoding       | ASCII             | UTF-16/ISO (v2.3)          | UTF-8                          | ASCII/UTF-8     | UTF-8                 |
-|                     |                   | + UTF-8 (v2.4)             |                                |                 |                       |
-| Max Text Length     | 30 chars          | ~8M chars                  | ~8M chars                      | ~1M chars       | Format limit          |
-| Date Time Formats   | YYYY              | YYYY+DDMM (v2.3)           | YYYY-MM-DD                     | YYYY-MM-DD      | ISO 8601              |
-|                     |                   | YYYY-MM-DD (v2.4)          |                                |                 |                       |
-| Technical Info      |                   |                            |                                |                 |                       |
-| - Duration          | ✓                 | ✓                          | ✓                              | ✓               | ✓                     |
-| - Bitrate           | ✓                 | ✓                          | ✓                              | ✓               | ✓                     |
-| - Sample Rate       | ✓                 | ✓                          | ✓                              | ✓               | ✓                     |
-| - Channels          | ✓ (1-2)           | ✓ (1-255)                  | ✓ (1-255)                      | ✓ (1-2)         | ✓                     |
-| - File Size         | ✓                 | ✓                          | ✓                              | ✓               | ✓                     |
-| - Format Info       | ✓                 | ✓                          | ✓                              | ✓               | ✓                     |
-| - MD5 Checksum      |                   |                            | ✓                              |                 | ✓ (Flac)              |
-| Title               | TITLE (30)        | TIT2                       | TITLE                          | INAM            | TITLE                 |
-| Artists             | ARTIST (30)       | TPE1                       | ARTIST                         | IART            | ARTISTS (list)        |
-| Album               | ALBUM (30)        | TALB                       | ALBUM                          | IPRD            | ALBUM                 |
-| Album Artists       | ✗                 | TPE2                       | ALBUMARTIST                    | IAAR\*          | ALBUM_ARTISTS (list)  |
-| Genres              | GENRE (1#)        | TCON                       | GENRE                          | IGNR            | GENRES_NAMES (list)   |
-| Release Date        | YEAR (4)          | TYER (4) + TDAT (4) (v2.3) | DATE (10)                      | ICRD (10)       | RELEASE_DATE          |
-|                     |                   | TDRC (10) (v2.4)           |                                |                 |                       |
-| Track Number        | TRACK (1#) (v1.1) | TRCK (0-255#)              | TRACKNUMBER (Unlim#)           | IPRT\* (Unlim#) | TRACK_NUMBER          |
-| Disc Number         | ✗                 | TPOS (0-255#)              | DISCNUMBER (Unlim#)            | ✗               |                       |
-| Rating              | ✗                 | POPM (0-255#)              | RATING (0-100#)                | IRTD\* (0-100#) | RATING                |
-| BPM                 | ✗                 | TBPM (0-65535#)            | BPM (0-65535#)                 | IBPM\*          | BPM                   |
-| Language            | ✗                 | TLAN (3)                   | LANGUAGE (3)                   | ILNG\* (3)      | LANGUAGE              |
-| Composers           | ✗                 | TCOM                       | COMPOSER                       | ICMP            | COMPOSERS (list)      |
-| Publisher           | ✗                 | TPUB                       | ORGANIZATION                   | ✗               | PUBLISHER             |
-| Copyright           | ✗                 | TCOP                       | COPYRIGHT                      | ICOP            | COPYRIGHT             |
-| Lyrics              | ✗                 | USLT                       | LYRICS\*                       | ✗               | UNSYNCHRONIZED_LYRICS |
-| Synchronized Lyrics | ✗                 | SYLT                       | ✗                              | ✗               |                       |
-| Comment             | COMMENT (28)      | COMM                       | COMMENT                        | ICMT            | COMMENT               |
-| Encoder             | ✗                 | TENC                       | ENCODEDBY                      | ISFT            |                       |
-| URL                 | ✗                 | WOAR                       | ✗                              | ✗               |                       |
-| ISRC                | ✗                 | TSRC (12)                  | ISRC (12)                      | ✗               |                       |
-| Mood                | ✗                 | TMOO                       | MOOD                           | ✗               |                       |
-| Key                 | ✗                 | TKEY (3)                   | KEY (3)                        | ✗               |                       |
-| Original Date       | ✗                 | TORY (10)                  | ORIGINALDATE (10)              | ✗               |                       |
-| Remixer             | ✗                 | TPE4                       | REMIXER                        | ✗               |                       |
-| Conductors          | ✗                 | TPE3                       | CONDUCTOR                      | ✗               |                       |
-| Cover Art           | ✗                 | APIC (10MB#)               | METADATA_BLOCK_PICTURE (10MB#) | ✗               |                       |
-| Compilation         | ✗                 | TCMP (1#)                  | COMPILATION (1#)               | ✗               |                       |
-| Media Type          | ✗                 | TMED                       | MEDIA                          | ✗               |                       |
-| File Owner          | ✗                 | TOWN                       | OWNER                          | ✗               |                       |
-| Recording Date      | ✗                 | TDRC (10)                  | RECORDINGDATE (10)             | ✗               |                       |
-| File Size           | ✗                 | TSIZ (16#)                 | FILESIZE                       | ✗               |                       |
-| Encoder Settings    | ✗                 | TSSE                       | ENCODERSETTINGS                | ✗               |                       |
-| ReplayGain          | ✗                 | TXXX (REPLAYGAIN)          | REPLAYGAIN                     | ✗               | REPLAYGAIN            |
-| MusicBrainz ID      | ✗                 | TXXX (36)                  | MUSICBRAINZ\_\* (36)           | ✗               |                       |
-| Arranger            | ✗                 | TPE2                       | ARRANGER                       | ✗               |                       |
-| Version             | ✗                 | TIT3                       | VERSION                        | ✗               |                       |
-| Performance         | ✗                 | TPE1                       | PERFORMER                      | ✗               |                       |
-| Archival Location   | ✗                 | ✗                          | ✗                              | IARL\*          | ARCHIVAL_LOCATION     |
-| Keywords            | ✗                 | ✗                          | ✗                              | IKEY\*          |                       |
-| Subject             | ✗                 | ✗                          | ✗                              | ISBJ\*          |                       |
-| Original Artist     | ✗                 | TOPE                       | ORIGINALARTIST                 | ✗               |                       |
-| Set Subtitle        | ✗                 | TIT3                       | ALBUMARTIST                    | ✗               |                       |
-| Initial Key         | ✗                 | TKEY (3)                   | KEY (3)                        | ✗               |                       |
-| Involved People     | ✗                 | TIPL                       | INVOLVEDPEOPLE                 | ✗               |                       |
-| Musicians           | ✗                 | TMCL                       | MUSICIAN                       | ✗               |                       |
-| Part of Set         | ✗                 | TPOS                       | DISCNUMBER                     | ✗               |                       |
-
-### Multiple Values
-
-The library intelligently handles multiple values across different metadata formats, automatically choosing the best approach for each situation.
-
-Fields are classified as:
-
-- **Semantically Multi-Value Fields**: Can logically contain multiple values (e.g., `ARTISTS`, `GENRES_NAMES`)
-- **Semantically Single-Value Fields**: Intended to hold a single value (e.g., `TITLE`, `ALBUM`)
-
-For comprehensive details on multiple value handling, including reading/writing strategies, separator selection, and examples, see the [Multiple Values Handling Guide](docs/MULTIPLE_VALUES.md).
-
-### Genre Handling
-
-AudioMeta provides comprehensive genre support across all audio formats, with intelligent handling of genre codes, multiple genres, and format-specific limitations.
-
-**Quick Summary:**
-
-- **ID3v1**: Single genre, numeric codes only (0-255)
-- **ID3v2.3**: Multiple genres, supports codes and text
-- **ID3v2.4**: Multiple genres, full text support with null-separated values
-- **Vorbis**: Multiple genres, text-only with multiple fields
-- **RIFF**: Single/multiple genres, supports both codes and text
-
-For comprehensive details on genre handling, including format-specific support, ID3v1 genre code system, and reading/writing strategies, see the [Genre Handling Guide](docs/GENRE_HANDLING.md).
-
-### Rating Handling
-
-AudioMeta implements a sophisticated rating profile system to handle the complex compatibility requirements across different audio players and formats. This system ensures that ratings work consistently regardless of which software was used to create them.
-
-**Quick Summary:**
-
-Different audio players use completely different numeric values for the same star ratings. For example, a 3-star rating can be stored as:
-
-- `128` (Windows Media Player, MusicBee, Winamp)
-- `60` (FLAC players, Vorbis)
-- `153` (Traktor)
-
-AudioMeta supports:
-
-- **Raw Mode** (default): Returns and accepts raw profile-specific values
-- **Normalized Mode**: Converts between raw values and a normalized scale (0-10, 0-100, etc.)
-- **Half-star support**: Full support for 0.5, 1.5, 2.5, 3.5, 4.5 stars
-
-For comprehensive details on rating profiles, normalization, validation rules, and examples, see the [Rating Handling Guide](docs/RATING_HANDLING.md).
-
-### Release Date Validation Rules
-
-The `RELEASE_DATE` field accepts two formats:
-
-**Valid Formats:**
-
-1. **YYYY format** (4 digits) - for year-only dates
-   - Examples: `"2024"`, `"1900"`, `"1970"`, `"0000"`, `"9999"`
-   - Use when you only know the year
-
-2. **YYYY-MM-DD format** (ISO-like format) - for full dates
-   - Examples: `"2024-01-01"`, `"2024-12-31"`, `"1900-01-01"`, `"1970-06-15"`
-   - Month and day must be zero-padded (2 digits each)
-   - Use when you have the complete date
-
-3. **Empty string** - allowed and represents no date
-   - Example: `""`
-
-**Invalid Formats:**
-
-The following formats will raise `InvalidMetadataFieldFormatError`:
-
-- Wrong separator: `"2024/01/01"`, `"2024.01.01"`, `"2024_01_01"`, `"2024 01 01"`
-- Incomplete date: `"2024-1-1"`, `"2024-1-01"`, `"2024-01-1"`
-- Short year: `"24"`, `"202"`, `"20"`
-- Long year: `"20245"`, `"20245-01-01"`
-- Non-numeric: `"not-a-date"`, `"2024-abc-01"`, `"abcd-01-01"`
-- Incomplete format: `"2024-01"`, `"2024-"`, `"-01-01"`, `"2024-01-"`
-
-**Examples:**
-
-```python
-from audiometa import update_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-
-# Valid: YYYY format
-update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: "2024"})
-
-# Valid: YYYY-MM-DD format
-update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: "2024-01-01"})
-
-# Valid: empty string
-update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: ""})
-
-# Invalid: wrong separator
-update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: "2024/01/01"})
-# Raises: InvalidMetadataFieldFormatError
-
-# Invalid: incomplete date (single digit month/day)
-update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: "2024-1-1"})
-# Raises: InvalidMetadataFieldFormatError
-
-# Invalid: short year
-update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: "24"})
-# Raises: InvalidMetadataFieldFormatError
-```
-
-**Error Handling**:
-
-Invalid release date formats raise `InvalidMetadataFieldFormatError` with a descriptive message indicating the expected format and the invalid value provided.
-
-### Track Number
-
-The library handles different track number formats across audio metadata standards:
-
-- **ID3v1**: Simple numeric string (stored in comment field)
-- **ID3v2**: Supports `"track/total"` format (e.g., `"5/12"`) or simple `"track"` format
-- **Vorbis**: Simple numeric string, supports track/total format
-- **RIFF**: Simple numeric string
-
-For comprehensive details on track number formats, reading/writing behavior, and edge case handling, see the [Track Number Handling Guide](docs/TRACK_NUMBER.md).
-
-### Lyrics Support
-
-Two types of lyrics are supported: synchronized lyrics (synchronized with music, for karaoke) and unsynchronized lyrics (plain text).
-
-**Quick Summary:**
-
-- **Synchronized Lyrics**: Not currently supported (planned for future versions)
-- **Unsynchronized Lyrics**: Supported across formats with limitations:
-  - **ID3v1**: Not supported
-  - **ID3v2**: Supported via USLT frame (single entry, default language `eng`)
-  - **RIFF**: Supported via UNSYNCHRONIZED_LYRICS chunk (no language codes)
-  - **Vorbis**: Supported via UNSYNCHRONIZED_LYRICS field (no language codes)
-
-For comprehensive details on lyrics support, format-specific behavior, and current limitations, see the [Lyrics Support Guide](docs/LYRICS_SUPPORT.md).
-
-### Unsupported Metadata Handling
+## Unsupported Metadata Handling
 
 The library handles unsupported metadata consistently across all strategies:
 
@@ -1424,16 +1237,16 @@ The library handles unsupported metadata consistently across all strategies:
 - **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` (default)**: Handle unsupported fields gracefully by logging warnings and continuing with supported fields
 - **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=True`**: Fails fast if any field is not supported by the target format. **No writing is performed** - the file remains completely unchanged (atomic operation).
 
-#### Format-Specific Limitations {#format-specific-limitations-unsupported}
+### Format-Specific Limitations
 
-| Format         | Forced Format                     | All Strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` | All Strategies with `fail_on_unsupported_field=True` |
-| -------------- | --------------------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| **RIFF (WAV)** | Always fails fast, **no writing** | Logs warnings for unsupported fields, writes supported ones                     | Fails fast for unsupported fields, **no writing**    |
-| **ID3v1**      | Always fails fast, **no writing** | Logs warnings for unsupported fields, writes supported ones                     | Fails fast for unsupported fields, **no writing**    |
-| **ID3v2**      | Always fails fast, **no writing** | All fields supported                                                            | All fields supported                                 |
-| **Vorbis**     | Always fails fast, **no writing** | All fields supported                                                            | All fields supported                                 |
+| Format         | Forced Format                     | All Strategies with `fail_on_unsupported_field=False`       | All Strategies with `fail_on_unsupported_field=True` |
+| -------------- | --------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------- |
+| **RIFF (WAV)** | Always fails fast, **no writing** | Logs warnings for unsupported fields, writes supported ones | Fails fast for unsupported fields, **no writing**    |
+| **ID3v1**      | Always fails fast, **no writing** | Logs warnings for unsupported fields, writes supported ones | Fails fast for unsupported fields, **no writing**    |
+| **ID3v2**      | Always fails fast, **no writing** | All fields supported                                        | All fields supported                                 |
+| **Vorbis**     | Always fails fast, **no writing** | All fields supported                                        | All fields supported                                 |
 
-#### Atomic Write Operations
+### Atomic Write Operations
 
 When `fail_on_unsupported_field=True` is used, the library ensures **atomic write operations**:
 
@@ -1442,14 +1255,7 @@ When `fail_on_unsupported_field=True` is used, the library ensures **atomic writ
 - **No partial updates**: Prevents inconsistent metadata states where only some fields are updated
 - **Error safety**: Ensures that failed operations don't leave files in a partially modified state
 
-This atomic behavior is crucial for:
-
-- **Data integrity**: Prevents corruption from partial writes
-- **Consistency**: Ensures metadata is always in a valid state
-- **Reliability**: Makes operations predictable and safe to retry
-- **Debugging**: Clear failure modes make issues easier to diagnose
-
-#### Example: Handling Unsupported Metadata
+### Example: Handling Unsupported Metadata
 
 ```python
 from audiometa import update_metadata
@@ -1508,36 +1314,22 @@ final_metadata = get_unified_metadata("song.wav")
 print(f"Final title: {final_metadata.get('title')}")  # Still "Original Title" - no changes made
 ```
 
-### None vs Empty String Handling
+## Metadata Field Guide: Support and Handling
 
-The library handles `None` and empty string values differently across audio formats:
+For a comprehensive reference on metadata field support and handling across all audio formats (ID3v1, ID3v2, Vorbis, RIFF), including multiple values, genres, ratings, track numbers, release dates, and lyrics support, see the dedicated guide:
 
-| Format            | Setting to `None`        | Setting to `""` (empty string)   | Read Back Result               |
-| ----------------- | ------------------------ | -------------------------------- | ------------------------------ |
-| **ID3v2 (MP3)**   | Removes field completely | Removes field completely         | `None` / `None`                |
-| **Vorbis (FLAC)** | Removes field completely | Creates field with empty content | `None` / `""`                  |
-| **RIFF (WAV)**    | Removes field completely | Removes field completely         | `None` / `None`                |
-| **ID3v1 (MP3)**   | ✅ **Supported**         | ✅ **Supported**                 | Legacy format with limitations |
+**[Metadata Field Guide: Support and Handling](docs/METADATA_FIELD_GUIDE.md)**
 
-#### Example
+This consolidated guide covers:
 
-```python
-from audiometa import update_metadata, get_unified_metadata_field
-
-# MP3 file - same behavior for None and empty string
-update_metadata("song.mp3", {"title": None})
-title = get_unified_metadata_field("song.mp3", "title")
-print(title)  # Output: None (field removed)
-
-# FLAC file - different behavior for None vs empty string
-update_metadata("song.flac", {"title": None})
-title = get_unified_metadata_field("song.flac", "title")
-print(title)  # Output: None (field removed)
-
-update_metadata("song.flac", {"title": ""})
-title = get_unified_metadata_field("song.flac", "title")
-print(title)  # Output: "" (field exists but empty)
-```
+- Metadata support matrix by format
+- Multiple values handling
+- Genre handling
+- Rating handling and profiles
+- Release date validation rules
+- Track number formats
+- Lyrics support
+- None vs empty string handling
 
 ## Command Line Interface
 
