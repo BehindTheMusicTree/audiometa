@@ -178,10 +178,16 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                 )
                 if result.stdout or result.stderr:
                     output = result.stdout + result.stderr
-                    # Extract version like "BWF MetaEdit, version 25.04.1"
-                    match = re.search(r"(\d+\.\d+\.\d+)", output)
-                    if match:
-                        return match.group(1)
+                    # Extract version like "BWF MetaEdit, version 25.04.1" or "version 25.04.1"
+                    # Try multiple patterns to handle different output formats
+                    patterns = [
+                        r"version\s+(\d+\.\d+\.\d+)",  # "version 25.04.1"
+                        r"(\d+\.\d+\.\d+)",  # Just version number
+                    ]
+                    for pattern in patterns:
+                        match = re.search(pattern, output, re.IGNORECASE)
+                        if match:
+                            return match.group(1)
             except FileNotFoundError:
                 pass
             return None
@@ -346,16 +352,49 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                 has_errors = True
                 continue
             # Tool is available but version detection failed
-            # This usually means the version detection logic couldn't parse the output
-            if os_type == "windows" and tool in ["ffmpeg", "flac", "mediainfo"]:
-                errors.append(
-                    f"{tool}: VERSION CHECK FAILED "
-                    "(Chocolatey parsing failed - tool may not be installed via Chocolatey)"
-                )
-            else:
-                errors.append(f"{tool}: VERSION CHECK FAILED")
-            has_errors = True
-            continue
+            # Try to get version directly from the tool as a fallback
+            if os_type == "windows" and tool == "ffmpeg":
+                # Try ffprobe -version as fallback
+                try:
+                    result = subprocess.run(
+                        ["ffprobe", "-version"],
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                    if result.stderr:  # ffprobe outputs version to stderr
+                        match = re.search(r"ffprobe version (\S+)", result.stderr)
+                        if match:
+                            installed = match.group(1).split("-")[0]  # Remove build suffix if present
+                except Exception:
+                    pass
+            elif os_type == "windows" and tool == "flac":
+                # Try flac --version as fallback
+                try:
+                    result = subprocess.run(
+                        ["flac", "--version"],
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                    if result.stdout:
+                        match = re.search(r"flac\s+(\d+\.\d+\.\d+)", result.stdout, re.IGNORECASE)
+                        if match:
+                            installed = match.group(1)
+                except Exception:
+                    pass
+
+            # If still no version found, report error
+            if not installed:
+                if os_type == "windows" and tool in ["ffmpeg", "flac", "mediainfo"]:
+                    errors.append(
+                        f"{tool}: VERSION CHECK FAILED "
+                        "(Chocolatey parsing failed and direct tool version check also failed)"
+                    )
+                else:
+                    errors.append(f"{tool}: VERSION CHECK FAILED")
+                has_errors = True
+                continue
         if os_type == "macos":
             # For macOS, only ffmpeg supports version pinning via @version syntax
             # Other packages (flac, mediainfo, id3v2, bwfmetaedit) don't support version pinning
