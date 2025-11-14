@@ -38,7 +38,7 @@ flac = "1.5.0"
 mediainfo = "25.09"
 bwfmetaedit = "25.04.1"
 id3v2 = "0.1.12"
-exiftool = "13.10"
+exiftool = "13.36"
 
 [windows]
 # Windows package versions (install via Chocolatey)
