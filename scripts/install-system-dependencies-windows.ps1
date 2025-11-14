@@ -270,7 +270,6 @@ if (-not $ubuntuAvailable) {
             # Don't exit - continue with other package installations
             $failedPackages += "id3v2"
             $wslRequiredPackages += "id3v2"
-        }
     } else {
         Write-Host "Ubuntu distribution is now available!"
     }
@@ -462,105 +461,105 @@ $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD 
 if (-not $isCI) {
     Write-Host "Installing exiftool (pinned version)..."
 
-# Pinned version from system-dependencies.toml
-$exiftoolVersion = $PINNED_EXIFTOOL
+    # Pinned version from system-dependencies.toml
+    $exiftoolVersion = $PINNED_EXIFTOOL
 
-$exiftoolInstallDir = "C:\Program Files\ExifTool"
-$exiftoolExePath = "$exiftoolInstallDir\exiftool.exe"
+    $exiftoolInstallDir = "C:\Program Files\ExifTool"
+    $exiftoolExePath = "$exiftoolInstallDir\exiftool.exe"
 
-# Check if exiftool is already installed
-$needInstallExiftool = $true
-if (Test-Path $exiftoolExePath) {
-    try {
-        $installedVersionOutput = & $exiftoolExePath -ver 2>&1
-        if ($LASTEXITCODE -eq 0) {
-            $installedVersion = $installedVersionOutput.Trim()
-            if ($installedVersion) {
-                $installedMajorMinor = ($installedVersion -split '\.')[0..1] -join '.'
-                $pinnedMajorMinor = ($exiftoolVersion -split '\.')[0..1] -join '.'
+    # Check if exiftool is already installed
+    $needInstallExiftool = $true
+    if (Test-Path $exiftoolExePath) {
+        try {
+            $installedVersionOutput = & $exiftoolExePath -ver 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                $installedVersion = $installedVersionOutput.Trim()
+                if ($installedVersion) {
+                    $installedMajorMinor = ($installedVersion -split '\.')[0..1] -join '.'
+                    $pinnedMajorMinor = ($exiftoolVersion -split '\.')[0..1] -join '.'
 
-                if ($installedMajorMinor -eq $pinnedMajorMinor) {
-                    Write-Host "exiftool $installedVersion already installed (matches pinned version $exiftoolVersion)"
-                    $needInstallExiftool = $false
-                } else {
-                    Write-Host "Removing existing exiftool version $installedVersion (installing pinned version $exiftoolVersion)..."
-                    Remove-Item -Path $exiftoolExePath -Force -ErrorAction SilentlyContinue
-                    if (Test-Path $exiftoolInstallDir) {
-                        $dirContents = Get-ChildItem -Path $exiftoolInstallDir -ErrorAction SilentlyContinue
-                        if (-not $dirContents) {
-                            Remove-Item -Path $exiftoolInstallDir -Force -ErrorAction SilentlyContinue
+                    if ($installedMajorMinor -eq $pinnedMajorMinor) {
+                        Write-Host "exiftool $installedVersion already installed (matches pinned version $exiftoolVersion)"
+                        $needInstallExiftool = $false
+                    } else {
+                        Write-Host "Removing existing exiftool version $installedVersion (installing pinned version $exiftoolVersion)..."
+                        Remove-Item -Path $exiftoolExePath -Force -ErrorAction SilentlyContinue
+                        if (Test-Path $exiftoolInstallDir) {
+                            $dirContents = Get-ChildItem -Path $exiftoolInstallDir -ErrorAction SilentlyContinue
+                            if (-not $dirContents) {
+                                Remove-Item -Path $exiftoolInstallDir -Force -ErrorAction SilentlyContinue
+                            }
                         }
                     }
                 }
             }
-        }
-    } catch {
-        Write-Host "exiftool installed but version could not be determined, removing..."
-        Remove-Item -Path $exiftoolExePath -Force -ErrorAction SilentlyContinue
-        if (Test-Path $exiftoolInstallDir) {
-            $dirContents = Get-ChildItem -Path $exiftoolInstallDir -ErrorAction SilentlyContinue
-            if (-not $dirContents) {
-                Remove-Item -Path $exiftoolInstallDir -Force -ErrorAction SilentlyContinue
+        } catch {
+            Write-Host "exiftool installed but version could not be determined, removing..."
+            Remove-Item -Path $exiftoolExePath -Force -ErrorAction SilentlyContinue
+            if (Test-Path $exiftoolInstallDir) {
+                $dirContents = Get-ChildItem -Path $exiftoolInstallDir -ErrorAction SilentlyContinue
+                if (-not $dirContents) {
+                    Remove-Item -Path $exiftoolInstallDir -Force -ErrorAction SilentlyContinue
+                }
             }
         }
     }
-}
 
-# Install if needed
-if ($needInstallExiftool) {
-    # ExifTool Windows downloads use format: exiftool-VERSION_64.zip
-    $url = "https://exiftool.org/exiftool-${exiftoolVersion}_64.zip"
-    $tempDir = "$env:TEMP\exiftool"
+    # Install if needed
+    if ($needInstallExiftool) {
+        # ExifTool Windows downloads use format: exiftool-VERSION_64.zip
+        $url = "https://exiftool.org/exiftool-${exiftoolVersion}_64.zip"
+        $tempDir = "$env:TEMP\exiftool"
 
-    try {
-        Write-Host "Downloading ExifTool..."
-        New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
-
-        # Try downloading the file
         try {
-            Invoke-WebRequest -Uri $url -OutFile "$tempDir\exiftool.zip" -UseBasicParsing -ErrorAction Stop
+            Write-Host "Downloading ExifTool..."
+            New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
+
+            # Try downloading the file
+            try {
+                Invoke-WebRequest -Uri $url -OutFile "$tempDir\exiftool.zip" -UseBasicParsing -ErrorAction Stop
+            } catch {
+                $errorMsg = $_.Exception.Message
+                Write-Host "ERROR: Failed to download exiftool version ${exiftoolVersion}"
+                Write-Host "URL attempted: $url"
+                Write-Host "Error: $errorMsg"
+                Write-Host ""
+                Write-Host "The pinned version may not be available for Windows download."
+                Write-Host "ExifTool Windows downloads use format: exiftool-VERSION_64.zip"
+                Write-Host "Check available versions at: https://exiftool.org/"
+                throw "Could not download exiftool version ${exiftoolVersion}. Version may not be available for Windows."
+            }
+
+            Write-Host "Extracting..."
+            Expand-Archive -Path "$tempDir\exiftool.zip" -DestinationPath $tempDir -Force
+
+            Write-Host "Installing..."
+            New-Item -ItemType Directory -Force -Path $exiftoolInstallDir | Out-Null
+            # ExifTool Windows archive contains exiftool(-k).exe which needs to be renamed
+            $exe = Get-ChildItem -Path $tempDir -Filter "exiftool*.exe" -Recurse | Select-Object -First 1
+            if (-not $exe) {
+                throw "exiftool.exe not found in downloaded archive"
+            }
+            # Copy and rename to exiftool.exe
+            Copy-Item -Path $exe.FullName -Destination $exiftoolExePath -Force
+            # Also copy the lib directory if it exists (contains exiftool_files)
+            $libDir = Get-ChildItem -Path $tempDir -Directory -Filter "*lib*" -Recurse | Select-Object -First 1
+            if ($libDir) {
+                Copy-Item -Path $libDir.FullName -Destination "$exiftoolInstallDir\lib" -Recurse -Force
+            }
+
+            Write-Host "Adding to PATH..."
+            if ($env:GITHUB_PATH) {
+                echo "$exiftoolInstallDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            }
+
+            Write-Host "Cleanup..."
+            Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "exiftool $exiftoolVersion installed successfully"
         } catch {
-            $errorMsg = $_.Exception.Message
-            Write-Host "ERROR: Failed to download exiftool version ${exiftoolVersion}"
-            Write-Host "URL attempted: $url"
-            Write-Host "Error: $errorMsg"
-            Write-Host ""
-            Write-Host "The pinned version may not be available for Windows download."
-            Write-Host "ExifTool Windows downloads use format: exiftool-VERSION_64.zip"
-            Write-Host "Check available versions at: https://exiftool.org/"
-            throw "Could not download exiftool version ${exiftoolVersion}. Version may not be available for Windows."
+            Write-Host "ERROR: Failed to install exiftool: $_"
+            exit 1
         }
-
-        Write-Host "Extracting..."
-        Expand-Archive -Path "$tempDir\exiftool.zip" -DestinationPath $tempDir -Force
-
-        Write-Host "Installing..."
-        New-Item -ItemType Directory -Force -Path $exiftoolInstallDir | Out-Null
-        # ExifTool Windows archive contains exiftool(-k).exe which needs to be renamed
-        $exe = Get-ChildItem -Path $tempDir -Filter "exiftool*.exe" -Recurse | Select-Object -First 1
-        if (-not $exe) {
-            throw "exiftool.exe not found in downloaded archive"
-        }
-        # Copy and rename to exiftool.exe
-        Copy-Item -Path $exe.FullName -Destination $exiftoolExePath -Force
-        # Also copy the lib directory if it exists (contains exiftool_files)
-        $libDir = Get-ChildItem -Path $tempDir -Directory -Filter "*lib*" -Recurse | Select-Object -First 1
-        if ($libDir) {
-            Copy-Item -Path $libDir.FullName -Destination "$exiftoolInstallDir\lib" -Recurse -Force
-        }
-
-        Write-Host "Adding to PATH..."
-        if ($env:GITHUB_PATH) {
-            echo "$exiftoolInstallDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        }
-
-        Write-Host "Cleanup..."
-        Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
-        Write-Host "exiftool $exiftoolVersion installed successfully"
-    } catch {
-        Write-Host "ERROR: Failed to install exiftool: $_"
-        exit 1
-    }
     }
 } else {
     Write-Host "Skipping exiftool installation (not needed for e2e tests on Windows CI)"
