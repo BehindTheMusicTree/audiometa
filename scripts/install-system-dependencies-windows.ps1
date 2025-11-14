@@ -86,8 +86,8 @@ if (-not $wslInstalled) {
     Write-Host "WSL not found. Installing WSL..."
     # Enable WSL feature
     Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart -ErrorAction SilentlyContinue
-    # Install WSL
-    wsl --install -d Ubuntu --quiet
+    # Install WSL (suppress output but capture errors)
+    wsl --install -d Ubuntu 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
         Write-Host "ERROR: Failed to install WSL. id3v2 requires WSL on Windows."
         Write-Host "Please install WSL manually: wsl --install"
@@ -104,7 +104,7 @@ if (-not $wslInstalled) {
 $ubuntuAvailable = wsl -l -q 2>&1 | Select-String -Pattern "Ubuntu"
 if (-not $ubuntuAvailable) {
     Write-Host "Ubuntu distribution not found in WSL. Installing Ubuntu..."
-    wsl --install -d Ubuntu --quiet
+    wsl --install -d Ubuntu 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
         Write-Host "ERROR: Failed to install Ubuntu in WSL."
         Write-Host "Please install Ubuntu manually: wsl --install -d Ubuntu"
