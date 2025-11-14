@@ -115,35 +115,22 @@ if (-not $ubuntuAvailable) {
     }
 }
 
-# Install id3v2 in WSL Ubuntu with pinned version
+# Install id3v2 in WSL Ubuntu with pinned version using shared script
 Write-Host "Installing id3v2 version $PINNED_ID3V2 in WSL Ubuntu..."
 
-# Check if id3v2 is already installed in WSL
-wsl sudo apt-get update -qq
-$installedId3v2Version = wsl dpkg -l id3v2 2>&1 | Select-String -Pattern "^ii\s+id3v2\s+(\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+# Convert Windows script path to WSL path
+$wslScriptPath = wsl wslpath -a "$SCRIPT_DIR\install-id3v2-linux.sh"
+if ($LASTEXITCODE -ne 0) {
+    # Fallback: construct WSL path manually if wslpath fails
+    $wslScriptPath = $SCRIPT_DIR -replace '^([A-Z]):', '/mnt/$1' -replace '\\', '/'
+    $wslScriptPath = "$wslScriptPath/install-id3v2-linux.sh"
+}
 
-if ($installedId3v2Version) {
-    if ($installedId3v2Version -eq $PINNED_ID3V2) {
-        Write-Host "id3v2 $installedId3v2Version already installed in WSL (matches pinned version $PINNED_ID3V2)"
-    } else {
-        Write-Host "Removing existing id3v2 version $installedId3v2Version (installing pinned version $PINNED_ID3V2)..."
-        wsl sudo apt-get remove -y id3v2 2>&1 | Out-Null
-        wsl sudo apt-get install -y "id3v2=$PINNED_ID3V2"
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "ERROR: Failed to install id3v2 version $PINNED_ID3V2 in WSL."
-            $failedPackages += "id3v2"
-        } else {
-            Write-Host "id3v2 version $PINNED_ID3V2 installed in WSL successfully."
-        }
-    }
-} else {
-    wsl sudo apt-get install -y "id3v2=$PINNED_ID3V2"
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "ERROR: Failed to install id3v2 version $PINNED_ID3V2 in WSL."
-        $failedPackages += "id3v2"
-    } else {
-        Write-Host "id3v2 version $PINNED_ID3V2 installed in WSL successfully."
-    }
+# Call shared installation script via WSL
+wsl bash "$wslScriptPath" "$PINNED_ID3V2"
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "ERROR: Failed to install id3v2 version $PINNED_ID3V2 in WSL."
+    $failedPackages += "id3v2"
 }
 
 # Create wrapper script to make id3v2 accessible from Windows (if installation succeeded)

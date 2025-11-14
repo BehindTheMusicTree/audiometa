@@ -49,7 +49,7 @@ fi
 
 # Check installed versions and remove if different
 PACKAGES_TO_INSTALL=()
-for package in ffmpeg flac mediainfo id3v2; do
+for package in ffmpeg flac mediainfo; do
   var_name="PINNED_${package^^}"
   pinned_version="${!var_name}"
 
@@ -64,9 +64,6 @@ for package in ffmpeg flac mediainfo id3v2; do
         ;;
       mediainfo)
         INSTALLED_VERSION=$(mediainfo --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
-        ;;
-      id3v2)
-        INSTALLED_VERSION=$(id3v2 --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
         ;;
     esac
 
@@ -94,6 +91,10 @@ if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
     exit 1
   }
 fi
+
+# Install id3v2 using shared script
+echo "Installing id3v2..."
+"${SCRIPT_DIR}/install-id3v2-linux.sh" "${PINNED_ID3V2}"
 
 echo "Installing bwfmetaedit..."
 
