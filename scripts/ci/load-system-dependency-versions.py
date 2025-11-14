@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Load system dependency versions from .github/system-dependencies.toml.
+"""Load system dependency versions from system-dependencies.toml.
 
 This script reads the TOML configuration file and outputs versions in a format
 suitable for shell scripts (bash/PowerShell).
@@ -20,7 +20,7 @@ from pathlib import Path
 def load_versions():
     """Load versions from system-dependencies.toml."""
     script_dir = Path(__file__).parent
-    config_path = script_dir.parent.parent / ".github" / "system-dependencies.toml"
+    config_path = script_dir.parent.parent / "system-dependencies.toml"
 
     if not config_path.exists():
         print(f"ERROR: Configuration file not found: {config_path}", file=sys.stderr)

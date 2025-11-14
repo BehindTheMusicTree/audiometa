@@ -1,10 +1,10 @@
 # Install bwfmetaedit for Windows CI
 # Pinned version: 24.05 (fails if not available, no fallback)
-# See .github/system-dependencies.toml for version configuration
+# See system-dependencies.toml for version configuration
 
 $ErrorActionPreference = "Stop"
 
-# Pinned version: 24.05 (from .github/system-dependencies.toml)
+# Pinned version: 24.05 (from system-dependencies.toml)
 $version = "24.05"
 $url = "https://mediaarea.net/download/binary/bwfmetaedit/${version}/BWFMetaEdit_CLI_${version}_Windows_x64.zip"
 $tempDir = "$env:TEMP\bwfmetaedit"

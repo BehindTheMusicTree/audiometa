@@ -1,11 +1,11 @@
 #!/bin/bash
 # Install system dependencies for macOS CI
-# Pinned versions from .github/system-dependencies.toml (fails if not available, no fallback)
-# See .github/system-dependencies.toml for version configuration
+# Pinned versions from system-dependencies.toml (fails if not available, no fallback)
+# See system-dependencies.toml for version configuration
 
 set -e
 
-# Load pinned versions from .github/system-dependencies.toml
+# Load pinned versions from system-dependencies.toml
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash)"
 
@@ -19,7 +19,7 @@ brew install \
   bwfmetaedit@${PINNED_BWFMETAEDIT} \
   id3v2@${PINNED_ID3V2} || {
   echo "ERROR: Pinned versions not available."
-  echo "Update .github/system-dependencies.toml with correct versions."
+  echo "Update system-dependencies.toml with correct versions."
   echo "Check available versions with: brew info <package>"
   exit 1
 }

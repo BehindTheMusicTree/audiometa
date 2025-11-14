@@ -1,13 +1,13 @@
 #!/bin/bash
 # Setup script for system dependencies
 # Ensures local environment matches CI configuration
-# Reads from .github/system-dependencies.toml
+# Reads from system-dependencies.toml
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-CONFIG_FILE="$REPO_ROOT/.github/system-dependencies.toml"
+CONFIG_FILE="$REPO_ROOT/system-dependencies.toml"
 
 # Colors for output
 RED='\033[0;31m'
@@ -41,7 +41,7 @@ install_ubuntu() {
     sudo apt-get update
 
     echo -e "${YELLOW}Installing pinned package versions from Ubuntu repos...${NC}"
-    # Load pinned versions from .github/system-dependencies.toml
+    # Load pinned versions from system-dependencies.toml
     eval "$(python3 "${SCRIPT_DIR}/ci/load-system-dependency-versions.py" bash)"
 
     # Verify versions are available before installing
@@ -84,7 +84,7 @@ install_ubuntu() {
         UBUNTU_VERSION=$(grep VERSION_ID /etc/os-release | cut -d'"' -f2 | cut -d. -f1,2)
         echo "Detected Ubuntu version: ${UBUNTU_VERSION}"
 
-        # Pinned version from .github/system-dependencies.toml
+        # Pinned version from system-dependencies.toml
         # Must be available, no fallback - fails if not found
         PINNED_VERSION="${PINNED_BWFMETAEDIT}"
         URL="https://mediaarea.net/download/binary/bwfmetaedit/${PINNED_VERSION}/bwfmetaedit_${PINNED_VERSION}-1_amd64.xUbuntu_${UBUNTU_VERSION}.deb"
@@ -114,7 +114,7 @@ install_macos() {
     fi
 
     echo -e "${YELLOW}Installing pinned package versions via Homebrew...${NC}"
-    # Load pinned versions from .github/system-dependencies.toml
+    # Load pinned versions from system-dependencies.toml
     eval "$(python3 "${SCRIPT_DIR}/ci/load-system-dependency-versions.py" bash)"
 
     # Homebrew version pinning format: brew install package@version
@@ -125,7 +125,7 @@ install_macos() {
       bwfmetaedit@${PINNED_BWFMETAEDIT} \
       id3v2@${PINNED_ID3V2} || {
       echo -e "${RED}✗ ERROR: Pinned versions not available.${NC}"
-      echo "Update .github/system-dependencies.toml with correct versions."
+      echo "Update system-dependencies.toml with correct versions."
       echo "Check available versions with: brew info <package>"
       exit 1
     }
@@ -192,7 +192,7 @@ main() {
             ;;
         *)
             echo -e "${RED}✗ Unsupported OS: $OS${NC}"
-            echo "Please install dependencies manually. See .github/system-dependencies.toml for requirements."
+            echo "Please install dependencies manually. See system-dependencies.toml for requirements."
             exit 1
             ;;
     esac

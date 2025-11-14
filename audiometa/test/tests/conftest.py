@@ -9,8 +9,8 @@ import pytest
 
 
 def _load_dependencies_pinned_versions():
-    """Load pinned versions from .github/system-dependencies.toml."""
-    config_path = Path(__file__).parent.parent.parent.parent / ".github" / "system-dependencies.toml"
+    """Load pinned versions from system-dependencies.toml."""
+    config_path = Path(__file__).parent.parent.parent.parent / "system-dependencies.toml"
 
     if not config_path.exists():
         return None
@@ -51,7 +51,7 @@ def _load_dependencies_pinned_versions():
 
 def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
     """Verify system dependency versions match pinned versions before running tests."""
-    # Load pinned versions from .github/system-dependencies.toml (single source of truth)
+    # Load pinned versions from system-dependencies.toml (single source of truth)
     pinned_versions = _load_dependencies_pinned_versions()
 
     if not pinned_versions:
@@ -166,7 +166,7 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
     if has_errors:
         error_msg = "System dependency version verification failed:\n" + "\n".join(f"  - {e}" for e in errors)
         error_msg += (
-            "\n\nUpdate .github/system-dependencies.toml and "
+            "\n\nUpdate system-dependencies.toml and "
             "scripts/ci/install-system-dependencies-*.sh with correct versions."
         )
         error_msg += "\nThis ensures tests use the same tool versions as CI."

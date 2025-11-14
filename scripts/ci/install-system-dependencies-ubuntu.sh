@@ -1,10 +1,10 @@
 #!/bin/bash
 # Install system dependencies for Ubuntu CI
-# Pinned versions from .github/system-dependencies.toml (fails if not available, no fallback)
+# Pinned versions from system-dependencies.toml (fails if not available, no fallback)
 
 set -e
 
-# Load pinned versions from .github/system-dependencies.toml
+# Load pinned versions from system-dependencies.toml
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash)"
 
@@ -15,7 +15,7 @@ sudo apt-get install -y \
   mediainfo="$PINNED_MEDIAINFO" \
   id3v2="$PINNED_ID3V2" || {
   echo "ERROR: Pinned versions not available."
-  echo "Update .github/system-dependencies.toml with correct versions."
+  echo "Update system-dependencies.toml with correct versions."
   exit 1
 }
 
@@ -30,7 +30,7 @@ else
   UBUNTU_VERSION=$(grep VERSION_ID /etc/os-release | cut -d'"' -f2 | cut -d. -f1,2)
   echo "Detected Ubuntu version: ${UBUNTU_VERSION}"
 
-  # Pinned version from .github/system-dependencies.toml (must be available, no fallback)
+  # Pinned version from system-dependencies.toml (must be available, no fallback)
   PINNED_VERSION="${PINNED_BWFMETAEDIT}"
   URL="https://mediaarea.net/download/binary/bwfmetaedit/${PINNED_VERSION}/bwfmetaedit_${PINNED_VERSION}-1_amd64.xUbuntu_${UBUNTU_VERSION}.deb"
 

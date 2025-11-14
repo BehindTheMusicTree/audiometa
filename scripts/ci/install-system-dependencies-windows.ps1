@@ -1,10 +1,10 @@
 # Install system dependencies for Windows CI
-# Pinned versions from .github/system-dependencies.toml (fails if not available, no fallback)
-# See .github/system-dependencies.toml for version configuration
+# Pinned versions from system-dependencies.toml (fails if not available, no fallback)
+# See system-dependencies.toml for version configuration
 
 $ErrorActionPreference = "Stop"
 
-# Load pinned versions from .github/system-dependencies.toml
+# Load pinned versions from system-dependencies.toml
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
 $versionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell
 Invoke-Expression $versionOutput
@@ -19,14 +19,14 @@ try {
     choco install id3v2 --version=$PINNED_ID3V2 -y
 } catch {
     Write-Host "ERROR: Pinned versions not available."
-    Write-Host "Update .github/system-dependencies.toml with correct versions."
+    Write-Host "Update system-dependencies.toml with correct versions."
     Write-Host "Check available versions with: choco search <package> --exact"
     exit 1
 }
 
 Write-Host "Installing bwfmetaedit (pinned version)..."
 
-# Pinned version from .github/system-dependencies.toml
+# Pinned version from system-dependencies.toml
 $version = $PINNED_BWFMETAEDIT
 $url = "https://mediaarea.net/download/binary/bwfmetaedit/${version}/BWFMetaEdit_CLI_${version}_Windows_x64.zip"
 $tempDir = "$env:TEMP\bwfmetaedit"

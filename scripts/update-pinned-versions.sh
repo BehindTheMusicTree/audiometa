@@ -1,11 +1,11 @@
 #!/bin/bash
 # Helper script to update pinned versions based on CI output
 # Usage: After CI runs, copy the "Recommended pinned versions" output and run this script
-# Or manually update .github/system-dependencies.toml with the versions shown in CI
+# Or manually update system-dependencies.toml with the versions shown in CI
 
 set -e
 
-CONFIG_FILE=".github/system-dependencies.toml"
+CONFIG_FILE="system-dependencies.toml"
 WORKFLOW_FILE=".github/workflows/ci.yml"
 
 echo "=== Update Pinned Versions ==="

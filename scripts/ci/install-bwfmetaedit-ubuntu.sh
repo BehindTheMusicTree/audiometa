@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install bwfmetaedit for Ubuntu CI
 # Pinned version: 24.05 (fails if not available, no fallback)
-# See .github/system-dependencies.toml for version configuration
+# See system-dependencies.toml for version configuration
 
 set -e
 
