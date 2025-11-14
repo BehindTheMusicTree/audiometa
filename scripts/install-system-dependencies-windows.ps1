@@ -86,39 +86,63 @@ Write-Host "Installing id3v2 via WSL..."
 # Check if WSL is installed and Ubuntu distribution is available
 $wslInstalled = Get-Command wsl -ErrorAction SilentlyContinue
 if (-not $wslInstalled) {
-    Write-Host "WSL not found. Installing WSL..."
-    # Enable WSL feature
-    Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart -ErrorAction SilentlyContinue
-    # Install WSL (suppress output but capture errors)
-    wsl --install -d Ubuntu 2>&1 | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "ERROR: Failed to install WSL. id3v2 requires WSL on Windows."
-        Write-Host "Please install WSL manually: wsl --install"
-        Write-Host "Or enable WSL feature: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux"
+    # Detect CI environment
+    $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
+
+    if ($isCI) {
+        Write-Host "WARNING: Running in CI environment. WSL installation requires manual setup."
+        Write-Host "WSL not found. Skipping automatic installation in CI."
+        Write-Host "To fix: Ensure WSL is pre-installed on the CI runner."
+        Write-Host "Skipping id3v2 installation (requires WSL on Windows)."
         $failedPackages += "id3v2"
         $wslRequiredPackages += "id3v2"
     } else {
-        Write-Host "WSL installed. Please restart and run this script again, or run: wsl --update"
-        Write-Host "Then install id3v2 manually in WSL: wsl sudo apt-get update && wsl sudo apt-get install -y id3v2=$PINNED_ID3V2"
-        exit 1
+        Write-Host "WSL not found. Installing WSL..."
+        # Enable WSL feature
+        Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart -ErrorAction SilentlyContinue
+        # Install WSL (suppress output but capture errors)
+        wsl --install -d Ubuntu 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "ERROR: Failed to install WSL. id3v2 requires WSL on Windows."
+            Write-Host "Please install WSL manually: wsl --install"
+            Write-Host "Or enable WSL feature: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux"
+            $failedPackages += "id3v2"
+            $wslRequiredPackages += "id3v2"
+        } else {
+            Write-Host "WSL installed. Please restart and run this script again, or run: wsl --update"
+            Write-Host "Then install id3v2 manually in WSL: wsl sudo apt-get update && wsl sudo apt-get install -y id3v2=$PINNED_ID3V2"
+            exit 1
+        }
     }
 }
 
 # Check if Ubuntu distribution is available in WSL
 $ubuntuAvailable = wsl -l -q 2>&1 | Select-String -Pattern "Ubuntu"
 if (-not $ubuntuAvailable) {
-    Write-Host "Ubuntu distribution not found in WSL. Installing Ubuntu..."
-    wsl --install -d Ubuntu 2>&1 | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "ERROR: Failed to install Ubuntu in WSL."
-        Write-Host "Please install Ubuntu manually: wsl --install -d Ubuntu"
-        Write-Host "Note: WSL installation may require elevated privileges or a system restart."
+    # Detect CI environment
+    $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
+
+    if ($isCI) {
+        Write-Host "WARNING: Running in CI environment. WSL installation requires manual setup."
+        Write-Host "Ubuntu distribution not found in WSL. Skipping automatic installation in CI."
+        Write-Host "To fix: Ensure WSL Ubuntu is pre-installed on the CI runner."
         Write-Host "Skipping id3v2 installation (requires WSL Ubuntu)."
         $failedPackages += "id3v2"
         $wslRequiredPackages += "id3v2"
     } else {
-        Write-Host "Ubuntu installed. Please restart and run this script again."
-        exit 1
+        Write-Host "Ubuntu distribution not found in WSL. Installing Ubuntu..."
+        wsl --install -d Ubuntu 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "ERROR: Failed to install Ubuntu in WSL."
+            Write-Host "Please install Ubuntu manually: wsl --install -d Ubuntu"
+            Write-Host "Note: WSL installation may require elevated privileges or a system restart."
+            Write-Host "Skipping id3v2 installation (requires WSL Ubuntu)."
+            $failedPackages += "id3v2"
+            $wslRequiredPackages += "id3v2"
+        } else {
+            Write-Host "Ubuntu installed. Please restart and run this script again."
+            exit 1
+        }
     }
 }
 
