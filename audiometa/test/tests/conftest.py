@@ -171,12 +171,17 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
             # Match the PowerShell script's approach: use simple pattern to find any version number
             exe_path = r"C:\Program Files\BWFMetaEdit\bwfmetaedit.exe"
             try:
+                # Check if exe exists first
+                if not Path(exe_path).exists():
+                    return None
+
                 # Try --version first (matches PowerShell script: & $exePath --version 2>&1)
                 result = subprocess.run(
                     [exe_path, "--version"],
                     capture_output=True,
                     text=True,
                     check=False,
+                    timeout=10,  # Add timeout to prevent hanging
                 )
                 # Combine stdout and stderr (PowerShell uses 2>&1)
                 output = result.stdout + result.stderr
@@ -188,19 +193,23 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                         capture_output=True,
                         text=True,
                         check=False,
+                        timeout=10,  # Add timeout to prevent hanging
                     )
                     output = result.stdout + result.stderr
 
                 if output:
                     # Match PowerShell script pattern: Select-String -Pattern '(\d+\.\d+\.\d+)'
                     # Find any three-part version number in the output
-                    match = re.search(r"(\d+\.\d+\.\d+)", output)
-                    if match:
-                        version = match.group(1)
+                    # Try to find all matches and use the first one that looks like a version
+                    matches = re.findall(r"(\d+\.\d+\.\d+)", output)
+                    for match in matches:
+                        version = match
                         # Validate it looks like a version (at least major.minor)
                         if re.match(r"^\d+\.\d+", version):
                             return version
             except FileNotFoundError:
+                pass
+            except subprocess.TimeoutExpired:
                 pass
             except Exception:
                 # Tool might exist but fail to run - try alternative paths or methods
@@ -421,16 +430,24 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
 
             # If still no version found, report error
             if not installed:
-                if os_type == "windows" and tool in ["ffmpeg", "flac", "mediainfo"]:
+                if os_type == "windows" and tool == "bwfmetaedit":
+                    # Check if tool exists at expected path
+                    exe_path = r"C:\Program Files\BWFMetaEdit\bwfmetaedit.exe"
+                    if Path(exe_path).exists():
+                        errors.append(
+                            f"{tool}: VERSION CHECK FAILED "
+                            "(Tool exists but version output format not recognized - "
+                            "may need to check actual output format)"
+                        )
+                    else:
+                        errors.append(
+                            f"{tool}: NOT INSTALLED (Expected at C:\\Program Files\\BWFMetaEdit\\bwfmetaedit.exe)"
+                        )
+                elif os_type == "windows" and tool in ["ffmpeg", "flac", "mediainfo"]:
                     errors.append(
                         f"{tool}: VERSION CHECK FAILED "
                         "(Chocolatey parsing failed and direct tool version check also failed - "
                         "tool may be installed but version detection logic needs improvement)"
-                    )
-                elif os_type == "windows" and tool == "bwfmetaedit":
-                    errors.append(
-                        f"{tool}: VERSION CHECK FAILED "
-                        "(Tool may be installed but version output format not recognized)"
                     )
                 else:
                     errors.append(f"{tool}: VERSION CHECK FAILED")
