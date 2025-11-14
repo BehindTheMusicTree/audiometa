@@ -206,6 +206,36 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
             return None
 
         # For Chocolatey packages (ffmpeg, flac, mediainfo)
+        # First try to get version directly from the tool (more reliable)
+        tool_commands = {
+            "ffmpeg": ["ffprobe", "-version"],
+            "flac": ["flac", "--version"],
+            "mediainfo": ["mediainfo", "--version"],
+        }
+
+        if package in tool_commands:
+            cmd, version_flag = tool_commands[package]
+            try:
+                result = subprocess.run(
+                    [cmd, version_flag],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                output = result.stdout + result.stderr
+                if output:
+                    if package == "mediainfo":
+                        match = re.search(r"v(\d+\.\d+)", output, re.IGNORECASE)
+                        if match:
+                            return match.group(1)
+                    else:
+                        match = re.search(r"(\d+\.\d+(?:\.\d+)?)", output)
+                        if match:
+                            return match.group(1)
+            except FileNotFoundError:
+                pass
+
+        # Fallback to Chocolatey if direct tool version check fails
         try:
             result = subprocess.run(
                 ["choco", "list", "--local-only", package, "--exact"],
@@ -213,11 +243,21 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                 text=True,
                 check=True,
             )
-            for line in result.stdout.split("\n"):
-                if package in line and not line.startswith("Chocolatey"):
-                    parts = line.split()
-                    if len(parts) >= 2:
-                        return parts[1]
+            # Parse Chocolatey output format: PackageName Version or multiple lines with headers
+            for raw_line in result.stdout.split("\n"):
+                line = raw_line.strip()
+                if not line or line.startswith("Chocolatey"):
+                    continue
+                # Match lines like "ffmpeg 7.1.0" or "ffmpeg|7.1.0"
+                if package.lower() in line.lower():
+                    # Try splitting by space or pipe
+                    parts = re.split(r"\s+|\|", line)
+                    for i, part in enumerate(parts):
+                        if package.lower() in part.lower() and i + 1 < len(parts):
+                            version = parts[i + 1].strip()
+                            # Validate version format (digits and dots)
+                            if re.match(r"^\d+\.\d+", version):
+                                return version
         except (subprocess.CalledProcessError, FileNotFoundError):
             pass
         return None
@@ -341,6 +381,28 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
             if installed != expected_base:
                 errors.append(f"{tool}: version mismatch (expected {expected_base}, got {installed})")
                 has_errors = True
+        elif os_type == "windows" and tool == "mediainfo":
+            # For mediainfo on Windows, compare major.minor versions
+            # Chocolatey might install "24.12.0" but we expect "24.12"
+            installed_major_minor = ".".join(installed.split(".")[:2])
+            expected_major_minor = ".".join(expected_version.split(".")[:2])
+            if installed_major_minor != expected_major_minor:
+                errors.append(
+                    f"{tool}: version mismatch (expected {expected_major_minor}, "
+                    f"got {installed_major_minor} from {installed})"
+                )
+                has_errors = True
+        elif os_type == "windows" and tool == "exiftool":
+            # For exiftool on Windows, compare major.minor versions
+            # Installed version might be "13.41.0" but we expect "13.41"
+            installed_major_minor = ".".join(installed.split(".")[:2])
+            expected_major_minor = ".".join(expected_version.split(".")[:2])
+            if installed_major_minor != expected_major_minor:
+                errors.append(
+                    f"{tool}: version mismatch (expected {expected_major_minor}, "
+                    f"got {installed_major_minor} from {installed})"
+                )
+                has_errors = True
         elif os_type == "windows" and tool == "bwfmetaedit":
             # For bwfmetaedit on Windows, compare major.minor versions
             # Expected format: "24.10", installed format: "25.04.1"
@@ -351,6 +413,18 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                     f"{tool}: version mismatch (expected {expected_major_minor}, "
                     f"got {installed_major_minor} from {installed})"
                 )
+                has_errors = True
+        elif os_type == "windows" and tool in ["ffmpeg", "flac"]:
+            # For ffmpeg and flac on Windows, normalize versions before comparison
+            # Extract first 3 components (major.minor.patch) and compare
+            # Handles cases where one version is "7.1" and the other is "7.1.0"
+            installed_parts = installed.split(".")
+            expected_parts = expected_version.split(".")
+            # Normalize to 3 components (pad with "0" if needed)
+            installed_normalized = ".".join(installed_parts[:3] + ["0"] * (3 - len(installed_parts[:3])))
+            expected_normalized = ".".join(expected_parts[:3] + ["0"] * (3 - len(expected_parts[:3])))
+            if installed_normalized != expected_normalized:
+                errors.append(f"{tool}: version mismatch (expected {expected_version}, got {installed})")
                 has_errors = True
         elif installed != expected_version:
             errors.append(f"{tool}: version mismatch (expected {expected_version}, got {installed})")
