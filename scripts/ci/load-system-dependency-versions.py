@@ -55,11 +55,21 @@ def output_bash(config):
             continue
 
         os_config = config[os_type]
-        for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "libimage-exiftool-perl", "libsndfile", "libsndfile1"]:
+        for tool in [
+            "ffmpeg",
+            "flac",
+            "mediainfo",
+            "id3v2",
+            "bwfmetaedit",
+            "exiftool",
+            "libimage-exiftool-perl",
+            "libsndfile",
+            "libsndfile1",
+        ]:
             version = get_version_value(os_config, tool)
             if version:
                 var_name = f"PINNED_{tool.upper().replace('-', '_')}"
-                print(f"export {var_name}=\"{version}\"  # {os_type}")
+                print(f'export {var_name}="{version}"  # {os_type}')
 
 
 def output_powershell(config):
@@ -69,11 +79,21 @@ def output_powershell(config):
             continue
 
         os_config = config[os_type]
-        for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "libimage-exiftool-perl", "libsndfile", "libsndfile1"]:
+        for tool in [
+            "ffmpeg",
+            "flac",
+            "mediainfo",
+            "id3v2",
+            "bwfmetaedit",
+            "exiftool",
+            "libimage-exiftool-perl",
+            "libsndfile",
+            "libsndfile1",
+        ]:
             version = get_version_value(os_config, tool)
             if version:
                 var_name = f"$PINNED_{tool.upper().replace('-', '_')}"
-                print(f"{var_name} = \"{version}\"  # {os_type}")
+                print(f'{var_name} = "{version}"  # {os_type}')
 
 
 def main():
@@ -87,6 +107,7 @@ def main():
 
     # Filter to current OS
     import platform
+
     system = platform.system().lower()
     if system == "linux":
         os_type = "ubuntu"
@@ -105,17 +126,37 @@ def main():
     os_config = config[os_type]
 
     if output_format == "bash":
-        for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "libimage-exiftool-perl", "libsndfile", "libsndfile1"]:
+        for tool in [
+            "ffmpeg",
+            "flac",
+            "mediainfo",
+            "id3v2",
+            "bwfmetaedit",
+            "exiftool",
+            "libimage-exiftool-perl",
+            "libsndfile",
+            "libsndfile1",
+        ]:
             version = get_version_value(os_config, tool)
             if version is not None:
                 var_name = f"PINNED_{tool.upper().replace('-', '_')}"
-                print(f"{var_name}=\"{version}\"")
+                print(f'{var_name}="{version}"')
     elif output_format == "powershell":
-        for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "libimage-exiftool-perl", "libsndfile", "libsndfile1"]:
+        for tool in [
+            "ffmpeg",
+            "flac",
+            "mediainfo",
+            "id3v2",
+            "bwfmetaedit",
+            "exiftool",
+            "libimage-exiftool-perl",
+            "libsndfile",
+            "libsndfile1",
+        ]:
             version = get_version_value(os_config, tool)
             if version is not None:
                 var_name = f"PINNED_{tool.upper().replace('-', '_')}"
-                print(f"${var_name} = \"{version}\"")
+                print(f'${var_name} = "{version}"')
     else:
         print(f"ERROR: Unknown output format: {output_format}", file=sys.stderr)
         print("Supported formats: bash, powershell", file=sys.stderr)
@@ -124,4 +165,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
