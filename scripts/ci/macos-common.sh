@@ -160,6 +160,10 @@ get_tool_version() {
     ffmpeg|ffprobe)
       version_output=$("$tool_path" -version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
       ;;
+    exiftool)
+      # exiftool outputs version as: "13.10" (just major.minor)
+      version_output=$("$tool_path" -ver 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -n1 || echo "")
+      ;;
     *)
       version_output=""
       ;;

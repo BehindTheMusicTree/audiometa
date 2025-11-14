@@ -161,11 +161,13 @@ INSTALLED_FLAC=$(get_tool_version "flac")
 INSTALLED_MEDIAINFO=$(get_tool_version "mediainfo")
 INSTALLED_ID3V2=$(get_tool_version "id3v2")
 INSTALLED_BWFMETAEDIT=$(get_tool_version "bwfmetaedit")
+INSTALLED_EXIFTOOL=$(get_tool_version "exiftool")
 
 echo "  flac: ${INSTALLED_FLAC:-not found} (expected: ${PINNED_FLAC})"
 echo "  mediainfo: ${INSTALLED_MEDIAINFO:-not found} (expected: ${PINNED_MEDIAINFO})"
 echo "  id3v2: ${INSTALLED_ID3V2:-not found} (expected: ${PINNED_ID3V2})"
 echo "  bwfmetaedit: ${INSTALLED_BWFMETAEDIT:-not found} (expected: ${PINNED_BWFMETAEDIT})"
+echo "  exiftool: ${INSTALLED_EXIFTOOL:-not found} (expected: ${PINNED_EXIFTOOL})"
 
 # Verify versions match (exact match for major.minor)
 VERSION_MISMATCH=0
@@ -187,6 +189,11 @@ fi
 
 if ! check_version_match "bwfmetaedit" "$INSTALLED_BWFMETAEDIT" "$PINNED_BWFMETAEDIT"; then
   echo "ERROR: bwfmetaedit version mismatch: installed ${INSTALLED_BWFMETAEDIT}, expected ${PINNED_BWFMETAEDIT}"
+  VERSION_MISMATCH=1
+fi
+
+if ! check_version_match "exiftool" "$INSTALLED_EXIFTOOL" "$PINNED_EXIFTOOL"; then
+  echo "ERROR: exiftool version mismatch: installed ${INSTALLED_EXIFTOOL}, expected ${PINNED_EXIFTOOL}"
   VERSION_MISMATCH=1
 fi
 
