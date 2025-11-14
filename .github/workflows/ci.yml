@@ -84,8 +84,38 @@ jobs:
 
       - name: Install system dependencies (Windows)
         if: matrix.os == 'windows-latest'
+        shell: pwsh
         run: |
-          choco install ffmpeg flac mediainfo bwfmetaedit -y
+          choco install ffmpeg flac mediainfo -y
+
+      - name: Install bwfmetaedit (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          # Download and install bwfmetaedit (not available in Chocolatey)
+          $url = "https://mediaarea.net/download/binary/bwfmetaedit/24.05/BWFMetaEdit_CLI_24.05_Windows_x64.zip"
+          $tempDir = "$env:TEMP\bwfmetaedit"
+          $installDir = "C:\Program Files\BWFMetaEdit"
+
+          Write-Host "Downloading BWF MetaEdit..."
+          New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
+          Invoke-WebRequest -Uri $url -OutFile "$tempDir\bwfmetaedit.zip" -UseBasicParsing
+
+          Write-Host "Extracting..."
+          Expand-Archive -Path "$tempDir\bwfmetaedit.zip" -DestinationPath $tempDir -Force
+
+          Write-Host "Installing..."
+          New-Item -ItemType Directory -Force -Path $installDir | Out-Null
+          $exe = Get-ChildItem -Path $tempDir -Filter "bwfmetaedit.exe" -Recurse | Select-Object -First 1
+          Copy-Item -Path $exe.FullName -Destination "$installDir\bwfmetaedit.exe" -Force
+
+          Write-Host "Adding to PATH..."
+          echo "$installDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+          Write-Host "Cleanup..."
+          Remove-Item -Path $tempDir -Recurse -Force
+
+          Write-Host "BWF MetaEdit installed successfully!"
 
       - name: Install Python dependencies
         # Installs exact tool versions from pyproject.toml
