@@ -90,37 +90,56 @@ if (-not $wslInstalled) {
 
     # Enable WSL feature using DISM (more reliable, no restart required)
     Write-Host "Enabling WSL feature using DISM..."
-    $dismOutput = dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /norestart 2>&1
+    $dismOutput = dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /norestart 2>&1 | Out-String
+    Write-Host "DISM output: $dismOutput"
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "WARNING: Failed to enable WSL feature via DISM. Trying alternative method..."
+        Write-Host "WARNING: Failed to enable WSL feature via DISM (exit code: $LASTEXITCODE). Trying alternative method..."
         # Fallback to Enable-WindowsOptionalFeature
         $enableResult = Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart -ErrorAction SilentlyContinue
         if ($LASTEXITCODE -ne 0 -and -not $enableResult) {
             Write-Host "WARNING: Failed to enable WSL feature. May require admin privileges or manual setup."
+            Write-Host "Exit code: $LASTEXITCODE"
         }
     } else {
-        Write-Host "WSL feature enabled successfully."
+        Write-Host "WSL feature enabled successfully via DISM."
     }
 
     # Enable Virtual Machine Platform (required for WSL2, but WSL1 should work without it)
     Write-Host "Enabling Virtual Machine Platform feature..."
-    dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /norestart 2>&1 | Out-Null
+    $vmpOutput = dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /norestart 2>&1 | Out-String
+    Write-Host "Virtual Machine Platform DISM output: $vmpOutput"
 
     # Try to install WSL and Ubuntu
     Write-Host "Installing WSL with Ubuntu..."
-    $wslInstallOutput = wsl --install -d Ubuntu --no-distribution 2>&1
+    $wslInstallOutput = wsl --install -d Ubuntu --no-distribution 2>&1 | Out-String
+    Write-Host "WSL install output (--no-distribution): $wslInstallOutput"
     if ($LASTEXITCODE -ne 0) {
         # Try without --no-distribution flag (older WSL versions)
         Write-Host "Retrying WSL installation without --no-distribution flag..."
-        $wslInstallOutput = wsl --install -d Ubuntu 2>&1
+        $wslInstallOutput = wsl --install -d Ubuntu 2>&1 | Out-String
+        Write-Host "WSL install output (standard): $wslInstallOutput"
     }
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "WARNING: WSL installation failed or requires restart."
-        Write-Host "WSL output: $wslInstallOutput"
         Write-Host ""
-        Write-Host "Skipping id3v2 installation (requires WSL on Windows)."
-        $failedPackages += "id3v2"
-        $wslRequiredPackages += "id3v2"
+        Write-Host "ERROR: WSL installation failed (exit code: $LASTEXITCODE)."
+        Write-Host "This usually means WSL requires a system restart, which is not possible in CI."
+        Write-Host "Full WSL output: $wslInstallOutput"
+        Write-Host ""
+        $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
+        if ($isCI) {
+            Write-Host "WSL installation is required for id3v2 but cannot be installed in CI without a restart."
+            Write-Host ""
+            Write-Host "To enable id3v2 in CI:"
+            Write-Host "  1. Use a Windows runner with WSL pre-installed"
+            Write-Host "  2. Or configure WSL in your CI workflow before running this script"
+        } else {
+            Write-Host "WSL installation failed. Please install WSL manually:"
+            Write-Host "  1. Run: wsl --install -d Ubuntu"
+            Write-Host "  2. Restart your computer if prompted"
+            Write-Host "  3. Run this script again"
+        }
+        Write-Host ""
+        exit 1
     } else {
         Write-Host "WSL installation initiated. Checking if Ubuntu is available..."
         # Wait a moment for WSL to initialize
@@ -128,10 +147,19 @@ if (-not $wslInstalled) {
         # Check if WSL is now available
         $wslCheck = Get-Command wsl -ErrorAction SilentlyContinue
         if (-not $wslCheck) {
-            Write-Host "WARNING: WSL installed but may require a restart to be available."
-            Write-Host "Skipping id3v2 installation (WSL not yet available)."
-            $failedPackages += "id3v2"
-            $wslRequiredPackages += "id3v2"
+            Write-Host ""
+            Write-Host "ERROR: WSL installed but not available (may require restart)."
+            Write-Host "WSL installation requires a system restart to be fully functional."
+            Write-Host ""
+            $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
+            if ($isCI) {
+                Write-Host "WSL is not available in CI without a restart."
+                Write-Host "Use a Windows runner with WSL pre-installed."
+            } else {
+                Write-Host "Please restart your computer and run this script again."
+            }
+            Write-Host ""
+            exit 1
         }
     }
 }
@@ -155,8 +183,10 @@ if (-not $ubuntuAvailable) {
 
     # Try to install Ubuntu distribution
     Write-Host "Installing Ubuntu distribution..."
-    $ubuntuInstallOutput = wsl --install -d Ubuntu 2>&1
+    $ubuntuInstallOutput = wsl --install -d Ubuntu 2>&1 | Out-String
     $installExitCode = $LASTEXITCODE
+    Write-Host "Ubuntu install command exit code: $installExitCode"
+    Write-Host "Ubuntu install output: $ubuntuInstallOutput"
 
     # Check if installation succeeded or if Ubuntu is now available
     if ($installExitCode -eq 0) {
@@ -164,23 +194,38 @@ if (-not $ubuntuAvailable) {
         Start-Sleep -Seconds 15
     } else {
         # Installation command failed, but Ubuntu might still be installing in background
-        Write-Host "WSL install command returned exit code $installExitCode"
-        Write-Host "WSL output: $ubuntuInstallOutput"
+        Write-Host "WARNING: Ubuntu install command failed (exit code: $installExitCode)"
+        Write-Host "This may indicate that WSL requires a restart or Ubuntu installation failed."
         Write-Host "Waiting to check if Ubuntu becomes available..."
         Start-Sleep -Seconds 20
     }
 
     # Check again if Ubuntu is available
-    $wslListOutput = wsl -l -q 2>&1
+    Write-Host "Checking if Ubuntu is now available..."
+    $wslListOutput = wsl -l -q 2>&1 | Out-String
+    Write-Host "WSL list output: $wslListOutput"
     $ubuntuAvailable = $wslListOutput | Select-String -Pattern "Ubuntu"
 
     if (-not $ubuntuAvailable) {
-        Write-Host "WARNING: Ubuntu distribution not available after installation attempt."
-        Write-Host "WSL list output: $wslListOutput"
         Write-Host ""
-        Write-Host "Skipping id3v2 installation (requires WSL Ubuntu)."
-        $failedPackages += "id3v2"
-        $wslRequiredPackages += "id3v2"
+        Write-Host "ERROR: Ubuntu distribution not available after installation attempt."
+        Write-Host "WSL installation on Windows typically requires a system restart, which is not possible in CI."
+        Write-Host ""
+        $isCI = $env:CI -eq "true" -or $env:GITHUB_ACTIONS -eq "true" -or $env:TF_BUILD -eq "true"
+        if ($isCI) {
+            Write-Host "Ubuntu installation is required for id3v2 but cannot be completed in CI without a restart."
+            Write-Host ""
+            Write-Host "To enable id3v2 in CI:"
+            Write-Host "  1. Use a Windows runner with WSL Ubuntu pre-installed"
+            Write-Host "  2. Or configure WSL Ubuntu in your CI workflow before running this script"
+        } else {
+            Write-Host "Ubuntu installation failed. Please install Ubuntu manually:"
+            Write-Host "  1. Run: wsl --install -d Ubuntu"
+            Write-Host "  2. Restart your computer if prompted"
+            Write-Host "  3. Run this script again"
+        }
+        Write-Host ""
+        exit 1
     } else {
         Write-Host "Ubuntu distribution is now available!"
     }
