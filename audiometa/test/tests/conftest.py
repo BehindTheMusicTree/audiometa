@@ -92,7 +92,12 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
                 check=True,
             )
             if result.stdout:
-                return result.stdout.strip().split()[-1]
+                version = result.stdout.strip().split()[-1]
+                # Normalize version: extract major.minor from "7.1_4" -> "7.1"
+                # Homebrew version pinning uses major versions (e.g., @7) but installed versions include revisions
+                if "_" in version:
+                    version = version.split("_")[0]
+                return version
         except (subprocess.CalledProcessError, FileNotFoundError):
             pass
         return None
@@ -118,15 +123,18 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
     def check_tool_available(tool_name):
         """Check if tool is available in PATH."""
         try:
-            subprocess.run(
+            # Some tools (like ffprobe) output version to stderr and return non-zero
+            # So we check both stdout and stderr, and don't require check=True
+            result = subprocess.run(
                 [tool_name, "--version"],
                 capture_output=True,
-                check=True,
+                text=True,
+                check=False,
             )
-        except (subprocess.CalledProcessError, FileNotFoundError):
+            # Tool is available if we get output in either stdout or stderr
+            return bool(result.stdout or result.stderr)
+        except FileNotFoundError:
             return False
-        else:
-            return True
 
     # Only verify versions if we can detect the OS and tools are available
     os_type = get_os_type()
@@ -159,6 +167,14 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
         if not installed:
             errors.append(f"{tool}: VERSION CHECK FAILED")
             has_errors = True
+        elif os_type == "macos":
+            # For macOS, compare major versions since Homebrew pins by major version
+            # e.g., expected "7" should match installed "7.1" or "7.1_4"
+            installed_major = installed.split(".")[0] if "." in installed else installed
+            expected_major = expected_version.split(".")[0] if "." in expected_version else expected_version
+            if installed_major != expected_major:
+                errors.append(f"{tool}: version mismatch (expected major version {expected_major}, got {installed})")
+                has_errors = True
         elif installed != expected_version:
             errors.append(f"{tool}: version mismatch (expected {expected_version}, got {installed})")
             has_errors = True

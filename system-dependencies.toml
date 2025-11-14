@@ -34,7 +34,7 @@ bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "24.10" }
 # IMPORTANT: Verify these versions match what's available in macos-latest:
 #   Run in CI: brew info <package> to see available versions
 #   Update these pinned versions to match what CI actually installs
-ffmpeg = "7.1"  # Pinned version (fails if not available) - VERIFY THIS VERSION
+ffmpeg = "7"  # Pinned version (fails if not available) - Homebrew uses major version only
 flac = "1.4.3"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 mediainfo = "24.12"  # Pinned version (fails if not available) - VERIFY THIS VERSION
 bwfmetaedit = "24.10"  # Pinned version (fails if not available) - VERIFY THIS VERSION
