@@ -94,26 +94,70 @@ check_version_match() {
   fi
 }
 
+# Function to find tool executable path (checks common installation locations)
+find_tool_path() {
+  local tool_name="$1"
+  local tool_path
+  local homebrew_prefix
+
+  # First try command -v (checks PATH)
+  if command -v "$tool_name" &>/dev/null; then
+    command -v "$tool_name"
+    return 0
+  fi
+
+  # Check common installation paths
+  for path in "/usr/local/bin/${tool_name}" "/opt/local/bin/${tool_name}" "/opt/homebrew/bin/${tool_name}"; do
+    if [ -f "$path" ] && [ -x "$path" ]; then
+      echo "$path"
+      return 0
+    fi
+  done
+
+  # Special handling for ffmpeg/ffprobe (keg-only packages)
+  if [ "$tool_name" = "ffmpeg" ] || [ "$tool_name" = "ffprobe" ]; then
+    homebrew_prefix=$(get_homebrew_prefix)
+    # Check common ffmpeg versioned paths
+    for version in "7" "6" "5"; do
+      path="${homebrew_prefix}/opt/ffmpeg@${version}/bin/${tool_name}"
+      if [ -f "$path" ] && [ -x "$path" ]; then
+        echo "$path"
+        return 0
+      fi
+    done
+  fi
+
+  return 1
+}
+
 # Function to get installed version of a tool
 get_tool_version() {
   local tool_name="$1"
   local version_output
+  local tool_path
+
+  # Find the tool path
+  tool_path=$(find_tool_path "$tool_name")
+  if [ -z "$tool_path" ]; then
+    echo ""
+    return 1
+  fi
 
   case "$tool_name" in
     flac|metaflac)
-      version_output=$(flac --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+      version_output=$("$tool_path" --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
       ;;
     mediainfo)
-      version_output=$(mediainfo --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+      version_output=$("$tool_path" --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
       ;;
     id3v2)
-      version_output=$(id3v2 --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+      version_output=$("$tool_path" --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
       ;;
     bwfmetaedit)
-      version_output=$(bwfmetaedit --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+      version_output=$("$tool_path" --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
       ;;
     ffmpeg|ffprobe)
-      version_output=$(ffmpeg -version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+      version_output=$("$tool_path" -version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
       ;;
     *)
       version_output=""
