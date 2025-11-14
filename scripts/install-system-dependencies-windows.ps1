@@ -473,7 +473,7 @@ $tools = @("ffprobe", "flac", "metaflac", "mediainfo", "id3v2", "exiftool")
 foreach ($tool in $tools) {
     # Skip id3v2 if WSL isn't available (already handled earlier)
     if ($tool -eq "id3v2" -and $wslRequiredPackages -contains "id3v2") {
-        Write-Host "  $tool: Skipped (WSL not available)"
+        Write-Host "  ${tool}: Skipped (WSL not available)"
         continue
     }
 
@@ -483,20 +483,20 @@ foreach ($tool in $tools) {
 
     if ($toolPath) {
         $toolFound = $true
-        Write-Host "  $tool: Found at $($toolPath.Source)"
+        Write-Host "  ${tool}: Found at $($toolPath.Source)"
     } else {
         # Check common installation directories
         $commonPaths = @(
-            "C:\Program Files\Chocolatey\bin\$tool.exe",
-            "C:\ProgramData\chocolatey\bin\$tool.exe",
-            "C:\Program Files\$tool\$tool.exe",
-            "C:\Program Files (x86)\$tool\$tool.exe"
+            "C:\Program Files\Chocolatey\bin\${tool}.exe",
+            "C:\ProgramData\chocolatey\bin\${tool}.exe",
+            "C:\Program Files\${tool}\${tool}.exe",
+            "C:\Program Files (x86)\${tool}\${tool}.exe"
         )
 
         foreach ($commonPath in $commonPaths) {
             if (Test-Path $commonPath) {
                 $toolFound = $true
-                Write-Host "  $tool: Found at $commonPath (not in PATH, but installed)"
+                Write-Host "  ${tool}: Found at $commonPath (not in PATH, but installed)"
                 # Add to PATH for this session
                 $dir = Split-Path -Parent $commonPath
                 if ($env:Path -notlike "*$dir*") {
@@ -508,7 +508,7 @@ foreach ($tool in $tools) {
 
         if (-not $toolFound) {
             $missingTools += $tool
-            Write-Host "  $tool: Not found"
+            Write-Host "  ${tool}: Not found"
         }
     }
 }
