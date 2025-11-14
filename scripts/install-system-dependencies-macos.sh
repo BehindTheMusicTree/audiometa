@@ -296,6 +296,30 @@ if [ ! -f "$LIBSNDFILE_LIB" ]; then
   exit 1
 fi
 
+# Ensure Homebrew lib directory is in library search path for Python
+# This is critical for Python to find libsndfile when soundfile imports it
+export DYLD_LIBRARY_PATH="${HOMEBREW_PREFIX}/lib:${DYLD_LIBRARY_PATH:-}"
+export PKG_CONFIG_PATH="${HOMEBREW_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+if [ -n "$GITHUB_ENV" ]; then
+  echo "DYLD_LIBRARY_PATH=${HOMEBREW_PREFIX}/lib:${DYLD_LIBRARY_PATH:-}" >> "$GITHUB_ENV"
+  echo "PKG_CONFIG_PATH=${HOMEBREW_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH:-}" >> "$GITHUB_ENV"
+fi
+
+# Verify pkg-config can find libsndfile (used by soundfile during installation)
+if ! pkg-config --exists libsndfile 2>/dev/null; then
+  echo "ERROR: pkg-config cannot find libsndfile."
+  echo "This will cause soundfile installation to fail."
+  echo ""
+  echo "Homebrew prefix: $HOMEBREW_PREFIX"
+  echo "Library location: $LIBSNDFILE_LIB"
+  echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
+  echo ""
+  echo "Try:"
+  echo "  1. Reinstall libsndfile: brew reinstall libsndfile"
+  echo "  2. Verify pkg-config path: pkg-config --variable=prefix libsndfile"
+  exit 1
+fi
+
 # Try to import soundfile if available (it may be installed as part of Python dependencies)
 if python3 -c "import soundfile" 2>/dev/null; then
   echo "  libsndfile is accessible to Python (soundfile import successful)"
@@ -331,12 +355,32 @@ except Exception:
     exit 1
   else
     # soundfile not installed yet, but verify library file exists and is loadable
-    if python3 -c "import ctypes; ctypes.CDLL('$LIBSNDFILE_LIB')" 2>/dev/null; then
+    # This check MUST pass or installation should fail
+    # Use DYLD_LIBRARY_PATH to ensure Python can find the library
+    if DYLD_LIBRARY_PATH="${HOMEBREW_PREFIX}/lib:${DYLD_LIBRARY_PATH:-}" python3 -c "import ctypes; ctypes.CDLL('$LIBSNDFILE_LIB')" 2>/dev/null; then
       echo "  libsndfile library found and loadable at: $LIBSNDFILE_LIB"
     else
-      echo "WARNING: libsndfile library found but may not be accessible to Python."
+      echo "ERROR: libsndfile library found but cannot be loaded by Python."
       echo "Library location: $LIBSNDFILE_LIB"
-      echo "This may cause issues when soundfile Python package is installed."
+      echo ""
+      echo "This indicates libsndfile installation is incomplete or inaccessible to Python."
+      echo "The library file exists but Python cannot load it, which will cause"
+      echo "soundfile import to fail when Python dependencies are installed."
+      echo ""
+      echo "Possible causes:"
+      echo "  1. Library file is corrupted or incomplete"
+      echo "  2. Library dependencies are missing"
+      echo "  3. Library path is not accessible to Python"
+      echo ""
+      echo "Verification:"
+      echo "  - Library file exists: $([ -f "$LIBSNDFILE_LIB" ] && echo "YES" || echo "NO")"
+      echo "  - Library is readable: $([ -r "$LIBSNDFILE_LIB" ] && echo "YES" || echo "NO")"
+      echo "  - Homebrew prefix: $HOMEBREW_PREFIX"
+      echo ""
+      echo "Try:"
+      echo "  1. Reinstall libsndfile: brew reinstall libsndfile"
+      echo "  2. Verify library: otool -L $LIBSNDFILE_LIB"
+      exit 1
     fi
   fi
 fi
