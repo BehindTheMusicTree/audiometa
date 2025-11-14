@@ -199,14 +199,19 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
 
                 if output:
                     # Match PowerShell script pattern: Select-String -Pattern '(\d+\.\d+\.\d+)'
-                    # Find any three-part version number in the output
-                    # Try to find all matches and use the first one that looks like a version
-                    matches = re.findall(r"(\d+\.\d+\.\d+)", output)
-                    for match in matches:
-                        version = match
-                        # Validate it looks like a version (at least major.minor)
-                        if re.match(r"^\d+\.\d+", version):
-                            return version
+                    # But also try two-part versions (e.g., "24.10") since pinned version might be two-part
+                    # Try three-part first (more specific), then two-part
+                    patterns = [
+                        r"(\d+\.\d+\.\d+)",  # Three-part version (e.g., "24.10.1")
+                        r"(\d+\.\d+)",  # Two-part version (e.g., "24.10")
+                    ]
+                    for pattern in patterns:
+                        matches = re.findall(pattern, output)
+                        for match in matches:
+                            version = match
+                            # Validate it looks like a version (at least major.minor)
+                            if re.match(r"^\d+\.\d+", version):
+                                return version
             except FileNotFoundError:
                 pass
             except subprocess.TimeoutExpired:
