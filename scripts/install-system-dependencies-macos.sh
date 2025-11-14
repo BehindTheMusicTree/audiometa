@@ -47,6 +47,14 @@ echo "Installing id3v2..."
 echo "Installing bwfmetaedit..."
 "${SCRIPT_DIR}/ci/install-bwfmetaedit-macos.sh" "${PINNED_BWFMETAEDIT}"
 
+# Ensure /usr/local/bin is in PATH for verification (tools may be installed there)
+if [ -d "/usr/local/bin" ] && [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
+  export PATH="/usr/local/bin:$PATH"
+  if [ -n "$GITHUB_PATH" ]; then
+    echo "/usr/local/bin" >> "$GITHUB_PATH"
+  fi
+fi
+
 # Verify installed versions match pinned versions
 echo "Verifying installed versions..."
 INSTALLED_FLAC=$(get_tool_version "flac")
