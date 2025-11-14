@@ -7,7 +7,24 @@ set -e
 
 # Load pinned versions from system-dependencies.toml
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-eval "$(python3 "${SCRIPT_DIR}/ci/load-system-dependency-versions.py" bash)"
+VERSION_OUTPUT=$(python3 "${SCRIPT_DIR}/ci/load-system-dependency-versions.py" bash)
+if [ $? -ne 0 ] || [ -z "$VERSION_OUTPUT" ]; then
+  echo "ERROR: Failed to load versions from system-dependencies.toml"
+  exit 1
+fi
+eval "$VERSION_OUTPUT"
+
+# Verify versions were loaded
+if [ -z "$PINNED_FFMPEG" ] || [ -z "$PINNED_FLAC" ] || [ -z "$PINNED_MEDIAINFO" ] || [ -z "$PINNED_ID3V2" ] || [ -z "$PINNED_BWFMETAEDIT" ]; then
+  echo "ERROR: Failed to load all required versions from system-dependencies.toml"
+  echo "Loaded versions:"
+  echo "  PINNED_FFMPEG=${PINNED_FFMPEG:-NOT SET}"
+  echo "  PINNED_FLAC=${PINNED_FLAC:-NOT SET}"
+  echo "  PINNED_MEDIAINFO=${PINNED_MEDIAINFO:-NOT SET}"
+  echo "  PINNED_ID3V2=${PINNED_ID3V2:-NOT SET}"
+  echo "  PINNED_BWFMETAEDIT=${PINNED_BWFMETAEDIT:-NOT SET}"
+  exit 1
+fi
 
 echo "Installing pinned package versions..."
 
