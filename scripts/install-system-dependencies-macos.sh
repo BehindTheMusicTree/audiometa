@@ -223,7 +223,28 @@ install_homebrew_package "exiftool" "exiftool" "${PINNED_EXIFTOOL}" "/usr/local/
 # Install libsndfile (required by soundfile Python package)
 install_homebrew_package "libsndfile" "libsndfile" "${PINNED_LIBSNDFILE}" ""
 
-# Ensure /usr/local/bin is in PATH for verification (tools may be installed there)
+# Ensure Homebrew bin directory is in PATH (tools are installed there)
+HOMEBREW_BIN="${HOMEBREW_PREFIX}/bin"
+if [ -d "$HOMEBREW_BIN" ] && [[ ":$PATH:" != *":${HOMEBREW_BIN}:"* ]]; then
+  export PATH="${HOMEBREW_BIN}:$PATH"
+  if [ -n "$GITHUB_PATH" ]; then
+    echo "$HOMEBREW_BIN" >> "$GITHUB_PATH"
+  fi
+fi
+
+# Ensure Homebrew opt/bin directories are in PATH (for keg-only packages and opt symlinks)
+# Some packages create symlinks in opt/package/bin
+for opt_package in flac; do
+  OPT_BIN="${HOMEBREW_PREFIX}/opt/${opt_package}/bin"
+  if [ -d "$OPT_BIN" ] && [[ ":$PATH:" != *":${OPT_BIN}:"* ]]; then
+    export PATH="${OPT_BIN}:$PATH"
+    if [ -n "$GITHUB_PATH" ]; then
+      echo "$OPT_BIN" >> "$GITHUB_PATH"
+    fi
+  fi
+done
+
+# Also ensure /usr/local/bin is in PATH for backward compatibility
 if [ -d "/usr/local/bin" ] && [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
   export PATH="/usr/local/bin:$PATH"
   if [ -n "$GITHUB_PATH" ]; then
