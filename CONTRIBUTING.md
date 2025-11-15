@@ -728,16 +728,15 @@ Releases are created from the `main` branch.
    - Move content from `[Unreleased]` section to new version entry with date
    - Contributors should not modify the changelog; this is maintained by maintainers during releases
 3. Bump your version (increment the version number to match the changelog, e.g., from 1.2.2 to 1.2.3) using bump2version (which automatically finds and updates version references in your project files) or manually editing **version**
-4. Commit both changes:
+4. Commit changes:
    ```bash
-   git add pyproject.toml CHANGELOG.md
-   git commit -m "chore: bump version to 1.2.3"
+   git add pyproject.toml CHANGELOG.md TODO.md
+   git commit -m "chore: prepare release 1.2.3"
    ```
 5. Tag the release (create a Git tag to mark this specific commit as the release point):
    ```bash
    git tag v1.2.3
-   git push origin main
-   git push origin v1.2.3
+   git push origin main --tags
    ```
 6. CI/CD will:
    - Run tests
