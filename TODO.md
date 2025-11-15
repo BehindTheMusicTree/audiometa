@@ -124,6 +124,12 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
   - Set up containerized environment for easy deployment and testing
   - Include necessary dependencies and entry points
 
+- [ ] **Replace `--year` CLI argument with `--release-date`**
+  - Replace `--year` argument with `--release-date` to accept both year-only (YYYY) and full date (YYYY-MM-DD) formats
+  - Currently `--year` only accepts integer year values and converts to YYYY format
+  - New `--release-date` should accept both "2024" and "2024-01-01" formats to match library's RELEASE_DATE support
+  - Maintain backward compatibility or deprecate `--year` in favor of `--release-date`
+
 ## Testing & Quality
 
 ### High Priority
