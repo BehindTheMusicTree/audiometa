@@ -19,19 +19,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-11-15
+
 ### Added
 
 - **Comprehensive Test Infrastructure**: Complete test suite reorganization with 500+ tests covering unit, integration, and end-to-end scenarios
-- **Test Helper Framework**: `TempFileWithMetadata` context manager for unified test file management with external tool operations
+- **Test Helper Framework**: `temp_file_with_metadata` context manager function for unified test file management with external tool operations
 - **External Tool Integration**: Comprehensive external script suite for metadata manipulation and verification across all formats
 - **Test Data Management**: 173 pre-created audio files covering edge cases, metadata combinations, and performance scenarios
 - **Format-Specific Test Helpers**: Dedicated helper classes for ID3v1, ID3v2, Vorbis, and RIFF metadata operations
-- **CLI Testing Suite**: Complete command-line interface test coverage with error handling and edge case validation
 - **Command-Line Interface**: Full CLI implementation with read, write, delete, and unified metadata operations
+- **CLI Testing Suite**: Complete command-line interface test coverage with error handling and edge case validation
 - **New Metadata Fields**: Added support for BPM, UNSYNCHRONIZED_LYRICS, PUBLISHER, COPYRIGHT, COMPOSERS, REPLAYGAIN, ARCHIVAL_LOCATION
 - **Enhanced Error Handling**: Comprehensive exception system with specific error types for different failure scenarios
 - **Metadata Validation**: Input validation and type checking for all metadata operations
-- **External Tool Integration**: Seamless integration with external tools (metaflac, id3v2, ffprobe) for optimal compatibility
 - **Enhanced `get_unified_metadata_field` API**: Added optional `metadata_format` parameter to query specific formats
 - Format-specific metadata retrieval without extracting from dictionaries
 - **ID3v1 writing support**: ID3v1 metadata can now be written and modified (previously read-only)
@@ -43,7 +44,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ID3v2 version selection for MP3 files
 - Support for choosing between ID3v2.3 (maximum compatibility) and ID3v2.4 (modern features)
 - `id3v2_version` parameter in all metadata functions
-- Automatic version upgrade when reading existing files
 - **Technical Information Functions**: Additional audio file analysis functions:
   - `get_file_size()`: Retrieve audio file size in bytes
   - `get_channels()`: Get number of audio channels (mono, stereo, etc.)
@@ -84,42 +84,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Enhanced WAV file validation**: WAV files now properly validate and handle ID3v2 tags when present
 - **RIFF metadata preservation**: RiffManager now merges existing metadata with new updates, ensuring preservation of existing data during metadata operations
 
-### Implementation Improvements
+### Improved
 
-- **New Metadata Fields**: Extended support for 8 additional metadata fields:
-  - `BPM`: Beats per minute support across ID3v2, Vorbis, and RIFF formats
-  - `UNSYNCHRONIZED_LYRICS`: Lyrics support with language code handling in ID3v2
-  - `PUBLISHER`: Publisher information in ID3v2 and Vorbis formats
-  - `COPYRIGHT`: Copyright information across ID3v2, Vorbis, and RIFF formats
-  - `COMPOSERS`: Composer information with multi-value support
-  - `REPLAYGAIN`: ReplayGain information in ID3v2 and Vorbis formats
-  - `ARCHIVAL_LOCATION`: Archival location support in RIFF format
-- **Command-Line Interface**: Complete CLI implementation with:
-  - `audiometa read`: Full metadata reading with multiple output formats (JSON, YAML, table)
-  - `audiometa unified`: Simplified unified metadata reading
-  - `audiometa write`: Metadata writing with field-specific options
-  - `audiometa delete`: Complete metadata removal
-  - Recursive directory processing and batch operations
-  - Error handling and continue-on-error options
-- **Enhanced Error Handling**: Comprehensive exception system:
-  - `InvalidRatingValueError`: Rating validation with proper range checking
-  - `MetadataFieldNotSupportedByMetadataFormatError`: Format-specific field support validation
-  - `MetadataFormatNotSupportedByAudioFormatError`: Audio format compatibility checking
-  - `ConfigurationError`: External tool dependency validation
+- **Metadata Validation**: Enhanced input validation:
+  - Type checking for all metadata fields
+  - Range validation for rating values (0 to normalized max or non-negative)
+  - Rating validation improvements: Non-negative integer requirement when normalized_rating_max_value is None
+  - Format validation for track numbers (non-negative integers or string formats like "5/12")
+  - Multi-value field handling with proper list validation
+  - Empty value filtering for list-type metadata fields
+  - Release date format validation with corresponding error handling
+  - Year value validation with improved error handling for invalid values
 - **External Tool Integration**: Optimized tool usage for maximum compatibility:
   - `metaflac` for Vorbis metadata writing to preserve proper key casing
   - `id3v2`/`mid3v2` for ID3v2 metadata writing in FLAC files to prevent corruption
   - `ffprobe` for RIFF metadata extraction with proper encoding handling
-- **Metadata Validation**: Enhanced input validation:
-  - Type checking for all metadata fields
-  - Range validation for numeric fields (ratings, BPM, track numbers)
-  - Multi-value field handling with proper list validation
-  - Empty value filtering for list-type metadata fields
-  - Rating validation improvements: Non-negative integer requirement when normalized_rating_max_value is None
-  - Release date format validation with corresponding error handling
-  - Year value validation with improved error handling for invalid values
-  - File content validation enhancements for supported audio formats
-  - AudioFileMetadataParseError for improved metadata parsing error handling
 
 ### Documentation Enhancements
 
@@ -168,6 +147,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Track Numbers**: ID3v1.1 format with null byte indicator and 1-255 range validation
 - **File Structure**: Maintains 128-byte fixed structure at end of file
 - **Compatibility**: Works with MP3, FLAC, and WAV files containing ID3v1 tags
+
+### Fixed
+
+- **CI/Test Improvements**: Enhanced Windows CI support with WSL integration and optional dependency handling
+- **Windows Testing**: Improved Windows permission error handling in CLI tests
+- **Version Detection**: Enhanced system dependency version detection for Windows tools (Chocolatey, WSL)
+- **CI Coverage**: Fixed coverage threshold check to skip on Windows platform
+- **macOS Dependencies**: Improved libsndfile accessibility checks and diagnostics in installation script
+- **Code Quality**: Fixed TRY300 linting issue in Vorbis module (moved return statement to else block)
+
+### Documentation
+
+- **README Alignment**: Aligned mutagen version requirement documentation with pyproject.toml
+
+### Chore
+
+- **Release Management**: Added bump2version tool for automated version management
+- **Script Permissions**: Added execute permissions to installation scripts
+- **CI Refactoring**: Moved shared scripts out of CI directory for better organization
 
 ## [0.1.0] - 2024-10-03
 
