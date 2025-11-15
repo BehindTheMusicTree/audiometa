@@ -23,19 +23,30 @@ class TestFlacMd5Functions:
 
     def test_fix_md5_checking_flac(self):
         with temp_file_with_metadata({}, "flac") as test_file:
-            # Corrupt audio data in the middle of the file to ensure MD5 is invalid
-            # This is more reliable than truncation, which may not invalidate MD5 on all platforms
-            file_size = test_file.stat().st_size
+            # Corrupt the MD5 checksum in the STREAMINFO block to ensure MD5 is invalid
+            # The MD5 checksum is stored at bytes 18-33 in the STREAMINFO block (first metadata block)
+            # STREAMINFO block starts after the 4-byte "fLaC" marker and 1-byte block header
             with test_file.open("r+b") as f:
-                # Corrupt bytes in the middle of the file (avoid header and end)
-                # This will definitely invalidate the MD5 checksum
-                corrupt_position = max(1000, file_size // 2)  # Middle of file, but at least 1000 bytes in
-                f.seek(corrupt_position)
-                original_bytes = f.read(100)
-                f.seek(corrupt_position)
-                # Flip all bits to corrupt the data
-                corrupted_bytes = bytes(b ^ 0xFF for b in original_bytes)
-                f.write(corrupted_bytes)
+                # Read the file to find STREAMINFO block
+                data = f.read()
+                # Find "fLaC" marker
+                flac_marker_pos = data.find(b"fLaC")
+                if flac_marker_pos == -1:
+                    msg = "Could not find FLAC marker in test file"
+                    raise RuntimeError(msg)
+                # STREAMINFO block starts at flac_marker_pos + 4 (after "fLaC")
+                # Block header is 1 byte, then STREAMINFO data starts
+                # MD5 checksum is at offset 18-33 within STREAMINFO data
+                md5_start = flac_marker_pos + 4 + 1 + 18
+                if md5_start + 16 > len(data):
+                    msg = "FLAC file too small to contain MD5 checksum"
+                    raise RuntimeError(msg)
+                # Corrupt the MD5 checksum by flipping all bits
+                f.seek(md5_start)
+                original_md5 = f.read(16)
+                f.seek(md5_start)
+                corrupted_md5 = bytes(b ^ 0xFF for b in original_md5)
+                f.write(corrupted_md5)
 
             # Ensure we're testing with a FLAC file that has invalid MD5
             assert not is_flac_md5_valid(test_file), "Test file should have invalid MD5 for fix_md5_checking test"
