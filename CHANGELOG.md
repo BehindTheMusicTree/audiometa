@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Changelogs are for humans, not machines.
 - Include an entry for every version, with the latest first.
-- Group similar changes under: Added, Changed, Improved, Deprecated, Removed, Fixed, Security, Documentation, Performance, CI.
+- Group similar changes under: Added, Changed, Improved, Deprecated, Removed, Fixed, Documentation, Performance, CI.
 - Use an "Unreleased" section for upcoming changes.
 - Follow Semantic Versioning where possible.
 - Use ISO 8601 date format: YYYY-MM-DD.
@@ -37,10 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Format-specific metadata retrieval without extracting from dictionaries
 - **ID3v1 writing support**: ID3v1 metadata can now be written and modified (previously read-only)
 - Direct file manipulation for ID3v1 tags using 128-byte structure
-- ID3v1 field truncation and validation (30-character limits for text fields)
-- ID3v1 genre name to code conversion
-- ID3v1.1 track number support (1-255 range)
+- ID3v1 field truncation and validation (30-character limits for text fields, 4 characters for year)
+- ID3v1 genre name to code conversion (automatic conversion to ID3v1 genre codes 0-255)
+- ID3v1.1 track number support (1-255 range with null byte indicator)
 - ID3v1 metadata deletion support
+- ID3v1 encoding: Latin-1 encoding with error handling for non-ASCII characters
+- ID3v1 compatibility: Works with MP3, FLAC, and WAV files containing ID3v1 tags
 - ID3v2 version selection for MP3 files
 - Support for choosing between ID3v2.3 (maximum compatibility) and ID3v2.4 (modern features)
 - `id3v2_version` parameter in all metadata functions
@@ -54,11 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Raw metadata details from each format
   - Format priority information
 - **GitHub Sponsors Support**: Added FUNDING.yml to enable GitHub Sponsors button on repository
-- **Issue Templates**: Added bug report and feature request templates for better issue tracking and contributor experience
-- **Pull Request Template**: Added comprehensive PR template aligned with contributing guidelines, including pre-PR checklist, breaking changes section, and testing instructions
-- **Code of Conduct**: Added Contributor Covenant Code of Conduct to ensure a welcoming and inclusive community environment
-- **Security Policy**: Added SECURITY.md with vulnerability reporting procedures, disclosure policy, and security best practices
-- **Support Documentation**: Added SUPPORT.md with guidance on getting help, reporting issues, and asking questions
+- **Release Management**: Added bump2version tool for automated version management
+
+### CI
+
 - **CI/CD Pipeline**: Comprehensive GitHub Actions workflow for continuous integration:
   - Automated linting and code quality checks (ruff, isort, mypy, docformatter, assert statement validation)
   - Cross-platform testing on Ubuntu, macOS, and Windows
@@ -100,8 +101,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `id3v2`/`mid3v2` for ID3v2 metadata writing in FLAC files to prevent corruption
   - `ffprobe` for RIFF metadata extraction with proper encoding handling
 
-### Documentation Enhancements
+### Documentation
 
+- **Contributing Guide**: Added comprehensive CONTRIBUTING.md with development workflow, code style guidelines, testing practices, and contribution process
+- **Issue Templates**: Added bug report and feature request templates for better issue tracking and contributor experience
+- **Pull Request Template**: Added comprehensive PR template aligned with contributing guidelines, including pre-PR checklist, breaking changes section, and testing instructions
+- **Code of Conduct**: Added Contributor Covenant Code of Conduct to ensure a welcoming and inclusive community environment
+- **Security Policy**: Added SECURITY.md with vulnerability reporting procedures, disclosure policy, and security best practices
+- **Support Documentation**: Added SUPPORT.md with guidance on getting help, reporting issues, and asking questions
 - **Comprehensive README**: Complete rewrite with detailed sections covering:
   - Installation instructions with system requirements and external tool setup
   - Quick start guide with practical examples
@@ -122,50 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Error handling and edge case documentation
 - **Commit Message Conventions**: Standardized commit message format with test-specific prefixes
 - **Cursor Rules**: Comprehensive development guidelines for code style, comments, and organization
-
-### Test Infrastructure Details
-
-- **Test Organization**: Complete reorganization following unit/integration/e2e testing patterns
-- **Test Coverage**: 500+ tests covering all metadata formats, edge cases, and user scenarios
-- **External Tool Scripts**: Comprehensive bash and Python scripts for metadata manipulation:
-  - `set-id3v1-max-metadata.sh`: Maximum ID3v1 metadata for field limit testing
-  - `set-id3v2-max-metadata.sh`: Comprehensive ID3v2 metadata with extended frames and ratings
-  - `set-vorbis-max-metadata.sh`: Complete Vorbis comment metadata for FLAC files
-  - `set-riff-max-metadata.sh`: Full RIFF INFO metadata for WAV files
-- **Test Data Strategy**: Hybrid approach combining 173 pre-created files with on-the-fly generation
-- **Helper Classes**: Format-specific metadata setters, getters, deleters, and verifiers
-- **CLI Testing**: Complete command-line interface validation with error handling
-- **Performance Testing**: Audio file readability verification after metadata updates
-- **Cross-Platform Testing**: External tool dependency validation and error handling
-
-### Technical Details
-
-- **ID3v1 Implementation**: Uses direct file manipulation instead of mutagen for writing
-- **Field Constraints**: Automatic truncation to 30 characters for text fields, 4 characters for year
-- **Encoding**: Latin-1 encoding with error handling for non-ASCII characters
-- **Genre Handling**: Automatic conversion from genre names to ID3v1 genre codes (0-255)
-- **Track Numbers**: ID3v1.1 format with null byte indicator and 1-255 range validation
-- **File Structure**: Maintains 128-byte fixed structure at end of file
-- **Compatibility**: Works with MP3, FLAC, and WAV files containing ID3v1 tags
-
-### Fixed
-
-- **CI/Test Improvements**: Enhanced Windows CI support with WSL integration and optional dependency handling
-- **Windows Testing**: Improved Windows permission error handling in CLI tests
-- **Version Detection**: Enhanced system dependency version detection for Windows tools (Chocolatey, WSL)
-- **CI Coverage**: Fixed coverage threshold check to skip on Windows platform
-- **macOS Dependencies**: Improved libsndfile accessibility checks and diagnostics in installation script
-- **Code Quality**: Fixed TRY300 linting issue in Vorbis module (moved return statement to else block)
-
-### Documentation
-
 - **README Alignment**: Aligned mutagen version requirement documentation with pyproject.toml
-
-### Chore
-
-- **Release Management**: Added bump2version tool for automated version management
-- **Script Permissions**: Added execute permissions to installation scripts
-- **CI Refactoring**: Moved shared scripts out of CI directory for better organization
 
 ## [0.1.0] - 2024-10-03
 
