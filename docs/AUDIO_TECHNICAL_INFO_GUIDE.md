@@ -6,6 +6,9 @@ This document provides comprehensive information about technical audio informati
 
 - [Technical Info Support by Audio Format](#technical-info-support-by-audio-format)
 - [MD5 Checksum Validation and Repair](#md5-checksum-validation-and-repair)
+  - [MD5 Checksum Validation](#md5-checksum-validation)
+    - [MD5 Checksum States](#md5-checksum-states)
+  - [MD5 Checksum Repair](#md5-checksum-repair)
 
 ## Technical Info Support by Audio Format
 
@@ -43,20 +46,7 @@ else:
 
 **Note on Unset MD5**: When a FLAC file has an unset MD5 checksum (all zeros), the function returns `False` (invalid). An unset MD5 cannot verify file integrity, so it is considered invalid.
 
-### MD5 Checksum Repair
-
-If a FLAC file has a corrupted or invalid MD5 checksum, you can repair it using the `fix_md5_checking()` function. This function recalculates and updates the MD5 checksum based on the current audio data.
-
-```python
-from audiometa import fix_md5_checking
-
-# Repair MD5 checksum in FLAC file
-fix_md5_checking("song.flac")
-```
-
-**Note**: The `fix_md5_checking()` function will also set an MD5 checksum for files that have an unset MD5 (all zeros), effectively enabling integrity checking for files that were encoded without MD5.
-
-### MD5 Checksum States
+#### MD5 Checksum States
 
 FLAC files can have MD5 checksums in different states:
 
@@ -68,3 +58,20 @@ The `is_flac_md5_valid()` function returns:
 
 - `True` if the MD5 checksum is valid and matches the audio data
 - `False` if the MD5 checksum is invalid (mismatch), unset (all zeros), or if the `flac` tool reports it as invalid
+
+### MD5 Checksum Repair
+
+If a FLAC file has a corrupted, invalid, or missing (unset) MD5 checksum, you can repair it using the `fix_md5_checking()` function. This function recalculates and updates the MD5 checksum based on the current audio data.
+
+```python
+from audiometa import fix_md5_checking
+
+# Repair MD5 checksum in FLAC file
+fix_md5_checking("song.flac")
+```
+
+**Note**: The `fix_md5_checking()` function works for all invalid MD5 states:
+
+- **Corrupted MD5**: Recalculates and sets the correct checksum
+- **Invalid MD5**: Recalculates and sets the correct checksum
+- **Missing/Unset MD5** (all zeros): Calculates and sets a new MD5 checksum, effectively enabling integrity checking for files that were encoded without MD5
