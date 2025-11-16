@@ -46,7 +46,7 @@ flac = "1.5.0"
 mediainfo = "25.10"
 bwfmetaedit = "25.04.1"
 id3v2 = "0.1.12"
-exiftool = "22.80"
+exiftool = { source = "exiftool_org", pinned_version = "13.41" }
 libsndfile = "1.2.2"
 
 [windows]

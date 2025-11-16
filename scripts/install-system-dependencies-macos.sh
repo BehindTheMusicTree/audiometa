@@ -206,6 +206,86 @@ install_ffmpeg() {
   echo "  ffmpeg ${pinned_version} installed successfully"
 }
 
+# Function to install exiftool from exiftool.org (to match Windows version)
+install_exiftool() {
+  local pinned_version="$1"
+
+  echo "Installing exiftool (pinned version ${pinned_version})..."
+
+  # Check if exiftool is already installed with correct version
+  if command -v exiftool &>/dev/null; then
+    INSTALLED_VERSION=$(get_tool_version "exiftool")
+    if [ -n "$INSTALLED_VERSION" ] && check_version_match "exiftool" "$INSTALLED_VERSION" "$pinned_version"; then
+      echo "  exiftool ${INSTALLED_VERSION} already installed (matches pinned version ${pinned_version})"
+      return 0
+    elif [ -n "$INSTALLED_VERSION" ]; then
+      echo "  Removing existing exiftool version ${INSTALLED_VERSION} (installing pinned version ${pinned_version})..."
+      # Remove Homebrew version if installed
+      if brew list exiftool &>/dev/null 2>&1; then
+        brew uninstall exiftool 2>/dev/null || true
+      fi
+      # Remove from common locations
+      rm -f /usr/local/bin/exiftool /opt/homebrew/bin/exiftool 2>/dev/null || true
+    fi
+  fi
+
+  # Download and install from exiftool.org
+  local temp_dir=$(mktemp -d)
+  local download_url="https://exiftool.org/Image-ExifTool-${pinned_version}.tar.gz"
+
+  echo "  Downloading ExifTool ${pinned_version} from exiftool.org..."
+  if ! curl -L -f -s -o "${temp_dir}/exiftool.tar.gz" "$download_url"; then
+    echo "ERROR: Failed to download exiftool version ${pinned_version}"
+    echo "URL attempted: $download_url"
+    echo "Check available versions at: https://exiftool.org/"
+    rm -rf "$temp_dir"
+    exit 1
+  fi
+
+  echo "  Extracting..."
+  cd "$temp_dir"
+  tar -xzf exiftool.tar.gz
+
+  echo "  Installing..."
+  local exiftool_dir="Image-ExifTool-${pinned_version}"
+  if [ ! -d "$exiftool_dir" ]; then
+    echo "ERROR: Extracted directory not found: $exiftool_dir"
+    rm -rf "$temp_dir"
+    exit 1
+  fi
+
+  # Install to /usr/local/bin (or Homebrew prefix if on Apple Silicon)
+  local install_prefix="${HOMEBREW_PREFIX:-/usr/local}"
+  mkdir -p "${install_prefix}/bin"
+
+  # Copy exiftool executable
+  cp "${exiftool_dir}/exiftool" "${install_prefix}/bin/exiftool"
+  chmod +x "${install_prefix}/bin/exiftool"
+
+  # Copy entire lib directory for Perl modules (must be relative to exiftool script location)
+  # exiftool looks for lib/ relative to the script directory
+  mkdir -p "${install_prefix}/bin/lib"
+  cp -r "${exiftool_dir}/lib/"* "${install_prefix}/bin/lib/" 2>/dev/null || true
+
+  # Cleanup
+  cd - > /dev/null
+  rm -rf "$temp_dir"
+
+  # Verify installation
+  INSTALLED_VERSION=$(get_tool_version "exiftool")
+  if [ -z "$INSTALLED_VERSION" ]; then
+    echo "ERROR: Failed to verify exiftool installation."
+    exit 1
+  fi
+
+  if ! check_version_match "exiftool" "$INSTALLED_VERSION" "$pinned_version"; then
+    echo "ERROR: Installed exiftool version ${INSTALLED_VERSION} does not match pinned version ${pinned_version}."
+    exit 1
+  fi
+
+  echo "  exiftool ${INSTALLED_VERSION} installed successfully (matches pinned version ${pinned_version})"
+}
+
 echo "Installing pinned package versions..."
 
 # Install ffmpeg (special case: uses @version syntax)
@@ -217,8 +297,8 @@ install_homebrew_package "mediainfo" "media-info" "${PINNED_MEDIAINFO}" "/usr/lo
 install_homebrew_package "id3v2" "id3v2" "${PINNED_ID3V2}" "/usr/local/bin/id3v2"
 install_homebrew_package "bwfmetaedit" "bwfmetaedit" "${PINNED_BWFMETAEDIT}" "/usr/local/bin/bwfmetaedit"
 
-# Install exiftool via Homebrew
-install_homebrew_package "exiftool" "exiftool" "${PINNED_EXIFTOOL}" "/usr/local/bin/exiftool"
+# Install exiftool from exiftool.org (to match Windows version)
+install_exiftool "${PINNED_EXIFTOOL}"
 
 # Install libsndfile (required by soundfile Python package)
 install_homebrew_package "libsndfile" "libsndfile" "${PINNED_LIBSNDFILE}" ""
