@@ -27,7 +27,7 @@ class TestAudioFileTechnicalInfoErrorHandling:
             pass
 
     def test_flac_md5_check_failed_error_corrupted_flac(self, monkeypatch, sample_flac_file: Path):
-        def mock_subprocess_run(args, *_):
+        def mock_subprocess_run(args, *_, **_kwargs):
             class MockResult:
                 pass
 
