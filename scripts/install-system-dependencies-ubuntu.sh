@@ -14,6 +14,42 @@ eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash)"
 
 echo "Installing pinned package versions..."
 
+# Function to resolve partial version to full version
+# If pinned_version is a partial version (e.g., "24.01"), find the first available
+# version that starts with it (e.g., "24.01.1-1build2")
+resolve_version() {
+  local package="$1"
+  local pinned_version="$2"
+
+  # If version contains a hyphen, it's already a full version
+  if [[ "$pinned_version" == *"-"* ]]; then
+    echo "$pinned_version"
+    return
+  fi
+
+  # For partial versions, find the first available version that starts with it
+  # Extract version from apt-cache madison output (format: "package | version | repo")
+  local available_version=$(apt-cache madison "$package" 2>/dev/null | \
+    awk -v prefix="$pinned_version" '{
+      # Extract version from second column (between |)
+      gsub(/^[^|]*\|[[:space:]]*/, "")
+      gsub(/[[:space:]]*\|.*$/, "")
+      version = $0
+      # Check if version starts with prefix (handle epoch prefix like "7:")
+      if (version ~ "^[0-9]+:" prefix || version ~ "^" prefix) {
+        print version
+        exit
+      }
+    }' | head -n1)
+
+  if [ -n "$available_version" ]; then
+    echo "$available_version"
+  else
+    # If no match found, return original (will fail later with better error)
+    echo "$pinned_version"
+  fi
+}
+
 # Check available versions before attempting installation
 echo "Checking available package versions..."
 HAS_ERRORS=0
@@ -33,13 +69,37 @@ for package in ffmpeg flac mediainfo id3v2 libimage-exiftool-perl libsndfile1; d
 
   # Skip version check for "latest"
   if [ "$pinned_version" != "latest" ]; then
-    # Check if specific version exists
-    if ! apt-cache madison "$package" 2>/dev/null | grep -q "$pinned_version"; then
-      echo "ERROR: Pinned version $pinned_version for $package is not available."
-      echo "Available versions for $package:"
-      apt-cache madison "$package" 2>/dev/null | head -5 || echo "  (could not list versions)"
-      echo ""
-      HAS_ERRORS=1
+    # Resolve partial version to full version for checking
+    resolved_version=$(resolve_version "$package" "$pinned_version")
+
+    # Check if resolved version exists (or if partial version matches any available version)
+    if [ "$resolved_version" = "$pinned_version" ] && [[ "$pinned_version" != *"-"* ]]; then
+      # Partial version that couldn't be resolved - check if any version starts with it
+      if ! apt-cache madison "$package" 2>/dev/null | grep -qE "(^|[[:space:]]\|[[:space:]]*)([0-9]+:)?${pinned_version}"; then
+        echo "ERROR: Pinned version $pinned_version for $package is not available."
+        echo "Available versions for $package:"
+        apt-cache madison "$package" 2>/dev/null | head -5 || echo "  (could not list versions)"
+        echo ""
+        HAS_ERRORS=1
+      fi
+    elif [ "$resolved_version" != "$pinned_version" ]; then
+      # Partial version was resolved - verify resolved version exists
+      if ! apt-cache madison "$package" 2>/dev/null | grep -qF "$resolved_version"; then
+        echo "ERROR: Resolved version $resolved_version for $package (from pinned $pinned_version) is not available."
+        echo "Available versions for $package:"
+        apt-cache madison "$package" 2>/dev/null | head -5 || echo "  (could not list versions)"
+        echo ""
+        HAS_ERRORS=1
+      fi
+    else
+      # Full version - check if it exists
+      if ! apt-cache madison "$package" 2>/dev/null | grep -q "$pinned_version"; then
+        echo "ERROR: Pinned version $pinned_version for $package is not available."
+        echo "Available versions for $package:"
+        apt-cache madison "$package" 2>/dev/null | head -5 || echo "  (could not list versions)"
+        echo ""
+        HAS_ERRORS=1
+      fi
     fi
   fi
 done
@@ -56,6 +116,9 @@ PACKAGES_TO_INSTALL=()
 for package in ffmpeg flac mediainfo libsndfile1; do
   var_name="PINNED_${package^^}"
   pinned_version="${!var_name}"
+
+  # Resolve partial version to full version for installation
+  resolved_version=$(resolve_version "$package" "$pinned_version")
 
   if command -v "$package" &>/dev/null; then
     INSTALLED_VERSION=""
@@ -84,19 +147,35 @@ for package in ffmpeg flac mediainfo libsndfile1; do
         echo "${package} ${INSTALLED_APT_VERSION} already installed (using latest)"
         continue
       fi
-    elif [ -n "$INSTALLED_APT_VERSION" ] && [ "$INSTALLED_APT_VERSION" = "$pinned_version" ]; then
-      echo "${package} ${INSTALLED_APT_VERSION} already installed (matches pinned version)"
-      continue
     elif [ -n "$INSTALLED_APT_VERSION" ]; then
-      echo "Removing existing ${package} version ${INSTALLED_APT_VERSION} (installing pinned version ${pinned_version})..."
-      sudo apt-get remove -y "$package" 2>/dev/null || true
+      # Check if installed version matches pinned version (using flexible matching)
+      # Extract upstream version (before first '-') for comparison
+      installed_upstream="${INSTALLED_APT_VERSION%%-*}"
+      resolved_upstream="${resolved_version%%-*}"
+
+      # Normalize versions (remove +dfsg, +ds suffixes and revision suffixes)
+      installed_normalized="${installed_upstream%%+*}"
+      installed_normalized="${installed_normalized%%_*}"
+      resolved_normalized="${resolved_upstream%%+*}"
+      resolved_normalized="${resolved_normalized%%_*}"
+
+      # Check if versions match (exact or prefix match)
+      if [ "$installed_normalized" = "$resolved_normalized" ] || \
+         [[ "$installed_normalized" == "$resolved_normalized".* ]] || \
+         [[ "$resolved_normalized" == "$installed_normalized".* ]]; then
+        echo "${package} ${INSTALLED_APT_VERSION} already installed (matches pinned version ${pinned_version})"
+        continue
+      else
+        echo "Removing existing ${package} version ${INSTALLED_APT_VERSION} (installing pinned version ${pinned_version} -> ${resolved_version})..."
+        sudo apt-get remove -y "$package" 2>/dev/null || true
+      fi
     fi
   fi
 
   if [ "$pinned_version" = "latest" ]; then
     PACKAGES_TO_INSTALL+=("${package}")
   else
-    PACKAGES_TO_INSTALL+=("${package}=${pinned_version}")
+    PACKAGES_TO_INSTALL+=("${package}=${resolved_version}")
   fi
 done
 
