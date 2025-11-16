@@ -318,9 +318,9 @@ pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-un
 
 **Note:** On Windows, version verification skips optional tools (`id3v2`, `mediainfo`, `exiftool`) that are not needed for e2e tests. See the Windows CI differences section below for details.
 
-**Windows WSL requirement:** On Windows, the `id3v2` tool is not available as a native Windows binary. The installation script automatically installs **WSL (Windows Subsystem for Linux)** and uses it to install `id3v2` via Ubuntu's package manager. This ensures version pinning consistency with Ubuntu CI. A wrapper script (`id3v2.bat`) is created to make `id3v2` accessible from Windows command line. If WSL installation requires a restart, the script will prompt you to restart and run it again.
+**Windows WSL requirement:** On Windows, the `id3v2` tool is not available as a native Windows binary. The installation script attempts to use **WSL (Windows Subsystem for Linux)** to install `id3v2` via Ubuntu's package manager, but WSL installation complexity (requiring system restarts, DISM configuration, and Ubuntu distribution setup) has prevented successful full installation in practice. This is why Windows CI only runs e2e tests (which don't require `id3v2`). For local development, the script will attempt WSL installation, but manual WSL setup may be required. A wrapper script (`id3v2.bat`) is created if WSL installation succeeds to make `id3v2` accessible from Windows command line.
 
-**Windows CI differences:** Windows CI only runs e2e tests (unit and integration tests run on Ubuntu and macOS). As a result, some dependencies are skipped in Windows CI to reduce installation complexity:
+**Windows CI differences:** Windows CI only runs e2e tests (unit and integration tests run on Ubuntu and macOS). This is due to WSL installation complexity preventing full dependency installation. As a result, some dependencies are skipped in Windows CI:
 
 - **Skipped in Windows CI:**
   - `mediainfo` - Only used in integration tests for verification, not needed for e2e tests

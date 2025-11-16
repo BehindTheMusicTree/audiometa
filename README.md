@@ -170,79 +170,9 @@ pip install audiometa-python
 
 ### Installing Required Tools
 
-The library requires two external tools for full functionality:
+The library requires several external tools for full functionality. **Use the automated installation scripts** to ensure you have the correct pinned versions that match CI.
 
-#### ffprobe (for WAV file processing)
-
-**macOS:**
-
-```bash
-# Using Homebrew
-brew install ffmpeg
-
-# Using MacPorts
-sudo port install ffmpeg
-```
-
-**Ubuntu/Debian:**
-
-```bash
-sudo apt update
-sudo apt install ffmpeg
-```
-
-**CentOS/RHEL/Fedora:**
-
-```bash
-# CentOS/RHEL
-sudo yum install ffmpeg
-
-# Fedora
-sudo dnf install ffmpeg
-```
-
-**Windows:**
-
-- Download from [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html)
-- Add to your system PATH
-
-#### flac (for FLAC MD5 validation)
-
-**macOS:**
-
-```bash
-# Using Homebrew
-brew install flac
-
-# Using MacPorts
-sudo port install flac
-```
-
-**Ubuntu/Debian:**
-
-```bash
-sudo apt update
-sudo apt install flac
-```
-
-**CentOS/RHEL/Fedora:**
-
-```bash
-# CentOS/RHEL
-sudo yum install flac
-
-# Fedora
-sudo dnf install flac
-```
-
-**Windows:**
-
-- Download from [https://xiph.org/flac/download.html](https://xiph.org/flac/download.html)
-- Add to your system PATH
-
-**Note for Windows users:** The `id3v2` tool is not available as a native Windows binary. The automated installation script uses **WSL (Windows Subsystem for Linux)** to install `id3v2` via Ubuntu's package manager. WSL will be automatically installed if not present. A wrapper script is created to make `id3v2` accessible from Windows command line.
-
-#### Automated Setup (Recommended)
+#### Automated Setup {#automated-setup-recommended}
 
 To ensure your local environment matches CI exactly, use the automated installation scripts:
 
@@ -257,7 +187,19 @@ To ensure your local environment matches CI exactly, use the automated installat
 .\scripts\install-system-dependencies-windows.ps1
 ```
 
-These scripts install the same versions as CI, ensuring consistency. See `system-dependencies.toml` for the complete configuration.
+These scripts install all required tools with pinned versions that match CI:
+
+- **ffmpeg** / **ffprobe** - For WAV file processing and technical info (all platforms)
+- **flac** / **metaflac** - For FLAC MD5 validation and metadata writing (all platforms)
+- **mediainfo** - For integration test verification (Ubuntu/macOS only; optional on Windows)
+- **id3v2** - For ID3v2 tag writing on FLAC files (Ubuntu/macOS only; Windows requires WSL, skipped in CI)
+- **bwfmetaedit** - For BWF metadata (Ubuntu/macOS/Windows)
+- **exiftool** - For metadata inspection (Ubuntu/macOS only; optional on Windows)
+- **libsndfile** - For audio file I/O (Ubuntu/macOS only)
+
+**Pinned versions:** All tool versions are pinned in [`system-dependencies.toml`](system-dependencies.toml) (the single source of truth). The scripts verify installed versions match these pinned versions. See `system-dependencies.toml` for the complete configuration and OS-specific version details.
+
+**Note for Windows users:** The `id3v2` tool is not available as a native Windows binary. The installation script attempts to use **WSL (Windows Subsystem for Linux)** to install `id3v2` via Ubuntu's package manager, but WSL installation complexity (requiring system restarts, DISM configuration, and Ubuntu distribution setup) has prevented successful full installation in practice. This is why Windows CI only runs e2e tests (which don't require `id3v2`). For local development, the script will attempt WSL installation, but manual WSL setup may be required.
 
 #### Verifying Installation
 
