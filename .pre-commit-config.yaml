@@ -95,7 +95,9 @@ repos:
         # Use Python 3.12+ to run mypy so it can parse Python 3.12+ syntax like 'type' statements
         # Python 3.12 and 3.13 both support 'type' statements (PEP 695)
         # Note: With language: system, pre-commit uses Python from your activated virtual environment
-        entry: mypy --follow-imports=normal
+        # Use venv mypy explicitly to avoid system mypy with broken shebang
+        # Fail if venv doesn't exist (skip check in CI)
+        entry: bash -c '.pre-commit-hooks/mypy-wrapper.sh "$@"' --
         language: system
         files: ^audiometa/.*\.py$
         exclude: ^(audiometa/test/|scripts/)
