@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-11-16
+
 ### Fixed
 
 - **Pre-commit Hooks**: Fixed pre-commit hooks to require virtual environment for all Python tools:
@@ -56,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Unset MD5 checksums (all zeros) are now consistently treated as invalid
   - Improved detection logic to check `flac -t` return code first before parsing output
   - Combined stdout and stderr for more comprehensive output parsing
-- **Dependencies**: Upgraded numpy to 2.3.4 for Python 3.13 compatibility
+- **Dependencies**: Upgraded numpy from 1.26.4 to 2.3.4 for Python 3.13 compatibility
 
 ### Documentation
 
