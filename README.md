@@ -189,17 +189,25 @@ To ensure your local environment matches CI exactly, use the automated installat
 
 These scripts install all required tools with pinned versions that match CI:
 
+**Production tools (required for library functionality):**
+
 - **ffmpeg** / **ffprobe** - For WAV file processing and technical info (all platforms)
 - **flac** / **metaflac** - For FLAC MD5 validation and metadata writing (all platforms)
-- **mediainfo** - For integration test verification (Ubuntu/macOS only; optional on Windows)
-- **id3v2** - For ID3v2 tag writing on FLAC files (Ubuntu/macOS only; Windows requires WSL, skipped in CI)
+- **id3v2** - For ID3v2 tag writing on FLAC files (Ubuntu/macOS only; Windows requires WSL)
 - **bwfmetaedit** - For BWF metadata (Ubuntu/macOS/Windows)
-- **exiftool** - For metadata inspection (Ubuntu/macOS only; optional on Windows)
 - **libsndfile** - For audio file I/O (Ubuntu/macOS only)
+
+**Dev/testing tools (only needed for running tests locally):**
+
+- **mediainfo** - Only for integration test verification
+- **exiftool** - Only for integration test verification
 
 **Pinned versions:** All tool versions are pinned in [`system-dependencies.toml`](system-dependencies.toml) (the single source of truth). The scripts verify installed versions match these pinned versions. See `system-dependencies.toml` for the complete configuration and OS-specific version details.
 
-**Note for Windows users:** The `id3v2` tool is not available as a native Windows binary. The installation script attempts to use **WSL (Windows Subsystem for Linux)** to install `id3v2` via Ubuntu's package manager, but WSL installation complexity (requiring system restarts, DISM configuration, and Ubuntu distribution setup) has prevented successful full installation in practice. This is why Windows CI only runs e2e tests (which don't require `id3v2`). For local development, the script will attempt WSL installation, but manual WSL setup may be required.
+**Note for Windows users:**
+
+- The `id3v2` tool is not available as a native Windows binary. The installation script attempts to use **WSL (Windows Subsystem for Linux)** to install `id3v2` via Ubuntu's package manager, but WSL installation complexity (requiring system restarts, DISM configuration, and Ubuntu distribution setup) has prevented successful full installation in practice. This is why Windows CI only runs e2e tests (which don't require `id3v2`). For local development, the script will attempt WSL installation, but manual WSL setup may be required.
+- **Windows CI differences:** Windows CI only runs e2e tests (not unit/integration tests), so some tools are skipped in CI but still installed locally for full test coverage: `mediainfo` and `exiftool` are required for integration tests and are installed by the script for local development, but skipped in Windows CI since integration tests don't run there.
 
 #### Verifying Installation
 
