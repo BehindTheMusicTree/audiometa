@@ -20,7 +20,7 @@
 #   Update these pinned versions to match what CI actually installs
 ffmpeg = "7:6.1.1-3ubuntu5"
 flac = "1.4.3+ds-2.1ubuntu2"
-mediainfo = "24.01+dfsg-1build2"
+mediainfo = "24.01"
 id3v2 = "0.1.12+dfsg-7"
 libimage-exiftool-perl = "12.76+dfsg-1"
 # libsndfile1: Library dependency (not executable tool) required by soundfile Python package.
