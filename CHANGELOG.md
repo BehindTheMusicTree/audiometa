@@ -19,6 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **ExifTool Version Alignment**: Fixed exiftool version mismatch on macOS:
+  - Updated macOS exiftool from 13.36 (Homebrew) to 13.41 (exiftool.org) to align with Windows
+  - Modified macOS installation script to download exiftool directly from exiftool.org instead of Homebrew
+  - Fixed lib directory installation to properly copy entire Perl module structure relative to script location
+  - Ensures consistent exiftool version (13.41) across macOS and Windows platforms
+
 ### Improved
 
 - **Dependency Verification**: Created shared dependency verification infrastructure:
