@@ -20,7 +20,7 @@
 #   Update these pinned versions to match what CI actually installs
 ffmpeg = "7:6.1.1-3ubuntu5"
 flac = "1.4.3+ds-2.1ubuntu2"
-mediainfo = "24.01.1-1build2"
+mediainfo = "24.01+dfsg-1build2"
 id3v2 = "0.1.12+dfsg-7"
 libimage-exiftool-perl = "12.76+dfsg-1"
 # libsndfile1: Library dependency (not executable tool) required by soundfile Python package.
@@ -31,6 +31,8 @@ libsndfile1 = "latest"
 
 # bwfmetaedit: Download from MediaArea (not available in Ubuntu repos)
 # Check https://mediaarea.net/BWFMetaEdit/Download/Ubuntu for available versions
+# Note: Installed version includes Debian revision suffix (e.g., "25.04.1-1")
+# Version matching compares upstream version (before '-') so "25.04.1" matches "25.04.1-1"
 bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "25.04.1" }
 
 [macos]
