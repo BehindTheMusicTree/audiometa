@@ -278,13 +278,27 @@ class _AudioFile:
 
         result = subprocess.run(["flac", "-t", self.file_path], capture_output=True, check=False)
 
-        output = result.stderr.decode()
-        if "ok" in output:
+        # Combine stdout and stderr as flac may output to either
+        stdout_output = result.stdout.decode()
+        stderr_output = result.stderr.decode()
+        combined_output = stdout_output + stderr_output
+
+        # flac -t returns 0 on success, non-zero on error
+        # If return code is non-zero, the file is invalid
+        if result.returncode != 0:
+            return False
+
+        # Check for explicit error messages (shouldn't happen with return code 0, but defensive)
+        if "MD5 signature mismatch" in combined_output:
+            return False
+        if "FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC" in combined_output:
+            return False
+
+        # Check for explicit success message
+        if "ok" in combined_output.lower():
             return True
-        if "MD5 signature mismatch" in output:
-            return False
-        if "FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC" in output:
-            return False
+
+        # If return code was 0 but no "ok" found, something unexpected happened
         msg = "The Flac file md5 check failed"
         raise FlacMd5CheckFailedError(msg)
 
