@@ -197,3 +197,31 @@ class WindowsDependenciesChecker(OsDependenciesChecker):
             pass
 
         return None
+
+    @staticmethod
+    def _versions_match(version1: str, version2: str) -> bool:
+        """Check if two Windows version strings match (handles different precision).
+
+        Handles cases where versions have different precision levels:
+        - "7.1.0" matches "7.1" (v2 is prefix of v1)
+        - "7.1" matches "7.1.0" (v1 is prefix of v2)
+        - "7.1.0" matches "7.1.0" (exact match)
+
+        Args:
+            version1: First version string (e.g., "7.1.0")
+            version2: Second version string (e.g., "7.1")
+
+        Returns:
+            True if versions match, False otherwise
+        """
+        v1_normalized = OsDependenciesChecker._normalize_version(version1)
+        v2_normalized = OsDependenciesChecker._normalize_version(version2)
+
+        # Check exact match
+        if v1_normalized == v2_normalized:
+            return True
+
+        # Check if one version is a prefix of the other
+        # "7.1" should match "7.1.0" (v2 starts with v1 + ".")
+        # "7.1.0" should match "7.1" (v1 starts with v2 + ".")
+        return v2_normalized.startswith(v1_normalized + ".") or v1_normalized.startswith(v2_normalized + ".")
