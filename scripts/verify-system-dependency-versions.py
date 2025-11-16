@@ -17,30 +17,72 @@ Usage:
 import importlib.util
 import sys
 import types
+from importlib.machinery import ModuleSpec
 from pathlib import Path
+
+
+class NoOpLoader:
+    """Loader that uses existing namespace module (prevents __init__.py execution)."""
+
+    def create_module(self, spec):
+        """Return existing module from sys.modules if it exists."""
+        return sys.modules.get(spec.name)
+
+    def exec_module(self, module):
+        """Do nothing - prevents __init__.py execution."""
+
+
+class AudiometaImportHook:
+    """Import hook to prevent audiometa/__init__.py from being executed."""
+
+    def __init__(self, project_root: Path):
+        self.project_root = project_root
+        self.audiometa_path = project_root / "audiometa"
+        self.utils_path = self.audiometa_path / "utils"
+        self.loader = NoOpLoader()
+
+    def find_spec(self, name: str, path: object, target: object = None):  # noqa: ARG002
+        """Intercept imports of audiometa package and subpackages."""
+        if name == "audiometa":
+            # Return a spec with a no-op loader to prevent __init__.py execution
+            spec = ModuleSpec("audiometa", self.loader, is_package=True)
+            spec.submodule_search_locations = [str(self.audiometa_path)]
+            return spec
+        return None
+
 
 # Add project root to path so we can import audiometa modules
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# Create minimal namespace packages for audiometa and audiometa.utils
+# Create minimal namespace packages for audiometa and audiometa.utils FIRST
 # This prevents Python from executing audiometa/__init__.py when resolving imports
-# We create empty module objects that act as namespace packages
+# We create these before installing the import hook so they're available when needed
+audiometa_path = project_root / "audiometa"
+utils_path_parent = audiometa_path / "utils"
+
 if "audiometa" not in sys.modules:
     audiometa_module = types.ModuleType("audiometa")
+    audiometa_module.__path__ = [str(audiometa_path)]
     sys.modules["audiometa"] = audiometa_module
 
 if "audiometa.utils" not in sys.modules:
     utils_module = types.ModuleType("audiometa.utils")
+    utils_module.__path__ = [str(utils_path_parent)]
     sys.modules["audiometa.utils"] = utils_module
 
 if "audiometa.utils.os_dependencies_checker" not in sys.modules:
     checker_module = types.ModuleType("audiometa.utils.os_dependencies_checker")
     sys.modules["audiometa.utils.os_dependencies_checker"] = checker_module
 
+# Install import hook AFTER creating namespace modules
+# This prevents audiometa/__init__.py from being executed if something tries to import audiometa
+import_hook = AudiometaImportHook(project_root)
+sys.meta_path.insert(0, import_hook)
+
 # Import modules directly without triggering audiometa/__init__.py
 # This avoids importing mutagen and other dependencies that aren't installed yet
-utils_path = project_root / "audiometa" / "utils" / "os_dependencies_checker"
+utils_path = utils_path_parent / "os_dependencies_checker"
 
 # Load base module first (needed by other modules)
 base_spec = importlib.util.spec_from_file_location(
