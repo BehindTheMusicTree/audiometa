@@ -87,7 +87,12 @@ def corrupt_md5(file_path: Path, corruption_type: str = "flip_all") -> None:
 
 
 def corrupt_audio_data(file_path: Path) -> None:
-    """Corrupt audio data in the middle of a FLAC file."""
+    """Corrupt audio data in the middle of a FLAC file.
+
+    This simulates real-world file corruption by corrupting bytes in the compressed FLAC stream. The corruption is done
+    realistically, not specifically to make any tool detect it. If the corruption is not detected, that is a limitation
+    we need to handle in our code, not work around by making corruption that will be detected.
+    """
     file_size = file_path.stat().st_size
     with file_path.open("r+b") as f:
         corrupt_position = max(1000, file_size // 2)
