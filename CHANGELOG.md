@@ -21,6 +21,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Pre-commit Hooks**: Fixed pre-commit hooks to require virtual environment for all Python tools:
+  - Created generic `tool-wrapper.sh` that ensures venv tools are used (ruff, isort, mypy, docformatter)
+  - Prevents using system tools with broken shebangs (e.g., mypy pointing to non-existent Python 3.12)
+  - Provides clear error messages if virtual environment is missing
+  - CI environments still work (falls back to system tools in CI)
+- **System Dependency Verification**: Fixed verification script to avoid importing mutagen before Python dependencies are installed:
+  - Uses `importlib.util` to load modules directly, bypassing `audiometa/__init__.py`
+  - Creates namespace packages to prevent Python from executing package `__init__.py` files
+  - Allows verification script to run during system dependency installation (before Python deps are installed)
+- **macOS ExifTool Version Detection**: Fixed incorrect exiftool version detection on macOS:
+  - Changed from `--version` flag to `-ver` flag (exiftool's correct flag)
+  - Prevents false version detection (e.g., detecting 22.80 instead of 13.41) from copyright info
 - **ExifTool Version Alignment**: Fixed exiftool version mismatch on macOS:
   - Updated macOS exiftool from 13.36 (Homebrew) to 13.41 (exiftool.org) to align with Windows
   - Modified macOS installation script to download exiftool directly from exiftool.org instead of Homebrew

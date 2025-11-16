@@ -363,6 +363,8 @@ pre-commit install
 
 **Important:** All Python tools use `language: system`, which means they run from your active Python environment. **Always activate your virtual environment before committing** to ensure the hooks use the correct tool versions defined in `pyproject.toml` (matching CI).
 
+**Virtual environment requirement:** Pre-commit hooks now explicitly require the virtual environment (`.venv`) to exist. If the virtual environment is not found, hooks will fail with a clear error message. This prevents using system-installed tools that may have broken shebangs or incorrect versions. The `check-tool-versions` hook automatically adds `.venv/bin` to PATH if VIRTUAL_ENV is not set (handles VS Code Source Control commits), and all Python tool hooks use a wrapper script that ensures venv tools are used.
+
 **Version enforcement:** A validation hook automatically checks that your installed tool versions (ruff, isort, mypy, docformatter) match those in `pyproject.toml`. If there's a mismatch, pre-commit will fail with clear instructions to fix it. This ensures consistency between local development, pre-commit hooks, and CI.
 
 **Exception:** prettier (for Markdown formatting) is a Node.js tool and uses an external repository with a pinned version - it's the only tool not managed through `pyproject.toml`.
@@ -381,11 +383,12 @@ pre-commit run
 
 The following hooks run in execution order:
 
-1. **check-tool-versions**: Validates that installed tool versions (ruff, isort, mypy) match `pyproject.toml`
+1. **check-tool-versions**: Validates that installed tool versions (ruff, isort, mypy, docformatter) match `pyproject.toml`
    - Manual: `pre-commit run check-tool-versions`
    - **Runs first** to fail fast if versions don't match (before any other checks)
    - Ensures consistency between local development, pre-commit hooks, and CI
-   - Also verifies that a virtual environment is active
+   - Automatically adds `.venv/bin` to PATH if VIRTUAL_ENV is not set (handles VS Code Source Control commits)
+   - Verifies that a virtual environment exists (either activated or `.venv` directory present)
 
 2. **check-yaml**: Validates YAML file syntax
    - Manual: `pre-commit run check-yaml --all-files`
@@ -421,32 +424,45 @@ The following hooks run in execution order:
 
 - Manual: `pre-commit run no-assert --all-files`
 
-11. **isort**: Sorts and organizes import statements according to PEP 8
+11. **ruff-format**: Formats code using ruff (replaces black, handles EOF newlines automatically)
 
-- Manual: `isort .`
+- Manual: `ruff format --line-length=120`
+- Uses venv ruff to avoid system tools with broken shebangs
 
-12. **ruff-format**: Formats Python code (replaces black) - handles code formatting and EOF newlines automatically
-    - Manual: `ruff format .`
+12. **ruff**: Auto-fixes linting issues (including unused imports/variables, code style, line length)
 
-13. **ruff**: Auto-fixes linting issues (unused imports/variables, code style, line length, etc.) - replaces autoflake and flake8
-    - Manual: `ruff check --fix .`
+- Manual: `ruff check --fix --line-length=120`
+- Uses venv ruff to avoid system tools with broken shebangs
 
-14. **docformatter**: Formats docstrings (triple-quoted strings) according to PEP 257
-    - Manual: `docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 .`
+13. **isort**: Sorts and organizes import statements according to PEP 8
 
-15. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
-    - Manual: `pre-commit run fix-long-comments --all-files`
+- Manual: `isort --profile black --line-length=120`
+- Uses venv isort to avoid system tools with broken shebangs
 
-16. **mypy**: Static type checking - reports type errors but does not auto-fix
-    - Manual: `mypy audiometa`
+14. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
+
+- Manual: `pre-commit run fix-long-comments --all-files`
+
+15. **mypy**: Static type checking - reports type errors but does not auto-fix
+
+- Manual: `mypy --follow-imports=normal audiometa`
+- Uses venv mypy to avoid system tools with broken shebangs
+- Requires virtual environment to exist (fails with clear error if missing)
+
+16. **docformatter**: Formats docstrings according to PEP 257
+
+- Manual: `docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120`
+- Uses venv docformatter to avoid system tools with broken shebangs
 
 17. **prettier**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, preserves list numbering
-    - Manual: `prettier --write "**/*.md"`
+
+- Manual: `prettier --write "**/*.md"`
 
 18. **py-psscriptanalyzer**: Lints PowerShell scripts (`.ps1` files) - checks for code quality issues, style violations, and potential bugs
-    - Manual: `pre-commit run py-psscriptanalyzer --all-files`
-    - Checks Error and Warning severity levels
-    - Ensures PowerShell scripts follow best practices
+
+- Manual: `pre-commit run py-psscriptanalyzer --all-files`
+- Checks Error and Warning severity levels
+- Ensures PowerShell scripts follow best practices
 
 19. **py-psscriptanalyzer-format**: Formats PowerShell scripts (`.ps1` files) - applies consistent formatting
     - Manual: `pre-commit run py-psscriptanalyzer-format --all-files`
