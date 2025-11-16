@@ -19,6 +19,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Improved
+
+- **Test Configuration**: Improved conftest.py dependency checking:
+  - Extracted dependency verification logic to `installation_checks.py` module for better code organization
+  - Simplified `pytest_configure` to delegate to `verify_dependencies()` function
+- **FLAC MD5 Validation**: Improved MD5 checksum validation reliability:
+  - Unset MD5 checksums (all zeros) are now consistently treated as invalid
+  - Improved detection logic to check `flac -t` return code first before parsing output
+  - Combined stdout and stderr for more comprehensive output parsing
+
+### Documentation
+
+- **Technical Information Guide**: Created separate AUDIO_TECHNICAL_INFO_GUIDE.md to document technical information functions (duration, bitrate, MD5 validation) separately from metadata field handling
+- **FLAC MD5 Validation**: Updated AUDIO_TECHNICAL_INFO_GUIDE.md to reflect consistent behavior for unset MD5 checksums
+
 ## [0.2.0] - 2025-11-15
 
 ### Added
