@@ -12,5 +12,5 @@ class TestAudioDataCorruption:
             ensure_flac_has_md5(test_file)
             corrupt_audio_data(test_file)
 
-            # Audio data corruption should invalidate MD5
-            assert not is_flac_md5_valid(test_file), "Audio data corruption should invalidate MD5"
+            result = is_flac_md5_valid(test_file)
+            assert not result, "Audio data corruption should invalidate MD5"
