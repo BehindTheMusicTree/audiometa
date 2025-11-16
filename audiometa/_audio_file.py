@@ -337,8 +337,14 @@ class _AudioFile:
             if result.returncode != 0:
                 stderr = result.stderr.decode()
                 if "wrote" not in stderr:
+                    # Clean up any empty file created by failed flac command
+                    temp_path_obj = Path(temp_path)
+                    if temp_path_obj.exists() and temp_path_obj.stat().st_size == 0:
+                        temp_path_obj.unlink(missing_ok=True)
+
                     # Try reencoding with ffmpeg as a fallback
-                    ffmpeg_cmd = ["ffmpeg", "-i", self.file_path, "-c:a", "flac", temp_path]
+                    # Use -y to overwrite any existing file
+                    ffmpeg_cmd = ["ffmpeg", "-i", self.file_path, "-c:a", "flac", "-y", temp_path]
 
                     ffmpeg_result = subprocess.run(ffmpeg_cmd, capture_output=True, check=False)
 
