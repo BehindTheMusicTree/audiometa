@@ -21,7 +21,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from audiometa.test.tests.os_dependencies_checker import get_dependencies_checker  # noqa: E402
+from audiometa.utils.os_dependencies_checker import get_dependencies_checker  # noqa: E402
 from audiometa.utils.tool_path_resolver import _load_dependencies_pinned_versions  # noqa: E402
 
 

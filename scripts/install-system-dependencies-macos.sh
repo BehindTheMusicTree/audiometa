@@ -265,65 +265,10 @@ if [ -d "/usr/local/bin" ] && [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
   fi
 fi
 
-# Verify installed versions match pinned versions
+# Verify installed versions match pinned versions using shared Python script
 echo ""
-echo "Verifying installed versions..."
-INSTALLED_FLAC=$(get_tool_version "flac")
-INSTALLED_MEDIAINFO=$(get_tool_version "mediainfo")
-INSTALLED_ID3V2=$(get_tool_version "id3v2")
-INSTALLED_BWFMETAEDIT=$(get_tool_version "bwfmetaedit")
-INSTALLED_EXIFTOOL=$(get_tool_version "exiftool")
-
-# Verify libsndfile installation (library, not executable)
-INSTALLED_LIBSNDFILE=""
-if brew list libsndfile &>/dev/null; then
-  INSTALLED_LIBSNDFILE=$(pkg-config --modversion libsndfile 2>/dev/null || brew info libsndfile 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "installed")
-fi
-
-echo "  flac: ${INSTALLED_FLAC:-not found} (expected: ${PINNED_FLAC})"
-echo "  mediainfo: ${INSTALLED_MEDIAINFO:-not found} (expected: ${PINNED_MEDIAINFO})"
-echo "  id3v2: ${INSTALLED_ID3V2:-not found} (expected: ${PINNED_ID3V2})"
-echo "  bwfmetaedit: ${INSTALLED_BWFMETAEDIT:-not found} (expected: ${PINNED_BWFMETAEDIT})"
-echo "  exiftool: ${INSTALLED_EXIFTOOL:-not found} (expected: ${PINNED_EXIFTOOL})"
-echo "  libsndfile: ${INSTALLED_LIBSNDFILE:-not found} (expected: ${PINNED_LIBSNDFILE})"
-
-# Verify versions match (exact match for major.minor)
-VERSION_MISMATCH=0
-
-if ! check_version_match "flac" "$INSTALLED_FLAC" "$PINNED_FLAC"; then
-  echo "ERROR: flac version mismatch: installed ${INSTALLED_FLAC}, expected ${PINNED_FLAC}"
-  VERSION_MISMATCH=1
-fi
-
-if ! check_version_match "mediainfo" "$INSTALLED_MEDIAINFO" "$PINNED_MEDIAINFO"; then
-  echo "ERROR: mediainfo version mismatch: installed ${INSTALLED_MEDIAINFO}, expected ${PINNED_MEDIAINFO}"
-  VERSION_MISMATCH=1
-fi
-
-if ! check_version_match "id3v2" "$INSTALLED_ID3V2" "$PINNED_ID3V2"; then
-  echo "ERROR: id3v2 version mismatch: installed ${INSTALLED_ID3V2}, expected ${PINNED_ID3V2}"
-  VERSION_MISMATCH=1
-fi
-
-if ! check_version_match "bwfmetaedit" "$INSTALLED_BWFMETAEDIT" "$PINNED_BWFMETAEDIT"; then
-  echo "ERROR: bwfmetaedit version mismatch: installed ${INSTALLED_BWFMETAEDIT}, expected ${PINNED_BWFMETAEDIT}"
-  VERSION_MISMATCH=1
-fi
-
-if ! check_version_match "exiftool" "$INSTALLED_EXIFTOOL" "$PINNED_EXIFTOOL"; then
-  echo "ERROR: exiftool version mismatch: installed ${INSTALLED_EXIFTOOL}, expected ${PINNED_EXIFTOOL}"
-  VERSION_MISMATCH=1
-fi
-
-if [ -z "$INSTALLED_LIBSNDFILE" ]; then
-  echo "ERROR: libsndfile not installed (required by soundfile Python package)"
-  VERSION_MISMATCH=1
-elif [ "$INSTALLED_LIBSNDFILE" != "installed" ] && ! check_version_match "libsndfile" "$INSTALLED_LIBSNDFILE" "$PINNED_LIBSNDFILE"; then
-  echo "WARNING: libsndfile version mismatch: installed ${INSTALLED_LIBSNDFILE}, expected ${PINNED_LIBSNDFILE}"
-  echo "Continuing as library version may still be compatible..."
-fi
-
-if [ "$VERSION_MISMATCH" -eq 1 ]; then
+echo "Verifying installed versions match pinned versions..."
+if ! python3 "${SCRIPT_DIR}/verify-system-dependency-versions.py"; then
   echo ""
   echo "ERROR: Version verification failed. Installed versions don't match pinned versions."
   exit 1

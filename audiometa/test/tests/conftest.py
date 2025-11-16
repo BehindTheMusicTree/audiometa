@@ -1,15 +1,29 @@
 """Test configuration for audiometa-python tests."""
 
+import importlib.util
+import sys
 from pathlib import Path
 
 import pytest
 
-from audiometa.test.tests.installation_checks import verify_dependencies
+# Import the shared verification script
+project_root = Path(__file__).parent.parent.parent.parent
+verify_script_path = project_root / "scripts" / "verify-system-dependency-versions.py"
+
+# Load the module dynamically
+spec = importlib.util.spec_from_file_location("verify_system_dependency_versions", verify_script_path)
+verify_module = importlib.util.module_from_spec(spec)
+sys.modules["verify_system_dependency_versions"] = verify_module
+spec.loader.exec_module(verify_module)  # type: ignore[union-attr]
+
+verify_dependency_versions = verify_module.verify_dependency_versions
 
 
 def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
     """Verify system dependency versions match pinned versions before running tests."""
-    verify_dependencies()
+    exit_code = verify_dependency_versions()
+    if exit_code != 0:
+        pytest.exit("Dependency version verification failed. See errors above.", returncode=exit_code)
 
 
 def pytest_collection_modifyitems(items):

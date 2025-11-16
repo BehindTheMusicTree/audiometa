@@ -60,6 +60,8 @@ Tests that verify complete user workflows from start to finish. These simulate r
 
 ## Running Tests
 
+**Note:** Before running tests, pytest automatically verifies that installed system dependency versions (ffmpeg, flac, mediainfo, id3v2, bwfmetaedit, exiftool) match the pinned versions defined in `system-dependencies.toml`. This uses the shared `scripts/verify-system-dependency-versions.py` script. If versions don't match, pytest will exit with an error message before running tests. This ensures tests always run with the exact same tool versions as CI and local development environments.
+
 ### Run All Tests
 
 ```bash

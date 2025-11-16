@@ -158,6 +158,15 @@ if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
   exit 1
 fi
 
+# Verify installed versions match pinned versions using shared Python script
+echo ""
+echo "Verifying installed versions match pinned versions..."
+if ! python3 "${SCRIPT_DIR}/verify-system-dependency-versions.py"; then
+  echo ""
+  echo "ERROR: Version verification failed. Installed versions don't match pinned versions."
+  exit 1
+fi
+
 echo "All system dependencies installed successfully!"
 
 

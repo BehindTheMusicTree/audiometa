@@ -21,10 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improved
 
-- **Test Configuration**: Improved conftest.py dependency checking:
-  - Decoupled version verification to shared `scripts/verify-system-dependency-versions.py` script
-  - Used by both pytest config and installation scripts for consistency
-  - Simplified `pytest_configure` to use shared verification script
+- **Dependency Verification**: Created shared dependency verification infrastructure:
+  - Created `scripts/verify-system-dependency-versions.py` as single source of truth for version verification
+  - Used by pre-commit hooks, pytest config, and installation scripts for consistency
+  - Moved OS-specific checkers from `audiometa/test/tests/` to `audiometa/utils/os_dependencies_checker/` (reusable utility)
+  - Split into package structure with one class per file: `base.py`, `macos.py`, `ubuntu.py`, `windows.py`
+  - Improved maintainability and organization
 - **FLAC MD5 Validation**: Improved MD5 checksum validation reliability:
   - Unset MD5 checksums (all zeros) are now consistently treated as invalid
   - Improved detection logic to check `flac -t` return code first before parsing output
