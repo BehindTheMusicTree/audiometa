@@ -73,17 +73,20 @@ repos:
     hooks:
       - id: ruff-format
         name: ruff-format
-        entry: ruff format --line-length=120
+        # Use venv ruff explicitly for consistency (ruff is a binary, but still prefer venv version)
+        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh ruff format --line-length=120 "$@"' --
         language: system
         files: ^(audiometa/|\.pre-commit-hooks/|scripts/).*\.py$
       - id: ruff
         name: ruff
-        entry: ruff check --fix --line-length=120
+        # Use venv ruff explicitly for consistency (ruff is a binary, but still prefer venv version)
+        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh ruff check --fix --line-length=120 "$@"' --
         language: system
         files: ^(audiometa/|\.pre-commit-hooks/|scripts/).*\.py$
       - id: isort
         name: isort
-        entry: isort --profile black --line-length=120
+        # Use venv isort explicitly to avoid system isort with potentially broken shebang
+        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh isort --profile black --line-length=120 "$@"' --
         language: system
         files: ^(audiometa/|\.pre-commit-hooks/|scripts/).*\.py$
       - id: mypy
@@ -96,15 +99,15 @@ repos:
         # Python 3.12 and 3.13 both support 'type' statements (PEP 695)
         # Note: With language: system, pre-commit uses Python from your activated virtual environment
         # Use venv mypy explicitly to avoid system mypy with broken shebang
-        # Fail if venv doesn't exist (skip check in CI)
-        entry: bash -c '.pre-commit-hooks/mypy-wrapper.sh "$@"' --
+        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh mypy --follow-imports=normal "$@"' --
         language: system
         files: ^audiometa/.*\.py$
         exclude: ^(audiometa/test/|scripts/)
         pass_filenames: true
       - id: docformatter
         name: docformatter
-        entry: docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120
+        # Use venv docformatter explicitly to avoid system docformatter with potentially broken shebang
+        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 "$@"' --
         language: system
         # IMPORTANT: Must use ^audiometa/.*\.py$ pattern, not ^audiometa/
         # Using ^audiometa/ would match binary files (e.g., .mp3, .flac, .wav in test/assets/)
