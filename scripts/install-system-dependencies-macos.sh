@@ -244,6 +244,19 @@ for opt_package in flac; do
   fi
 done
 
+# Ensure Homebrew Cellar directories are in PATH (for packages with multiple versions)
+# When multiple versions are installed, tools may be in Cellar but not symlinked
+# Add the pinned version's Cellar path to ensure tools are accessible
+if [ -n "$PINNED_FLAC" ]; then
+  FLAC_CELLAR_BIN="${HOMEBREW_PREFIX}/Cellar/flac/${PINNED_FLAC}/bin"
+  if [ -d "$FLAC_CELLAR_BIN" ] && [[ ":$PATH:" != *":${FLAC_CELLAR_BIN}:"* ]]; then
+    export PATH="${FLAC_CELLAR_BIN}:$PATH"
+    if [ -n "$GITHUB_PATH" ]; then
+      echo "$FLAC_CELLAR_BIN" >> "$GITHUB_PATH"
+    fi
+  fi
+fi
+
 # Also ensure /usr/local/bin is in PATH for backward compatibility
 if [ -d "/usr/local/bin" ] && [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
   export PATH="/usr/local/bin:$PATH"
@@ -434,26 +447,199 @@ fi
 echo ""
 echo "Verifying installed tools are available in PATH..."
 MISSING_TOOLS=()
+TOOLS_TO_LINK=()
 
 # Check each tool, including ffprobe which comes from ffmpeg@7 (keg-only)
 for tool in ffprobe flac metaflac mediainfo id3v2 exiftool; do
   if ! command -v "$tool" &>/dev/null; then
-    MISSING_TOOLS+=("$tool")
+    # Check if tool is installed via Homebrew but not linked
+    BREW_PACKAGE=""
+    case "$tool" in
+      ffprobe|ffmpeg)
+        BREW_PACKAGE="ffmpeg@${PINNED_FFMPEG}"
+        ;;
+      flac|metaflac)
+        BREW_PACKAGE="flac"
+        ;;
+      mediainfo)
+        BREW_PACKAGE="media-info"
+        ;;
+      id3v2)
+        BREW_PACKAGE="id3v2"
+        ;;
+      exiftool)
+        BREW_PACKAGE="exiftool"
+        ;;
+    esac
+
+    if [ -n "$BREW_PACKAGE" ] && brew list "$BREW_PACKAGE" &>/dev/null 2>&1; then
+      # Tool is installed but not in PATH - needs to be linked
+      TOOLS_TO_LINK+=("$tool:$BREW_PACKAGE")
+    else
+      # Tool is not installed at all
+      MISSING_TOOLS+=("$tool")
+    fi
   fi
 done
 
+if [ ${#TOOLS_TO_LINK[@]} -ne 0 ]; then
+  echo ""
+  echo "The following tools are installed but not available in PATH:"
+  printf '  - %s\n' "${TOOLS_TO_LINK[@]%%:*}"
+  echo ""
+  echo "Attempting to link packages..."
+
+  LINK_FAILED=0
+  for tool_info in "${TOOLS_TO_LINK[@]}"; do
+    tool="${tool_info%%:*}"
+    brew_package="${tool_info##*:}"
+
+    if [ "$tool" = "ffprobe" ] || [ "$tool" = "ffmpeg" ]; then
+      # ffmpeg@7 is keg-only, cannot be linked - add to PATH instead
+      FFMPEG_BIN_PATH="${HOMEBREW_PREFIX}/opt/ffmpeg@${PINNED_FFMPEG}/bin"
+      if [ -d "$FFMPEG_BIN_PATH" ]; then
+        export PATH="$FFMPEG_BIN_PATH:$PATH"
+        echo "  ✓ Added ffmpeg@${PINNED_FFMPEG} to PATH (keg-only package)"
+      fi
+    else
+      # Try to link the package
+      echo "  Linking $brew_package..."
+      if brew link "$brew_package" 2>&1 | grep -v "Warning\|Linking\|already symlinked"; then
+        # Check if linking was successful
+        if command -v "$tool" &>/dev/null; then
+          echo "  ✓ $tool is now available in PATH"
+        else
+          echo "  ✗ Failed to link $brew_package"
+          LINK_FAILED=1
+        fi
+      else
+        # brew link succeeded (warnings are normal)
+        if command -v "$tool" &>/dev/null; then
+          echo "  ✓ $tool is now available in PATH"
+        else
+          echo "  ✗ $tool still not in PATH after linking"
+          LINK_FAILED=1
+        fi
+      fi
+    fi
+  done
+
+  # Re-check if all tools are now available
+  STILL_MISSING=()
+  for tool_info in "${TOOLS_TO_LINK[@]}"; do
+    tool="${tool_info%%:*}"
+    if ! command -v "$tool" &>/dev/null; then
+      STILL_MISSING+=("$tool")
+    fi
+  done
+
+  if [ ${#STILL_MISSING[@]} -ne 0 ]; then
+    echo ""
+    echo "Some tools are still not available in PATH:"
+    printf '  - %s\n' "${STILL_MISSING[@]}"
+    echo ""
+    echo "To fix manually, run these commands:"
+    for tool_info in "${TOOLS_TO_LINK[@]}"; do
+      tool="${tool_info%%:*}"
+      brew_package="${tool_info##*:}"
+      if [ "$tool" = "ffprobe" ] || [ "$tool" = "ffmpeg" ]; then
+        echo "  export PATH=\"${HOMEBREW_PREFIX}/opt/ffmpeg@${PINNED_FFMPEG}/bin:\$PATH\""
+      else
+        echo "  brew link $brew_package"
+      fi
+    done
+    exit 1
+  fi
+fi
+
 if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
-  echo "ERROR: The following tools are not available in PATH after installation:"
+  echo "ERROR: The following tools are not installed:"
   printf '  - %s\n' "${MISSING_TOOLS[@]}"
   echo ""
   echo "Installation may have failed. Check the output above for errors."
-  echo ""
-  echo "Note: On macOS, you may need to add Homebrew's bin directory to PATH:"
-  echo "  export PATH=\"${HOMEBREW_PREFIX}/bin:\$PATH\""
-  echo ""
-  echo "Note: ffmpeg@7 is keg-only. If ffprobe is missing, ensure PATH includes:"
-  echo "  export PATH=\"${HOMEBREW_PREFIX}/opt/ffmpeg@7/bin:\$PATH\""
   exit 1
 fi
 
 echo "All system dependencies installed successfully!"
+
+# Automatically add PATH setup to shell profile for local development
+if [ -z "$GITHUB_PATH" ] && [ -z "$CI" ]; then
+  # Detect shell and determine profile file
+  SHELL_PROFILE=""
+  if [ -n "$ZSH_VERSION" ] || [ "$SHELL" = "/bin/zsh" ] || [ "$SHELL" = "/usr/bin/zsh" ] || [ "$SHELL" = "/opt/homebrew/bin/zsh" ]; then
+    SHELL_PROFILE="$HOME/.zshrc"
+  elif [ -n "$BASH_VERSION" ] || [ "$SHELL" = "/bin/bash" ] || [ "$SHELL" = "/usr/bin/bash" ]; then
+    SHELL_PROFILE="$HOME/.bash_profile"
+    # Fallback to .bashrc if .bash_profile doesn't exist
+    if [ ! -f "$SHELL_PROFILE" ] && [ -f "$HOME/.bashrc" ]; then
+      SHELL_PROFILE="$HOME/.bashrc"
+    fi
+  fi
+
+  if [ -n "$SHELL_PROFILE" ]; then
+    # Marker to identify our PATH additions
+    MARKER="# audiometa-python: system dependencies PATH"
+
+    # Check if already added
+    if grep -q "$MARKER" "$SHELL_PROFILE" 2>/dev/null; then
+      echo ""
+      echo "PATH setup already exists in $SHELL_PROFILE"
+      echo "To update it, remove the existing section and re-run this script."
+    else
+      echo ""
+      echo "Adding PATH setup to $SHELL_PROFILE..."
+
+      # Collect PATH exports
+      PATH_EXPORTS=()
+      if [ -n "$HOMEBREW_BIN" ] && [ -d "$HOMEBREW_BIN" ]; then
+        PATH_EXPORTS+=("export PATH=\"${HOMEBREW_BIN}:\$PATH\"")
+      fi
+      if [ -n "$FFMPEG_BIN_PATH" ] && [ -d "$FFMPEG_BIN_PATH" ]; then
+        PATH_EXPORTS+=("export PATH=\"${FFMPEG_BIN_PATH}:\$PATH\"")
+      fi
+      for opt_package in flac; do
+        OPT_BIN="${HOMEBREW_PREFIX}/opt/${opt_package}/bin"
+        if [ -d "$OPT_BIN" ]; then
+          PATH_EXPORTS+=("export PATH=\"${OPT_BIN}:\$PATH\"")
+        fi
+      done
+      if [ -n "$PINNED_FLAC" ]; then
+        FLAC_CELLAR_BIN="${HOMEBREW_PREFIX}/Cellar/flac/${PINNED_FLAC}/bin"
+        if [ -d "$FLAC_CELLAR_BIN" ]; then
+          PATH_EXPORTS+=("export PATH=\"${FLAC_CELLAR_BIN}:\$PATH\"")
+        fi
+      fi
+
+      if [ ${#PATH_EXPORTS[@]} -gt 0 ]; then
+        {
+          echo ""
+          echo "$MARKER"
+          printf '%s\n' "${PATH_EXPORTS[@]}"
+        } >> "$SHELL_PROFILE"
+        echo "✓ Added PATH setup to $SHELL_PROFILE"
+        echo "  Run 'source $SHELL_PROFILE' or open a new terminal to apply changes."
+      fi
+    fi
+  else
+    echo ""
+    echo "Could not detect shell profile. Please manually add these lines to your shell profile:"
+    if [ -n "$HOMEBREW_BIN" ] && [ -d "$HOMEBREW_BIN" ]; then
+      echo "  export PATH=\"${HOMEBREW_BIN}:\$PATH\""
+    fi
+    if [ -n "$FFMPEG_BIN_PATH" ] && [ -d "$FFMPEG_BIN_PATH" ]; then
+      echo "  export PATH=\"${FFMPEG_BIN_PATH}:\$PATH\""
+    fi
+    for opt_package in flac; do
+      OPT_BIN="${HOMEBREW_PREFIX}/opt/${opt_package}/bin"
+      if [ -d "$OPT_BIN" ]; then
+        echo "  export PATH=\"${OPT_BIN}:\$PATH\""
+      fi
+    done
+    if [ -n "$PINNED_FLAC" ]; then
+      FLAC_CELLAR_BIN="${HOMEBREW_PREFIX}/Cellar/flac/${PINNED_FLAC}/bin"
+      if [ -d "$FLAC_CELLAR_BIN" ]; then
+        echo "  export PATH=\"${FLAC_CELLAR_BIN}:\$PATH\""
+      fi
+    fi
+  fi
+fi
