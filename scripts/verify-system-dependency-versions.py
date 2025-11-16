@@ -14,15 +14,87 @@ Usage:
     verify_dependency_versions()
 """
 
+import importlib.util
 import sys
+import types
 from pathlib import Path
 
 # Add project root to path so we can import audiometa modules
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from audiometa.utils.os_dependencies_checker import get_dependencies_checker  # noqa: E402
-from audiometa.utils.os_dependencies_checker.config import load_dependencies_pinned_versions  # noqa: E402
+# Create minimal namespace packages for audiometa and audiometa.utils
+# This prevents Python from executing audiometa/__init__.py when resolving imports
+# We create empty module objects that act as namespace packages
+if "audiometa" not in sys.modules:
+    audiometa_module = types.ModuleType("audiometa")
+    sys.modules["audiometa"] = audiometa_module
+
+if "audiometa.utils" not in sys.modules:
+    utils_module = types.ModuleType("audiometa.utils")
+    sys.modules["audiometa.utils"] = utils_module
+
+if "audiometa.utils.os_dependencies_checker" not in sys.modules:
+    checker_module = types.ModuleType("audiometa.utils.os_dependencies_checker")
+    sys.modules["audiometa.utils.os_dependencies_checker"] = checker_module
+
+# Import modules directly without triggering audiometa/__init__.py
+# This avoids importing mutagen and other dependencies that aren't installed yet
+utils_path = project_root / "audiometa" / "utils" / "os_dependencies_checker"
+
+# Load base module first (needed by other modules)
+base_spec = importlib.util.spec_from_file_location(
+    "audiometa.utils.os_dependencies_checker.base",
+    utils_path / "base.py",
+)
+base_module = importlib.util.module_from_spec(base_spec)
+sys.modules["audiometa.utils.os_dependencies_checker.base"] = base_module
+base_spec.loader.exec_module(base_module)  # type: ignore[union-attr]
+
+# Load OS-specific checker modules
+macos_spec = importlib.util.spec_from_file_location(
+    "audiometa.utils.os_dependencies_checker.macos",
+    utils_path / "macos.py",
+)
+macos_module = importlib.util.module_from_spec(macos_spec)
+sys.modules["audiometa.utils.os_dependencies_checker.macos"] = macos_module
+macos_spec.loader.exec_module(macos_module)  # type: ignore[union-attr]
+
+ubuntu_spec = importlib.util.spec_from_file_location(
+    "audiometa.utils.os_dependencies_checker.ubuntu",
+    utils_path / "ubuntu.py",
+)
+ubuntu_module = importlib.util.module_from_spec(ubuntu_spec)
+sys.modules["audiometa.utils.os_dependencies_checker.ubuntu"] = ubuntu_module
+ubuntu_spec.loader.exec_module(ubuntu_module)  # type: ignore[union-attr]
+
+windows_spec = importlib.util.spec_from_file_location(
+    "audiometa.utils.os_dependencies_checker.windows",
+    utils_path / "windows.py",
+)
+windows_module = importlib.util.module_from_spec(windows_spec)
+sys.modules["audiometa.utils.os_dependencies_checker.windows"] = windows_module
+windows_spec.loader.exec_module(windows_module)  # type: ignore[union-attr]
+
+# Load config module
+config_spec = importlib.util.spec_from_file_location(
+    "audiometa.utils.os_dependencies_checker.config",
+    utils_path / "config.py",
+)
+config_module = importlib.util.module_from_spec(config_spec)
+sys.modules["audiometa.utils.os_dependencies_checker.config"] = config_module
+config_spec.loader.exec_module(config_module)  # type: ignore[union-attr]
+load_dependencies_pinned_versions = config_module.load_dependencies_pinned_versions
+
+# Load __init__ module last (which imports the checker classes)
+init_spec = importlib.util.spec_from_file_location(
+    "audiometa.utils.os_dependencies_checker",
+    utils_path / "__init__.py",
+)
+init_module = importlib.util.module_from_spec(init_spec)
+sys.modules["audiometa.utils.os_dependencies_checker"] = init_module
+init_spec.loader.exec_module(init_module)  # type: ignore[union-attr]
+get_dependencies_checker = init_module.get_dependencies_checker
 
 
 def verify_dependency_versions() -> int:
