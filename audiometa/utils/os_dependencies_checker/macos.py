@@ -60,8 +60,15 @@ class MacOSDependenciesChecker(OsDependenciesChecker):
             for tool_path in tool_paths:
                 if Path(tool_path).exists() and Path(tool_path).is_file():
                     try:
+                        # exiftool uses -ver, not --version
+                        if tool_name == "exiftool":
+                            version_flag = "-ver"
+                        elif tool_name == "ffprobe":
+                            version_flag = "-version"
+                        else:
+                            version_flag = "--version"
                         result = subprocess.run(
-                            [tool_path, "--version" if tool_name != "ffprobe" else "-version"],
+                            [tool_path, version_flag],
                             capture_output=True,
                             text=True,
                             check=False,
@@ -73,8 +80,15 @@ class MacOSDependenciesChecker(OsDependenciesChecker):
 
         # Fallback to PATH check
         try:
+            # exiftool uses -ver, not --version
+            if tool_name == "exiftool":
+                version_flag = "-ver"
+            elif tool_name == "ffprobe":
+                version_flag = "-version"
+            else:
+                version_flag = "--version"
             result = subprocess.run(
-                [tool_name, "--version" if tool_name != "ffprobe" else "-version"],
+                [tool_name, version_flag],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -122,7 +136,13 @@ class MacOSDependenciesChecker(OsDependenciesChecker):
 
         for tool_path in tool_paths:
             try:
-                version_flag = "--version" if tool_name != "ffprobe" else "-version"
+                # exiftool uses -ver, not --version
+                if tool_name == "exiftool":
+                    version_flag = "-ver"
+                elif tool_name == "ffprobe":
+                    version_flag = "-version"
+                else:
+                    version_flag = "--version"
                 result = subprocess.run(
                     [tool_path, version_flag],
                     capture_output=True,
