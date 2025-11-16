@@ -2,6 +2,8 @@
 
 This document consolidates comprehensive metadata field handling across all supported audio formats (ID3v1, ID3v2, Vorbis, RIFF). It merges documentation on multiple values, genre handling, rating handling, track number handling, release date validation rules, and lyrics support into a single authoritative reference.
 
+**Note**: For audio information (duration, bitrate, sample rate, channels, file size, format info, MD5 checksum), see the **[Audio Technical Info Guide](AUDIO_TECHNICAL_INFO_GUIDE.md)**.
+
 ## Table of Contents
 
 - [Metadata Support by Format](#metadata-support-by-format)
@@ -24,14 +26,6 @@ The library supports a comprehensive set of metadata fields across different aud
 | Max Text Length     | 30 chars          | ~8M chars                  | ~8M chars            | ~1M chars       | Format limit          |
 | Date Time Formats   | YYYY              | YYYY+DDMM (v2.3)           | YYYY-MM-DD           | YYYY-MM-DD      | ISO 8601              |
 |                     |                   | YYYY-MM-DD (v2.4)          |                      |                 |                       |
-| Technical Info      |                   |                            |                      |                 |                       |
-| - Duration          | ✓                 | ✓                          | ✓                    | ✓               | ✓                     |
-| - Bitrate           | ✓                 | ✓                          | ✓                    | ✓               | ✓                     |
-| - Sample Rate       | ✓                 | ✓                          | ✓                    | ✓               | ✓                     |
-| - Channels          | ✓ (1-2)           | ✓ (1-255)                  | ✓ (1-255)            | ✓ (1-2)         | ✓                     |
-| - File Size         | ✓                 | ✓                          | ✓                    | ✓               | ✓                     |
-| - Format Info       | ✓                 | ✓                          | ✓                    | ✓               | ✓                     |
-| - MD5 Checksum      |                   |                            | ✓                    |                 | ✓ (FLAC)              |
 | Title               | TITLE (30)        | TIT2                       | TITLE                | INAM            | TITLE                 |
 | Artists             | ARTIST (30)       | TPE1                       | ARTIST               | IART            | ARTISTS (list)        |
 | Album               | ALBUM (30)        | TALB                       | ALBUM                | IPRD            | ALBUM                 |

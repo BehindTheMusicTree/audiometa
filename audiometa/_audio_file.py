@@ -252,10 +252,29 @@ class _AudioFile:
         """Get the path to the file on the filesystem."""
         return self.file_path
 
+    def _is_md5_unset(self) -> bool:
+        """Check if FLAC file has unset MD5 checksum (all zeros)."""
+        try:
+            with Path(self.file_path).open("rb") as f:
+                data = f.read()
+                flac_marker_pos = data.find(b"fLaC")
+                if flac_marker_pos == -1:
+                    return False
+                md5_start = flac_marker_pos + 4 + 1 + 18
+                if md5_start + 16 > len(data):
+                    return False
+                md5_bytes = data[md5_start : md5_start + 16]
+                return md5_bytes == b"\x00" * 16
+        except Exception:
+            return False
+
     def is_flac_file_md5_valid(self) -> bool:
         if self.file_extension != ".flac":
             msg = "The file is not a FLAC file"
             raise FileTypeNotSupportedError(msg)
+
+        if self._is_md5_unset():
+            return False
 
         result = subprocess.run(["flac", "-t", self.file_path], capture_output=True, check=False)
 

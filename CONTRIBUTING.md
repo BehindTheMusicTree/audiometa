@@ -720,6 +720,10 @@ These automations help streamline the review process and ensure consistency acro
 
 Releases are created from the `main` branch.
 
+**For detailed PyPI publishing instructions, see [PyPI Publishing Guide](docs/PYPI_PUBLISHING.md).**
+
+Quick release process:
+
 1. Check `TODO.md` for any critical items that should be addressed before release
    - Review high-priority tasks and ensure they're either completed or deferred to next release
    - Update TODO items if needed to reflect current project status
@@ -727,21 +731,25 @@ Releases are created from the `main` branch.
    - Review changes since last release and decide on version number (following Semantic Versioning)
    - Move content from `[Unreleased]` section to new version entry with date
    - Contributors should not modify the changelog; this is maintained by maintainers during releases
-3. Bump your version (increment the version number to match the changelog, e.g., from 1.2.2 to 1.2.3) using bump2version (which automatically finds and updates version references in your project files) or manually editing **version**
+3. Bump your version (increment the version number to match the changelog, e.g., from 1.2.2 to 1.2.3) using bump2version (which automatically finds and updates version references in your project files) or manually editing **version** in `pyproject.toml`
 4. Commit changes:
    ```bash
    git add pyproject.toml CHANGELOG.md TODO.md
    git commit -m "chore: prepare release 1.2.3"
+   git push origin main
    ```
 5. Tag the release (create a Git tag to mark this specific commit as the release point):
    ```bash
    git tag v1.2.3
-   git push origin main --tags
+   git push origin v1.2.3
    ```
-6. CI/CD will:
-   - Run tests
-   - Build a package
-   - Upload to PyPI (if configured)
+6. CI/CD will automatically:
+   - Verify tag version matches `pyproject.toml` version
+   - Build the package (source distribution and wheel)
+   - Publish to PyPI using the `PYPI_API_TOKEN` secret
+   - Verify publication success
+
+**Note:** Ensure `PYPI_API_TOKEN` is configured in GitHub repository secrets before tagging. See [PyPI Publishing Guide](docs/PYPI_PUBLISHING.md) for setup instructions.
 
 ## 🪪 License & Attribution
 

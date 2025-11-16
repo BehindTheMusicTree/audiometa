@@ -1,0 +1,91 @@
+---
+alwaysApply: true
+---
+
+# Virtual Environment
+
+**ALWAYS activate the project's virtual environment before running any Python commands, git commits, or development tasks.**
+
+## Why This Matters
+
+- Pre-commit hooks use `language: system`, which means they use tools from your active Python environment
+- Without an activated virtual environment, tools may use system-installed versions with incorrect Python interpreters or missing dependencies
+- This can cause pre-commit hooks to fail (e.g., mypy failing due to missing Python 3.12 interpreter)
+
+## Virtual Environment Location
+
+The project uses `.venv` as the primary virtual environment:
+
+```bash
+source .venv/bin/activate
+```
+
+## When to Activate
+
+**Always activate the virtual environment before:**
+
+- Running git commits (pre-commit hooks need the correct environment)
+- Running tests (`pytest`)
+- Running linting/formatting tools (`ruff`, `mypy`, `isort`)
+- Installing dependencies (`pip install`)
+- Running any Python scripts or commands
+
+## Checking Your Environment
+
+Before running commands, verify you're in the virtual environment:
+
+```bash
+# Check if virtual environment is activated
+echo $VIRTUAL_ENV
+# Should show: /path/to/audiometa-python/.venv
+
+# Check Python location
+which python3
+# Should show: /path/to/audiometa-python/.venv/bin/python3
+```
+
+## Pre-commit Hooks and Virtual Environments
+
+Pre-commit hooks configured with `language: system` will use:
+- Python from your activated virtual environment
+- Tools installed in that virtual environment
+- The correct Python interpreter version
+
+**If pre-commit hooks fail with Python interpreter errors, check that:**
+1. The virtual environment is activated (`echo $VIRTUAL_ENV`)
+2. The correct Python version is available (`python3 --version`)
+3. Required tools are installed (`pip list | grep mypy`)
+
+## Example Workflow
+
+```bash
+# 1. Navigate to project directory
+cd /path/to/audiometa-python
+
+# 2. Activate virtual environment
+source .venv/bin/activate
+
+# 3. Verify environment
+which python3  # Should point to .venv/bin/python3
+
+# 4. Run your commands
+git commit -m "your message"
+pytest
+ruff check .
+```
+
+## Troubleshooting
+
+**Problem**: Pre-commit hooks fail with "Executable not found" or "bad interpreter" errors
+
+**Solution**:
+1. Activate the virtual environment: `source .venv/bin/activate`
+2. Verify tools are installed: `pip list | grep <tool-name>`
+3. Re-run the command
+
+**Problem**: Different Python version than expected
+
+**Solution**:
+1. Check which Python is active: `which python3 && python3 --version`
+2. If wrong, activate the correct virtual environment
+3. If virtual environment doesn't exist, create it: `python3 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"`

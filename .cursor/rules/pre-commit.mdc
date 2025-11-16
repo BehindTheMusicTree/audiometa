@@ -4,6 +4,8 @@ alwaysApply: true
 
 # Pre-commit Hooks
 
+**IMPORTANT**: Always activate the project's virtual environment (`.venv`) before running git commits. Pre-commit hooks use `language: system` and require the correct Python environment. See [Virtual Environment](virtual-environment.mdc) rules for details.
+
 All code must pass pre-commit hooks before committing:
 
 - Code formatting (trailing-whitespace, isort, ruff-format, docformatter, ruff)

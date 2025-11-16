@@ -20,7 +20,7 @@ A powerful, unified Python library for reading and writing audio metadata across
   - [Supported Audio Formats Per Metadata Format](#supported-audio-formats-per-metadata-format)
   - [Supported Metadata Formats per Audio Format](#supported-metadata-formats-per-audio-format)
   - [Format Capabilities](#format-capabilities)
-- [Supported Fields](#supported-fields)
+- [Supported Fields And Audio Technical Info](#supported-fields-and-audio-technical-info)
 - [Installation](#installation)
   - [System Requirements](#system-requirements)
   - [Installing Required Tools](#installing-required-tools)
@@ -40,7 +40,9 @@ A powerful, unified Python library for reading and writing audio metadata across
   - [Pre-Update Validation (API Reference)](#pre-update-validation-api-reference)
   - [Writing Metadata (API Reference)](#writing-metadata-api-reference)
   - [Deleting Metadata (API Reference)](#deleting-metadata-api-reference)
-- [Metadata Field Guide: Support and Handling](#metadata-field-guide-support-and-handling)
+- [Metadata Guide](#metadata-guide)
+  - [Metadata Field Guide: Support and Handling](#metadata-field-guide-support-and-handling)
+  - [Audio Technical Info Guide](#audio-technical-info-guide)
   - [Unsupported Metadata Handling](#unsupported-metadata-handling)
 - [Command Line Interface](#command-line-interface)
   - [Installation](#cli-installation)
@@ -143,17 +145,15 @@ When writing Vorbis comments, the library standardizes field names to uppercase 
 - **Limitations**: Some fields not supported (BPM, lyrics, etc.)
 - **Note**: Native metadata format for WAV files
 
-## Supported Fields
+## Supported Fields And Audio Technical Info
 
-AudioMeta supports a comprehensive set of metadata fields across all formats. For a complete reference including:
+AudioMeta supports comprehensive audio information across all formats. For technical audio information (duration, bitrate, sample rate, channels, file size, format info, MD5 checksum validation and repair), see:
 
-- **Field support matrix** by format (ID3v1, ID3v2, Vorbis, RIFF)
-- **Multi-value field handling** (artists, genres, composers, etc.)
-- **Format-specific field handling** (genre codes, rating profiles, track numbers)
-- **Validation rules** (release dates, ratings, track numbers)
-- **Special cases** (None vs empty string, unsupported field handling, atomic writes)
+**[Audio Technical Info Guide](docs/AUDIO_TECHNICAL_INFO_GUIDE.md)**
 
-See the comprehensive **[Metadata Field Guide: Support and Handling](docs/METADATA_FIELD_GUIDE.md)**.
+For metadata fields (title, artist, album, genres, ratings, etc.), see:
+
+**[Metadata Field Guide: Support and Handling](docs/METADATA_FIELD_GUIDE.md)**
 
 ## Installation
 
@@ -1231,7 +1231,21 @@ except AudioFileMetadataParseError:
     print("Failed to parse audio file metadata")
 ```
 
-## Unsupported Metadata Handling
+## Metadata Guide
+
+### Metadata Field Guide: Support and Handling
+
+For a comprehensive reference on metadata field support and handling across all audio formats (ID3v1, ID3v2, Vorbis, RIFF), including multiple values, genres, ratings, track numbers, release dates, and lyrics support, see the dedicated guide:
+
+**[Metadata Field Guide: Support and Handling](docs/METADATA_FIELD_GUIDE.md)**
+
+### Audio Technical Info Guide
+
+For information about audio information (duration, bitrate, sample rate, channels, file size, format info, MD5 checksum validation and repair), see the dedicated guide:
+
+**[Audio Technical Info Guide](docs/AUDIO_TECHNICAL_INFO_GUIDE.md)**
+
+### Unsupported Metadata Handling
 
 The library handles unsupported metadata consistently across all strategies:
 
@@ -1239,7 +1253,7 @@ The library handles unsupported metadata consistently across all strategies:
 - **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` (default)**: Handle unsupported fields gracefully by logging warnings and continuing with supported fields
 - **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=True`**: Fails fast if any field is not supported by the target format. **No writing is performed** - the file remains completely unchanged (atomic operation).
 
-### Format-Specific Limitations
+#### Format-Specific Limitations
 
 | Format         | Forced Format                     | All Strategies with `fail_on_unsupported_field=False`       | All Strategies with `fail_on_unsupported_field=True` |
 | -------------- | --------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------- |
@@ -1248,7 +1262,7 @@ The library handles unsupported metadata consistently across all strategies:
 | **ID3v2**      | Always fails fast, **no writing** | All fields supported                                        | All fields supported                                 |
 | **Vorbis**     | Always fails fast, **no writing** | All fields supported                                        | All fields supported                                 |
 
-### Atomic Write Operations
+#### Atomic Write Operations
 
 When `fail_on_unsupported_field=True` is used, the library ensures **atomic write operations**:
 
@@ -1257,7 +1271,7 @@ When `fail_on_unsupported_field=True` is used, the library ensures **atomic writ
 - **No partial updates**: Prevents inconsistent metadata states where only some fields are updated
 - **Error safety**: Ensures that failed operations don't leave files in a partially modified state
 
-### Example: Handling Unsupported Metadata
+#### Example: Handling Unsupported Metadata
 
 ```python
 from audiometa import update_metadata
@@ -1315,23 +1329,6 @@ except MetadataFieldNotSupportedByMetadataFormatError:
 final_metadata = get_unified_metadata("song.wav")
 print(f"Final title: {final_metadata.get('title')}")  # Still "Original Title" - no changes made
 ```
-
-## Metadata Field Guide: Support and Handling
-
-For a comprehensive reference on metadata field support and handling across all audio formats (ID3v1, ID3v2, Vorbis, RIFF), including multiple values, genres, ratings, track numbers, release dates, and lyrics support, see the dedicated guide:
-
-**[Metadata Field Guide: Support and Handling](docs/METADATA_FIELD_GUIDE.md)**
-
-This consolidated guide covers:
-
-- Metadata support matrix by format
-- Multiple values handling
-- Genre handling
-- Rating handling and profiles
-- Release date validation rules
-- Track number formats
-- Lyrics support
-- None vs empty string handling
 
 ## Command Line Interface
 
