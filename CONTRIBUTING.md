@@ -396,11 +396,12 @@ The following hooks run in execution order:
 5. **check-toml**: Validates TOML file syntax
    - Manual: `pre-commit run check-toml --all-files`
 
-6. **validate-system-dependencies**: Validates that ExifTool Windows version in `system-dependencies.toml` is accessible
-   - Manual: `pre-commit run validate-system-dependencies --all-files`
-   - Checks if pinned ExifTool versions return 404 (not available for download)
-   - Prevents committing invalid versions that would fail in CI
-   - Only runs when `system-dependencies.toml` is modified
+6. **verify-system-dependency-versions**: Verifies installed system dependency versions match pinned versions in `system-dependencies.toml`
+   - Manual: `pre-commit run verify-system-dependency-versions --all-files`
+   - Validates that `system-dependencies.toml` can be parsed
+   - Checks that installed tool versions match pinned versions
+   - Prevents committing when dependencies are misconfigured
+   - Runs on every commit to catch version mismatches early
 
 7. **check-merge-conflict**: Detects merge conflict markers
    - Manual: `pre-commit run check-merge-conflict --all-files`

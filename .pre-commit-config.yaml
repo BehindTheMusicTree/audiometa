@@ -17,17 +17,19 @@
 #
 # Pre-commit hooks execution order - order matters!
 # 1. check-tool-versions: Verify installed tool versions match pyproject.toml (fails fast if versions mismatch)
-# 2. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
-# 3. no-assert: Check for assert statements in production code
-# 4. ruff-format: Format code (replaces black, handles EOF newlines automatically)
-# 5. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
-# 6. isort: Sort imports (configured to work with ruff-format/black)
-# 7. mypy: Type checking on formatted code
-# 8. docformatter: Format docstrings (after code formatting)
+# 2. verify-system-dependency-versions: Verify installed system dependency versions match pinned versions
+#    (also validates system-dependencies.toml can be parsed - replaces validate-system-dependencies)
+# 3. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
+# 4. no-assert: Check for assert statements in production code
+# 5. ruff-format: Format code (replaces black, handles EOF newlines automatically)
+# 6. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
+# 7. isort: Sort imports (configured to work with ruff-format/black)
+# 8. mypy: Type checking on formatted code
+# 9. docformatter: Format docstrings (after code formatting)
 #    NOTE: File pattern must be ^audiometa/.*\.py$ (not ^audiometa/) to avoid processing binary files
-# 9. fix-long-comments: Fix long comment lines (custom hook)
-# 10. prettier: Format markdown files (preserves list numbering without zero-padding)
-# 11. psscriptanalyzer: Lint PowerShell scripts (.ps1 files)
+# 10. fix-long-comments: Fix long comment lines (custom hook)
+# 11. prettier: Format markdown files (preserves list numbering without zero-padding)
+# 12. psscriptanalyzer: Lint PowerShell scripts (.ps1 files)
 
 repos:
   - repo: local
@@ -38,13 +40,12 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-      - id: validate-system-dependencies
-        name: Validate system-dependencies.toml versions
-        entry: python3 .pre-commit-hooks/validate-system-dependencies.py
+      - id: verify-system-dependency-versions
+        name: Verify installed system dependency versions match pinned versions
+        entry: python3 scripts/verify-system-dependency-versions.py
         language: system
-        files: ^system-dependencies\.toml$
         pass_filenames: false
-        always_run: false
+        always_run: true
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0

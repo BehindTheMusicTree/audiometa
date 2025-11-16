@@ -22,8 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Improved
 
 - **Test Configuration**: Improved conftest.py dependency checking:
-  - Extracted dependency verification logic to `installation_checks.py` module for better code organization
-  - Simplified `pytest_configure` to delegate to `verify_dependencies()` function
+  - Decoupled version verification to shared `scripts/verify-system-dependency-versions.py` script
+  - Used by both pytest config and installation scripts for consistency
+  - Simplified `pytest_configure` to use shared verification script
 - **FLAC MD5 Validation**: Improved MD5 checksum validation reliability:
   - Unset MD5 checksums (all zeros) are now consistently treated as invalid
   - Improved detection logic to check `flac -t` return code first before parsing output
