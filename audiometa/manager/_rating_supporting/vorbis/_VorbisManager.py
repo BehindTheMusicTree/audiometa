@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from ...._audio_file import _AudioFile
 from ....exceptions import FileCorruptedError, InvalidRatingValueError, MetadataFieldNotSupportedByMetadataFormatError
 from ....utils.rating_profiles import RatingWriteProfile
+from ....utils.tool_path_resolver import get_tool_path
 from ....utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 from ....utils.unified_metadata_key import UnifiedMetadataKey
 from .._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
@@ -398,13 +399,13 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                 for metaflac_key in tags_to_remove:
                     with contextlib.suppress(subprocess.CalledProcessError):
                         subprocess.run(
-                            ["metaflac", "--remove-tag=" + metaflac_key, self.audio_file.file_path],
+                            [get_tool_path("metaflac"), "--remove-tag=" + metaflac_key, self.audio_file.file_path],
                             check=True,
                             capture_output=True,
                         )
 
             # Then, add new tags for non-None values
-            set_cmd = ["metaflac"]
+            set_cmd = [get_tool_path("metaflac")]
             for key, values in metadata.items():
                 if key in key_mapping and values is not None:
                     metaflac_key = key_mapping[key]
@@ -470,7 +471,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         try:
             # Remove all VORBIS_COMMENT blocks from the FLAC file
             subprocess.run(
-                ["metaflac", "--remove", "--block-type=VORBIS_COMMENT", self.audio_file.file_path],
+                [get_tool_path("metaflac"), "--remove", "--block-type=VORBIS_COMMENT", self.audio_file.file_path],
                 capture_output=True,
                 text=True,
                 check=True,

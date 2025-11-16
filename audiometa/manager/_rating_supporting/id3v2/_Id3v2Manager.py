@@ -37,6 +37,8 @@ from mutagen.id3._util import ID3NoHeaderError
 
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
+from ....utils.tool_path_resolver import get_tool_path
+
 if TYPE_CHECKING:
     from ...._audio_file import _AudioFile
 from ....exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError
@@ -720,10 +722,10 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         # Determine the tool and version based on the configured ID3v2 version
         if self.id3v2_version[1] == ID3V2_VERSION_3:
             tool = "id3v2"
-            cmd = ["id3v2", "--id3v2-only"]
+            cmd = [get_tool_path("id3v2"), "--id3v2-only"]
         else:  # ID3v2.4
             tool = "mid3v2"
-            cmd = ["mid3v2"]
+            cmd = [get_tool_path("mid3v2")]
 
         # Map unified metadata keys to external tool arguments
         key_mapping = {
@@ -758,14 +760,16 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                     for frame in frames_to_remove:
                         with contextlib.suppress(subprocess.CalledProcessError):
                             subprocess.run(
-                                ["id3v2", "-r", frame, self.audio_file.file_path], check=True, capture_output=True
+                                [get_tool_path("id3v2"), "-r", frame, self.audio_file.file_path],
+                                check=True,
+                                capture_output=True,
                             )
                 else:
                     # mid3v2 supports deleting multiple frames with --delete-frames
                     frames_arg = ",".join(frames_to_remove)
                     with contextlib.suppress(subprocess.CalledProcessError):
                         subprocess.run(
-                            ["mid3v2", f"--delete-frames={frames_arg}", self.audio_file.file_path],
+                            [get_tool_path("mid3v2"), f"--delete-frames={frames_arg}", self.audio_file.file_path],
                             check=True,
                             capture_output=True,
                         )

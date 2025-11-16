@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Used by pre-commit hooks, pytest config, and installation scripts for consistency
   - Moved OS-specific checkers from `audiometa/test/tests/` to `audiometa/utils/os_dependencies_checker/` (reusable utility)
   - Split into package structure with one class per file: `base.py`, `macos.py`, `ubuntu.py`, `windows.py`
+  - Moved `load_dependencies_pinned_versions()` to `os_dependencies_checker/config.py` for better organization
+  - Updated production code to use `get_tool_path()` to ensure pinned tool versions are used when calling external tools
   - Improved maintainability and organization
 - **FLAC MD5 Validation**: Improved MD5 checksum validation reliability:
   - Unset MD5 checksums (all zeros) are now consistently treated as invalid

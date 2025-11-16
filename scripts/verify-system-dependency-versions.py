@@ -22,7 +22,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from audiometa.utils.os_dependencies_checker import get_dependencies_checker  # noqa: E402
-from audiometa.utils.tool_path_resolver import _load_dependencies_pinned_versions  # noqa: E402
+from audiometa.utils.os_dependencies_checker.config import load_dependencies_pinned_versions  # noqa: E402
 
 
 def verify_dependency_versions() -> int:
@@ -31,7 +31,7 @@ def verify_dependency_versions() -> int:
     Returns:
         0 if all versions match, 1 if there are mismatches
     """
-    pinned_versions = _load_dependencies_pinned_versions()
+    pinned_versions = load_dependencies_pinned_versions()
 
     if not pinned_versions:
         config_path = project_root / "system-dependencies.toml"

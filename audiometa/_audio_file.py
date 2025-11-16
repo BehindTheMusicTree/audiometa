@@ -24,6 +24,7 @@ from .exceptions import (
 from .manager._rating_supporting.id3v2._id3v2_constants import ID3V2_HEADER_SIZE
 from .manager._rating_supporting.riff._riff_constants import RIFF_HEADER_SIZE
 from .utils.metadata_format import MetadataFormat
+from .utils.tool_path_resolver import get_tool_path
 
 # Type alias for files that can be handled (must be disk-based)
 type DiskBasedFile = str | Path | bytes | object
@@ -107,7 +108,16 @@ class _AudioFile:
             try:
                 # Use ffprobe to get duration, more tolerant of file format issues
                 result = subprocess.run(
-                    ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", path],
+                    [
+                        get_tool_path("ffprobe"),
+                        "-v",
+                        "quiet",
+                        "-print_format",
+                        "json",
+                        "-show_format",
+                        "-show_streams",
+                        path,
+                    ],
                     capture_output=True,
                     text=True,
                     check=False,
@@ -276,7 +286,7 @@ class _AudioFile:
         if self._is_md5_unset():
             return False
 
-        result = subprocess.run(["flac", "-t", self.file_path], capture_output=True, check=False)
+        result = subprocess.run([get_tool_path("flac"), "-t", self.file_path], capture_output=True, check=False)
 
         # Combine stdout and stderr as flac may output to either
         stdout_output = result.stdout.decode()
@@ -328,7 +338,7 @@ class _AudioFile:
             # Read the input file and run FLAC command
             with Path(self.file_path).open("rb") as f:
                 result = subprocess.run(
-                    ["flac", "-f", "--best", "-o", temp_path, "-"],
+                    [get_tool_path("flac"), "-f", "--best", "-o", temp_path, "-"],
                     stdin=f,
                     capture_output=True,
                     check=False,
@@ -344,7 +354,7 @@ class _AudioFile:
 
                     # Try reencoding with ffmpeg as a fallback
                     # Use -y to overwrite any existing file
-                    ffmpeg_cmd = ["ffmpeg", "-i", self.file_path, "-c:a", "flac", "-y", temp_path]
+                    ffmpeg_cmd = [get_tool_path("ffmpeg"), "-i", self.file_path, "-c:a", "flac", "-y", temp_path]
 
                     ffmpeg_result = subprocess.run(ffmpeg_cmd, capture_output=True, check=False)
 
