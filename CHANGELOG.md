@@ -38,6 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Modified macOS installation script to download exiftool directly from exiftool.org instead of Homebrew
   - Fixed lib directory installation to properly copy entire Perl module structure relative to script location
   - Ensures consistent exiftool version (13.41) across macOS and Windows platforms
+- **Ubuntu Version Matching**: Improved Debian package version matching to handle partial versions and revision suffixes (e.g., "24.01" matches "24.01.1-1build2" or "24.01+dfsg-1build2")
+- **Windows Version Matching**: Improved version matching to handle different precision levels ("7.1.0" matches "7.1" and vice versa)
+- **Windows Version Detection**: Added fallback to detect versions from executables when Chocolatey detection fails
 
 ### Improved
 
