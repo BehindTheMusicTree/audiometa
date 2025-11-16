@@ -244,17 +244,20 @@ sudo dnf install flac
 
 #### Automated Setup (Recommended)
 
-To ensure your local environment matches CI exactly, use the automated setup script:
+To ensure your local environment matches CI exactly, use the automated installation scripts:
 
 ```bash
-# Linux/macOS
-./scripts/setup-system-dependencies.sh
+# Ubuntu/Linux
+./scripts/install-system-dependencies-ubuntu.sh
+
+# macOS
+./scripts/install-system-dependencies-macos.sh
 
 # Windows
 .\scripts\install-system-dependencies-windows.ps1
 ```
 
-This script installs the same versions as CI, ensuring consistency. See `system-dependencies.toml` for the complete configuration.
+These scripts install the same versions as CI, ensuring consistency. See `system-dependencies.toml` for the complete configuration.
 
 #### Verifying Installation
 
@@ -265,11 +268,7 @@ ffprobe -version
 flac --version
 ```
 
-Or run the setup script's verification:
-
-```bash
-./scripts/setup-system-dependencies.sh  # Will verify after installation
-```
+The installation scripts automatically verify installed versions match pinned versions from `system-dependencies.toml`.
 
 #### External Tools Usage
 
