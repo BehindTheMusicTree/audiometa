@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Unset MD5 checksums (all zeros) are now consistently treated as invalid
   - Improved detection logic to check `flac -t` return code first before parsing output
   - Combined stdout and stderr for more comprehensive output parsing
+- **Dependencies**: Upgraded numpy to 2.3.4 for Python 3.13 compatibility
 
 ### Documentation
 

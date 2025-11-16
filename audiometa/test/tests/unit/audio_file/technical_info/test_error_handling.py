@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from audiometa._audio_file import _AudioFile
@@ -24,20 +26,30 @@ class TestAudioFileTechnicalInfoErrorHandling:
         except (FileByteMismatchError, FileCorruptedError):
             pass
 
-    def test_flac_md5_check_failed_error_corrupted_flac(self, monkeypatch):
-        def mock_subprocess_run(*_args, **_kwargs):
+    def test_flac_md5_check_failed_error_corrupted_flac(self, monkeypatch, sample_flac_file: Path):
+        def mock_subprocess_run(args, *_):
             class MockResult:
-                stderr = b"Some unexpected FLAC error message"
-                returncode = 1
+                pass
 
-            return MockResult()
+            result = MockResult()
+
+            # Handle brew --prefix call from get_tool_path
+            if isinstance(args, list) and len(args) > 0 and args[0] == "brew":
+                result.stdout = ""
+                result.stderr = ""
+                result.returncode = 0
+                return result
+
+            # Handle flac -t call - return code 0 but no "ok" message to trigger FlacMd5CheckFailedError
+            result.stdout = b""
+            result.stderr = b"Some unexpected FLAC output"
+            result.returncode = 0
+            return result
 
         monkeypatch.setattr("subprocess.run", mock_subprocess_run)
 
-        flac_file = "audiometa/test/assets/sample.flac"
-
+        audio_file = _AudioFile(sample_flac_file)
         try:
-            audio_file = _AudioFile(flac_file)
             audio_file.is_flac_file_md5_valid()
             pytest.fail("Should have raised FlacMd5CheckFailedError")
         except FlacMd5CheckFailedError:
