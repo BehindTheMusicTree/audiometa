@@ -3,6 +3,8 @@
 import subprocess
 from pathlib import Path
 
+from audiometa.utils.tool_path_resolver import get_tool_path
+
 from ..common.external_tool_runner import run_external_tool
 
 
@@ -13,7 +15,9 @@ class VorbisHeaderVerifier:
     def has_vorbis_comments(file_path: Path) -> bool:
         """Check if file has Vorbis comments using metaflac."""
         try:
-            result = subprocess.run(["metaflac", "--list", str(file_path)], capture_output=True, text=True, check=True)
+            result = subprocess.run(
+                [get_tool_path("metaflac"), "--list", str(file_path)], capture_output=True, text=True, check=True
+            )
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
         else:
@@ -22,6 +26,6 @@ class VorbisHeaderVerifier:
     @staticmethod
     def get_metadata_info(file_path: Path) -> str:
         """Get metadata info using metaflac --list command."""
-        command = ["metaflac", "--list", str(file_path)]
+        command = [get_tool_path("metaflac"), "--list", str(file_path)]
         result = run_external_tool(command, "metaflac")
         return result.stdout

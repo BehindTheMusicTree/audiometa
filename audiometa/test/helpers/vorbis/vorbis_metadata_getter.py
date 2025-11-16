@@ -5,11 +5,15 @@ from pathlib import Path
 
 from mutagen.flac import FLAC
 
+from audiometa.utils.tool_path_resolver import get_tool_path
+
 
 class VorbisMetadataGetter:
     @staticmethod
     def get_raw_metadata(file_path: Path) -> str:
-        result = subprocess.run(["metaflac", "--list", str(file_path)], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            [get_tool_path("metaflac"), "--list", str(file_path)], capture_output=True, text=True, check=True
+        )
         return result.stdout
 
     @staticmethod
@@ -54,7 +58,7 @@ class VorbisMetadataGetter:
     @staticmethod
     def get_title(file_path: Path) -> str:
         result = subprocess.run(
-            ["metaflac", "--show-tag=TITLE", str(file_path)], capture_output=True, text=True, check=True
+            [get_tool_path("metaflac"), "--show-tag=TITLE", str(file_path)], capture_output=True, text=True, check=True
         )
         # Output is like "TITLE=Song Title\n"
         lines = result.stdout.strip().split("\n")

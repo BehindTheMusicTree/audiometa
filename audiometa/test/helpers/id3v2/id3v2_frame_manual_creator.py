@@ -10,6 +10,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from audiometa.utils.tool_path_resolver import get_tool_path
+
 
 class ManualID3v2FrameCreator:
     """Creates ID3v2 tags with multiple separate frames by manual binary construction."""
@@ -223,7 +225,9 @@ def manual_multiple_frames_test():
             ManualID3v2FrameCreator.create_multiple_tpe1_frames(tmp_path, artists, version)
 
             # Check result with mid3v2
-            result = subprocess.run(["mid3v2", "-l", str(tmp_path)], capture_output=True, text=True, check=False)
+            result = subprocess.run(
+                [get_tool_path("mid3v2"), "-l", str(tmp_path)], capture_output=True, text=True, check=False
+            )
 
             # Count TPE1 occurrences
             tpe1_count = result.stdout.count("TPE1=")
@@ -237,7 +241,9 @@ def manual_multiple_frames_test():
             genres = ["Rock", "Pop", "Alternative"]
             ManualID3v2FrameCreator.create_multiple_tcon_frames(tmp_path, genres, version)
 
-            result = subprocess.run(["mid3v2", "-l", str(tmp_path)], capture_output=True, text=True, check=False)
+            result = subprocess.run(
+                [get_tool_path("mid3v2"), "-l", str(tmp_path)], capture_output=True, text=True, check=False
+            )
 
             tcon_count = result.stdout.count("TCON=")
 
@@ -246,10 +252,14 @@ def manual_multiple_frames_test():
                 tmp_path, artists=["Artist A", "Artist B"], genres=["Genre X", "Genre Y"], version=version
             )
 
-            result = subprocess.run(["mid3v2", "-l", str(tmp_path)], capture_output=True, text=True, check=False)
+            result = subprocess.run(
+                [get_tool_path("mid3v2"), "-l", str(tmp_path)], capture_output=True, text=True, check=False
+            )
 
             # Check version in the file and verify multiple frames exist in binary
-            result = subprocess.run(["mid3v2", "-l", str(tmp_path)], capture_output=True, text=True, check=False)
+            result = subprocess.run(
+                [get_tool_path("mid3v2"), "-l", str(tmp_path)], capture_output=True, text=True, check=False
+            )
             if result.stdout:
                 # Verify multiple frames exist by checking raw binary
                 with Path(tmp_path).open("rb") as f:
