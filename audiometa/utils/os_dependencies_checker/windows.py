@@ -126,6 +126,7 @@ class WindowsDependenciesChecker(OsDependenciesChecker):
             return None
 
         # For Chocolatey packages
+        choco_version = None
         try:
             result = subprocess.run(
                 ["choco", "list", "--local-only", package, "--exact"],
@@ -135,31 +136,64 @@ class WindowsDependenciesChecker(OsDependenciesChecker):
             )
             output = result.stdout + result.stderr
 
-            if not output.strip():
-                return None
+            if output.strip():
+                pattern = rf"^{re.escape(package)}\s+(\S+)"
+                for raw_line in output.split("\n"):
+                    line = raw_line.strip()
+                    if not line or line.startswith("Chocolatey"):
+                        continue
 
-            pattern = rf"^{re.escape(package)}\s+(\S+)"
-            for raw_line in output.split("\n"):
-                line = raw_line.strip()
-                if not line or line.startswith("Chocolatey"):
-                    continue
-
-                match = re.match(pattern, line, re.IGNORECASE)
-                if match:
-                    version = match.group(1)
-                    if version.startswith(("v", "V")):
-                        version = version[1:]
-                    if re.match(r"^\d+\.\d+", version):
-                        return version
-
-                if "|" in line:
-                    parts = line.split("|")
-                    if len(parts) >= 2 and parts[0].strip().lower() == package.lower():  # noqa: PLR2004
-                        version = parts[1].strip()
+                    match = re.match(pattern, line, re.IGNORECASE)
+                    if match:
+                        version = match.group(1)
                         if version.startswith(("v", "V")):
                             version = version[1:]
+                        if re.match(r"^\d+\.\d+", version):
+                            choco_version = version
+                            break
+
+                    if "|" in line:
+                        parts = line.split("|")
+                        if len(parts) >= 2 and parts[0].strip().lower() == package.lower():  # noqa: PLR2004
+                            version = parts[1].strip()
+                            if version.startswith(("v", "V")):
+                                version = version[1:]
+                            if re.match(r"^\d+\.\d+", version):
+                                choco_version = version
+                                break
+        except FileNotFoundError:
+            pass
+
+        if choco_version:
+            return choco_version
+
+        # Fallback: Get version from executable directly (for Chocolatey-installed tools)
+        # This handles cases where Chocolatey version detection fails but tool is installed
+        tool_name = "ffprobe" if package == "ffmpeg" else package
+        try:
+            version_flag = "-version" if tool_name == "ffprobe" else "--version"
+            result = subprocess.run(
+                [tool_name, version_flag],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            output = result.stdout + result.stderr
+            if output:
+                # Extract version from output (look for patterns like "version 7.1.0" or "7.1.0")
+                patterns = [
+                    r"version\s+(\d+\.\d+\.\d+)",
+                    r"version\s+(\d+\.\d+)",
+                    r"(\d+\.\d+\.\d+)",
+                    r"(\d+\.\d+)",
+                ]
+                for pattern in patterns:
+                    matches = re.findall(pattern, output, re.IGNORECASE)
+                    for match in matches:
+                        version = str(match)
                         if re.match(r"^\d+\.\d+", version):
                             return version
         except FileNotFoundError:
             pass
+
         return None
