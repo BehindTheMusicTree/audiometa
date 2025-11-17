@@ -55,6 +55,85 @@ jobs:
 
           echo "Version verification passed ✓"
 
+      - name: Verify tag is on main branch
+        run: |
+          TAG_COMMIT=$(git rev-parse ${{ github.ref }})
+          echo "Tag points to commit: $TAG_COMMIT"
+
+          # Check if tag commit exists on main branch
+          git fetch origin main:main 2>/dev/null || true
+          if ! git branch --contains "$TAG_COMMIT" | grep -q "main"; then
+            echo "Error: Tag ${{ github.ref }} points to commit $TAG_COMMIT which is not on main branch"
+            echo "This prevents publishing code that hasn't been merged to main."
+            echo ""
+            echo "To fix this:"
+            echo "1. Ensure all commits are pushed to main: git push origin main"
+            echo "2. Verify the tag points to a commit on main"
+            echo "3. Re-push the tag if needed: git tag -d v${{ steps.extract_version.outputs.version }} && git tag v${{ steps.extract_version.outputs.version }} && git push origin v${{ steps.extract_version.outputs.version }}"
+            exit 1
+          fi
+
+          echo "✓ Tag is on main branch"
+
+      - name: Verify CI has passed for tag commit
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const tagCommit = '${{ github.sha }}';
+            const [owner, repo] = '${{ github.repository }}'.split('/');
+
+            console.log(`Checking CI status for commit: ${tagCommit}`);
+
+            // Get the latest workflow run for this commit
+            const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner,
+              repo,
+              head_sha: tagCommit,
+              per_page: 10
+            });
+
+            // Find the CI workflow run
+            const ciRun = runs.workflow_runs.find(run => run.name === 'CI' && run.head_sha === tagCommit);
+
+            if (!ciRun) {
+              console.log('⚠️  Warning: No CI workflow run found for this commit.');
+              console.log('This might mean CI hasn\'t run yet or the commit wasn\'t pushed to main.');
+              console.log('Waiting 30 seconds for CI to potentially start...');
+              await new Promise(resolve => setTimeout(resolve, 30000));
+
+              // Check again
+              const { data: runs2 } = await github.rest.actions.listWorkflowRunsForRepo({
+                owner,
+                repo,
+                head_sha: tagCommit,
+                per_page: 10
+              });
+
+              const ciRun2 = runs2.workflow_runs.find(run => run.name === 'CI' && run.head_sha === tagCommit);
+
+              if (!ciRun2) {
+                throw new Error(`No CI workflow run found for commit ${tagCommit}. Ensure CI has run and passed before publishing.`);
+              }
+
+              if (ciRun2.status !== 'completed' || ciRun2.conclusion !== 'success') {
+                throw new Error(`CI workflow has not completed successfully. Status: ${ciRun2.status}, Conclusion: ${ciRun2.conclusion}. CI must pass before publishing.`);
+              }
+
+              console.log('✓ CI has passed for this commit');
+              return;
+            }
+
+            if (ciRun.status !== 'completed') {
+              throw new Error(`CI workflow is still running (status: ${ciRun.status}). Wait for CI to complete before publishing.`);
+            }
+
+            if (ciRun.conclusion !== 'success') {
+              throw new Error(`CI workflow did not pass (conclusion: ${ciRun.conclusion}). CI must pass before publishing.`);
+            }
+
+            console.log('✓ CI has passed for this commit');
+
       - name: Build package
         run: |
           python -m build

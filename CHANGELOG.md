@@ -29,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added post-publish verification check using PyPI API to confirm package availability
   - Includes retry logic to handle PyPI API propagation delays
   - Validates version and package name match expectations
+  - Added verification that tag points to a commit on main branch (prevents publishing code not merged to main)
+  - Added verification that CI has passed for the tagged commit (ensures code quality before publishing)
+  - CI workflow now also runs on version tags to ensure code quality checks before publishing
   - Restricted publishing workflow to maintainer-only (prevents contributor modifications)
   - Publishing workflows handle sensitive secrets and can publish packages to PyPI
   - Documented maintainer-only policy in `CONTRIBUTING.md`
