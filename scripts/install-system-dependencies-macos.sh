@@ -303,6 +303,31 @@ install_exiftool "${PINNED_EXIFTOOL}"
 # Install libsndfile (required by soundfile Python package)
 install_homebrew_package "libsndfile" "libsndfile" "${PINNED_LIBSNDFILE}" ""
 
+# Install PowerShell Core (required for PowerShell script linting in pre-commit hooks)
+echo "Installing PowerShell Core..."
+if command -v pwsh &>/dev/null; then
+  echo "  PowerShell Core already installed"
+else
+  if brew list --cask powershell &>/dev/null 2>&1; then
+    echo "  PowerShell Core cask installed but not in PATH, upgrading..."
+    brew upgrade --cask powershell 2>&1 | grep -v "Already up-to-date" || true
+  else
+    echo "  Installing PowerShell Core via Homebrew..."
+    brew install --cask powershell || {
+      echo "ERROR: Failed to install PowerShell Core."
+      echo "Install manually: brew install --cask powershell"
+      exit 1
+    }
+  fi
+fi
+
+# Verify PowerShell installation
+if ! command -v pwsh &>/dev/null; then
+  echo "WARNING: PowerShell Core installed but not found in PATH."
+  echo "You may need to restart your terminal or run: export PATH=\"/opt/homebrew/bin:\$PATH\""
+  echo "For Intel Macs: export PATH=\"/usr/local/bin:\$PATH\""
+fi
+
 # Ensure Homebrew bin directory is in PATH (tools are installed there)
 HOMEBREW_BIN="${HOMEBREW_PREFIX}/bin"
 if [ -d "$HOMEBREW_BIN" ] && [[ ":$PATH:" != *":${HOMEBREW_BIN}:"* ]]; then

@@ -1,15 +1,18 @@
 #!/bin/bash
-# Wrapper for PowerShell ScriptAnalyzer format check that skips on macOS if PowerShell isn't available
+# Wrapper for PowerShell ScriptAnalyzer format check
+# Requires PowerShell Core (pwsh) to be installed
 
 # Check if PowerShell is available
 if ! command -v pwsh &>/dev/null; then
-  # On macOS, PowerShell might not be installed - skip formatting check
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    exit 0
-  fi
-  # On other systems, fail if PowerShell is required but not found
   echo "ERROR: PowerShell (pwsh) is required but not found."
-  echo "Install PowerShell Core: https://github.com/PowerShell/PowerShell#get-powershell"
+  echo ""
+  echo "Install PowerShell Core:"
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "  macOS: brew install --cask powershell"
+    echo "  Or download from: https://github.com/PowerShell/PowerShell#get-powershell"
+  else
+    echo "  Visit: https://github.com/PowerShell/PowerShell#get-powershell"
+  fi
   exit 1
 fi
 

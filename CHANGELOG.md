@@ -19,6 +19,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Pre-commit Hooks**: Fixed PowerShell ScriptAnalyzer hooks to fail with clear error messages instead of silently skipping:
+  - Updated `psscriptanalyzer-wrapper.sh` and `psscriptanalyzer-format-wrapper.sh` to fail when PowerShell is not installed
+  - Provides clear installation instructions for macOS (Homebrew) and other platforms
+  - Ensures PowerShell script linting errors are caught locally, matching CI behavior
+  - Previously, hooks silently skipped on macOS when PowerShell wasn't installed, allowing errors to only be caught in CI
+
+### Added
+
+- **System Dependencies**: Added PowerShell Core installation to macOS and Ubuntu dependencies install scripts:
+  - macOS: Automatically installs PowerShell Core via Homebrew cask when running `install-system-dependencies-macos.sh`
+  - Ubuntu: Automatically installs PowerShell Core via Microsoft repository when running `install-system-dependencies-ubuntu.sh`
+  - Required for PowerShell script linting in pre-commit hooks
+  - Checks if PowerShell is already installed before attempting installation
+  - Provides helpful warnings if PowerShell is installed but not in PATH
+
 ## [0.2.2] - 2025-11-17
 
 ### CI

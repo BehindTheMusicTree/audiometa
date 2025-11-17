@@ -221,6 +221,46 @@ echo "Installing id3v2..."
 echo "Installing bwfmetaedit..."
 "${SCRIPT_DIR}/install-bwfmetaedit-ubuntu.sh"
 
+# Install PowerShell Core (required for PowerShell script linting in pre-commit hooks)
+echo "Installing PowerShell Core..."
+if command -v pwsh &>/dev/null; then
+  echo "  PowerShell Core already installed"
+else
+  echo "  Installing PowerShell Core via Microsoft repository..."
+  # Add Microsoft repository for PowerShell
+  sudo apt-get update
+  sudo apt-get install -y wget apt-transport-https software-properties-common || {
+    echo "ERROR: Failed to install prerequisites for PowerShell installation."
+    exit 1
+  }
+
+  # Download and install Microsoft repository key
+  wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb || {
+    echo "ERROR: Failed to download Microsoft repository configuration."
+    exit 1
+  }
+  sudo dpkg -i packages-microsoft-prod.deb || {
+    echo "ERROR: Failed to install Microsoft repository configuration."
+    rm -f packages-microsoft-prod.deb
+    exit 1
+  }
+  rm -f packages-microsoft-prod.deb
+
+  # Update package lists and install PowerShell
+  sudo apt-get update
+  sudo apt-get install -y powershell || {
+    echo "ERROR: Failed to install PowerShell Core."
+    echo "Install manually: https://github.com/PowerShell/PowerShell#get-powershell"
+    exit 1
+  }
+fi
+
+# Verify PowerShell installation
+if ! command -v pwsh &>/dev/null; then
+  echo "WARNING: PowerShell Core installed but not found in PATH."
+  echo "You may need to restart your terminal or check installation."
+fi
+
 echo "Verifying installed tools are available in PATH..."
 MISSING_TOOLS=()
 for tool in ffprobe flac metaflac mediainfo id3v2 exiftool; do

@@ -470,10 +470,15 @@ The following hooks run in execution order:
 - Manual: `pre-commit run py-psscriptanalyzer --all-files`
 - Checks Error and Warning severity levels
 - Ensures PowerShell scripts follow best practices
+- **Requires PowerShell Core (`pwsh`)**: Must be installed for hooks to run
+  - macOS: Automatically installed via `install-system-dependencies-macos.sh`, or manually: `brew install --cask powershell`
+  - Linux/Windows: Install from [PowerShell GitHub releases](https://github.com/PowerShell/PowerShell#get-powershell)
+  - Hooks will fail with clear error messages if PowerShell is not installed (prevents silent skipping)
 
 20. **py-psscriptanalyzer-format**: Formats PowerShell scripts (`.ps1` files) - applies consistent formatting
     - Manual: `pre-commit run py-psscriptanalyzer-format --all-files`
     - Automatically formats PowerShell code to ensure consistency
+    - **Requires PowerShell Core (`pwsh`)**: Same installation requirements as `py-psscriptanalyzer`
 
 ##### How File-Modifying Hooks Work
 
