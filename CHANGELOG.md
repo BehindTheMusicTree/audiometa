@@ -21,8 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### CI
 
-- **PyPI Publishing Workflow**: Restricted publishing workflow to maintainer-only:
-  - Updated `.github/workflows/publish.yml` to prevent contributor modifications
+- **PyPI Publishing Workflow**: Enhanced publishing workflow with TestPyPI testing and verification:
+  - Added TestPyPI publishing step before real PyPI to catch issues early
+  - Added TestPyPI installation verification to ensure package works correctly
+  - Added post-publish verification check using PyPI API to confirm package availability
+  - Includes retry logic to handle PyPI API propagation delays
+  - Validates version and package name match expectations
+  - Restricted publishing workflow to maintainer-only (prevents contributor modifications)
   - Publishing workflows handle sensitive secrets and can publish packages to PyPI
   - Documented maintainer-only policy in `CONTRIBUTING.md`
   - Aligns with security best practices for sensitive CI/CD workflows
