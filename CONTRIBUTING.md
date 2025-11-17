@@ -766,22 +766,55 @@ Quick release process:
 1. Check `TODO.md` for any critical items that should be addressed before release
    - Review high-priority tasks and ensure they're either completed or deferred to next release
    - Update TODO items if needed to reflect current project status
+
 2. Update the changelog (`CHANGELOG.md`) with the new release version and changes
    - Review changes since last release and decide on version number (following Semantic Versioning)
-   - Move content from `[Unreleased]` section to new version entry with date
+   - Move content from `[Unreleased]` section to new version entry with date (e.g., `## [0.2.3] - 2025-11-17`)
    - Contributors should not modify the changelog; this is maintained by maintainers during releases
-3. Bump your version (increment the version number to match the changelog, e.g., from 1.2.2 to 1.2.3) using bump2version (which automatically finds and updates version references in your project files) or manually editing **version** in `pyproject.toml`
-4. Commit changes:
+
+3. Bump version numbers using `bump2version`:
+
    ```bash
-   git add pyproject.toml CHANGELOG.md TODO.md
-   git commit -m "chore: prepare release 1.2.3"
+   # Activate virtual environment (required for pre-commit hooks)
+   source .venv/bin/activate
+
+   # Use bump2version to update version numbers in all configured files
+   # This will update pyproject.toml and README.md automatically
+   bump2version --new-version 0.2.3 patch
+
+   # Or use semantic versioning parts:
+   # bump2version patch    # 0.2.2 -> 0.2.3
+   # bump2version minor    # 0.2.2 -> 0.3.0
+   # bump2version major    # 0.2.2 -> 1.0.0
+   ```
+
+   **What bump2version does:**
+   - Updates version in `pyproject.toml` (from `.bumpversion.cfg` configuration)
+   - Updates version badge in `README.md`
+   - Creates a commit with the configured commit message (e.g., "chore: prepare release 0.2.3")
+   - Does NOT update `CHANGELOG.md` (this is done manually in step 2)
+
+   **Configuration:** The `.bumpversion.cfg` file specifies which files to update. See the file for details.
+
+4. Verify changes and push:
+
+   ```bash
+   # Review the commit created by bump2version
+   git log -1
+
+   # Push the release commit
    git push origin main
    ```
+
 5. Tag the release (create a Git tag to mark this specific commit as the release point):
+
    ```bash
-   git tag v1.2.3
-   git push origin v1.2.3
+   git tag v0.2.3
+   git push origin v0.2.3
    ```
+
+   **Important:** The tag version must match the version in `pyproject.toml` (without the `v` prefix).
+
 6. CI/CD will automatically:
    - Verify tag version matches `pyproject.toml` version
    - Build the package (source distribution and wheel)
@@ -789,6 +822,8 @@ Quick release process:
    - Verify publication success
 
 **Note:** Ensure `PYPI_API_TOKEN` is configured in GitHub repository secrets before tagging. See [PyPI Publishing Guide](docs/PYPI_PUBLISHING.md) for setup instructions.
+
+**Alternative:** If you prefer to update versions manually instead of using `bump2version`, you can manually edit `pyproject.toml` and `README.md`, then commit the changes yourself.
 
 ## 🪪 License & Attribution
 
