@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Provides clear installation instructions for macOS (Homebrew) and other platforms
   - Ensures PowerShell script linting errors are caught locally, matching CI behavior
   - Previously, hooks silently skipped on macOS when PowerShell wasn't installed, allowing errors to only be caught in CI
+- **Windows PowerShell Script**: Fixed version parsing logic in `install-system-dependencies-windows.ps1`:
+  - Improved handling of Python script output (handles both string and array output)
+  - Properly splits string output by newlines
+  - Added better error messages for debugging version loading failures
+  - Fixes CI failure where versions weren't being loaded correctly after replacing `Invoke-Expression`
 
 ### Added
 
