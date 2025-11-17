@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Documentation**: Fixed PyPI download badges showing "rate limited by upstream service":
+  - Added cacheSeconds parameter to shields.io badges to reduce API calls and rate limiting
+  - Maintains download statistics visibility with improved reliability
+
 ## [0.2.4] - 2025-11-17
 
 ### Fixed
