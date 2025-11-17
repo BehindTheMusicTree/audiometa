@@ -35,7 +35,7 @@ libsndfile1 = "latest"  # TEST dependency - required by soundfile (used only in 
 # is currently in the formula. If CI fails with version mismatch, update this pinned version to
 # match what Homebrew currently provides (check with: brew info media-info).
 mediainfo = "25.10"
-exiftool = { source = "exiftool_org", pinned_version = "13.41" }
+exiftool = { source = "exiftool_org", pinned_version = "13.42" }
 bwfmetaedit = "25.04.1"  # Used in test helpers for RIFF metadata setup
 libsndfile = "1.2.2"  # TEST dependency - required by soundfile (used only in tests)
 
@@ -52,5 +52,5 @@ bwfmetaedit = { source = "mediaarea", pinned_version = "24.10" }  # Used in test
 # Check https://exiftool.org/ for available Windows versions
 # Pinned to latest available version (fetched from https://exiftool.org/ver.txt)
 # OPTIONAL in Windows CI: Not used in e2e tests, skipped in Windows CI
-exiftool = { source = "exiftool_org", pinned_version = "13.41" }
+exiftool = { source = "exiftool_org", pinned_version = "13.42" }
 

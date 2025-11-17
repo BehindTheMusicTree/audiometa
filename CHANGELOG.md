@@ -61,6 +61,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Properly splits string output by newlines
   - Added better error messages for debugging version loading failures
   - Fixes CI failure where versions weren't being loaded correctly after replacing `Invoke-Expression`
+- **System Dependencies**: Updated exiftool pinned version from 13.41 to 13.42:
+  - Version 13.41 is no longer available on exiftool.org
+  - Updated macOS and Windows pinned versions to 13.42 (latest available)
+  - Fixes download failures when installing exiftool from exiftool.org
 
 ### Added
 
