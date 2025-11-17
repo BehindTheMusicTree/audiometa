@@ -85,47 +85,64 @@ jobs:
 
             console.log(`Checking CI status for commit: ${tagCommit}`);
 
-            // Get the latest workflow run for this commit
-            const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
-              owner,
-              repo,
-              head_sha: tagCommit,
-              per_page: 10
-            });
+            // Polling configuration
+            const POLL_INTERVAL_MS = 30000; // Check every 30 seconds
+            const MAX_WAIT_MS = 30 * 60 * 1000; // Maximum wait time: 30 minutes
+            const MAX_ATTEMPTS = Math.floor(MAX_WAIT_MS / POLL_INTERVAL_MS);
 
-            // Find the CI workflow run
-            const ciRun = runs.workflow_runs.find(run => run.name === 'CI' && run.head_sha === tagCommit);
-
-            if (!ciRun) {
-              console.log('⚠️  Warning: No CI workflow run found for this commit.');
-              console.log('This might mean CI hasn\'t run yet or the commit wasn\'t pushed to main.');
-              console.log('Waiting 30 seconds for CI to potentially start...');
-              await new Promise(resolve => setTimeout(resolve, 30000));
-
-              // Check again
-              const { data: runs2 } = await github.rest.actions.listWorkflowRunsForRepo({
+            // Function to find CI workflow run
+            const findCIRun = async () => {
+              const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
                 owner,
                 repo,
                 head_sha: tagCommit,
                 per_page: 10
               });
+              return runs.workflow_runs.find(run => run.name === 'CI' && run.head_sha === tagCommit);
+            };
 
-              const ciRun2 = runs2.workflow_runs.find(run => run.name === 'CI' && run.head_sha === tagCommit);
+            // Poll for CI workflow run
+            let ciRun = await findCIRun();
+            let attempts = 0;
 
-              if (!ciRun2) {
-                throw new Error(`No CI workflow run found for commit ${tagCommit}. Ensure CI has run and passed before publishing.`);
+            if (!ciRun) {
+              console.log('⚠️  Warning: No CI workflow run found for this commit.');
+              console.log('Waiting for CI workflow to start...');
+
+              // Wait for CI to start
+              while (!ciRun && attempts < MAX_ATTEMPTS) {
+                attempts++;
+                console.log(`Waiting for CI to start... (attempt ${attempts}/${MAX_ATTEMPTS})`);
+                await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS));
+                ciRun = await findCIRun();
               }
 
-              if (ciRun2.status !== 'completed' || ciRun2.conclusion !== 'success') {
-                throw new Error(`CI workflow has not completed successfully. Status: ${ciRun2.status}, Conclusion: ${ciRun2.conclusion}. CI must pass before publishing.`);
+              if (!ciRun) {
+                throw new Error(`No CI workflow run found for commit ${tagCommit} after ${MAX_WAIT_MS / 1000 / 60} minutes. Ensure CI has run and passed before publishing.`);
               }
+            }
 
-              console.log('✓ CI has passed for this commit');
-              return;
+            console.log(`Found CI workflow run: ${ciRun.id}, status: ${ciRun.status}, conclusion: ${ciRun.conclusion || 'pending'}`);
+
+            // Poll for CI completion
+            attempts = 0; // Reset counter for completion polling
+            while (ciRun.status !== 'completed' && attempts < MAX_ATTEMPTS) {
+              attempts++;
+              const elapsedMinutes = Math.floor((attempts * POLL_INTERVAL_MS) / 1000 / 60);
+              console.log(`CI workflow is still running (status: ${ciRun.status}). Waiting... (${elapsedMinutes} minutes elapsed)`);
+              await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS));
+
+              // Refresh CI run status
+              const { data: updatedRun } = await github.rest.actions.getWorkflowRun({
+                owner,
+                repo,
+                run_id: ciRun.id
+              });
+              ciRun = updatedRun;
             }
 
             if (ciRun.status !== 'completed') {
-              throw new Error(`CI workflow is still running (status: ${ciRun.status}). Wait for CI to complete before publishing.`);
+              throw new Error(`CI workflow did not complete within ${MAX_WAIT_MS / 1000 / 60} minutes (status: ${ciRun.status}). Please check CI workflow manually.`);
             }
 
             if (ciRun.conclusion !== 'success') {

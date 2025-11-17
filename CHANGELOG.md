@@ -19,6 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Publish Workflow**: Fixed publish workflow to automatically wait for CI completion instead of failing immediately:
+  - Added polling logic to wait for CI workflow to complete (checks every 30 seconds, max 30 minutes)
+  - Prevents publish workflow from failing when CI is still running
+  - Automatically proceeds with publishing once CI passes
+  - Improves release process reliability and eliminates need for manual re-runs
+
 ## [0.2.3] - 2025-11-17
 
 ### Improved

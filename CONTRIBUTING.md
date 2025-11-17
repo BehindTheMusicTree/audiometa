@@ -816,10 +816,17 @@ Quick release process:
    **Important:** The tag version must match the version in `pyproject.toml` (without the `v` prefix).
 
 6. CI/CD will automatically:
+   - **Wait for CI to complete**: The publish workflow automatically waits for CI to finish (polls every 30 seconds, max 30 minutes)
    - Verify tag version matches `pyproject.toml` version
+   - Verify tag is on main branch
+   - Verify CI has passed for the tagged commit
    - Build the package (source distribution and wheel)
+   - Publish to TestPyPI (for testing)
+   - Verify TestPyPI installation works correctly
    - Publish to PyPI using the `PYPI_API_TOKEN` secret
-   - Verify publication success
+   - Verify PyPI publication success
+
+   **Note:** The publish workflow will automatically wait for CI to complete, so you don't need to manually re-run it if CI is still running when you push the tag.
 
 **Note:** Ensure `PYPI_API_TOKEN` is configured in GitHub repository secrets before tagging. See [PyPI Publishing Guide](docs/PYPI_PUBLISHING.md) for setup instructions.
 
