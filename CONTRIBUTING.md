@@ -421,11 +421,11 @@ The following hooks run in execution order:
    - Note: Like all file-modifying hooks, commits will fail if this hook makes changes (see "How File-Modifying Hooks Work" section below)
    - Note: For Python files, `ruff-format` also removes trailing whitespace, making this hook redundant for Python files. However, it's kept because it handles non-Python files (markdown, YAML, etc.) that `ruff-format` cannot process.
 
-10. **fix-trailing-blank-lines**: Removes trailing blank lines from shell scripts (`.sh`, `.bash` files)
+10. **check-shell-trailing-blank-lines**: Checks for trailing blank lines in shell scripts (`.sh`, `.bash` files)
 
-- Manual: `pre-commit run fix-trailing-blank-lines --all-files`
-- Ensures files end with exactly one newline (POSIX compliant)
-- Note: Like all file-modifying hooks, commits will fail if this hook makes changes (see "How File-Modifying Hooks Work" section below)
+- Manual: `pre-commit run check-shell-trailing-blank-lines --all-files`
+- Ensures shell scripts end with exactly one newline (POSIX compliant)
+- Fails if files have trailing blank lines (check-only, does not modify files)
 
 11. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
 
@@ -482,7 +482,6 @@ The following hooks run in execution order:
 **Hooks that modify files:**
 
 - `trailing-whitespace` - Removes trailing whitespace
-- `fix-trailing-blank-lines` - Removes trailing blank lines from shell scripts
 - `isort` - Sorts imports
 - `ruff-format` - Formats code
 - `ruff` (with `--fix`) - Auto-fixes linting issues

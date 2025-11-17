@@ -33,34 +33,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-
-      - name: Verify tool versions match pyproject.toml
-        # This validation ensures CI uses the exact same tool versions as defined in pyproject.toml
-        # Prevents CI configuration drift and ensures consistency with local pre-commit hooks
-        run: bash .pre-commit-hooks/check-tool-versions.sh
-
-      - name: Check for assert statements
-        run: |
-          find audiometa -name "*.py" ! -path "*/test/*" ! -path "*/tests/*" ! -path "*/scripts/*" -print0 | \
-          xargs -0 bash .pre-commit-hooks/no-assert.sh
-
-      - name: Check code formatting with ruff-format
-        run: ruff format --check --line-length=120 .
-
-      - name: Check import sorting with isort
-        run: isort --check-only --profile black --line-length=120 .
-
-      - name: Run ruff linting
-        run: ruff check --line-length=120 .
-
-      - name: Run mypy type checking
-        # Note: pytest type stubs are not available, so mypy will report missing stubs for pytest
-        # This is expected - real import errors are caught by test execution
-        # The mypy overrides in pyproject.toml relax type checking rules for test files
-        run: mypy --follow-imports=normal audiometa
+          pip install pre-commit
 
       - name: Install PowerShell Core
-        # PowerShell Core is needed for PSScriptAnalyzer to lint .ps1 files
+        # PowerShell Core is needed for PSScriptAnalyzer hooks in pre-commit
+        # Pre-commit hooks will automatically install PSScriptAnalyzer module if missing
         run: |
           sudo apt-get update
           sudo apt-get install -y wget apt-transport-https software-properties-common
@@ -70,12 +47,12 @@ jobs:
           sudo apt-get install -y powershell
           rm packages-microsoft-prod.deb
 
-      - name: Install PSScriptAnalyzer
-        run: pwsh -Command "Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force -SkipPublisherCheck"
-
-      - name: Lint PowerShell scripts
-        run: |
-          pwsh -Command "Get-ChildItem -Path scripts -Filter *.ps1 -Recurse | ForEach-Object { Write-Host \"Checking $($_.FullName)...\"; Invoke-ScriptAnalyzer -Path $_.FullName -Severity Error,Warning }"
+      - name: Run pre-commit hooks
+        # Run pre-commit hooks in CI to ensure exact same checks as local development
+        # This eliminates duplication and ensures CI and pre-commit hooks are always aligned
+        # Pre-commit hooks will run all checks: formatting, linting, type checking, PowerShell linting, etc.
+        # --verbose shows detailed output for each hook, --show-diff-on-failure shows diffs when hooks fail
+        run: pre-commit run --all-files --verbose --show-diff-on-failure
 
   test:
     name: Test Python ${{ matrix.python-version }}

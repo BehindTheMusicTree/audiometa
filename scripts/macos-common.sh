@@ -203,4 +203,3 @@ remove_homebrew_package() {
     done
   fi
 }
-

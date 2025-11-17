@@ -247,5 +247,3 @@ if ! python3 "${SCRIPT_DIR}/verify-system-dependency-versions.py"; then
 fi
 
 echo "All system dependencies installed successfully!"
-
-

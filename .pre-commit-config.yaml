@@ -20,7 +20,7 @@
 # 2. verify-system-dependency-versions: Verify installed system dependency versions match pinned versions
 #    (also validates system-dependencies.toml can be parsed - replaces validate-system-dependencies)
 # 3. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
-# 4. fix-trailing-blank-lines: Remove trailing blank lines from shell scripts
+# 4. check-shell-trailing-blank-lines: Check for trailing blank lines in shell scripts
 # 5. no-assert: Check for assert statements in production code
 # 6. ruff-format: Format code (replaces black, handles EOF newlines automatically)
 # 7. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
@@ -63,9 +63,9 @@ repos:
 
   - repo: local
     hooks:
-      - id: fix-trailing-blank-lines
-        name: Fix trailing blank lines
-        entry: bash -c '.pre-commit-hooks/fix-trailing-blank-lines.sh "$@"' --
+      - id: check-shell-trailing-blank-lines
+        name: Check trailing blank lines in shell scripts
+        entry: bash -c '.pre-commit-hooks/check-shell-trailing-blank-lines.sh "$@"' --
         language: system
         files: \.(sh|bash)$
 

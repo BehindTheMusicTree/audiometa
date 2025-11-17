@@ -38,4 +38,3 @@ sudo apt-get install -y "id3v2=${PINNED_VERSION}" || {
 }
 
 echo "id3v2 version ${PINNED_VERSION} installed successfully"
-
