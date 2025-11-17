@@ -130,6 +130,7 @@ if [[ "$CATEGORY" != "lint" ]]; then
         HAS_ERRORS=1
       fi
     fi
+  fi
   done
 
   if [ $HAS_ERRORS -eq 1 ]; then
