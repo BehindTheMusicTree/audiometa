@@ -25,4 +25,3 @@ fi
 # Fail if venv doesn't exist
 echo "ERROR: Virtual environment not found! Please activate .venv or run: source .venv/bin/activate" >&2
 exit 1
-

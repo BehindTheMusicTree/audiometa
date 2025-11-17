@@ -25,6 +25,27 @@ All branches must follow these naming patterns:
 - **Be descriptive** - the branch name should indicate what it does
 - **No `fix/` prefix** - use `feature/` for bug fixes or `hotfix/` for urgent production fixes
 
+### When to Use Each Prefix
+
+**Use `feature/` for:**
+- New user-facing features or enhancements
+- Bug fixes in library code (the `audiometa/` package)
+- Changes that affect the public API or user experience
+- Examples: `feature/add-flac-support`, `feature/fix-id3v1-encoding`
+
+**Use `chore/` for:**
+- Infrastructure and tooling fixes (pre-commit hooks, CI/CD workflows, build scripts)
+- Dependency updates
+- Documentation infrastructure changes
+- Repository configuration and setup
+- Examples: `chore/update-dependencies`, `chore/fix-pre-commit-hook`, `chore/ci-workflow-improvements`
+
+**Use `hotfix/` for:**
+- Urgent bug fixes that need to be deployed immediately to production
+- Critical security patches
+- Typically used by maintainers for time-sensitive fixes
+- Examples: `hotfix/critical-security-patch`, `hotfix/critical-metadata-bug`
+
 ### Examples
 
 ```bash

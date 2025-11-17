@@ -19,6 +19,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### CI
+
+- **PyPI Publishing Workflow**: Restricted publishing workflow to maintainer-only:
+  - Updated `.github/workflows/publish.yml` to prevent contributor modifications
+  - Publishing workflows handle sensitive secrets and can publish packages to PyPI
+  - Documented maintainer-only policy in `CONTRIBUTING.md`
+  - Aligns with security best practices for sensitive CI/CD workflows
+
+### Fixed
+
+- **Pre-commit Hooks**: Fixed trailing newline handling in pre-commit hooks:
+  - Fixed `fix-long-comments.py` to prevent adding double trailing newlines when files have trailing blank lines
+  - Strips trailing empty lines before writing to ensure files end with exactly one newline (PEP 8 compliant)
+
+### Added
+
+- **Pre-commit Hooks**: Added hook to fix trailing blank lines in shell scripts:
+  - New `fix-trailing-blank-lines.sh` hook removes trailing blank lines from `.sh` and `.bash` files
+  - Ensures shell scripts end with exactly one newline (POSIX compliant)
+  - Automatically fixes trailing blank line issues during commits
+
+### Documentation
+
+- **Git Workflow**: Clarified branch naming conventions:
+  - Added "When to Use Each Prefix" section to git workflow rules
+  - Clarified when to use `feature/`, `chore/`, and `hotfix/` prefixes
+  - Added examples for infrastructure/tooling fixes vs library code fixes
+
 ## [0.2.1] - 2025-11-16
 
 ### Fixed

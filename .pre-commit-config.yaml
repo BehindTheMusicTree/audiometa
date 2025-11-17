@@ -20,16 +20,17 @@
 # 2. verify-system-dependency-versions: Verify installed system dependency versions match pinned versions
 #    (also validates system-dependencies.toml can be parsed - replaces validate-system-dependencies)
 # 3. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
-# 4. no-assert: Check for assert statements in production code
-# 5. ruff-format: Format code (replaces black, handles EOF newlines automatically)
-# 6. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
-# 7. isort: Sort imports (configured to work with ruff-format/black)
-# 8. mypy: Type checking on formatted code
-# 9. docformatter: Format docstrings (after code formatting)
-#    NOTE: File pattern must be ^audiometa/.*\.py$ (not ^audiometa/) to avoid processing binary files
-# 10. fix-long-comments: Fix long comment lines (custom hook)
-# 11. prettier: Format markdown files (preserves list numbering without zero-padding)
-# 12. psscriptanalyzer: Lint PowerShell scripts (.ps1 files)
+# 4. check-shell-trailing-blank-lines: Check for trailing blank lines in shell scripts
+# 5. no-assert: Check for assert statements in production code
+# 6. ruff-format: Format code (replaces black, handles EOF newlines automatically)
+# 7. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
+# 8. isort: Sort imports (configured to work with ruff-format/black)
+# 9. mypy: Type checking on formatted code
+# 10. docformatter: Format docstrings (after code formatting)
+#     NOTE: File pattern must be ^audiometa/.*\.py$ (not ^audiometa/) to avoid processing binary files
+# 11. fix-long-comments: Fix long comment lines (custom hook)
+# 12. prettier: Format markdown files (preserves list numbering without zero-padding)
+# 13. psscriptanalyzer: Lint PowerShell scripts (.ps1 files)
 
 repos:
   - repo: local
@@ -59,6 +60,14 @@ repos:
       - id: debug-statements
         language_version: python3.13
       - id: trailing-whitespace
+
+  - repo: local
+    hooks:
+      - id: check-shell-trailing-blank-lines
+        name: Check trailing blank lines in shell scripts
+        entry: bash -c '.pre-commit-hooks/check-shell-trailing-blank-lines.sh "$@"' --
+        language: system
+        files: \.(sh|bash)$
 
   - repo: local
     hooks:

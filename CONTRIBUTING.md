@@ -68,6 +68,7 @@ _Note: Contributors can submit fixes for critical issues via feature branches. M
 
 **Repository automation policies (maintainer-only):**
 
+- Publishing workflows (`.github/workflows/publish.yml`) - handles sensitive secrets and can publish packages to PyPI
 - Stale issues/PRs workflow (`.github/workflows/stale.yml`) - affects repository management policies
 - Auto-assignment workflows - affects review process
 - Other automation workflows that affect repository management
@@ -420,51 +421,57 @@ The following hooks run in execution order:
    - Note: Like all file-modifying hooks, commits will fail if this hook makes changes (see "How File-Modifying Hooks Work" section below)
    - Note: For Python files, `ruff-format` also removes trailing whitespace, making this hook redundant for Python files. However, it's kept because it handles non-Python files (markdown, YAML, etc.) that `ruff-format` cannot process.
 
-10. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
+10. **check-shell-trailing-blank-lines**: Checks for trailing blank lines in shell scripts (`.sh`, `.bash` files)
+
+- Manual: `pre-commit run check-shell-trailing-blank-lines --all-files`
+- Ensures shell scripts end with exactly one newline (POSIX compliant)
+- Fails if files have trailing blank lines (check-only, does not modify files)
+
+11. **no-assert**: Custom hook that prevents `assert` statements in production code (use proper exceptions instead)
 
 - Manual: `pre-commit run no-assert --all-files`
 
-11. **ruff-format**: Formats code using ruff (replaces black, handles EOF newlines automatically)
+12. **ruff-format**: Formats code using ruff (replaces black, handles EOF newlines automatically)
 
 - Manual: `ruff format --line-length=120`
 - Uses venv ruff to avoid system tools with broken shebangs
 
-12. **ruff**: Auto-fixes linting issues (including unused imports/variables, code style, line length)
+13. **ruff**: Auto-fixes linting issues (including unused imports/variables, code style, line length)
 
 - Manual: `ruff check --fix --line-length=120`
 - Uses venv ruff to avoid system tools with broken shebangs
 
-13. **isort**: Sorts and organizes import statements according to PEP 8
+14. **isort**: Sorts and organizes import statements according to PEP 8
 
 - Manual: `isort --profile black --line-length=120`
 - Uses venv isort to avoid system tools with broken shebangs
 
-14. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
+15. **fix-long-comments**: Custom hook that automatically wraps long comment lines (starting with `#`) to fit within 120 characters
 
 - Manual: `pre-commit run fix-long-comments --all-files`
 
-15. **mypy**: Static type checking - reports type errors but does not auto-fix
+16. **mypy**: Static type checking - reports type errors but does not auto-fix
 
 - Manual: `mypy --follow-imports=normal audiometa`
 - Uses venv mypy to avoid system tools with broken shebangs
 - Requires virtual environment to exist (fails with clear error if missing)
 
-16. **docformatter**: Formats docstrings according to PEP 257
+17. **docformatter**: Formats docstrings according to PEP 257
 
 - Manual: `docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120`
 - Uses venv docformatter to avoid system tools with broken shebangs
 
-17. **prettier**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, preserves list numbering
+18. **prettier**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, preserves list numbering
 
 - Manual: `prettier --write "**/*.md"`
 
-18. **py-psscriptanalyzer**: Lints PowerShell scripts (`.ps1` files) - checks for code quality issues, style violations, and potential bugs
+19. **py-psscriptanalyzer**: Lints PowerShell scripts (`.ps1` files) - checks for code quality issues, style violations, and potential bugs
 
 - Manual: `pre-commit run py-psscriptanalyzer --all-files`
 - Checks Error and Warning severity levels
 - Ensures PowerShell scripts follow best practices
 
-19. **py-psscriptanalyzer-format**: Formats PowerShell scripts (`.ps1` files) - applies consistent formatting
+20. **py-psscriptanalyzer-format**: Formats PowerShell scripts (`.ps1` files) - applies consistent formatting
     - Manual: `pre-commit run py-psscriptanalyzer-format --all-files`
     - Automatically formats PowerShell code to ensure consistency
 

@@ -31,4 +31,3 @@ for file in "$@"; do
     }
   " || exit 1
 done
-

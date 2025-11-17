@@ -88,6 +88,9 @@ def process_file(file_path: Path, max_length: int = 120) -> bool:
                 new_lines.append(line)
 
         if modified:
+            # Strip trailing empty lines to avoid adding extra newlines
+            while new_lines and not new_lines[-1].strip():
+                new_lines.pop()
             file_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
             return True
         return False  # noqa: TRY300
