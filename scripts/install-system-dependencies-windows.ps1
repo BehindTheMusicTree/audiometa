@@ -7,17 +7,29 @@ $ErrorActionPreference = "Stop"
 # Load pinned versions from system-dependencies.toml
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
 $versionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell
-if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($versionOutput)) {
-    Write-Error "ERROR: Failed to load versions from system-dependencies.toml"
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "ERROR: Failed to load versions from system-dependencies.toml (exit code: $LASTEXITCODE)"
+    exit 1
+}
+# Convert output to array of lines (handles both string and array output)
+if ($versionOutput -is [string]) {
+    $versionLines = $versionOutput -split "`n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+}
+else {
+    $versionLines = $versionOutput | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+}
+if ($null -eq $versionLines -or $versionLines.Count -eq 0) {
+    Write-Error "ERROR: No version output received from load-system-dependency-versions.py"
     exit 1
 }
 # Parse output and set variables safely (replaces Invoke-Expression)
-foreach ($line in $versionOutput) {
-    if ([string]::IsNullOrWhiteSpace($line) -or $line.TrimStart().StartsWith('#')) {
+foreach ($line in $versionLines) {
+    $trimmedLine = $line.Trim()
+    if ([string]::IsNullOrWhiteSpace($trimmedLine) -or $trimmedLine.StartsWith('#')) {
         continue
     }
     # Parse lines like: $PINNED_FFMPEG = "7.1.1"
-    if ($line -match '\$([A-Z_]+)\s*=\s*"([^"]+)"') {
+    if ($trimmedLine -match '\$([A-Z_]+)\s*=\s*"([^"]+)"') {
         $varName = $matches[1]
         $varValue = $matches[2]
         Set-Variable -Name $varName -Value $varValue -Scope Script
@@ -706,6 +718,7 @@ if ($wslRequiredPackages.Count -gt 0) {
 else {
     Write-Output "All system dependencies installed successfully!"
 }
+
 
 
 
