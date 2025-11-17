@@ -1,9 +1,20 @@
 #!/usr/bin/env python3
 """Verify installed system dependency versions match pinned versions.
 
+This script verifies PROD and TEST-ONLY dependencies (ffmpeg, flac, mediainfo, id3v2,
+bwfmetaedit, exiftool) match pinned versions in system-dependencies-prod.toml and
+system-dependencies-test-only.toml.
+
+LINT dependencies (PowerShell) are not verified by this script since they use "latest"
+version and don't affect library functionality.
+
 This script can be called from:
 - Installation scripts (bash/PowerShell) - to verify after installation
 - pytest config (Python) - to verify before running tests
+- Pre-commit hooks - skips verification in lint-only environments
+
+The script automatically skips verification in lint-only environments (where test/prod
+dependencies aren't installed) to avoid false failures.
 
 Usage:
     # From bash/PowerShell:
@@ -140,17 +151,72 @@ get_dependencies_checker = init_module.get_dependencies_checker
 
 
 def verify_dependency_versions() -> int:
-    """Verify system dependency versions match pinned versions.
+    """Verify PROD and TEST-ONLY system dependency versions match pinned versions.
+
+    Verifies dependencies from system-dependencies-prod.toml and system-dependencies-test-only.toml:
+    - PROD: ffmpeg, flac, id3v2
+    - TEST-ONLY: mediainfo, exiftool, bwfmetaedit
+
+    LINT dependencies (PowerShell) are not verified since they use "latest" version.
+
+    Automatically skips verification in lint-only environments where test/prod dependencies
+    aren't installed.
 
     Returns:
-        0 if all versions match, 1 if there are mismatches
+        0 if all versions match or verification was skipped, 1 if there are mismatches
     """
+    import os
+
+    # Skip if explicitly requested
+    if os.environ.get("SKIP_SYSTEM_DEPENDENCY_VERIFICATION") == "true":
+        return 0
+
+    # Determine if we're in a test environment (where system dependencies are needed)
+    # vs a lint-only environment (where only PowerShell is needed for PowerShell script linting)
+    is_test_env = (
+        os.environ.get("PYTEST_CURRENT_TEST") is not None
+        or "pytest" in " ".join(sys.argv)
+        or os.environ.get("RUNNING_TESTS") == "true"
+    )
+
+    # Skip verification in lint-only environments (where test dependencies aren't installed)
+    # The lint job only needs PowerShell for linting PowerShell scripts, not test system deps
+    # Test jobs will have system dependencies installed and should verify them
+    if not is_test_env:
+        # Check if we're in CI - if so, this is likely a lint job (test jobs set RUNNING_TESTS)
+        is_ci = os.environ.get("CI") == "true" or os.environ.get("GITHUB_ACTIONS") == "true"
+        if is_ci:
+            # In CI lint jobs, test dependencies aren't installed - skip verification
+            # PowerShell (lint dependency) is installed separately and doesn't need version verification
+            return 0
+
+        # For local development, check if test dependencies are actually installed
+        # If none are found, we're likely just linting, not testing
+        try:
+            checker = get_dependencies_checker()
+            if checker:
+                # Quick check: see if any test dependencies are available
+                import platform
+
+                system = platform.system().lower()
+                # On Windows, check for Windows-specific tools
+                test_tools = ["ffprobe", "flac"] if system == "windows" else ["ffprobe", "flac", "id3v2"]
+
+                tools_found = sum(1 for tool in test_tools if checker.check_tool_available(tool))
+                if tools_found == 0:
+                    # No test dependencies found, likely lint-only environment - skip verification
+                    return 0
+        except Exception:
+            # If checker fails, skip verification to avoid blocking linting
+            pass
+
     pinned_versions = load_dependencies_pinned_versions()
 
     if not pinned_versions:
-        config_path = project_root / "system-dependencies.toml"
-        sys.stderr.write(f"ERROR: Failed to load system-dependencies.toml from {config_path}\n")
-        sys.stderr.write("File not found or cannot be parsed.\n")
+        sys.stderr.write("ERROR: Failed to load system-dependencies-prod.toml or system-dependencies-test-only.toml\n")
+        sys.stderr.write("Files not found or cannot be parsed.\n")
+        sys.stderr.write("\nNote: This script verifies PROD and TEST-ONLY dependencies only.\n")
+        sys.stderr.write("LINT dependencies (PowerShell) are not verified.\n")
         return 1
 
     checker = get_dependencies_checker()
@@ -205,11 +271,13 @@ def verify_dependency_versions() -> int:
             sys.stderr.write(f"  - {error}\n")
         sys.stderr.write(
             "\nTo fix:\n"
-            "  1. Update system-dependencies.toml with correct versions\n"
+            "  1. Update system-dependencies-prod.toml or system-dependencies-test-only.toml with correct versions\n"
             "  2. Update scripts/install-system-dependencies-*.sh if needed\n"
             "  3. Re-run the installation script\n"
         )
         sys.stderr.write("\nThis ensures tests use the same tool versions as CI.\n")
+        sys.stderr.write("\nNote: This script verifies PROD and TEST-ONLY dependencies only.\n")
+        sys.stderr.write("LINT dependencies (PowerShell) are not verified.\n")
         sys.stderr.write("\n" + "=" * 80 + "\n")
         return 1
 

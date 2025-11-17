@@ -29,7 +29,13 @@ jobs:
           python-version: "3.13"
           cache: "pip"
 
-      - name: Install dependencies
+      - name: Install lint system dependencies
+        # Install lint dependencies (PowerShell) using the shared installation script
+        # This ensures consistency with local development and uses the same installation logic
+        # The script installs PowerShell Core from system-dependencies-lint.toml
+        run: bash scripts/install-system-dependencies-ubuntu.sh lint
+
+      - name: Install Python dependencies
         # Installs exact tool versions from pyproject.toml
         # Pre-commit hooks use local hooks that reference these same installed tools, ensuring version alignment.
         run: |
@@ -37,23 +43,14 @@ jobs:
           pip install -e ".[dev]"
           pip install pre-commit
 
-      - name: Install PowerShell Core
-        # PowerShell Core is needed for PSScriptAnalyzer hooks in pre-commit
-        # Pre-commit hooks will automatically install PSScriptAnalyzer module if missing
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget apt-transport-https software-properties-common
-          wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
-          sudo dpkg -i packages-microsoft-prod.deb
-          sudo apt-get update
-          sudo apt-get install -y powershell
-          rm packages-microsoft-prod.deb
-
       - name: Run pre-commit hooks
         # Run pre-commit hooks in CI to ensure exact same checks as local development
         # This eliminates duplication and ensures CI and pre-commit hooks are always aligned
         # Pre-commit hooks will run all checks: formatting, linting, type checking, PowerShell linting, etc.
         # --verbose shows detailed output for each hook, --show-diff-on-failure shows diffs when hooks fail
+        # Skip system dependency verification (only lint dependencies needed, not prod/test)
+        env:
+          SKIP_SYSTEM_DEPENDENCY_VERIFICATION: "true"
         run: pre-commit run --all-files --verbose --show-diff-on-failure
 
   test:
@@ -68,7 +65,9 @@ jobs:
     # ensuring strict version enforcement and making version mismatches immediately visible.
     # See .github/system-dependencies.toml for the complete configuration and version pinning strategy.
     strategy:
-      fail-fast: false
+      # fail-fast: true (default) - cancel remaining jobs on first failure for faster feedback
+      # This saves CI resources since most failures are common across all platforms
+      # Individual jobs can be re-run if needed for platform-specific debugging
       matrix:
         # Pin OS versions for consistency with pinned package versions
         # Using -latest can cause package availability issues when OS versions change

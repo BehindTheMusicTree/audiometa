@@ -1,16 +1,35 @@
 #!/bin/bash
 # Install system dependencies for Ubuntu CI
-# Pinned versions from system-dependencies.toml (fails if not available, no fallback)
+# Pinned versions from system-dependencies-*.toml files (fails if not available, no fallback)
+#
+# Usage:
+#   bash scripts/install-system-dependencies-ubuntu.sh [category]
+#
+# Categories:
+#   - prod: Production dependencies only (ffmpeg, flac, id3v2)
+#   - test-only: Test-only dependencies (mediainfo, exiftool, bwfmetaedit, libsndfile)
+#   - lint: Lint dependencies only (PowerShell)
+#   - all: All dependencies (default)
 
 set -e
+
+# Parse category argument (default to "all")
+CATEGORY="${1:-all}"
+
+# Validate category
+if [[ ! "$CATEGORY" =~ ^(prod|test-only|lint|all)$ ]]; then
+  echo "ERROR: Invalid category: $CATEGORY"
+  echo "Valid categories: prod, test-only, lint, all"
+  exit 1
+fi
 
 # Update package lists first
 echo "Updating package lists..."
 sudo apt-get update
 
-# Load pinned versions from system-dependencies.toml
+# Load pinned versions from system-dependencies-*.toml files
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash)"
+eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash "$CATEGORY")"
 
 echo "Installing pinned package versions..."
 
@@ -50,10 +69,20 @@ resolve_version() {
   fi
 }
 
-# Check available versions before attempting installation
-echo "Checking available package versions..."
-HAS_ERRORS=0
-for package in ffmpeg flac mediainfo id3v2 libimage-exiftool-perl libsndfile1; do
+# Check available versions before attempting installation (skip for lint-only)
+if [[ "$CATEGORY" != "lint" ]]; then
+  echo "Checking available package versions..."
+  HAS_ERRORS=0
+  # Determine which packages to check based on category
+  PACKAGES_TO_CHECK=()
+  if [[ "$CATEGORY" =~ ^(prod|all)$ ]]; then
+    PACKAGES_TO_CHECK+=(ffmpeg flac id3v2)
+  fi
+  if [[ "$CATEGORY" =~ ^(test-only|all)$ ]]; then
+    PACKAGES_TO_CHECK+=(mediainfo libimage-exiftool-perl libsndfile1)
+  fi
+
+  for package in "${PACKAGES_TO_CHECK[@]}"; do
   var_name="PINNED_${package^^}"
   var_name="${var_name//-/_}"
   pinned_version="${!var_name}"
@@ -101,19 +130,29 @@ for package in ffmpeg flac mediainfo id3v2 libimage-exiftool-perl libsndfile1; d
         HAS_ERRORS=1
       fi
     fi
-  fi
-done
+  done
 
-if [ $HAS_ERRORS -eq 1 ]; then
-  echo ""
-  echo "Update system-dependencies.toml with versions from the lists above."
-  echo "Use the format from the first column (e.g., '7:8.0.2-1ubuntu1' for ffmpeg)."
-  exit 1
+  if [ $HAS_ERRORS -eq 1 ]; then
+    echo ""
+    echo "Update system-dependencies-prod.toml or system-dependencies-test-only.toml with versions from the lists above."
+    echo "Use the format from the first column (e.g., '7:8.0.2-1ubuntu1' for ffmpeg)."
+    exit 1
+  fi
 fi
 
-# Check installed versions and remove if different
-PACKAGES_TO_INSTALL=()
-for package in ffmpeg flac mediainfo libsndfile1; do
+# Check installed versions and remove if different (skip for lint-only)
+if [[ "$CATEGORY" != "lint" ]]; then
+  PACKAGES_TO_INSTALL=()
+  # Determine which packages to install based on category
+  PACKAGES_TO_PROCESS=()
+  if [[ "$CATEGORY" =~ ^(prod|all)$ ]]; then
+    PACKAGES_TO_PROCESS+=(ffmpeg flac)
+  fi
+  if [[ "$CATEGORY" =~ ^(test-only|all)$ ]]; then
+    PACKAGES_TO_PROCESS+=(mediainfo libsndfile1)
+  fi
+
+  for package in "${PACKAGES_TO_PROCESS[@]}"; do
   var_name="PINNED_${package^^}"
   pinned_version="${!var_name}"
 
@@ -188,8 +227,8 @@ if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
   }
 fi
 
-# Install libimage-exiftool-perl with pinned version
-if [ -n "$PINNED_LIBIMAGE_EXIFTOOL_PERL" ]; then
+# Install libimage-exiftool-perl with pinned version (skip for lint-only)
+if [[ "$CATEGORY" != "lint" ]] && [ -n "$PINNED_LIBIMAGE_EXIFTOOL_PERL" ]; then
   echo "Installing libimage-exiftool-perl=${PINNED_LIBIMAGE_EXIFTOOL_PERL}..."
 
   # Check if already installed with correct version
@@ -213,77 +252,96 @@ if [ -n "$PINNED_LIBIMAGE_EXIFTOOL_PERL" ]; then
   fi
 fi
 
-# Install id3v2 using shared script
-echo "Installing id3v2..."
-"${SCRIPT_DIR}/install-id3v2-linux.sh" "${PINNED_ID3V2}"
+# Install id3v2 using shared script (skip for lint-only and test-only)
+if [[ "$CATEGORY" =~ ^(prod|all)$ ]] && [ -n "$PINNED_ID3V2" ]; then
+  echo "Installing id3v2..."
+  "${SCRIPT_DIR}/install-id3v2-linux.sh" "${PINNED_ID3V2}"
+fi
 
-# Install bwfmetaedit using shared script
-echo "Installing bwfmetaedit..."
-"${SCRIPT_DIR}/install-bwfmetaedit-ubuntu.sh"
+# Install bwfmetaedit using shared script (skip for lint-only and prod-only)
+if [[ "$CATEGORY" =~ ^(test-only|all)$ ]]; then
+  echo "Installing bwfmetaedit..."
+  "${SCRIPT_DIR}/install-bwfmetaedit-ubuntu.sh"
+fi
 
 # Install PowerShell Core (required for PowerShell script linting in pre-commit hooks)
-echo "Installing PowerShell Core..."
-if command -v pwsh &>/dev/null; then
-  echo "  PowerShell Core already installed"
-else
-  echo "  Installing PowerShell Core via Microsoft repository..."
-  # Add Microsoft repository for PowerShell
-  sudo apt-get update
-  sudo apt-get install -y wget apt-transport-https software-properties-common || {
-    echo "ERROR: Failed to install prerequisites for PowerShell installation."
-    exit 1
-  }
+# Install for lint category or all category
+if [[ "$CATEGORY" =~ ^(lint|all)$ ]]; then
+  echo "Installing PowerShell Core..."
+  if command -v pwsh &>/dev/null; then
+    echo "  PowerShell Core already installed"
+  else
+    echo "  Installing PowerShell Core via Microsoft repository..."
+    # Add Microsoft repository for PowerShell
+    sudo apt-get update
+    sudo apt-get install -y wget apt-transport-https software-properties-common || {
+      echo "ERROR: Failed to install prerequisites for PowerShell installation."
+      exit 1
+    }
 
-  # Download and install Microsoft repository key
-  wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb || {
-    echo "ERROR: Failed to download Microsoft repository configuration."
-    exit 1
-  }
-  sudo dpkg -i packages-microsoft-prod.deb || {
-    echo "ERROR: Failed to install Microsoft repository configuration."
+    # Download and install Microsoft repository key
+    wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb || {
+      echo "ERROR: Failed to download Microsoft repository configuration."
+      exit 1
+    }
+    sudo dpkg -i packages-microsoft-prod.deb || {
+      echo "ERROR: Failed to install Microsoft repository configuration."
+      rm -f packages-microsoft-prod.deb
+      exit 1
+    }
     rm -f packages-microsoft-prod.deb
-    exit 1
-  }
-  rm -f packages-microsoft-prod.deb
 
-  # Update package lists and install PowerShell
-  sudo apt-get update
-  sudo apt-get install -y powershell || {
-    echo "ERROR: Failed to install PowerShell Core."
-    echo "Install manually: https://github.com/PowerShell/PowerShell#get-powershell"
-    exit 1
-  }
-fi
-
-# Verify PowerShell installation
-if ! command -v pwsh &>/dev/null; then
-  echo "WARNING: PowerShell Core installed but not found in PATH."
-  echo "You may need to restart your terminal or check installation."
-fi
-
-echo "Verifying installed tools are available in PATH..."
-MISSING_TOOLS=()
-for tool in ffprobe flac metaflac mediainfo id3v2 exiftool; do
-  if ! command -v "$tool" &>/dev/null; then
-    MISSING_TOOLS+=("$tool")
+    # Update package lists and install PowerShell
+    sudo apt-get update
+    sudo apt-get install -y powershell || {
+      echo "ERROR: Failed to install PowerShell Core."
+      echo "Install manually: https://github.com/PowerShell/PowerShell#get-powershell"
+      exit 1
+    }
   fi
-done
 
-if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
-  echo "ERROR: The following tools are not available in PATH after installation:"
-  printf '  - %s\n' "${MISSING_TOOLS[@]}"
-  echo ""
-  echo "Installation may have failed. Check the output above for errors."
-  exit 1
+  # Verify PowerShell installation
+  if ! command -v pwsh &>/dev/null; then
+    echo "WARNING: PowerShell Core installed but not found in PATH."
+    echo "You may need to restart your terminal or check installation."
+  fi
 fi
 
-# Verify installed versions match pinned versions using shared Python script
-echo ""
-echo "Verifying installed versions match pinned versions..."
-if ! python3 "${SCRIPT_DIR}/verify-system-dependency-versions.py"; then
+# Verify installed tools are available in PATH (skip for lint-only)
+if [[ "$CATEGORY" != "lint" ]]; then
+  echo "Verifying installed tools are available in PATH..."
+  MISSING_TOOLS=()
+  # Determine which tools to check based on category
+  TOOLS_TO_CHECK=()
+  if [[ "$CATEGORY" =~ ^(prod|all)$ ]]; then
+    TOOLS_TO_CHECK+=(ffprobe flac metaflac id3v2)
+  fi
+  if [[ "$CATEGORY" =~ ^(test-only|all)$ ]]; then
+    TOOLS_TO_CHECK+=(mediainfo exiftool)
+  fi
+
+  for tool in "${TOOLS_TO_CHECK[@]}"; do
+    if ! command -v "$tool" &>/dev/null; then
+      MISSING_TOOLS+=("$tool")
+    fi
+  done
+
+  if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
+    echo "ERROR: The following tools are not available in PATH after installation:"
+    printf '  - %s\n' "${MISSING_TOOLS[@]}"
+    echo ""
+    echo "Installation may have failed. Check the output above for errors."
+    exit 1
+  fi
+
+  # Verify installed versions match pinned versions using shared Python script
   echo ""
-  echo "ERROR: Version verification failed. Installed versions don't match pinned versions."
-  exit 1
+  echo "Verifying installed versions match pinned versions..."
+  if ! python3 "${SCRIPT_DIR}/verify-system-dependency-versions.py"; then
+    echo ""
+    echo "ERROR: Version verification failed. Installed versions don't match pinned versions."
+    exit 1
+  fi
 fi
 
 echo "All system dependencies installed successfully!"

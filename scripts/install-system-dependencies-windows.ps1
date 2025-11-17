@@ -1,14 +1,15 @@
 # Install system dependencies for Windows CI
-# Pinned versions from system-dependencies.toml (fails if not available, no fallback)
-# See system-dependencies.toml for version configuration
+# Pinned versions from system-dependencies-*.toml files (fails if not available, no fallback)
+# See system-dependencies-prod.toml, system-dependencies-test-only.toml, and system-dependencies-lint.toml for version configuration
 
 $ErrorActionPreference = "Stop"
 
-# Load pinned versions from system-dependencies.toml
+# Load pinned versions from system-dependencies-*.toml files
+# Using "all" category to get prod + test dependencies (lint dependencies are handled separately)
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
-$versionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell
+$versionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell all
 if ($LASTEXITCODE -ne 0) {
-    Write-Error "ERROR: Failed to load versions from system-dependencies.toml (exit code: $LASTEXITCODE)"
+    Write-Error "ERROR: Failed to load versions from system-dependencies-*.toml files (exit code: $LASTEXITCODE)"
     exit 1
 }
 # Convert output to array of lines (handles both string and array output)
@@ -43,7 +44,7 @@ if ([string]::IsNullOrEmpty($PINNED_FFMPEG) -or
     [string]::IsNullOrEmpty($PINNED_ID3V2) -or
     [string]::IsNullOrEmpty($PINNED_BWFMETAEDIT) -or
     [string]::IsNullOrEmpty($PINNED_EXIFTOOL)) {
-    Write-Error "ERROR: Failed to load all required versions from system-dependencies.toml"
+    Write-Error "ERROR: Failed to load all required versions from system-dependencies-*.toml files"
     Write-Output "Loaded versions:"
     Write-Output "  PINNED_FFMPEG=$PINNED_FFMPEG"
     Write-Output "  PINNED_FLAC=$PINNED_FLAC"
@@ -372,7 +373,7 @@ if ($failedPackages.Count -gt 0) {
             Write-Output ""
             Write-Output "To fix:"
             Write-Output "  1. Check available versions: choco search <package> --exact"
-            Write-Output "  2. Update system-dependencies.toml with correct versions"
+            Write-Output "  2. Update system-dependencies-prod.toml or system-dependencies-test-only.toml with correct versions"
             Write-Output ""
         }
 

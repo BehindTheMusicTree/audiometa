@@ -124,7 +124,7 @@ Ensure you're using:
   pip install -e ".[dev]"
   ```
 
-- **System dependencies** (required for testing):
+- **System dependencies** (required for testing and linting):
 
   To ensure your local environment matches CI exactly, use the automated installation scripts:
 
@@ -139,7 +139,7 @@ Ensure you're using:
   .\scripts\install-system-dependencies-windows.ps1
   ```
 
-  These scripts install the same versions as CI. Configuration is documented in `system-dependencies.toml`.
+  These scripts install the same versions as CI. Configuration is documented in `system-dependencies-prod.toml`, `system-dependencies-test-only.toml`, and `system-dependencies-lint.toml`.
 
   **Required tools:**
   - `ffmpeg` / `ffprobe` - Audio file analysis
@@ -313,9 +313,9 @@ pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-un
 
 **Note:** CI runs tests separately by marker (`unit`, `integration`, `e2e`) with coverage. The coverage threshold of 85% applies to the combined total.
 
-**Note:** CI tests run on pinned OS versions (e.g., Ubuntu 22.04, macOS 14) for consistency. OS versions are pinned in `.github/workflows/ci.yml` to ensure system package version availability and consistency with pinned versions in `system-dependencies.toml`. Python package versions are pinned in `pyproject.toml`. This prevents breakages when GitHub Actions updates `-latest` runners. See `.github/workflows/ci.yml` for the specific pinned OS versions.
+**Note:** CI tests run on pinned OS versions (e.g., Ubuntu 22.04, macOS 14) for consistency. OS versions are pinned in `.github/workflows/ci.yml` to ensure system package version availability and consistency with pinned versions in `system-dependencies-prod.toml`, `system-dependencies-test-only.toml`, and `system-dependencies-lint.toml`. Python package versions are pinned in `pyproject.toml`. This prevents breakages when GitHub Actions updates `-latest` runners. See `.github/workflows/ci.yml` for the specific pinned OS versions.
 
-**System dependency version verification:** Before running any tests, pytest automatically verifies that installed system dependency versions (ffmpeg, flac, mediainfo, id3v2, bwfmetaedit, exiftool) match the pinned versions defined in `system-dependencies.toml`. This uses the shared `scripts/verify-system-dependency-versions.py` script (also used by pre-commit hooks and installation scripts). If versions don't match, pytest will exit with an error message before running tests. This ensures tests always run with the exact same tool versions as CI and local development environments. To fix version mismatches, update your system dependencies using the installation scripts: `./scripts/install-system-dependencies-ubuntu.sh` (Ubuntu), `./scripts/install-system-dependencies-macos.sh` (macOS), or `.\scripts\install-system-dependencies-windows.ps1` (Windows).
+**System dependency version verification:** Before running any tests, pytest automatically verifies that installed system dependency versions (ffmpeg, flac, mediainfo, id3v2, bwfmetaedit, exiftool) match the pinned versions defined in `system-dependencies-prod.toml` and `system-dependencies-test-only.toml`. This uses the shared `scripts/verify-system-dependency-versions.py` script (also used by pre-commit hooks and installation scripts). If versions don't match, pytest will exit with an error message before running tests. This ensures tests always run with the exact same tool versions as CI and local development environments. To fix version mismatches, update your system dependencies using the installation scripts: `./scripts/install-system-dependencies-ubuntu.sh` (Ubuntu), `./scripts/install-system-dependencies-macos.sh` (macOS), or `.\scripts\install-system-dependencies-windows.ps1` (Windows).
 
 **Note:** On Windows, version verification skips optional tools (`id3v2`, `mediainfo`, `exiftool`) that are not needed for e2e tests. See the Windows CI differences section below for details.
 
@@ -403,9 +403,9 @@ The following hooks run in execution order:
 5. **check-toml**: Validates TOML file syntax
    - Manual: `pre-commit run check-toml --all-files`
 
-6. **verify-system-dependency-versions**: Verifies installed system dependency versions match pinned versions in `system-dependencies.toml`
+6. **verify-system-dependency-versions**: Verifies installed system dependency versions match pinned versions in `system-dependencies-prod.toml` and `system-dependencies-test-only.toml`
    - Manual: `pre-commit run verify-system-dependency-versions --all-files`
-   - Validates that `system-dependencies.toml` can be parsed
+   - Validates that `system-dependencies-prod.toml` and `system-dependencies-test-only.toml` can be parsed
    - Checks that installed tool versions match pinned versions
    - Prevents committing when dependencies are misconfigured
    - Runs on every commit to catch version mismatches early

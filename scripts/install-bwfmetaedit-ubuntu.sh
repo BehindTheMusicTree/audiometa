@@ -1,13 +1,14 @@
 #!/bin/bash
 # Install bwfmetaedit for Ubuntu CI
-# Pinned version from system-dependencies.toml (fails if not available, no fallback)
-# See system-dependencies.toml for version configuration
+# Pinned version from system-dependencies-test-only.toml (fails if not available, no fallback)
+# See system-dependencies-test-only.toml for version configuration
 
 set -e
 
-# Load pinned versions from system-dependencies.toml
+# Load pinned versions from system-dependencies-*.toml files
+# Using "all" category to get prod + test dependencies
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash)"
+eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash all)"
 
 # Detect Ubuntu version from /etc/os-release
 UBUNTU_VERSION_FULL=$(grep VERSION_ID /etc/os-release | cut -d'"' -f2)
@@ -73,7 +74,7 @@ if [ -z "$URL" ]; then
   echo "To find available versions:"
   echo "  1. Visit https://mediaarea.net/BWFMetaEdit/Download/Ubuntu"
   echo "  2. Check available versions for Ubuntu ${UBUNTU_VERSION}"
-  echo "  3. Update system-dependencies.toml with the correct pinned_version"
+  echo "  3. Update system-dependencies-test-only.toml with the correct pinned_version"
   exit 1
 fi
 

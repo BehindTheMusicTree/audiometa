@@ -4,22 +4,48 @@ import tomllib
 from pathlib import Path
 
 
-def load_dependencies_pinned_versions() -> dict[str, dict[str, str]] | None:
-    """Load pinned versions from system-dependencies.toml.
-
-    Returns:
-        Dictionary mapping tool names to OS-specific versions, or None if config not found
-    """
-    # Try to find system-dependencies.toml relative to this file
-    # This file is in audiometa/utils/os_dependencies_checker/, so go up to project root
-    config_path = Path(__file__).parent.parent.parent.parent / "system-dependencies.toml"
-
+def _load_config_file(project_root: Path, filename: str) -> dict | None:
+    """Load a TOML configuration file."""
+    config_path = project_root / filename
     if not config_path.exists():
         return None
 
     try:
         with config_path.open("rb") as f:
-            config = tomllib.load(f)
+            return tomllib.load(f)
+    except Exception:
+        return None
+
+
+def load_dependencies_pinned_versions() -> dict[str, dict[str, str]] | None:
+    """Load pinned versions from system-dependencies-prod.toml and system-dependencies-test-only.toml.
+
+    Returns:
+        Dictionary mapping tool names to OS-specific versions, or None if config not found
+    """
+    # Try to find config files relative to this file
+    # This file is in audiometa/utils/os_dependencies_checker/, so go up to project root
+    project_root = Path(__file__).parent.parent.parent.parent
+
+    # Load prod and test configs
+    prod_config = _load_config_file(project_root, "system-dependencies-prod.toml")
+    test_config = _load_config_file(project_root, "system-dependencies-test-only.toml")
+
+    if not prod_config and not test_config:
+        return None
+
+    try:
+        # Merge configs (test can override prod if needed, though they shouldn't overlap)
+        config = {}
+        if prod_config:
+            config.update(prod_config)
+        if test_config:
+            # Merge OS sections
+            for os_type in ["ubuntu", "macos", "windows"]:
+                if os_type in test_config:
+                    if os_type not in config:
+                        config[os_type] = {}
+                    config[os_type].update(test_config[os_type])
 
         pinned_versions: dict[str, dict[str, str]] = {}
 

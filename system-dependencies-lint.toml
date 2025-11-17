@@ -1,0 +1,23 @@
+# Lint Dependencies Configuration
+# This file documents LINT system dependencies required for linting/formatting.
+# These are needed in lint jobs and pre-commit hooks:
+# - PowerShell: Required for PowerShell script linting (PSScriptAnalyzer)
+#
+# Version pinning strategy:
+# - Exception: LINT dependencies may use "latest" since they don't affect library functionality
+# - Rationale: Lint tools don't affect library functionality, and we want the latest linting rules.
+# - These can be updated more freely than PROD/TEST dependencies.
+
+[ubuntu]
+powershell = "latest"  # PowerShell Core - version managed by Microsoft repository
+                      # Exception: Uses "latest" for lint dependencies (see note above)
+
+[macos]
+powershell = "latest"  # PowerShell Core - version managed by Homebrew
+                      # Exception: Uses "latest" for lint dependencies (see note above)
+
+[windows]
+# PowerShell is pre-installed on Windows CI runners, no installation needed
+# Version depends on GitHub Actions runner image (not pinned)
+
+

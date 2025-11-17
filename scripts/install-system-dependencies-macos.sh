@@ -1,22 +1,23 @@
 #!/bin/bash
 # Install system dependencies for macOS CI
-# Pinned versions from system-dependencies.toml (fails if not available, no fallback)
-# See system-dependencies.toml for version configuration
+# Pinned versions from system-dependencies-*.toml files (fails if not available, no fallback)
+# See system-dependencies-prod.toml, system-dependencies-test-only.toml, and system-dependencies-lint.toml for version configuration
 
 set -e
 
-# Load pinned versions from system-dependencies.toml
+# Load pinned versions from system-dependencies-*.toml files
+# Using "all" category to get prod + test dependencies (lint dependencies are handled separately)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VERSION_OUTPUT=$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash)
+VERSION_OUTPUT=$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash all)
 if [ $? -ne 0 ] || [ -z "$VERSION_OUTPUT" ]; then
-  echo "ERROR: Failed to load versions from system-dependencies.toml"
+  echo "ERROR: Failed to load versions from system-dependencies-*.toml files"
   exit 1
 fi
 eval "$VERSION_OUTPUT"
 
 # Verify versions were loaded
 if [ -z "$PINNED_FFMPEG" ] || [ -z "$PINNED_FLAC" ] || [ -z "$PINNED_MEDIAINFO" ] || [ -z "$PINNED_ID3V2" ] || [ -z "$PINNED_BWFMETAEDIT" ] || [ -z "$PINNED_EXIFTOOL" ] || [ -z "$PINNED_LIBSNDFILE" ]; then
-  echo "ERROR: Failed to load all required versions from system-dependencies.toml"
+  echo "ERROR: Failed to load all required versions from system-dependencies-*.toml files"
   echo "Loaded versions:"
   echo "  PINNED_FFMPEG=${PINNED_FFMPEG:-NOT SET}"
   echo "  PINNED_FLAC=${PINNED_FLAC:-NOT SET}"

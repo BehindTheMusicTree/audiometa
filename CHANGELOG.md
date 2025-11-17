@@ -19,6 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Improved
+
+- **CI Workflow**: Improved lint job to use shared installation script for consistency:
+  - Lint job now uses `install-system-dependencies-ubuntu.sh lint` to install only lint dependencies (PowerShell)
+  - Ensures consistency with local development and uses the same installation logic as test jobs
+  - Pre-commit hooks skip system dependency verification in lint job (only lint dependencies are installed)
+  - Renamed "Install dependencies" step to "Install Python dependencies" for clarity
+  - Removed `fail-fast: false` to use default behavior (faster feedback, saves CI resources)
+- **System Dependency Verification**: Clarified verification script documentation:
+  - Updated documentation to specify that script verifies PROD and TEST-ONLY dependencies only
+  - LINT dependencies (PowerShell) are not verified since they use "latest" version
+  - Added clear error messages explaining what dependencies are verified
+
 ### Fixed
 
 - **Pre-commit Hooks**: Fixed PowerShell ScriptAnalyzer hooks to fail with clear error messages instead of silently skipping:

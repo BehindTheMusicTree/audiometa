@@ -1,0 +1,39 @@
+# Verification Commands Configuration
+# This file contains commands to verify tool installation and versions.
+# These are used by CI and can be run locally to verify setup.
+
+[verification]
+ubuntu = [
+    "ffprobe -version",
+    "flac --version",
+    "metaflac --version || echo 'metaflac not found (should be bundled with flac)'",
+    "mediainfo --version",
+    "bwfmetaedit --version || echo 'bwfmetaedit not found'",
+    "id3v2 --version || echo 'id3v2 not found'",
+    "which mid3v2 && mid3v2 --version || echo 'mid3v2 not found (mutagen provides it, may not be in PATH)'",
+    "exiftool -ver || echo 'exiftool not found'"
+]
+
+macos = [
+    "ffprobe -version",
+    "flac --version",
+    "metaflac --version || echo 'metaflac not found (should be bundled with flac)'",
+    "mediainfo --version",
+    "bwfmetaedit --version || echo 'bwfmetaedit not found'",
+    "id3v2 --version || echo 'id3v2 not found'",
+    "which mid3v2 && mid3v2 --version || echo 'mid3v2 not found (mutagen provides it, may not be in PATH)'",
+    "exiftool -ver || echo 'exiftool not found'"
+]
+
+windows = [
+    "ffprobe -version",
+    "flac --version",
+    "metaflac --version",
+    "mediainfo --version",
+    "if (Get-Command bwfmetaedit -ErrorAction SilentlyContinue) { bwfmetaedit --version } else { Write-Host 'bwfmetaedit not found' }",
+    "if (Get-Command id3v2 -ErrorAction SilentlyContinue) { id3v2 --version } else { Write-Host 'id3v2 not found' }",
+    "if (Get-Command mid3v2 -ErrorAction SilentlyContinue) { mid3v2 --version } else { Write-Host 'mid3v2 not found (mutagen provides it, may not be in PATH)' }",
+    "if (Get-Command exiftool -ErrorAction SilentlyContinue) { exiftool -ver } else { Write-Host 'exiftool not found' }"
+]
+
+

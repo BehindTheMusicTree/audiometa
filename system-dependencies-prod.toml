@@ -1,0 +1,64 @@
+# Production Dependencies Configuration
+# This file documents PROD system dependencies required for production runtime.
+# These are format-specific tools needed for full library functionality:
+# - flac/metaflac: Required for FLAC files (MD5 validation, Vorbis metadata writing)
+# - ffmpeg/ffprobe: Required for WAV files (technical info: duration, bitrate)
+# - id3v2: Required for FLAC files with ID3v2 tags (writing ID3v2 metadata to FLAC)
+#   NOTE: On Windows, id3v2 requires WSL (Windows Subsystem for Linux). Without WSL,
+#   writing ID3v2 tags to FLAC files will fail. This is format-specific - only needed
+#   if you need to write ID3v2 tags to FLAC files.
+# Note: MP3 files use mutagen (Python library) and don't require external tools
+# Note: All PROD dependencies are also needed for tests
+# Note: RIFF metadata writing uses custom Python implementation, not bwfmetaedit (bwfmetaedit is TEST-only)
+#
+# Version pinning strategy:
+# - ALWAYS pin specific versions (e.g., "1.2.3") - NEVER use "latest"
+# - For Ubuntu: versions are Ubuntu release-specific (check with: apt-cache policy <package>)
+# - For macOS: Homebrew versions can be pinned using @version syntax
+# - For Windows: Chocolatey supports --version flag
+
+[ubuntu]
+# PROD dependencies (required for library functionality)
+# Ubuntu package versions (install via apt-get)
+# Format: "package=version" for pinned versions (fails if not available, no fallback)
+# To check available versions: apt-cache policy <package> or apt-cache madison <package>
+# Note: Exact versions depend on Ubuntu release. CI uses a pinned Ubuntu version for consistency.
+# Version format example: "7:7.1.0-1ubuntu2" (epoch:version-release)
+# IMPORTANT: Verify these versions match what's available in the pinned Ubuntu CI version:
+#   Run in CI: apt-cache madison <package> to see available versions
+#   Update these pinned versions to match what CI actually installs
+ffmpeg = "7:6.1.1-3ubuntu5"  # Required for WAV files (technical info: duration, bitrate)
+flac = "1.4.3+ds-2.1ubuntu2"  # Required for FLAC files (MD5 validation, metadata writing)
+id3v2 = "0.1.12+dfsg-7"  # Required for FLAC files with ID3v2 tags (writing ID3v2 metadata)
+
+[macos]
+# PROD dependencies (format-specific - only needed for certain formats)
+# macOS packages are installed via Homebrew and verified against these versions.
+# Homebrew does not support installing pinned versions (except ffmpeg@7), so we install the latest stable.
+# When Homebrew updates package versions, the installation script's version check will fail.
+# Update these versions to match Homebrew's latest stable versions when that happens.
+ffmpeg = "7"  # Required for WAV files (technical info: duration, bitrate)
+flac = "1.5.0"  # Required for FLAC files (MD5 validation, metadata writing)
+id3v2 = "0.1.12"  # Required for FLAC files with ID3v2 tags (writing ID3v2 metadata)
+
+[windows]
+# PROD dependencies (format-specific - only needed for certain formats)
+# Windows package versions (install via Chocolatey)
+# Format: Use --version flag: choco install package --version=1.2.3 (fails if not available, no fallback)
+# To check available versions: choco search <package> --exact
+# Note: Chocolatey version format example: "7.1.0" or "24.12"
+# IMPORTANT: Verify these versions match what's available in the pinned Windows CI version:
+#   Run in CI: choco search <package> --exact to see available versions
+#   Update these pinned versions to match what CI actually installs
+ffmpeg = "7.1.0"  # Required for WAV files (technical info: duration, bitrate)
+flac = "1.3.4"  # Required for FLAC files (MD5 validation, metadata writing)
+# id3v2: Required for writing ID3v2 tags to FLAC files.
+# On Windows: Not available as native binary. Requires WSL (Windows Subsystem for Linux) to install via Ubuntu package.
+# IMPORTANT: Without WSL, writing ID3v2 tags to FLAC files will fail with FileCorruptedError.
+# This is a format-specific dependency - only needed if you need to write ID3v2 tags to FLAC files.
+# - Windows CI: Skipped (e2e tests don't use FLAC files with ID3v2 tags)
+# - Local Windows dev: Install via WSL if you need FLAC ID3v2 writing functionality
+# - Version verification: Skipped on Windows (WSL requirement makes it impractical to verify)
+# Uses Ubuntu version format since it's installed via WSL/Ubuntu apt-get.
+id3v2 = "0.1.12+dfsg-7"  # PROD dependency (FLAC files with ID3v2 tags) - Pinned version via WSL Ubuntu (same as Ubuntu CI) - VERIFY THIS VERSION
+

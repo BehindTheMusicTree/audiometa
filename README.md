@@ -205,7 +205,13 @@ These scripts install all required tools with pinned versions that match CI:
 - **mediainfo** - Only for integration test verification
 - **exiftool** - Only for integration test verification
 
-**Pinned versions:** All tool versions are pinned in [`system-dependencies.toml`](system-dependencies.toml) (the single source of truth). The scripts verify installed versions match these pinned versions. See `system-dependencies.toml` for the complete configuration and OS-specific version details.
+**Pinned versions:** All tool versions are pinned in separate configuration files (the single source of truth):
+
+- [`system-dependencies-prod.toml`](system-dependencies-prod.toml) - Production dependencies (ffmpeg, flac, id3v2)
+- [`system-dependencies-test-only.toml`](system-dependencies-test-only.toml) - Test-only dependencies (mediainfo, exiftool, bwfmetaedit, libsndfile) - supplementary to prod dependencies
+- [`system-dependencies-lint.toml`](system-dependencies-lint.toml) - Lint dependencies (PowerShell)
+
+The scripts verify installed versions match these pinned versions. See the configuration files for complete details and OS-specific version information.
 
 **Note for Windows users:**
 
@@ -221,7 +227,7 @@ ffprobe -version
 flac --version
 ```
 
-The installation scripts automatically verify installed versions match pinned versions from `system-dependencies.toml`.
+The installation scripts automatically verify installed versions match pinned versions from `system-dependencies-prod.toml`, `system-dependencies-test-only.toml`, and `system-dependencies-lint.toml`.
 
 #### External Tools Usage
 
