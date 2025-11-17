@@ -1,0 +1,82 @@
+# Maintainer-only: PyPI Publishing workflow
+# Contributors cannot modify this file. Changes to publishing infrastructure require maintainer approval.
+# Publishing workflows handle sensitive secrets and can publish packages to PyPI.
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*" # Triggers on tags like v0.3.0, v1.0.0, etc.
+
+jobs:
+  publish:
+    name: Build and Publish to PyPI
+    runs-on: ubuntu-latest
+    # Only allow publishing from main branch tags (prevents accidental publishes from feature branches)
+    if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full history for tag verification
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Extract version from pyproject.toml
+        id: extract_version
+        run: |
+          VERSION=$(grep -E '^version\s*=' pyproject.toml | sed -E 's/version\s*=\s*"([^"]+)"/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: Verify tag matches version
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"  # Remove 'v' prefix from tag
+          PROJECT_VERSION="${{ steps.extract_version.outputs.version }}"
+
+          echo "Tag version: $TAG_VERSION"
+          echo "Project version: $PROJECT_VERSION"
+
+          if [ "$TAG_VERSION" != "$PROJECT_VERSION" ]; then
+            echo "Error: Tag version ($TAG_VERSION) does not match pyproject.toml version ($PROJECT_VERSION)"
+            echo "Tag format should be: v$PROJECT_VERSION (e.g., v0.3.0)"
+            exit 1
+          fi
+
+          echo "Version verification passed ✓"
+
+      - name: Build package
+        run: |
+          python -m build
+
+      - name: Check package contents
+        run: |
+          echo "Source distribution contents:"
+          tar -tzf dist/*.tar.gz | head -30
+          echo ""
+          echo "Wheel contents:"
+          unzip -l dist/*.whl | head -30
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          twine upload dist/*
+
+      - name: Verify publication
+        run: |
+          echo "Package published successfully!"
+          echo "View on PyPI: https://pypi.org/project/audiometa-python/${{ steps.extract_version.outputs.version }}/"
+          echo ""
+          echo "Install with: pip install audiometa-python==${{ steps.extract_version.outputs.version }}"

@@ -68,6 +68,7 @@ _Note: Contributors can submit fixes for critical issues via feature branches. M
 
 **Repository automation policies (maintainer-only):**
 
+- Publishing workflows (`.github/workflows/publish.yml`) - handles sensitive secrets and can publish packages to PyPI
 - Stale issues/PRs workflow (`.github/workflows/stale.yml`) - affects repository management policies
 - Auto-assignment workflows - affects review process
 - Other automation workflows that affect repository management

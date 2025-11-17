@@ -19,6 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### CI
+
+- **PyPI Publishing Workflow**: Restricted publishing workflow to maintainer-only:
+  - Updated `.github/workflows/publish.yml` to prevent contributor modifications
+  - Publishing workflows handle sensitive secrets and can publish packages to PyPI
+  - Documented maintainer-only policy in `CONTRIBUTING.md`
+  - Aligns with security best practices for sensitive CI/CD workflows
+
 ## [0.2.1] - 2025-11-16
 
 ### Fixed
