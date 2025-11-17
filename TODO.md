@@ -163,16 +163,7 @@ _No low priority testing tasks at this time._
 
 ### High Priority
 
-- [ ] **Set up CI workflow for automatic PyPI publishing**
-  - Configure GitHub Actions workflow to publish to PyPI on releases/tags
-  - Set up PyPI API token as GitHub secret
-  - Test publishing process
-  - Document release process
-
-- [ ] **Add PyPI-related badges to README**
-  - PyPI version badge
-  - PyPI downloads badge
-  - Update badges section with PyPI links
+_No high priority infrastructure tasks at this time._
 
 ### Medium Priority
 

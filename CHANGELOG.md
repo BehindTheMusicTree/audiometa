@@ -53,6 +53,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added "When to Use Each Prefix" section to git workflow rules
   - Clarified when to use `feature/`, `chore/`, and `hotfix/` prefixes
   - Added examples for infrastructure/tooling fixes vs library code fixes
+- **README**: Added PyPI-related badges:
+  - Added PyPI version badge showing current package version
+  - Added PyPI downloads badges (monthly and weekly) showing download statistics
+  - Updated version badge to reflect current release version
 
 ## [0.2.1] - 2025-11-16
 
