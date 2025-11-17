@@ -7,9 +7,11 @@ $ErrorActionPreference = "Stop"
 # Load pinned versions from system-dependencies-*.toml files
 # Using "all" category to get prod + test dependencies (lint dependencies are handled separately)
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
-$versionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell all
+$versionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell all 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Error "ERROR: Failed to load versions from system-dependencies-*.toml files (exit code: $LASTEXITCODE)"
+    Write-Output "Python script output:"
+    Write-Output $versionOutput
     exit 1
 }
 # Convert output to array of lines (handles both string and array output)
@@ -21,6 +23,8 @@ else {
 }
 if ($null -eq $versionLines -or $versionLines.Count -eq 0) {
     Write-Error "ERROR: No version output received from load-system-dependency-versions.py"
+    Write-Output "Python script output:"
+    Write-Output $versionOutput
     exit 1
 }
 # Parse output and set variables safely (replaces Invoke-Expression)
@@ -37,11 +41,10 @@ foreach ($line in $versionLines) {
     }
 }
 
-# Verify versions were loaded
+# Verify required versions were loaded (id3v2 is optional on Windows, checked separately)
 if ([string]::IsNullOrEmpty($PINNED_FFMPEG) -or
     [string]::IsNullOrEmpty($PINNED_FLAC) -or
     [string]::IsNullOrEmpty($PINNED_MEDIAINFO) -or
-    [string]::IsNullOrEmpty($PINNED_ID3V2) -or
     [string]::IsNullOrEmpty($PINNED_BWFMETAEDIT) -or
     [string]::IsNullOrEmpty($PINNED_EXIFTOOL)) {
     Write-Error "ERROR: Failed to load all required versions from system-dependencies-*.toml files"
@@ -52,7 +55,14 @@ if ([string]::IsNullOrEmpty($PINNED_FFMPEG) -or
     Write-Output "  PINNED_ID3V2=$PINNED_ID3V2"
     Write-Output "  PINNED_BWFMETAEDIT=$PINNED_BWFMETAEDIT"
     Write-Output "  PINNED_EXIFTOOL=$PINNED_EXIFTOOL"
+    Write-Output ""
+    Write-Output "Python script output:"
+    Write-Output $versionOutput
     exit 1
+}
+# id3v2 is optional on Windows (requires WSL), but should still be loaded from TOML
+if ([string]::IsNullOrEmpty($PINNED_ID3V2)) {
+    Write-Warning "WARNING: PINNED_ID3V2 not loaded (optional on Windows, requires WSL)"
 }
 
 Write-Output "Installing pinned package versions..."
