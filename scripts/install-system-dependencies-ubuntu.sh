@@ -264,6 +264,7 @@ if [[ "$CATEGORY" =~ ^(test-only|all)$ ]]; then
   echo "Installing bwfmetaedit..."
   "${SCRIPT_DIR}/install-bwfmetaedit-ubuntu.sh"
 fi
+fi
 
 # Install PowerShell Core (required for PowerShell script linting in pre-commit hooks)
 # Install for lint category or all category

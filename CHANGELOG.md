@@ -21,6 +21,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improved
 
+- **Pre-commit Hooks**: Added shellcheck for shell script syntax checking:
+  - Added shellcheck hook to catch syntax errors (missing `fi`, `done`, etc.) and common shell script issues
+  - Prevents broken shell scripts from being committed
+  - Only reports errors (not warnings) to keep checks focused on critical issues
+- **Pre-commit Hooks**: Converted shell trailing blank lines check to auto-fix hook:
+  - Changed `check-shell-trailing-blank-lines` to `fix-shell-trailing-blank-lines` hook
+  - Automatically removes trailing blank lines instead of just checking
+  - Ensures shell scripts end with exactly one newline (POSIX compliant)
+  - Consistent with other formatting hooks (auto-fixes the issue)
 - **CI Workflow**: Improved lint job to use shared installation script for consistency:
   - Lint job now uses `install-system-dependencies-ubuntu.sh lint` to install only lint dependencies (PowerShell)
   - Ensures consistency with local development and uses the same installation logic as test jobs
@@ -34,6 +43,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Ubuntu Installation Script**: Fixed syntax errors in `install-system-dependencies-ubuntu.sh`:
+  - Added missing `fi` to close `if [ "$pinned_version" != "latest" ]` block
+  - Added missing `fi` to close `if [[ "$CATEGORY" != "lint" ]]` block
+  - Fixes "syntax error near unexpected token 'done'" and "unexpected end of file" errors
+- **Windows Installation Script**: Improved error handling and made id3v2 optional:
+  - Made `PINNED_ID3V2` optional in Windows installation script (requires WSL)
+  - Added better error reporting to show Python script output on failures
+  - Captures stderr (2>&1) to see Python errors when version loading fails
 - **Pre-commit Hooks**: Fixed PowerShell ScriptAnalyzer hooks to fail with clear error messages instead of silently skipping:
   - Updated `psscriptanalyzer-wrapper.sh` and `psscriptanalyzer-format-wrapper.sh` to fail when PowerShell is not installed
   - Provides clear installation instructions for macOS (Homebrew) and other platforms
