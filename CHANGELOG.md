@@ -23,10 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **FLAC Exception Handling**: Extended mutagen exception handling to FLAC operations:
+- **Mutagen Exception Handling (FLAC)**: Completed mutagen exception handling for FLAC operations that were missed in v0.2.5:
   - Added exception handling for FLAC duration reading using `handle_mutagen_exception()`
   - Added exception handling for FLAC MD5 checksum fixing operations
   - Ensures all mutagen exceptions in FLAC operations are properly converted to `FileCorruptedError`
+  - Completes the comprehensive mutagen exception handling that was intended in v0.2.5
   - Includes unit tests covering FLAC duration and MD5 fixing exception scenarios
 - **ConfigurationError Test Coverage**: Added comprehensive unit tests for `ConfigurationError` exception:
   - Tests `_convert_normalized_rating_to_file_rating()` raises `ConfigurationError` when `normalized_rating_max_value` is None (ID3v2, Riff, Vorbis managers)
