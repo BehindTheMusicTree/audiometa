@@ -14,14 +14,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Follow Semantic Versioning where possible.
 - Use ISO 8601 date format: YYYY-MM-DD.
 - Avoid dumping raw git logs; summarize notable changes clearly.
+- **Tests should NOT be listed separately in "Added" section** - they should be mentioned with the related feature or fix entry.
 
-**Note**: This changelog is maintained by project maintainers. Contributors should not update this file directly.
+**Note**: This changelog is maintained by project maintainers. Contributors should not update this file directly. See `.cursor/rules/changelog.mdc` for detailed changelog guidelines.
 
 ## [Unreleased]
 
 ### Fixed
 
-- **Documentation**: Fixed PyPI download badges showing "rate limited by upstream service":
+- **Mutagen Exception Handling**: Added comprehensive exception handling for mutagen operations:
+  - Created `_handle_mutagen_exception()` helper function to centralize exception handling
+  - Wrapped `mutagen.save()` calls with proper exception handling in `_MetadataManager`
+  - Added exception handling for `WAVE()` creation in `RiffManager`
+  - Added exception handling for ID3v2 save operations in `_Id3v2Manager`
+  - Standard I/O exceptions (`IOError`, `OSError`, `PermissionError`) are re-raised as-is
+  - Mutagen-specific exceptions are converted to `FileCorruptedError` with descriptive messages
+  - Prevents unhandled mutagen exceptions from propagating to users
+  - Includes comprehensive unit tests (21 test cases) covering all exception handling scenarios, ID3-specific exceptions (ID3TagError, ID3BadCompressedData, ID3BadUnsynchData, ID3EncryptionUnsupportedError, ID3JunkFrameError, ID3UnsupportedVersionError), and WAVE-specific exceptions (IffError, InvalidChunk)
+
+### Documentation
+
+- **Exception Documentation**: Added comprehensive exception documentation:
+  - Created dedicated "Error Handling (API Reference)" section
+  - Added detailed explanations for all exception types with when they're raised and common causes
+  - Documented exception handling for mutagen operations
+  - Added examples showing how to handle all exception types
+  - Updated table of contents with new exception documentation structure
+- **PyPI Download Badges**: Fixed PyPI download badges showing "rate limited by upstream service":
   - Added cacheSeconds parameter to shields.io badges to reduce API calls and rate limiting
   - Maintains download statistics visibility with improved reliability
 

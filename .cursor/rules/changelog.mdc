@@ -1,0 +1,88 @@
+---
+alwaysApply: true
+---
+
+# Changelog Best Practices
+
+## General Principles
+
+- Changelogs are for humans, not machines.
+- Include an entry for every version, with the latest first.
+- Group similar changes under: Added, Changed, Improved, Deprecated, Removed, Fixed, Documentation, Performance, CI.
+- Use an "Unreleased" section for upcoming changes.
+- Follow Semantic Versioning where possible.
+- Use ISO 8601 date format: YYYY-MM-DD.
+- Avoid dumping raw git logs; summarize notable changes clearly.
+
+## Test Coverage in Changelog
+
+**Tests should NOT be listed separately in the "Added" section.**
+
+Tests are implementation details that support features or fixes. They should be mentioned within the related feature or fix entry, not as standalone entries.
+
+### ❌ WRONG - Separate test entry:
+
+```markdown
+### Fixed
+
+- **Bug Fix**: Fixed issue with metadata parsing
+
+### Added
+
+- **Tests**: Added comprehensive unit tests for metadata parsing
+```
+
+### ✅ CORRECT - Tests mentioned with the feature/fix:
+
+```markdown
+### Fixed
+
+- **Bug Fix**: Fixed issue with metadata parsing
+  - Includes comprehensive unit tests covering edge cases and error scenarios
+```
+
+### ✅ CORRECT - Tests mentioned inline:
+
+```markdown
+### Fixed
+
+- **Mutagen Exception Handling**: Added comprehensive exception handling for mutagen operations:
+  - Created `_handle_mutagen_exception()` helper function to centralize exception handling
+  - Includes comprehensive unit tests (21 test cases) covering all exception handling scenarios
+```
+
+## When to Mention Tests
+
+- **Mention tests** when they provide important context about the change (e.g., "includes tests covering edge cases")
+- **Don't create separate entries** for tests unless they represent a significant testing infrastructure improvement (e.g., new test framework, new test utilities)
+- **Test infrastructure changes** (new test helpers, test framework updates) can be mentioned in "Improved" or "Added" sections, but test coverage for features/fixes should be mentioned with the feature/fix
+
+## Examples
+
+### Feature with Tests
+
+```markdown
+### Added
+
+- **New Feature**: Added support for FLAC metadata reading
+  - Includes comprehensive unit tests covering various metadata formats
+  - Includes integration tests verifying compatibility with external tools
+```
+
+### Bug Fix with Tests
+
+```markdown
+### Fixed
+
+- **Metadata Parsing**: Fixed issue with parsing ID3v2 tags containing special characters
+  - Includes regression tests to prevent future occurrences
+```
+
+### Test Infrastructure (Can be separate)
+
+```markdown
+### Improved
+
+- **Test Infrastructure**: Added new test helper utilities for creating temporary audio files
+  - Simplifies test setup and improves test maintainability
+```
