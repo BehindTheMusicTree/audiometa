@@ -172,10 +172,32 @@ jobs:
 
       - name: Verify TestPyPI publication by installing
         run: |
-          python -m pip install --upgrade pip
-          pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ audiometa-python==${{ steps.extract_version.outputs.version }}
-          python -c "import audiometa; print('Successfully installed from TestPyPI')"
-          python -c "from audiometa import get_unified_metadata; print('Package imports and functions work correctly')"
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          echo "Waiting for TestPyPI to propagate package version ${VERSION}..."
+          sleep 10
+
+          # Retry logic: TestPyPI might need a moment to update
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            python -m pip install --upgrade pip
+            if pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ audiometa-python==${VERSION} 2>&1; then
+              echo "✓ Successfully installed audiometa-python==${VERSION} from TestPyPI"
+              python -c "import audiometa; print('Successfully installed from TestPyPI')"
+              python -c "from audiometa import get_unified_metadata; print('Package imports and functions work correctly')"
+              break
+            else
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                echo "Package not yet available on TestPyPI, retrying in 5 seconds... (attempt $RETRY_COUNT/$MAX_RETRIES)"
+                sleep 5
+              else
+                echo "Error: Could not install audiometa-python==${VERSION} from TestPyPI after ${MAX_RETRIES} attempts"
+                exit 1
+              fi
+            fi
+          done
 
       - name: Publish to PyPI
         env:
@@ -186,10 +208,32 @@ jobs:
 
       - name: Verify PyPI publication by installing
         run: |
-          python -m pip install --upgrade pip
-          pip install audiometa-python==${{ steps.extract_version.outputs.version }}
-          python -c "import audiometa; print('Successfully installed from PyPI')"
-          python -c "from audiometa import get_unified_metadata; print('Package imports and functions work correctly')"
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          echo "Waiting for PyPI to propagate package version ${VERSION}..."
+          sleep 10
+
+          # Retry logic: PyPI might need a moment to update
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            python -m pip install --upgrade pip
+            if pip install audiometa-python==${VERSION} 2>&1; then
+              echo "✓ Successfully installed audiometa-python==${VERSION} from PyPI"
+              python -c "import audiometa; print('Successfully installed from PyPI')"
+              python -c "from audiometa import get_unified_metadata; print('Package imports and functions work correctly')"
+              break
+            else
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                echo "Package not yet available on PyPI, retrying in 5 seconds... (attempt $RETRY_COUNT/$MAX_RETRIES)"
+                sleep 5
+              else
+                echo "Error: Could not install audiometa-python==${VERSION} from PyPI after ${MAX_RETRIES} attempts"
+                exit 1
+              fi
+            fi
+          done
 
       - name: Post-publish verification check
         run: |
