@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.6] - 2025-01-27
+
 ### Fixed
 
 - **Mutagen Exception Handling (FLAC)**: Completed mutagen exception handling for FLAC operations that were missed in v0.2.5:
