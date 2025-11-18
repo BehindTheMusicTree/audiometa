@@ -24,6 +24,7 @@ from .exceptions import (
 from .manager._rating_supporting.id3v2._id3v2_constants import ID3V2_HEADER_SIZE
 from .manager._rating_supporting.riff._riff_constants import RIFF_HEADER_SIZE
 from .utils.metadata_format import MetadataFormat
+from .utils.mutagen_exception_handler import handle_mutagen_exception
 from .utils.tool_path_resolver import get_tool_path
 
 # Type alias for files that can be handled (must be disk-based)
@@ -161,7 +162,8 @@ class _AudioFile:
                 if "FLAC" in error_str or "chunk" in error_str.lower():
                     msg = f"Failed to decode FLAC chunks: {error_str}"
                     raise InvalidChunkDecodeError(msg) from exc
-                raise
+                handle_mutagen_exception("read duration from FLAC file", path, exc)
+                return 0.0  # Never reached, but satisfies type checker
         else:
             msg = f"Reading is not supported for file type: {self.file_extension}"
             raise FileTypeNotSupportedError(msg)
@@ -384,8 +386,9 @@ class _AudioFile:
         except (subprocess.SubprocessError, OSError) as e:
             msg = f"Failed to execute FLAC command: {e!s}"
             raise RuntimeError(msg) from e
-        except Exception:
-            raise
+        except Exception as e:
+            handle_mutagen_exception("fix FLAC MD5 checksum", self.file_path, e)
+            return ""  # Never reached, but satisfies type checker
         else:
             return temp_path
         finally:

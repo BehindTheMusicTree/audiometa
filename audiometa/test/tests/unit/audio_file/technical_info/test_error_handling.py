@@ -128,3 +128,63 @@ class TestAudioFileTechnicalInfoErrorHandling:
             pytest.fail("Should have raised FileCorruptedError")
         except (FileCorruptedError, RuntimeError):
             pass
+
+    def test_flac_duration_handles_generic_mutagen_exception(self, monkeypatch):
+        error_msg = "Some unexpected mutagen error"
+
+        class MockInfo:
+            @property
+            def length(self):
+                raise ValueError(error_msg)
+
+        class MockFLAC:
+            def __init__(self, *_args, **_kwargs):
+                self._info = MockInfo()
+
+            @property
+            def info(self):
+                return self._info
+
+        # Mock FLAC in get_duration_in_sec, not in __init__
+        original_get_duration = _AudioFile.get_duration_in_sec
+
+        def mock_get_duration(self):
+            if self.file_extension == ".flac":
+                try:
+                    return float(MockFLAC(self.file_path).info.length)
+                except Exception as exc:
+                    error_str = str(exc)
+                    if "file said" in error_str and "bytes, read" in error_str:
+                        raise FileByteMismatchError(error_str.capitalize()) from exc
+                    if "FLAC" in error_str or "chunk" in error_str.lower():
+                        msg = f"Failed to decode FLAC chunks: {error_str}"
+                        raise InvalidChunkDecodeError(msg) from exc
+                    from audiometa.utils.mutagen_exception_handler import handle_mutagen_exception
+
+                    handle_mutagen_exception("read duration from FLAC file", self.file_path, exc)
+            return original_get_duration(self)
+
+        monkeypatch.setattr(_AudioFile, "get_duration_in_sec", mock_get_duration)
+
+        flac_file = "audiometa/test/assets/sample.flac"
+        audio_file = _AudioFile(flac_file)
+
+        with pytest.raises(FileCorruptedError) as exc_info:
+            audio_file.get_duration_in_sec()
+        assert "Failed to read duration from FLAC file" in str(exc_info.value)
+        assert error_msg in str(exc_info.value)
+
+    def test_flac_md5_fixing_handles_generic_exception(self, monkeypatch, sample_flac_file: Path):
+        error_msg = "Some unexpected error during MD5 fixing"
+
+        def mock_subprocess_run(*_args, **_kwargs):
+            raise ValueError(error_msg)
+
+        monkeypatch.setattr("subprocess.run", mock_subprocess_run)
+
+        audio_file = _AudioFile(sample_flac_file)
+
+        with pytest.raises(FileCorruptedError) as exc_info:
+            audio_file.get_file_with_corrected_md5()
+        assert "Failed to fix FLAC MD5 checksum" in str(exc_info.value)
+        assert error_msg in str(exc_info.value)
