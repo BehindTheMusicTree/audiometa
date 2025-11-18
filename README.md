@@ -43,6 +43,7 @@ A powerful, unified Python library for reading and writing audio metadata across
   - [Pre-Update Validation (API Reference)](#pre-update-validation-api-reference)
   - [Writing Metadata (API Reference)](#writing-metadata-api-reference)
   - [Deleting Metadata (API Reference)](#deleting-metadata-api-reference)
+  - [Error Handling (API Reference)](#error-handling-api-reference)
 - [Metadata Guide](#metadata-guide)
   - [Metadata Field Guide: Support and Handling](#metadata-field-guide-support-and-handling)
   - [Audio Technical Info Guide](#audio-technical-info-guide)
@@ -1189,6 +1190,86 @@ except AudioFileMetadataParseError:
     print("Failed to parse audio file metadata")
 ```
 
+### Error Handling (API Reference)
+
+The library provides comprehensive exception handling for all operations. All library functions can raise specific exception types that help you handle errors appropriately.
+
+**For comprehensive exception documentation**, including detailed explanations, common causes, and examples for all exceptions, see the dedicated guide:
+
+**[Error Handling Guide: Exceptions and Error Management](docs/ERROR_HANDLING_GUIDE.md)**
+
+#### Quick Reference: Common Exceptions
+
+The library defines custom exceptions organized into categories:
+
+**File-Related Exceptions:**
+
+- `FileCorruptedError` - Base exception for file corruption errors
+- `FlacMd5CheckFailedError` - FLAC MD5 checksum verification failed
+- `FileByteMismatchError` - File bytes don't match expected content
+- `InvalidChunkDecodeError` - Chunk cannot be decoded
+- `DurationNotFoundError` - Audio duration cannot be determined
+- `AudioFileMetadataParseError` - Metadata parsing from external tools failed
+- `FileTypeNotSupportedError` - File type not supported (only `.mp3`, `.flac`, `.wav`)
+
+**Metadata Format Exceptions:**
+
+- `MetadataFormatNotSupportedByAudioFormatError` - Format not supported for audio type
+- `MetadataFieldNotSupportedByMetadataFormatError` - Field not supported by format
+- `MetadataFieldNotSupportedByLibError` - Field not supported by library
+- `MetadataWritingConflictParametersError` - Conflicting parameters specified
+
+**Validation Exceptions:**
+
+- `InvalidMetadataFieldTypeError` - Invalid field type (e.g., string instead of list)
+- `InvalidMetadataFieldFormatError` - Invalid field format (e.g., date format)
+- `InvalidRatingValueError` - Invalid rating value
+
+**Configuration Exceptions:**
+
+- `ConfigurationError` - Configuration error in metadata manager
+
+**Standard Python Exceptions:**
+
+- `FileNotFoundError` - File does not exist
+- `IOError`, `OSError`, `PermissionError` - System-level I/O errors
+
+#### Basic Exception Handling Example
+
+```python
+from audiometa import get_unified_metadata, update_metadata
+from audiometa.exceptions import (
+    FileTypeNotSupportedError,
+    FileCorruptedError,
+    MetadataFieldNotSupportedByMetadataFormatError,
+    InvalidMetadataFieldTypeError,
+)
+
+try:
+    metadata = get_unified_metadata("song.mp3")
+except FileTypeNotSupportedError:
+    print("File format not supported")
+except FileCorruptedError:
+    print("File is corrupted")
+except FileNotFoundError:
+    print("File not found")
+
+try:
+    update_metadata("song.mp3", {"title": "New Title"})
+except InvalidMetadataFieldTypeError:
+    print("Invalid metadata field type")
+except MetadataFieldNotSupportedByMetadataFormatError:
+    print("Field not supported for this format")
+except PermissionError:
+    print("Permission denied")
+```
+
+#### Exception Handling for Mutagen Operations
+
+The library uses mutagen internally and wraps all mutagen operations with proper exception handling. Mutagen-specific exceptions are converted to `FileCorruptedError` with descriptive messages, while standard I/O exceptions (`IOError`, `OSError`, `PermissionError`) are re-raised as-is.
+
+See the **[Error Handling Guide](docs/ERROR_HANDLING_GUIDE.md)** for detailed information about mutagen exception handling and all exception types.
+
 ## Metadata Guide
 
 ### Metadata Field Guide: Support and Handling
@@ -1202,6 +1283,12 @@ For a comprehensive reference on metadata field support and handling across all 
 For information about audio information (duration, bitrate, sample rate, channels, file size, format info, MD5 checksum validation and repair), see the dedicated guide:
 
 **[Audio Technical Info Guide](docs/AUDIO_TECHNICAL_INFO_GUIDE.md)**
+
+### Error Handling Guide
+
+For comprehensive documentation on all exceptions that can be raised by the library, including detailed explanations, common causes, usage examples, and mutagen exception handling, see the dedicated guide:
+
+**[Error Handling Guide: Exceptions and Error Management](docs/ERROR_HANDLING_GUIDE.md)**
 
 ### Unsupported Metadata Handling
 
