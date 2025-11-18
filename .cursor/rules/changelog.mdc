@@ -19,14 +19,22 @@ alwaysApply: true
 
 **IMPORTANT: All releases must follow the steps documented in `CONTRIBUTING.md`.**
 
+**CRITICAL: Releases must be prepared on the `main` branch.** Before starting the release process, ensure you are on the `main` branch and that it is up to date with the remote:
+
+```bash
+git checkout main
+git pull origin main
+```
+
 Before preparing a release, refer to the "Releasing _(For Maintainers)_" section in `CONTRIBUTING.md` for the complete release process. The release process includes:
 
-1. Checking `TODO.md` for critical items
-2. Updating `CHANGELOG.md` with the new release version and changes
-3. Bumping version numbers using `bump2version` (or manually updating `pyproject.toml` and `README.md`)
-4. Verifying changes and pushing
-5. Tagging the release
-6. CI/CD will automatically handle PyPI publishing
+1. **Ensuring you're on the `main` branch** - Releases must be prepared from `main`, not from feature branches
+2. Checking `TODO.md` for critical items
+3. Updating `CHANGELOG.md` with the new release version and changes
+4. Bumping version numbers using `bump2version` (or manually updating `pyproject.toml` and `README.md`)
+5. Verifying changes and pushing
+6. Tagging the release
+7. CI/CD will automatically handle PyPI publishing
 
 **Do not skip any steps in the release process.** See `CONTRIBUTING.md` for detailed instructions.
 

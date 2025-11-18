@@ -763,16 +763,23 @@ Releases are created from the `main` branch.
 
 Quick release process:
 
-1. Check `TODO.md` for any critical items that should be addressed before release
+1. **Ensure you're on the `main` branch** - Releases must be prepared from `main`, not from feature branches
+
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+
+2. Check `TODO.md` for any critical items that should be addressed before release
    - Review high-priority tasks and ensure they're either completed or deferred to next release
    - Update TODO items if needed to reflect current project status
 
-2. Update the changelog (`CHANGELOG.md`) with the new release version and changes
+3. Update the changelog (`CHANGELOG.md`) with the new release version and changes
    - Review changes since last release and decide on version number (following Semantic Versioning)
    - Move content from `[Unreleased]` section to new version entry with date (e.g., `## [0.2.3] - 2025-11-17`)
    - Contributors should not modify the changelog; this is maintained by maintainers during releases
 
-3. Bump version numbers using `bump2version`:
+4. Bump version numbers using `bump2version`:
 
    ```bash
    # Activate virtual environment (required for pre-commit hooks)
@@ -796,7 +803,7 @@ Quick release process:
 
    **Configuration:** The `.bumpversion.cfg` file specifies which files to update. See the file for details.
 
-4. Verify changes and push:
+5. Verify changes and push:
 
    ```bash
    # Review the commit created by bump2version
@@ -806,7 +813,7 @@ Quick release process:
    git push origin main
    ```
 
-5. Tag the release (create a Git tag to mark this specific commit as the release point):
+6. Tag the release (create a Git tag to mark this specific commit as the release point):
 
    ```bash
    git tag v0.2.3
@@ -815,7 +822,7 @@ Quick release process:
 
    **Important:** The tag version must match the version in `pyproject.toml` (without the `v` prefix).
 
-6. CI/CD will automatically:
+7. CI/CD will automatically:
    - **Wait for CI to complete**: The publish workflow automatically waits for CI to finish (polls every 30 seconds, max 30 minutes)
    - Verify tag version matches `pyproject.toml` version
    - Verify tag is on main branch
