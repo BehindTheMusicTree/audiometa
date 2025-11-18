@@ -14,6 +14,21 @@ alwaysApply: true
 - Use ISO 8601 date format: YYYY-MM-DD.
 - Avoid dumping raw git logs; summarize notable changes clearly.
 
+## Release Process
+
+**IMPORTANT: All releases must follow the steps documented in `CONTRIBUTING.md`.**
+
+Before preparing a release, refer to the "Releasing _(For Maintainers)_" section in `CONTRIBUTING.md` for the complete release process. The release process includes:
+
+1. Checking `TODO.md` for critical items
+2. Updating `CHANGELOG.md` with the new release version and changes
+3. Bumping version numbers using `bump2version` (or manually updating `pyproject.toml` and `README.md`)
+4. Verifying changes and pushing
+5. Tagging the release
+6. CI/CD will automatically handle PyPI publishing
+
+**Do not skip any steps in the release process.** See `CONTRIBUTING.md` for detailed instructions.
+
 ## Test Coverage in Changelog
 
 **Tests should NOT be listed separately in the "Added" section.**
