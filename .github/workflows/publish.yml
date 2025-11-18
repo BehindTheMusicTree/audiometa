@@ -168,7 +168,21 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
         run: |
-          twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+          # TestPyPI doesn't allow re-uploading the same version (returns 400 Bad Request)
+          # A version may already exist on TestPyPI in these scenarios:
+          # 1. Previous workflow run succeeded in uploading to TestPyPI but failed later (e.g., PyPI upload or verification)
+          # 2. Manual testing uploads to TestPyPI before the automated workflow runs
+          # 3. Republishing the same version after fixing CI/CD issues (like retry logic)
+          # 4. Workflow was re-run after a partial failure
+          # Check if version already exists, skip upload if it does to avoid 400 errors
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          if curl -s "https://test.pypi.org/pypi/audiometa-python/${VERSION}/json" | grep -q '"version"'; then
+            echo "Version ${VERSION} already exists on TestPyPI, skipping upload"
+            echo "This is expected when republishing or when a previous workflow run partially succeeded"
+          else
+            echo "Uploading version ${VERSION} to TestPyPI..."
+            twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+          fi
 
       - name: Verify TestPyPI publication by installing
         run: |
