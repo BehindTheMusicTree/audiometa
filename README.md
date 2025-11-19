@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-0.2.6-orange)](https://github.com/Andreas-Garcia/audiometa)
 [![PyPI version](https://img.shields.io/pypi/v/audiometa-python)](https://pypi.org/project/audiometa-python/)
-[![Downloads](https://img.shields.io/badge/dynamic/json?color=blue&label=downloads&query=total_downloads&url=https://pepy.tech/api/projects/audiometa-python)](https://pepy.tech/project/audiometa-python)
+[![Downloads](https://pepy.tech/badge/audiometa-python)](https://pepy.tech/project/audiometa-python)
 [![PyPI downloads/month](https://img.shields.io/pypi/dm/audiometa-python?cacheSeconds=86400)](https://pypi.org/project/audiometa-python/)
 [![PyPI downloads/week](https://img.shields.io/pypi/dw/audiometa-python?cacheSeconds=86400)](https://pypi.org/project/audiometa-python/)
 

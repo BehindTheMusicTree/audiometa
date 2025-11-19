@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 
 - **README Badges**: Added total downloads badge to README:
-  - Added PePy total downloads badge using shields.io dynamic badge (PyPI doesn't provide total download statistics)
+  - Added PePy total downloads badge (PyPI doesn't provide total download statistics)
   - Provides visibility into overall package adoption alongside existing monthly and weekly badges
 
 ## [0.2.6] - 2025-01-27
