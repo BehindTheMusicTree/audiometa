@@ -1,6 +1,6 @@
-<p align="center">
-  <img src="assets/logo.png" alt="AudioMeta Logo" width="200"/>
-</p>
+<div align="center">
+  <img src="https://raw.githubusercontent.com/Andreas-Garcia/audiometa/main/assets/logo.png" alt="AudioMeta Logo" width="200"/>
+</div>
 
 # AudioMeta Python
 
