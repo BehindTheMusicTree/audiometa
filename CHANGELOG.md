@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **README Badges**: Added total downloads badge to README:
+  - Added PyPI total downloads badge (`/dt`) showing cumulative download statistics
+  - Provides visibility into overall package adoption alongside existing monthly and weekly badges
+
 ## [0.2.6] - 2025-01-27
 
 ### Fixed
