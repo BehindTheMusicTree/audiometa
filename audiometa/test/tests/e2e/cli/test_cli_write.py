@@ -261,3 +261,174 @@ class TestCLIWrite:
 
             assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
             assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "New ID3v2 Title"
+
+    def test_cli_write_force_format_id3v2_flac(self):
+        with temp_file_with_metadata({}, "flac") as test_file:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "audiometa",
+                    "write",
+                    str(test_file),
+                    "--title",
+                    "CLI Force ID3v2 FLAC Title",
+                    "--force-format",
+                    "id3v2",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert result.returncode == 0
+            assert "Updated metadata" in result.stdout
+
+            metadata = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
+            assert metadata.get(UnifiedMetadataKey.TITLE) == "CLI Force ID3v2 FLAC Title"
+
+    def test_cli_write_force_format_id3v1_flac(self):
+        with temp_file_with_metadata({}, "flac") as test_file:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "audiometa",
+                    "write",
+                    str(test_file),
+                    "--title",
+                    "CLI Force ID3v1 FLAC Title",
+                    "--force-format",
+                    "id3v1",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert result.returncode == 0
+            assert "Updated metadata" in result.stdout
+
+            metadata = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V1)
+            assert metadata.get(UnifiedMetadataKey.TITLE) == "CLI Force ID3v1 FLAC Title"
+
+    def test_cli_write_force_format_id3v1_wav(self):
+        with temp_file_with_metadata({}, "wav") as test_file:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "audiometa",
+                    "write",
+                    str(test_file),
+                    "--title",
+                    "CLI Force ID3v1 WAV Title",
+                    "--force-format",
+                    "id3v1",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert result.returncode == 0
+            assert "Updated metadata" in result.stdout
+
+            metadata = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V1)
+            assert metadata.get(UnifiedMetadataKey.TITLE) == "CLI Force ID3v1 WAV Title"
+
+    def test_cli_write_force_format_with_multiple_fields(self):
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "audiometa",
+                    "write",
+                    str(test_file),
+                    "--title",
+                    "Multi Field Title",
+                    "--artist",
+                    "Multi Field Artist",
+                    "--album",
+                    "Multi Field Album",
+                    "--force-format",
+                    "id3v2",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert result.returncode == 0
+
+            metadata = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
+            assert metadata.get(UnifiedMetadataKey.TITLE) == "Multi Field Title"
+            assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Multi Field Artist"]
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Multi Field Album"
+
+    def test_cli_write_force_format_with_rating(self):
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "audiometa",
+                    "write",
+                    str(test_file),
+                    "--title",
+                    "Rating Test Title",
+                    "--rating",
+                    "85",
+                    "--force-format",
+                    "id3v2",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert result.returncode == 0
+
+            metadata = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
+            assert metadata.get(UnifiedMetadataKey.TITLE) == "Rating Test Title"
+            assert metadata.get(UnifiedMetadataKey.RATING) is not None
+
+    def test_cli_write_force_format_unsupported_flac_riff(self):
+        with temp_file_with_metadata({}, "flac") as test_file:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "audiometa",
+                    "write",
+                    str(test_file),
+                    "--title",
+                    "Test Title",
+                    "--force-format",
+                    "riff",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "not supported" in stderr_output or "error" in stderr_output
+
+    def test_cli_write_force_format_unsupported_wav_vorbis(self):
+        with temp_file_with_metadata({}, "wav") as test_file:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "audiometa",
+                    "write",
+                    str(test_file),
+                    "--title",
+                    "Test Title",
+                    "--force-format",
+                    "vorbis",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert result.returncode != 0
+            stderr_output = result.stderr.lower()
+            assert "not supported" in stderr_output or "error" in stderr_output
