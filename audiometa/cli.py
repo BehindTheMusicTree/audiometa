@@ -15,7 +15,12 @@ from audiometa import (
     update_metadata,
     validate_metadata_for_update,
 )
-from audiometa.exceptions import FileTypeNotSupportedError, InvalidRatingValueError
+from audiometa.exceptions import (
+    FileTypeNotSupportedError,
+    InvalidRatingValueError,
+    MetadataFormatNotSupportedByAudioFormatError,
+)
+from audiometa.utils.metadata_format import MetadataFormat
 from audiometa.utils.types import UnifiedMetadata
 
 
@@ -172,6 +177,14 @@ def _write_metadata(args: argparse.Namespace) -> None:
     for file_path in files:
         try:
             update_kwargs: dict[str, Any] = {}
+            if hasattr(args, "force_format") and args.force_format:
+                format_map = {
+                    "id3v2": MetadataFormat.ID3V2,
+                    "id3v1": MetadataFormat.ID3V1,
+                    "vorbis": MetadataFormat.VORBIS,
+                    "riff": MetadataFormat.RIFF,
+                }
+                update_kwargs["metadata_format"] = format_map[args.force_format]
             update_metadata(file_path, metadata, **update_kwargs)
             if len(files) > 1:
                 sys.stdout.write(f"Updated metadata for: {file_path}\n")
@@ -179,7 +192,12 @@ def _write_metadata(args: argparse.Namespace) -> None:
                 sys.stdout.write("Updated metadata\n")
 
         except (FileTypeNotSupportedError, FileNotFoundError, PermissionError, OSError, Exception) as e:
-            _handle_file_operation_error(e, file_path, args.continue_on_error)
+            if isinstance(e, MetadataFormatNotSupportedByAudioFormatError):
+                sys.stderr.write(f"Error: {e}\n")
+                if not args.continue_on_error:
+                    sys.exit(1)
+            else:
+                _handle_file_operation_error(e, file_path, args.continue_on_error)
 
 
 def _delete_metadata(args: argparse.Namespace) -> None:
@@ -308,6 +326,11 @@ Examples:
     write_parser.add_argument("--genre", help="Genre")
     write_parser.add_argument("--rating", type=float, help="Rating value (integer or whole-number float like 196.0)")
     write_parser.add_argument("--comment", help="Comment")
+    write_parser.add_argument(
+        "--force-format",
+        choices=["id3v2", "id3v1", "vorbis", "riff"],
+        help="Force a specific metadata format (id3v2, id3v1, vorbis, or riff)",
+    )
     write_parser.add_argument("--recursive", "-r", action="store_true", help="Process directories recursively")
     write_parser.add_argument(
         "--continue-on-error", action="store_true", help="Continue processing other files on error"

@@ -31,6 +31,7 @@ class TestCLIHelp:
         )
         assert result.returncode == 0
         assert "write" in result.stdout.lower()
+        assert "force-format" in result.stdout.lower()
 
     def test_cli_delete_help(self):
         result = subprocess.run(
