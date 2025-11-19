@@ -23,9 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **Project Banner**: Added banner image (`assets/banner.png`) for project branding and PyPI display
 - **README Badges**: Added total downloads badge to README:
   - Added PePy total downloads badge via shields.io (`/pepy/dt/`) since PyPI doesn't provide total download statistics
   - Provides visibility into overall package adoption alongside existing monthly and weekly badges
+- **README Logo**: Fixed logo display on PyPI:
+  - Changed logo URL from relative path to absolute GitHub raw URL
+  - Ensures logo displays correctly on PyPI (PyPI doesn't support relative image paths)
 
 ## [0.2.6] - 2025-01-27
 
