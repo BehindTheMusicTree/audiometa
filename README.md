@@ -11,13 +11,27 @@
 [![Downloads](https://img.shields.io/pepy/dt/audiometa-python)](https://pepy.tech/project/audiometa-python)
 [![PyPI downloads/month](https://img.shields.io/pypi/dm/audiometa-python?cacheSeconds=86400)](https://pypi.org/project/audiometa-python/)
 [![PyPI downloads/week](https://img.shields.io/pypi/dw/audiometa-python?cacheSeconds=86400)](https://pypi.org/project/audiometa-python/)
+[![GitHub stars](https://img.shields.io/github/stars/Andreas-Garcia/audiometa?style=social)](https://github.com/Andreas-Garcia/audiometa/stargazers)
 
 A powerful, unified Python library for reading and writing audio metadata across multiple formats. AudioMeta supports MP3, FLAC, and WAV audio files, working seamlessly with ID3v1, ID3v2, Vorbis, and RIFF metadata formats through a single, consistent API.
 
 **Author**: [Andreas Garcia](https://github.com/Andreas-Garcia)
 
+## ⭐ Show Your Support
+
+If you find AudioMeta Python useful, please consider:
+
+- ⭐ **Starring this repository** - It helps others discover the project
+- 🐛 **Reporting bugs** - Help improve the library by [opening an issue](https://github.com/Andreas-Garcia/audiometa/issues)
+- 💡 **Suggesting features** - Share your ideas via [GitHub Discussions](https://github.com/Andreas-Garcia/audiometa/discussions) or [feature requests](https://github.com/Andreas-Garcia/audiometa/issues)
+- 🤝 **Contributing** - See [CONTRIBUTING.md](CONTRIBUTING.md) for ways to help
+- 📢 **Sharing** - Tell others about AudioMeta Python
+
+Your support helps make this project better for everyone! 🎵
+
 ## Table of Contents
 
+- [⭐ Show Your Support](#-show-your-support)
 - [Features](#features)
 - [Supported Formats](#supported-formats)
   - [Supported Audio Formats Per Metadata Format](#supported-audio-formats-per-metadata-format)
@@ -1422,7 +1436,25 @@ audiometa write song.mp3 --title "Song Title" --artist "Artist" --album "Album" 
 
 # Update multiple files
 audiometa write *.mp3 --artist "New Artist"
+
+# Force a specific metadata format
+audiometa write song.mp3 --title "New Title" --force-format id3v2
+audiometa write song.flac --title "New Title" --force-format vorbis
+audiometa write song.wav --title "New Title" --force-format riff
 ```
+
+##### Force Format {#cli-force-format}
+
+The `--force-format` parameter allows you to write metadata to a specific format, regardless of the file's native format priority. Available formats: `id3v2`, `id3v1`, `vorbis`, `riff`.
+
+```bash
+# Force writing to a specific metadata format
+audiometa write song.mp3 --title "New Title" --force-format id3v2
+audiometa write song.flac --title "New Title" --force-format vorbis
+audiometa write song.wav --title "New Title" --force-format riff
+```
+
+**Note:** The format must be supported by the file type. For example, MP3 files support `id3v2` and `id3v1`, but not `vorbis` or `riff`.
 
 #### Deleting Metadata {#cli-deleting-metadata}
 
@@ -1497,13 +1529,30 @@ audiometa delete music/ --recursive
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for information on how to contribute to this project.
+Contributions are welcome and greatly appreciated! 🎉
 
-When submitting issues or pull requests, please use the provided templates:
+Whether you're fixing bugs, adding features, improving documentation, or sharing feedback, your help makes AudioMeta Python better for everyone.
 
-- **Bug Reports**: Use the bug report template when opening an issue
-- **Feature Requests**: Use the feature request template for new ideas
-- **Pull Requests**: The PR template will guide you through the submission process
+**Ways to contribute:**
+
+- 🐛 **Report bugs** - Use the [bug report template](https://github.com/Andreas-Garcia/audiometa/issues/new?template=bug_report.yml)
+- 💡 **Suggest features** - Use the [feature request template](https://github.com/Andreas-Garcia/audiometa/issues/new?template=feature_request.yml)
+- 🔧 **Submit pull requests** - See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
+- 📝 **Improve documentation** - Fix typos, clarify explanations, add examples
+- 💬 **Join discussions** - Share ideas and help others in [GitHub Discussions](https://github.com/Andreas-Garcia/audiometa/discussions)
+- ⭐ **Star the repo** - Help others discover the project
+
+For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+**Quick start for code contributions:**
+
+1. Fork the repository
+2. Create a `feature/` branch
+3. Make your changes
+4. Run tests: `pytest`
+5. Submit a pull request
+
+Thank you for contributing! 🙏
 
 ## License
 
