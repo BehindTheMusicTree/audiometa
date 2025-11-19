@@ -21,6 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **CLI Force Format Parameter**: Added `--force-format` parameter to CLI write command:
+  - Allows forcing metadata to be written to a specific format (id3v2, id3v1, vorbis, or riff)
+  - Supports all valid format combinations per file type (e.g., MP3 supports id3v2 and id3v1)
+  - Provides error handling for unsupported format combinations
+  - Includes comprehensive E2E test coverage (13 test cases) covering all format combinations, multiple metadata fields, and error scenarios
+
 ### Documentation
 
 - **Project Banner**: Added banner image (`assets/banner.png`) for project branding and PyPI display
@@ -30,6 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **README Logo**: Fixed logo display on PyPI:
   - Changed logo URL from relative path to absolute GitHub raw URL
   - Ensures logo displays correctly on PyPI (PyPI doesn't support relative image paths)
+- **CLI Force Format Documentation**: Added documentation for `--force-format` parameter:
+  - Added examples in "Writing Metadata" section showing force format usage
+  - Added dedicated "Force Format" subsection with usage notes and format compatibility information
 
 ## [0.2.6] - 2025-01-27
 
