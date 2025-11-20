@@ -84,6 +84,18 @@ echo ""
 echo "✓ Worktree created at: $WORKTREE_ABS_PATH"
 echo ""
 
+# Ensure .vscode/settings.json exists (for Cursor Pyright configuration)
+if [ ! -f "$WORKTREE_ABS_PATH/.vscode/settings.json" ]; then
+    echo "Setting up Cursor/VSCode settings..."
+    mkdir -p "$WORKTREE_ABS_PATH/.vscode"
+    # Copy settings from repo root if it exists
+    if [ -f "$REPO_ROOT/.vscode/settings.json" ]; then
+        cp "$REPO_ROOT/.vscode/settings.json" "$WORKTREE_ABS_PATH/.vscode/settings.json"
+        echo "✓ Cursor settings configured"
+    fi
+    echo ""
+fi
+
 # Check and create virtual environment if needed
 if [ ! -d "$WORKTREE_ABS_PATH/.venv" ]; then
     echo "Creating virtual environment..."
