@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changelog Best Practices
 
+### General Principles
+
 - Changelogs are for humans, not machines.
 - Include an entry for every version, with the latest first.
 - Group similar changes under: Added, Changed, Improved, Deprecated, Removed, Fixed, Documentation, Performance, CI.
@@ -15,9 +17,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Follow Semantic Versioning where possible.
 - Use ISO 8601 date format: YYYY-MM-DD.
 - Avoid dumping raw git logs; summarize notable changes clearly.
-- **Tests should NOT be listed separately in "Added" section** - they should be mentioned with the related feature or fix entry.
 
-**Note**: This changelog is maintained by project maintainers. Contributors should not update this file directly. See `.cursor/rules/changelog.mdc` for detailed changelog guidelines.
+### Guidelines for Contributors
+
+All contributors (including maintainers) should update `CHANGELOG.md` when creating PRs:
+
+1. **Add entries to the `[Unreleased]` section** - Add your changes under the appropriate category (Added, Changed, Improved, Deprecated, Removed, Fixed, Documentation, Performance, CI)
+2. **Follow the changelog format** - See examples below and `.cursor/rules/changelog.mdc` for detailed guidelines
+3. **Group related changes** - Similar changes should be grouped together
+4. **Be descriptive** - Write clear, user-focused descriptions of what changed
+5. **Mention tests when relevant** - Tests should be mentioned within the related feature or fix entry, not as standalone entries
+
+**Example:**
+
+```markdown
+## [Unreleased]
+
+### Added
+
+- **New Feature**: Added support for FLAC metadata reading
+  - Includes comprehensive unit tests covering various metadata formats
+
+### Fixed
+
+- **Metadata Parsing**: Fixed issue with parsing ID3v2 tags containing special characters
+  - Includes regression tests to prevent future occurrences
+```
+
+**Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
 
 ## [Unreleased]
 
