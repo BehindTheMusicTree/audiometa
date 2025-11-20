@@ -50,6 +50,14 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Documentation
 
+- **Documentation Reorganization**: Comprehensive restructuring of project documentation:
+  - Moved test documentation from `audiometa/test/README.md` to `docs/TESTING.md` for consistency with other documentation
+  - Created dedicated `docs/COMMITTING.md` guide with comprehensive commit message guidelines, pre-commit hook information, and examples
+  - Reorganized `DEVELOPMENT.md`: grouped code quality-related sections (Code Style Conventions, Type Checking, Known Linting Issues, Docstrings) under Code Quality section for logical organization
+  - Renamed Documentation section to Project Documentation in `DEVELOPMENT.md` to clarify it's about documentation files, not code documentation
+  - Updated `CONTRIBUTING.md`: shortened Testing section with link to comprehensive test documentation, added Pre-PR Checklist as subsection of Pull Request Process, added Opening a Pull Request subsection with PR template reference
+  - Updated PR template to reference `docs/COMMITTING.md` for commit message guidelines
+  - Reorganized changelog best practices section with General Principles and Guidelines for Contributors subsections
 - **README Improvements**: Enhanced README structure and clarity:
   - Improved metadata fields feature description (changed "Comprehensive Metadata Fields" to "Core Metadata Fields")
   - Removed redundant Requirements section (information already covered in Installation section)
