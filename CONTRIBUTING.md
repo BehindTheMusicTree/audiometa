@@ -143,7 +143,6 @@ Ensure you're using:
   These scripts install the same versions as CI. Configuration is documented in `system-dependencies-prod.toml`, `system-dependencies-test-only.toml`, and `system-dependencies-lint.toml`.
 
   **Required tools:**
-
   - `ffmpeg` / `ffprobe` - Audio file analysis
   - `flac` / `metaflac` - FLAC file operations
   - `mediainfo` - Media information extraction
@@ -326,7 +325,6 @@ pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-un
 **Windows CI differences:** Windows CI only runs e2e tests (unit and integration tests run on Ubuntu and macOS). This is due to WSL installation complexity preventing full dependency installation. As a result, some dependencies are skipped in Windows CI:
 
 - **Skipped in Windows CI:**
-
   - `mediainfo` - Only used in integration tests for verification, not needed for e2e tests
   - `exiftool` - Not used in e2e tests
   - `id3v2` - Optional (only needed for FLAC files with ID3v2 tags, which e2e tests don't use)
@@ -388,7 +386,6 @@ pre-commit run
 The following hooks run in execution order:
 
 1. **check-tool-versions**: Validates that installed tool versions (ruff, isort, mypy, docformatter) match `pyproject.toml`
-
    - Manual: `pre-commit run check-tool-versions`
    - **Runs first** to fail fast if versions don't match (before any other checks)
    - Ensures consistency between local development, pre-commit hooks, and CI
@@ -396,23 +393,18 @@ The following hooks run in execution order:
    - Verifies that a virtual environment exists (either activated or `.venv` directory present)
 
 2. **check-yaml**: Validates YAML file syntax
-
    - Manual: `pre-commit run check-yaml --all-files`
 
 3. **check-added-large-files**: Prevents committing files larger than 10MB
-
    - Manual: `pre-commit run check-added-large-files --all-files`
 
 4. **check-json**: Validates JSON file syntax
-
    - Manual: `pre-commit run check-json --all-files`
 
 5. **check-toml**: Validates TOML file syntax
-
    - Manual: `pre-commit run check-toml --all-files`
 
 6. **verify-system-dependency-versions**: Verifies installed system dependency versions match pinned versions in `system-dependencies-prod.toml` and `system-dependencies-test-only.toml`
-
    - Manual: `pre-commit run verify-system-dependency-versions --all-files`
    - Validates that `system-dependencies-prod.toml` and `system-dependencies-test-only.toml` can be parsed
    - Checks that installed tool versions match pinned versions
@@ -420,15 +412,12 @@ The following hooks run in execution order:
    - Runs on every commit to catch version mismatches early
 
 7. **check-merge-conflict**: Detects merge conflict markers
-
    - Manual: `pre-commit run check-merge-conflict --all-files`
 
 8. **debug-statements**: Detects debug statements (pdb, ipdb, etc.)
-
    - Manual: `pre-commit run debug-statements --all-files`
 
 9. **trailing-whitespace**: Automatically removes trailing whitespace from all files
-
    - Manual: `pre-commit run trailing-whitespace --all-files`
    - Note: Like all file-modifying hooks, commits will fail if this hook makes changes (see "How File-Modifying Hooks Work" section below)
    - Note: For Python files, `ruff-format` also removes trailing whitespace, making this hook redundant for Python files. However, it's kept because it handles non-Python files (markdown, YAML, etc.) that `ruff-format` cannot process.
@@ -548,7 +537,6 @@ git commit -m "message"  # Now succeeds ✓
 **Type Checking Rules:**
 
 - **Production code** (`audiometa/` excluding `audiometa/test/`): Strict type checking
-
   - All functions must have type annotations
   - No untyped function definitions
   - Strict type compatibility checks
@@ -577,12 +565,10 @@ CI will automatically test all pushes and PRs using GitHub Actions.
 All Python module files must follow PEP 8 naming conventions:
 
 - **Use `snake_case` for module names**: Module files should use lowercase with underscores
-
   - ✅ Good: `metadata_format.py`, `unified_metadata_key.py`, `id3v1_raw_metadata.py`
   - ❌ Bad: `MetadataFormat.py`, `UnifiedMetadataKey.py`, `Id3v1RawMetadata.py`
 
 - **Private modules can start with `_`**: Internal/private modules that are not part of the public API can use a leading underscore prefix
-
   - ✅ Good: `_MetadataManager.py`, `_Id3v2Manager.py`, `_audio_file.py`
   - These indicate internal implementation details and are not imported by external users
 
@@ -602,7 +588,6 @@ All Python module files must follow PEP 8 naming conventions:
 ##### Known Linting Issues
 
 - **Ruff F823 False Positive**: Ruff may incorrectly report `F823: Local variable referenced before assignment` when an imported exception class is:
-
   1. Referenced in a docstring's `Raises:` section
   2. Used later in the code with `raise`
 
@@ -788,12 +773,10 @@ Quick release process:
    ```
 
 2. Check `TODO.md` for any critical items that should be addressed before release
-
    - Review high-priority tasks and ensure they're either completed or deferred to next release
    - Update TODO items if needed to reflect current project status
 
 3. Update the changelog (`CHANGELOG.md`) with the new release version and changes
-
    - Review changes since last release and decide on version number (following Semantic Versioning)
    - Move content from `[Unreleased]` section to new version entry with date (e.g., `## [0.2.3] - 2025-11-17`)
    - Contributors should not modify the changelog; this is maintained by maintainers during releases
@@ -815,7 +798,6 @@ Quick release process:
    ```
 
    **What bump2version does:**
-
    - Updates version in `pyproject.toml` (from `.bumpversion.cfg` configuration)
    - Updates version badge in `README.md`
    - Creates a commit with the configured commit message (e.g., "chore: prepare release 0.2.3")
@@ -843,7 +825,6 @@ Quick release process:
    **Important:** The tag version must match the version in `pyproject.toml` (without the `v` prefix).
 
 7. CI/CD will automatically:
-
    - **Wait for CI to complete**: The publish workflow automatically waits for CI to finish (polls every 30 seconds, max 30 minutes)
    - Verify tag version matches `pyproject.toml` version
    - Verify tag is on main branch
