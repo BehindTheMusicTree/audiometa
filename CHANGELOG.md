@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **README Improvements**: Enhanced README structure and clarity:
+  - Improved metadata fields feature description (changed "Comprehensive Metadata Fields" to "Core Metadata Fields")
+  - Removed redundant Requirements section (information already covered in Installation section)
+
 ## [0.2.7] - 2025-11-20
 
 ### Added
