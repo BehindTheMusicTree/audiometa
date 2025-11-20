@@ -1,5 +1,6 @@
 # Maintainer-only: Repository automation workflow
 # Contributors cannot modify this file. Changes to automation policies require maintainer approval.
+# This workflow automatically approves PRs from the maintainer to streamline the review process.
 name: Auto Approve Maintainer PRs
 
 on:
