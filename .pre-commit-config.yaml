@@ -27,7 +27,7 @@
 # 8. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
 # 9. isort: Sort imports (configured to work with ruff-format/black)
 # 10. mypy: Type checking on formatted code
-# 11. docformatter: Format docstrings (after code formatting)
+# 11. pydocstringformatter: Format docstrings (after code formatting)
 #     NOTE: File pattern must be ^audiometa/.*\.py$ (not ^audiometa/) to avoid processing binary files
 # 12. fix-long-comments: Fix long comment lines (custom hook)
 # 13. prettier: Format markdown files (preserves list numbering without zero-padding)
@@ -121,14 +121,14 @@ repos:
         files: ^audiometa/.*\.py$
         exclude: ^(audiometa/test/|scripts/)
         pass_filenames: true
-      - id: docformatter
-        name: docformatter
-        # Use venv docformatter explicitly to avoid system docformatter with potentially broken shebang
-        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 "$@"' --
+      - id: pydocstringformatter
+        name: pydocstringformatter
+        # Use venv pydocstringformatter explicitly to avoid system pydocstringformatter with potentially broken shebang
+        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh pydocstringformatter --write --max-line-length=120 "$@"' --
         language: system
         # IMPORTANT: Must use ^audiometa/.*\.py$ pattern, not ^audiometa/
         # Using ^audiometa/ would match binary files (e.g., .mp3, .flac, .wav in test/assets/)
-        # docformatter --in-place would corrupt binary files by treating them as text
+        # pydocstringformatter --write would corrupt binary files by treating them as text
         files: ^audiometa/.*\.py$
         pass_filenames: true
       - id: fix-long-comments

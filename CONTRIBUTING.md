@@ -62,6 +62,8 @@ The maintainer(s) are responsible for:
 - Managing the TODO list (contributors should open issues for new tasks; maintainers update `TODO.md`)
 - Managing repository automation (stale issues/PRs, auto-labeling, auto-assignment, etc.)
 
+**Important:** Even maintainers must go through Pull Requests. No direct commits to `main` are allowed - all changes, including those from maintainers, must be submitted via Pull Requests and go through the standard review process.
+
 _Note: Contributors can submit fixes for critical issues via feature branches. Maintainers may promote these to hotfix branches when urgent production fixes are needed._
 
 ### Infrastructure & Automation Permissions
@@ -113,7 +115,7 @@ Currently, this project has a solo maintainer, but the role may expand as the pr
 
 Ensure you're using:
 
-- Python 3.12 or 3.13
+- Python 3.12, 3.13, or 3.14
 
 - Virtual environment with dependencies:
 
@@ -158,6 +160,7 @@ We follow a light GitFlow model adapted for small teams and open-source projects
 - The stable, always-deployable branch
 - All tests must pass before merging
 - Releases are tagged from `main`
+- **No direct commits allowed** - All changes must go through Pull Requests, including changes from maintainers
 
 ### Feature Branches (`feature/<name>`)
 
@@ -366,7 +369,7 @@ pre-commit install
 
 **Virtual environment requirement:** Pre-commit hooks now explicitly require the virtual environment (`.venv`) to exist. If the virtual environment is not found, hooks will fail with a clear error message. This prevents using system-installed tools that may have broken shebangs or incorrect versions. The `check-tool-versions` hook automatically adds `.venv/bin` to PATH if VIRTUAL_ENV is not set (handles VS Code Source Control commits), and all Python tool hooks use a wrapper script that ensures venv tools are used.
 
-**Version enforcement:** A validation hook automatically checks that your installed tool versions (ruff, isort, mypy, docformatter) match those in `pyproject.toml`. If there's a mismatch, pre-commit will fail with clear instructions to fix it. This ensures consistency between local development, pre-commit hooks, and CI.
+**Version enforcement:** A validation hook automatically checks that your installed tool versions (ruff, isort, mypy, pydocstringformatter) match those in `pyproject.toml`. If there's a mismatch, pre-commit will fail with clear instructions to fix it. This ensures consistency between local development, pre-commit hooks, and CI.
 
 **Exception:** prettier (for Markdown formatting) is a Node.js tool and uses an external repository with a pinned version - it's the only tool not managed through `pyproject.toml`.
 
@@ -384,7 +387,7 @@ pre-commit run
 
 The following hooks run in execution order:
 
-1. **check-tool-versions**: Validates that installed tool versions (ruff, isort, mypy, docformatter) match `pyproject.toml`
+1. **check-tool-versions**: Validates that installed tool versions (ruff, isort, mypy, pydocstringformatter) match `pyproject.toml`
    - Manual: `pre-commit run check-tool-versions`
    - **Runs first** to fail fast if versions don't match (before any other checks)
    - Ensures consistency between local development, pre-commit hooks, and CI
@@ -463,10 +466,10 @@ The following hooks run in execution order:
 - Uses venv mypy to avoid system tools with broken shebangs
 - Requires virtual environment to exist (fails with clear error if missing)
 
-18. **docformatter**: Formats docstrings according to PEP 257
+18. **pydocstringformatter**: Formats docstrings according to PEP 257 and PEP 8
 
-- Manual: `docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120`
-- Uses venv docformatter to avoid system tools with broken shebangs
+- Manual: `pydocstringformatter --write --max-line-length=120`
+- Uses venv pydocstringformatter to avoid system tools with broken shebangs
 
 19. **prettier**: Formats Markdown files (`.md`, `.markdown`) - ensures consistent formatting, preserves list numbering
 
@@ -497,7 +500,7 @@ The following hooks run in execution order:
 - `isort` - Sorts imports
 - `ruff-format` - Formats code
 - `ruff` (with `--fix`) - Auto-fixes linting issues
-- `docformatter` - Formats docstrings
+- `pydocstringformatter` - Formats docstrings
 - `fix-long-comments` - Wraps long comment lines
 - `py-psscriptanalyzer-format` - Formats PowerShell scripts
 
