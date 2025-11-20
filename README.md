@@ -85,23 +85,13 @@ Your support helps make this project better for everyone! 🎵
 
 - **Technical Information**: Access to technical information about audio files, including duration, bitrate, sample rate, channels, and file size. This technical data is extracted directly from audio file headers, so you can get comprehensive file analysis even when no metadata tags are present.
 
-- **Comprehensive Metadata Fields**: Support for 15+ metadata fields including title, artist, album, rating, BPM, and more. More fields are planned to be supported soon.
+- **Core Metadata Fields**: Support for 15+ metadata fields including title, artist, album, rating, BPM, and more. More fields are planned to be supported soon.
 
 - **Read/Write Operations**: Full read and write support for most formats
 
 - **Rating Support**: Normalized rating handling across different formats
 
 - **Complete File Analysis**: Get full metadata including headers and technical details even when no metadata is present
-
-- **Error Handling**: Robust error handling with specific exception types
-
-- **Type Hints**: Full type annotation support for better IDE integration
-
-- **Cross-platform**: Works on Windows, macOS, and Linux (requires ffprobe and flac tools for full functionality)
-
-- **Extensive Testing**: Comprehensive test coverage with 1000+ tests
-
-**Note**: OGG file support is planned but not yet implemented.
 
 ## Supported Formats
 
