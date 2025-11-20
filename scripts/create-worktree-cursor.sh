@@ -55,16 +55,60 @@ WORKTREE_PATH="../${REPO_NAME}-${WORKTREE_NAME}"
 
 # Check if worktree already exists
 if [ -d "$WORKTREE_PATH" ]; then
-    echo "Error: Worktree already exists at $WORKTREE_PATH"
-    echo "Remove it first with: git worktree remove $WORKTREE_PATH"
-    exit 1
+    echo "Warning: Worktree already exists at $WORKTREE_PATH"
+    echo ""
+    read -p "Remove existing worktree and branch '$BRANCH_NAME'? (y/N): " -n 1 -r
+    echo ""
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        "$SCRIPT_DIR/remove-worktree-branch.sh" "$BRANCH_NAME" "$WORKTREE_PATH"
+        echo ""
+    else
+        echo "Aborted. To remove manually, run:"
+        echo "  $SCRIPT_DIR/remove-worktree-branch.sh $BRANCH_NAME $WORKTREE_PATH"
+        exit 1
+    fi
 fi
 
 # Check if branch already exists
-if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME" || git show-ref --verify --quiet "refs/remotes/origin/$BRANCH_NAME"; then
-    echo "Error: Branch '$BRANCH_NAME' already exists locally or remotely"
-    echo "Use a different branch name or delete the existing branch first"
-    exit 1
+BRANCH_EXISTS_LOCAL=false
+BRANCH_EXISTS_REMOTE=false
+if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
+    BRANCH_EXISTS_LOCAL=true
+fi
+if git show-ref --verify --quiet "refs/remotes/origin/$BRANCH_NAME"; then
+    BRANCH_EXISTS_REMOTE=true
+fi
+
+if [ "$BRANCH_EXISTS_LOCAL" = true ] || [ "$BRANCH_EXISTS_REMOTE" = true ]; then
+    echo "Warning: Branch '$BRANCH_NAME' already exists"
+    if [ "$BRANCH_EXISTS_LOCAL" = true ]; then
+        echo "  - Local branch exists"
+    fi
+    if [ "$BRANCH_EXISTS_REMOTE" = true ]; then
+        echo "  - Remote branch exists"
+    fi
+    echo ""
+    read -p "Remove existing branch? (y/N): " -n 1 -r
+    echo ""
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        REMOVE_REMOTE_FLAG=""
+        if [ "$BRANCH_EXISTS_REMOTE" = true ]; then
+            read -p "Also remove remote branch? (y/N): " -n 1 -r
+            echo ""
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                REMOVE_REMOTE_FLAG="--remove-remote"
+            fi
+        fi
+        "$SCRIPT_DIR/remove-worktree-branch.sh" "$BRANCH_NAME" "$WORKTREE_PATH" $REMOVE_REMOTE_FLAG
+        echo ""
+    else
+        echo "Aborted. To remove manually, run:"
+        echo "  $SCRIPT_DIR/remove-worktree-branch.sh $BRANCH_NAME $WORKTREE_PATH"
+        if [ "$BRANCH_EXISTS_REMOTE" = true ]; then
+            echo "  # Or with remote: $SCRIPT_DIR/remove-worktree-branch.sh $BRANCH_NAME $WORKTREE_PATH --remove-remote"
+        fi
+        exit 1
+    fi
 fi
 
 # Ensure main branch exists
@@ -100,7 +144,7 @@ fi
 if [ ! -d "$WORKTREE_ABS_PATH/.venv" ]; then
     echo "Creating virtual environment..."
     cd "$WORKTREE_ABS_PATH"
-    python3 -m venv .venv
+    python3.13 -m venv .venv
     source .venv/bin/activate
     echo "Installing dependencies..."
     pip install --upgrade pip
@@ -122,4 +166,4 @@ fi
 
 echo ""
 echo "To remove this worktree later:"
-echo "  git worktree remove $WORKTREE_PATH"
+echo "  $SCRIPT_DIR/remove-worktree-branch.sh $BRANCH_NAME $WORKTREE_PATH"
