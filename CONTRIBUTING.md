@@ -8,30 +8,31 @@ This project is currently maintained by a solo developer, but contributions, sug
 - [🧑‍🤝‍🧑 Contributors vs Maintainers](#-contributors-vs-maintainers)
   - [Roles Overview](#roles-overview)
   - [Infrastructure & Automation Permissions](#infrastructure--automation-permissions)
-- [💻 Contributing Code](#-contributing-code)
+- [💡 Contributing Code](#-contributing-code)
 - [📦 Environment Setup](#-environment-setup)
 - [🧱 Development Workflow](#-development-workflow)
   - [Main Branch (`main`)](#main-branch-main)
   - [Feature Branches (`feature/<name>`)](#feature-branches-featurename)
-  - [Hotfix Branches (`hotfix/<issue>`)](#hotfix-branches-hotfixissue)
+  - [Hotfix Branches (`hotfix/<issue>`) _(For Maintainers)_](#hotfix-branches-hotfixissue-for-maintainers)
   - [Chore Branches (`chore/<name>`)](#chore-branches-chorename)
+  - [Working with Multiple Local Branches (Git Worktrees)](#working-with-multiple-local-branches-git-worktrees)
+  - [📝 Commit Message Convention](#-commit-message-convention)
   - [🧪 Testing](#-testing)
-    - [Run Local Tests](#run-local-tests)
-    - [Run Coverage](#run-coverage)
-      - [Running Tests with Coverage](#running-tests-with-coverage)
-      - [Running Tests Without Coverage](#running-tests-without-coverage)
-      - [Viewing Coverage Reports](#viewing-coverage-reports)
+    - [Quick Reference](#quick-reference)
     - [Lint Code for Style Consistency](#lint-code-for-style-consistency)
       - [Setup and Usage](#setup-and-usage)
       - [Pre-commit Hooks](#pre-commit-hooks)
-      - [Auto-fix Formatting](#auto-fix-formatting)
+      - [How File-Modifying Hooks Work](#how-file-modifying-hooks-work)
       - [Type Checking](#type-checking)
       - [Code Style Conventions](#code-style-conventions)
       - [Known Linting Issues](#known-linting-issues)
-  - [📝 Commit Message Convention](#-commit-message-convention)
   - [✅ Pre-PR / Pre-Merge Checklist](#-pre-pr--pre-merge-checklist)
+    - [For Contributors (Before Opening a PR)](#for-contributors-before-opening-a-pr)
+    - [For Maintainers (Before Merging to `main`)](#for-maintainers-before-merging-to-main)
+  - [What Happens When You Submit a PR](#what-happens-when-you-submit-a-pr)
   - [🚀 Releasing _(For Maintainers)_](#releasing-for-maintainers)
 - [🪪 License & Attribution](#-license--attribution)
+- [📜 Code of Conduct](#-code-of-conduct)
 - [🌍 Contact & Discussions](#-contact--discussions)
 
 ## Contributors vs Maintainers
@@ -185,6 +186,14 @@ We follow a light GitFlow model adapted for small teams and open-source projects
   git checkout -b chore/update-dependencies
   ```
 - Merge into `main` via Pull Request when complete
+
+### Working with Multiple Local Branches (Git Worktrees)
+
+When working on multiple branches simultaneously or when you need separate Cursor windows for different branches, use **git worktrees**. This allows you to have multiple working directories for the same repository, each on a different branch.
+
+For detailed information on setting up and using git worktrees, see:
+
+**[Git Worktrees Guide](docs/GIT_WORKTREES.md)**
 
 ### 📝 Commit Message Convention
 

@@ -23,6 +23,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Git Worktree Management Scripts**: Added comprehensive scripts for managing git worktrees:
+  - `create-worktree-cursor.sh`: Creates a new worktree from main branch and opens it in Cursor
+    - Automatically sets up Python virtual environment with Python 3.13
+    - Installs all development dependencies
+    - Handles existing worktrees/branches with interactive cleanup prompts
+    - Ensures Cursor settings are configured in new worktrees
+    - Requires worktrees to be created from main branch for consistency
+  - `open-worktree-cursor.sh`: Lists all worktrees and opens selected one in Cursor
+  - `remove-worktree-interactive.sh`: Interactively lists and removes worktrees with their branches
+  - `remove-worktree-branch.sh`: Directly removes worktree and branch by name
 - **Auto-approve Maintainer PRs**: Added GitHub Actions workflow to automatically approve PRs from maintainer:
   - Automatically approves PRs opened by maintainer (Andreas-Garcia)
   - Uses `pull_request_target` event for proper write permissions
@@ -33,6 +43,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **Git Worktrees Guide**: Created comprehensive git worktrees documentation:
+  - Added worktrees guide to separate `docs/GIT_WORKTREES.md` document
+  - Added detailed cleanup documentation with interactive, direct, and manual removal methods
+  - Updated table of contents in CONTRIBUTING.md to reference the new guide
 - **README Improvements**: Enhanced README structure and clarity:
   - Improved metadata fields feature description (changed "Comprehensive Metadata Fields" to "Core Metadata Fields")
   - Removed redundant Requirements section (information already covered in Installation section)
