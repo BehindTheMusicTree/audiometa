@@ -1,3 +1,4 @@
+import platform
 import subprocess
 import sys
 
@@ -262,7 +263,15 @@ class TestCLIWrite:
             assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
             assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "New ID3v2 Title"
 
+    @pytest.mark.skipif(platform.system() == "Windows", reason="id3v2 tool requires WSL on Windows")
     def test_cli_write_force_format_id3v2_flac(self):
+        """Test forcing ID3v2 format on FLAC files.
+
+        Note: This test is skipped on Windows because writing ID3v2 tags to FLAC files
+        requires the external 'id3v2' tool (mutagen corrupts FLAC structure). On Windows,
+        the 'id3v2' tool is not available as a native binary and requires WSL (Windows
+        Subsystem for Linux), which is not set up in Windows CI environments.
+        """
         with temp_file_with_metadata({}, "flac") as test_file:
             result = subprocess.run(
                 [
