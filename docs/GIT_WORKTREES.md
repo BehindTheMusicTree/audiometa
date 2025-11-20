@@ -67,6 +67,40 @@ open -a Cursor ../audiometa-python-feature2
 
 ## Cleanup
 
+### Interactive Removal
+
+To interactively list and remove worktrees:
+
+```bash
+# List all worktrees and remove selected one
+./scripts/remove-worktree-interactive.sh
+
+# Also remove remote branch when removing worktree
+./scripts/remove-worktree-interactive.sh --remove-remote
+```
+
+The script will:
+
+1. Display all available worktrees with their branch names
+2. Prompt you to select a worktree by number
+3. Show the selected worktree details and ask for confirmation
+4. Remove the worktree and its associated branch
+5. Optionally remove the remote branch if it exists
+
+### Direct Removal
+
+If you know the branch name, you can remove it directly:
+
+```bash
+# Remove worktree and local branch
+./scripts/remove-worktree-branch.sh feature/my-feature
+
+# Remove worktree, local branch, and remote branch
+./scripts/remove-worktree-branch.sh feature/my-feature --remove-remote
+```
+
+### Manual Removal
+
 ```bash
 # Remove worktree when done
 git worktree remove ../audiometa-python-feature2
