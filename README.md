@@ -99,7 +99,7 @@ Your support helps make this project better for everyone! 🎵
 
 - **Cross-platform**: Works on Windows, macOS, and Linux (requires ffprobe and flac tools for full functionality)
 
-- **Extensive Testing**: Comprehensive test coverage with 500+ tests
+- **Extensive Testing**: Comprehensive test coverage with 1000+ tests
 
 **Note**: OGG file support is planned but not yet implemented.
 
