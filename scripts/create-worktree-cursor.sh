@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to create a git worktree and open it in a new Cursor window
+# Script to create a git worktree from main and open it in a new Cursor window
 
 # Usage: ./scripts/create-worktree-cursor.sh <branch-name> [worktree-name]
 
@@ -12,7 +12,7 @@ if [ $# -lt 1 ]; then
     echo "Examples:"
     echo "  $0 feature/my-feature"
     echo "  $0 feature/my-feature my-feature-worktree"
-    echo "  $0 -b feature/new-feature new-feature-worktree"
+    echo "  $0 chore/update-dependencies"
     exit 1
 fi
 
@@ -21,19 +21,10 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 REPO_NAME=$(basename "$REPO_ROOT")
 
 # Parse arguments
-CREATE_BRANCH=false
-if [ "$1" = "-b" ]; then
-    CREATE_BRANCH=true
-    BRANCH_NAME="$2"
-    WORKTREE_NAME="${3:-${BRANCH_NAME#feature/}}"
-    WORKTREE_NAME="${WORKTREE_NAME#chore/}"
-    WORKTREE_NAME="${WORKTREE_NAME#hotfix/}"
-else
-    BRANCH_NAME="$1"
-    WORKTREE_NAME="${2:-${BRANCH_NAME#feature/}}"
-    WORKTREE_NAME="${WORKTREE_NAME#chore/}"
-    WORKTREE_NAME="${WORKTREE_NAME#hotfix/}"
-fi
+BRANCH_NAME="$1"
+WORKTREE_NAME="${2:-${BRANCH_NAME#feature/}}"
+WORKTREE_NAME="${WORKTREE_NAME#chore/}"
+WORKTREE_NAME="${WORKTREE_NAME#hotfix/}"
 
 # Default worktree name if still empty
 if [ -z "$WORKTREE_NAME" ]; then
@@ -50,22 +41,22 @@ if [ -d "$WORKTREE_PATH" ]; then
     exit 1
 fi
 
-# Check if branch already exists (unless creating new branch)
-if [ "$CREATE_BRANCH" = false ]; then
-    if ! git show-ref --verify --quiet "refs/heads/$BRANCH_NAME" && ! git show-ref --verify --quiet "refs/remotes/origin/$BRANCH_NAME"; then
-        echo "Error: Branch '$BRANCH_NAME' does not exist locally or remotely"
-        echo "Use '-b' flag to create a new branch: $0 -b $BRANCH_NAME"
-        exit 1
-    fi
+# Check if branch already exists
+if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME" || git show-ref --verify --quiet "refs/remotes/origin/$BRANCH_NAME"; then
+    echo "Error: Branch '$BRANCH_NAME' already exists locally or remotely"
+    echo "Use a different branch name or delete the existing branch first"
+    exit 1
 fi
 
-# Create worktree
-echo "Creating worktree for branch: $BRANCH_NAME"
-if [ "$CREATE_BRANCH" = true ]; then
-    git worktree add "$WORKTREE_PATH" -b "$BRANCH_NAME"
-else
-    git worktree add "$WORKTREE_PATH" "$BRANCH_NAME"
+# Ensure main branch exists
+if ! git show-ref --verify --quiet "refs/heads/main" && ! git show-ref --verify --quiet "refs/remotes/origin/main"; then
+    echo "Error: 'main' branch does not exist locally or remotely"
+    exit 1
 fi
+
+# Create worktree from main
+echo "Creating worktree from main for new branch: $BRANCH_NAME"
+git worktree add "$WORKTREE_PATH" -b "$BRANCH_NAME" main
 
 # Get absolute path
 WORKTREE_ABS_PATH=$(cd "$WORKTREE_PATH" && pwd)
