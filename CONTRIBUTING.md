@@ -15,9 +15,10 @@ This project is currently maintained by a solo developer, but contributions, sug
   - [3. Developing](#3-developing)
   - [4. Testing](#4-testing)
   - [5. Committing](#5-committing)
-  - [6. Pre-PR Checklist](#6-pre-pr-checklist)
-  - [7. Pull Request Process](#7-pull-request-process)
-  - [8. Releasing _(For Maintainers)_](#8-releasing-for-maintainers)
+  - [6. Pull Request Process](#6-pull-request-process)
+    - [6.1. Pre-PR Checklist](#61-pre-pr-checklist)
+    - [6.2. Opening a Pull Request](#62-opening-a-pull-request)
+  - [7. Releasing _(For Maintainers)_](#7-releasing-for-maintainers)
 - [🪪 License & Attribution](#-license--attribution)
 - [🌍 Contact & Discussions](#-contact--discussions)
 
@@ -45,7 +46,7 @@ The maintainer(s) are responsible for:
 - Responding to critical issues
 - Maintaining the project's infrastructure
 - Creating and managing hotfix branches for urgent production fixes
-- Updating the changelog (contributors should not modify `CHANGELOG.md`)
+- Moving "Unreleased" changelog entries to versioned sections during releases
 - Managing the TODO list (contributors should open issues for new tasks; maintainers update `TODO.md`)
 - Managing repository automation (stale issues/PRs, auto-labeling, auto-assignment, etc.)
 
@@ -93,7 +94,7 @@ Currently, this project has a solo maintainer, but the role may expand as the pr
 
 We follow a light GitFlow model adapted for small teams and open-source projects:
 
-**Workflow steps:** Fork & Clone → Environment Setup → Branching → Developing → Testing → Committing → Pre-PR Checklist → Pull Request Process → Releasing _(For Maintainers)_
+**Workflow steps:** Fork & Clone → Environment Setup → Branching → Developing → Testing → Committing → Pull Request Process (including Pre-PR Checklist) → Releasing _(For Maintainers)_
 
 ### 0. Fork & Clone
 
@@ -210,7 +211,7 @@ We use pytest for all automated testing with markers for unit, integration, and 
 # Run all tests
 pytest
 
-# Run tests by category (matches CI behavior)
+# Run tests by category
 pytest -m unit          # Fast unit tests only
 pytest -m integration   # Integration tests only
 pytest -m e2e           # End-to-end tests only
@@ -222,146 +223,31 @@ pytest -m "not e2e"
 pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-under=85
 ```
 
-**Note:** CI runs tests separately by marker (`unit`, `integration`, `e2e`) with coverage. The coverage threshold of 85% applies to the combined total.
-
-**Note:** CI tests run on pinned OS versions (e.g., Ubuntu 22.04, macOS 14) for consistency. OS versions are pinned in `.github/workflows/ci.yml` to ensure system package version availability and consistency with pinned versions in `system-dependencies-prod.toml`, `system-dependencies-test-only.toml`, and `system-dependencies-lint.toml`. Python package versions are pinned in `pyproject.toml`. This prevents breakages when GitHub Actions updates `-latest` runners. See `.github/workflows/ci.yml` for the specific pinned OS versions.
-
-**System dependency version verification:** Before running any tests, pytest automatically verifies that installed system dependency versions (ffmpeg, flac, mediainfo, id3v2, bwfmetaedit, exiftool) match the pinned versions defined in `system-dependencies-prod.toml` and `system-dependencies-test-only.toml`. This uses the shared `scripts/verify-system-dependency-versions.py` script (also used by pre-commit hooks and installation scripts). If versions don't match, pytest will exit with an error message before running tests. This ensures tests always run with the exact same tool versions as CI and local development environments. To fix version mismatches, update your system dependencies using the installation scripts: `./scripts/install-system-dependencies-ubuntu.sh` (Ubuntu), `./scripts/install-system-dependencies-macos.sh` (macOS), or `.\scripts\install-system-dependencies-windows.ps1` (Windows).
-
-**Note:** On Windows, version verification skips optional tools (`id3v2`, `mediainfo`, `exiftool`) that are not needed for e2e tests. See the Windows CI differences section below for details.
-
-**Windows WSL requirement:** On Windows, the `id3v2` tool is not available as a native Windows binary. The installation script attempts to use **WSL (Windows Subsystem for Linux)** to install `id3v2` via Ubuntu's package manager, but WSL installation complexity (requiring system restarts, DISM configuration, and Ubuntu distribution setup) has prevented successful full installation in practice. This is why Windows CI only runs e2e tests (which don't require `id3v2`). For local development, the script will attempt WSL installation, but manual WSL setup may be required. A wrapper script (`id3v2.bat`) is created if WSL installation succeeds to make `id3v2` accessible from Windows command line.
-
-**Windows CI differences:** Windows CI only runs e2e tests (unit and integration tests run on Ubuntu and macOS). This is due to WSL installation complexity preventing full dependency installation. As a result, some dependencies are skipped in Windows CI:
-
-- **Skipped in Windows CI:**
-  - `mediainfo` - Only used in integration tests for verification, not needed for e2e tests
-  - `exiftool` - Not used in e2e tests
-  - `id3v2` - Optional (only needed for FLAC files with ID3v2 tags, which e2e tests don't use)
-
-- **Required in Windows CI:**
-  - `ffmpeg` / `ffprobe` - Needed for `get_bitrate()` and `get_duration_in_sec()` on WAV files
-  - `flac` / `metaflac` - Needed for FLAC metadata writing via Vorbis
-  - `bwfmetaedit` - Needed for WAV metadata writing via RIFF
-
-The installation script automatically detects CI environment and skips unnecessary dependencies. Version verification in pytest also skips these optional tools on Windows.
-
-For detailed test documentation, including test principles, markers, and advanced usage, see [`audiometa/test/README.md`](audiometa/test/README.md).
+**For comprehensive test documentation**, including test principles, markers, coverage details, Windows testing, CI configuration, and advanced usage, see [`docs/TESTING.md`](docs/TESTING.md).
 
 ### 5. Committing
 
 We follow a structured commit format inspired by [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
-This helps keep the commit history readable, supports automatic changelog generation, and ensures consistent release versioning.
 
-#### Format
+**IMPORTANT:** Always activate the project's virtual environment (`.venv`) before committing. Pre-commit hooks require the correct Python environment.
 
-<type>(<optional scope>): <short summary>
+**Quick reference:**
 
-[optional body]
+- Format: `<type>(<scope>): <summary>`
+- Run pre-commit hooks: `pre-commit run --all-files`
+- Activate virtual environment: `source .venv/bin/activate` (Linux/macOS) or `.venv\Scripts\activate` (Windows)
 
-##### Breaking Changes
+**For comprehensive commit message guidelines**, including format details, commit types, scopes, examples, and pre-commit hook information, see [`docs/COMMITTING.md`](docs/COMMITTING.md).
 
-For breaking changes, append `!` after the type/scope:
+### 6. Pull Request Process
 
-<type>(<optional scope>)!: <short summary>
+#### 6.1. Pre-PR Checklist
 
-Or include a `BREAKING CHANGE:` footer in the commit body.
-
-#### Example
-
-feat(mp3): support writing composer tag
-
-Added support for writing the "composer" field in ID3v2.4 MP3 files.
-Ensures backward compatibility with ID3v2.3 readers.
-
-#### Allowed Commit Types
-
-| Type     | Description                                          |
-| -------- | ---------------------------------------------------- |
-| feat     | A new feature or enhancement                         |
-| fix      | A bug fix                                            |
-| refactor | Code refactoring that doesn't change behavior        |
-| docs     | Documentation-only changes                           |
-| test     | Adding or updating tests                             |
-| chore    | Maintenance tasks (e.g. CI, packaging, dependencies) |
-| style    | Code style or formatting changes (no logic impact)   |
-| perf     | Performance improvements                             |
-
-#### Scopes
-
-Use a scope to clarify which part of the library your change affects.
-Scopes are optional but encouraged for clarity.
-
-##### Common Scopes
-
-| Scope  | Example                                     | Description                  |
-| ------ | ------------------------------------------- | ---------------------------- |
-| core   | refactor(core): simplify metadata interface | Core metadata handling logic |
-| id3v1  | fix(id3v1): handle encoding issues          | ID3v1 tag format             |
-| id3v2  | feat(id3v2): add custom text frame support  | ID3v2 tag format             |
-| vorbis | fix(vorbis): improve comment parsing        | Vorbis comment format        |
-| riff   | feat(riff): detect and write INFO chunks    | RIFF metadata format         |
-| test   | refactor(test): reorganize test fixtures    | Testing infrastructure       |
-| deps   | chore(deps): update mutagen dependency      | Dependency management        |
-| docs   | docs: improve README example                | Documentation updates        |
-
-##### Test Commits Best Practices
-
-For a single library project, use `test:` as the **type**, not the scope, for general test changes:
-
-- `test(mp3): add roundtrip test for title tag`
-- `test(core): improve coverage for metadata merge`
-
-Reserve `chore(test):`, `refactor(test):` for test infrastructure changes:
-
-- `chore(test): reorganize test helpers`
-- `refactor(test): improve test fixture structure`
-
-**Summary:**
-
-| Use case                        | Best practice                             |
-| ------------------------------- | ----------------------------------------- |
-| Adding or improving tests       | `test(scope): …`                          |
-| Fixing a bug in a test          | `fix(test): …` or `test(scope): fix …`    |
-| Changing test utilities/config  | `chore(test): …`                          |
-| Refactoring core test structure | `refactor(test): …`                       |
-| Feature/bug in main code        | Use relevant scope (e.g., `feat(mp3): …`) |
-
-#### Examples
-
-feat(id3v2): add album artist tag support
-fix(vorbis): correctly parse embedded picture metadata
-refactor(core): move format detection to utils module
-test(mp3): add roundtrip test for metadata write/read
-docs: document supported tag fields
-chore(deps): bump mutagen to 1.47.0
-feat(core)!: remove deprecated get_metadata function
-
-BREAKING CHANGE: The get_metadata function has been removed.
-Use get_unified_metadata instead.
-
-#### Guidelines
-
-Use imperative mood ("add", "fix", not "added", "fixed").
-
-Keep the summary under 72 characters.
-
-Use the commit body for additional context if needed.
-
-One logical change per commit.
-
-Small, focused commits are better than large, mixed ones.
-
-### 6. Pre-PR Checklist
-
-Before submitting a Pull Request (contributors) or merging to `main` (maintainers), ensure the following checks are completed:
-
-#### For Contributors (Before Opening a PR)
+Before submitting a Pull Request, ensure the following checks are completed:
 
 **1. Code Quality**
 
-- ✅ Remove commented-out code
-- ✅ No hardcoded credentials, API keys, or secrets
+- ✅ Follow [Code Quality](DEVELOPMENT.md#code-quality) standards in DEVELOPMENT.md
 - ✅ Run pre-commit hooks: `pre-commit run --all-files` (includes linting, formatting, type checking, assert statement check, debug statement detection, etc.)
 
 **2. Tests**
@@ -373,76 +259,19 @@ Before submitting a Pull Request (contributors) or merging to `main` (maintainer
 
 **3. Documentation**
 
-- ✅ Update docstrings for new functions/classes (only when needed - see docstring guidelines below)
-- ✅ Update README if adding new features or changing behavior
-- ✅ Update CONTRIBUTING.md if changing development workflow
+- ✅ Update docstrings for new functions/classes (only when needed - see [Docstrings](DEVELOPMENT.md#docstrings) section in DEVELOPMENT.md)
+- ✅ Update README or other more focused documentation if adding new features or changing behavior
 - ✅ Add/update type hints where appropriate
-
-**Docstring Guidelines:**
-
-Docstrings should only be added when they provide value (complex logic, public API, edge cases, etc.). When docstrings are needed, use a **systematic Google-style format** for consistency:
-
-```python
-def public_api_function(param1: str, param2: int | None = None) -> dict[str, Any]:
-    """Brief one-line description.
-
-    More detailed explanation if needed. Can span multiple lines
-    to explain complex behavior, edge cases, or important details.
-
-    Args:
-        param1: Description of param1
-        param2: Description of param2. Defaults to None.
-
-    Returns:
-        Description of return value
-
-    Raises:
-        ValueError: When param1 is invalid
-        FileNotFoundError: When file doesn't exist
-
-    Examples:
-        >>> result = public_api_function("test", 42)
-        >>> print(result)
-        {'key': 'value'}
-    """
-    # Implementation
-```
-
-**When to add docstrings:**
-
-- Public API functions/classes (exported from `__init__.py`)
-- Complex business logic that isn't obvious
-- Functions with non-obvious side effects
-- Important edge cases or assumptions
-
-**When NOT to add docstrings:**
-
-- Simple getter/setter functions
-- Self-explanatory functions with descriptive names
-- Test functions (unless testing complex scenarios)
-- Internal helper functions that are obvious from context
+- ✅ Update `CHANGELOG.md` with your changes in the `[Unreleased]` section (see [Changelog Best Practices](CHANGELOG.md#changelog-best-practices) for guidelines)
+- ⚠️ Update CONTRIBUTING.md only in exceptional cases (e.g., when adding hooks for new features in other languages)
 
 **4. Git Hygiene**
 
-- ✅ Commit messages follow the [commit message convention](#-commit-message-convention)
-- ✅ No merge conflicts with target branch
-- ✅ Branch is up to date with target branch
+- ✅ Commit messages follow the [commit message convention](docs/COMMITTING.md)
+- ✅ Branch is up to date with target branch (merge conflicts can be resolved through the PR interface or locally)
 - ✅ No accidental commits (large files, secrets, personal configs)
 
-**5. PR Description**
-
-- ✅ Clear description of changes
-- ✅ Reference related issues (e.g., "Fixes #123")
-- ✅ Note any breaking changes
-- ✅ Include testing instructions if applicable
-
-**6. Breaking Changes**
-
-- ✅ If this PR includes breaking changes, they are clearly documented
-- ✅ Migration path is provided (if applicable)
-- ✅ Breaking changes include proper versioning notes (for maintainers to handle)
-
-#### For Maintainers (Before Merging to `main`)
+#### For Maintainers (Before Opening/Merging a PR)
 
 **All Contributor Checks Plus:**
 
@@ -455,8 +284,8 @@ def public_api_function(param1: str, param2: int | None = None) -> dict[str, Any
 
 **2. Testing Verification**
 
-- ✅ CI tests pass on all platforms and Python versions
-- ✅ Test coverage is adequate for the changes
+- ✅ CI tests pass on all platforms and Python versions (CI automatically blocks merge if tests fail)
+- ✅ Test coverage meets threshold (CI automatically blocks merge if coverage is below 85%)
 - ✅ Edge cases are handled
 - ✅ Integration with existing features works correctly
 
@@ -465,6 +294,7 @@ def public_api_function(param1: str, param2: int | None = None) -> dict[str, Any
 - ✅ Public API changes are documented
 - ✅ Breaking changes are clearly marked and documented
 - ✅ Examples and usage are updated if needed
+- ✅ Update CONTRIBUTING.md if changing development workflow (contributors may update CONTRIBUTING.md in exceptional cases, e.g., when adding hooks for new features in other languages)
 
 **4. Compatibility Verification**
 
@@ -488,7 +318,30 @@ pre-commit run --all-files && \
 pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=85
 ```
 
-### 7. Pull Request Process
+#### 6.2. Opening a Pull Request
+
+**Before opening a Pull Request, ensure you have completed the [Pre-PR Checklist](#61-pre-pr-checklist) above.**
+
+##### PR Description
+
+When opening a Pull Request, a template will be automatically provided. Ensure your PR description includes:
+
+- ✅ Clear description of changes
+- ✅ Reference related issues (e.g., "Fixes #123")
+- ✅ Note any breaking changes
+- ✅ Include testing instructions if applicable
+
+**Note:** The PR template (`.github/pull_request_template.md`) will guide you through the process and ensure all necessary information is included.
+
+##### Breaking Changes
+
+If your PR includes breaking changes:
+
+- ✅ Breaking changes are clearly documented in the PR description
+- ✅ Migration path is provided (if applicable)
+- ✅ Breaking changes include proper versioning notes (for maintainers to handle)
+
+##### PR Automations
 
 When you open a Pull Request, several automations will run automatically:
 
@@ -500,11 +353,9 @@ When you open a Pull Request, several automations will run automatically:
 
 These automations help streamline the review process and ensure consistency across the project.
 
-### 8. Releasing _(For Maintainers)_
+### 7. Releasing _(For Maintainers)_
 
 Releases are created from the `main` branch.
-
-**For detailed PyPI publishing instructions, see [PyPI Publishing Guide](docs/PYPI_PUBLISHING.md).**
 
 Quick release process:
 
@@ -520,9 +371,10 @@ Quick release process:
    - Update TODO items if needed to reflect current project status
 
 3. Update the changelog (`CHANGELOG.md`) with the new release version and changes
-   - Review changes since last release and decide on version number (following Semantic Versioning)
+   - Review changes in the `[Unreleased]` section and decide on version number (following Semantic Versioning)
    - Move content from `[Unreleased]` section to new version entry with date (e.g., `## [0.2.3] - 2025-11-17`)
-   - Contributors should not modify the changelog; this is maintained by maintainers during releases
+   - Review and consolidate entries if needed (group similar changes, ensure clarity)
+   - Leave the `[Unreleased]` section empty (or with a placeholder) for future PRs
 
 4. Bump version numbers using `bump2version`:
 

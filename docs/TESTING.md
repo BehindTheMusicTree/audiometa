@@ -1,6 +1,6 @@
-# Test Organization
+# Testing Guide
 
-This directory contains the test suite for audiometa-python, organized using the standard unit/integration/e2e testing pattern.
+This document provides comprehensive documentation for the test suite of audiometa-python, organized using the standard unit/integration/e2e testing pattern.
 
 ## Table of Contents
 
@@ -33,6 +33,9 @@ This directory contains the test suite for audiometa-python, organized using the
   - [Pre-created Test Files](#pre-created-test-files)
   - [On-the-fly Generation (TempFileWithMetadata)](#on-the-fly-generation-tempfilewithmetadata)
   - [Examples for Each Scenario](#examples-for-each-scenario)
+- [Windows Testing](#windows-testing)
+  - [Windows WSL Requirement](#windows-wsl-requirement)
+  - [Windows CI Differences](#windows-ci-differences)
 - [Fixtures](#fixtures)
 
 ## Test Structure
@@ -60,7 +63,15 @@ Tests that verify complete user workflows from start to finish. These simulate r
 
 ## Running Tests
 
-**Note:** Before running tests, pytest automatically verifies that installed system dependency versions (ffmpeg, flac, mediainfo, id3v2, bwfmetaedit, exiftool) match the pinned versions defined in `system-dependencies-prod.toml` and `system-dependencies-test-only.toml`. This uses the shared `scripts/verify-system-dependency-versions.py` script. If versions don't match, pytest will exit with an error message before running tests. This ensures tests always run with the exact same tool versions as CI and local development environments.
+**System dependency version verification:** Before running any tests, pytest automatically verifies that installed system dependency versions (ffmpeg, flac, mediainfo, id3v2, bwfmetaedit, exiftool) match the pinned versions defined in `system-dependencies-prod.toml` and `system-dependencies-test-only.toml`. This uses the shared `scripts/verify-system-dependency-versions.py` script (also used by pre-commit hooks and installation scripts). If versions don't match, pytest will exit with an error message before running tests. This ensures tests always run with the exact same tool versions as CI and local development environments.
+
+**To fix version mismatches:** Update your system dependencies using the installation scripts:
+
+- Ubuntu/Linux: `./scripts/install-system-dependencies-ubuntu.sh`
+- macOS: `./scripts/install-system-dependencies-macos.sh`
+- Windows: `.\scripts\install-system-dependencies-windows.ps1`
+
+**Note:** On Windows, version verification skips optional tools (`id3v2`, `mediainfo`, `exiftool`) that are not needed for e2e tests. See the [Windows Testing](#windows-testing) section below for details.
 
 ### Run All Tests
 
@@ -150,6 +161,10 @@ open htmlcov/index.html  # macOS
 ### Coverage in CI
 
 Coverage is automatically enforced in CI workflows, ensuring the 85% threshold is maintained across all pull requests and merges.
+
+**CI test execution:** CI runs tests separately by marker (`unit`, `integration`, `e2e`) with coverage. The coverage threshold of 85% applies to the combined total.
+
+**CI environment:** CI tests run on pinned OS versions (e.g., Ubuntu 22.04, macOS 14) for consistency. OS versions are pinned in `.github/workflows/ci.yml` to ensure system package version availability and consistency with pinned versions in `system-dependencies-prod.toml`, `system-dependencies-test-only.toml`, and `system-dependencies-lint.toml`. Python package versions are pinned in `pyproject.toml`. This prevents breakages when GitHub Actions updates `-latest` runners. See `.github/workflows/ci.yml` for the specific pinned OS versions.
 
 ## Test Logic Principles
 
@@ -441,6 +456,28 @@ def test_specific_metadata_combination():
 ```
 
 All test files are shared across test categories through fixtures defined in `conftest.py`.
+
+## Windows Testing
+
+### Windows WSL Requirement
+
+On Windows, the `id3v2` tool is not available as a native Windows binary. The installation script attempts to use **WSL (Windows Subsystem for Linux)** to install `id3v2` via Ubuntu's package manager, but WSL installation complexity (requiring system restarts, DISM configuration, and Ubuntu distribution setup) has prevented successful full installation in practice. This is why Windows CI only runs e2e tests (which don't require `id3v2`). For local development, the script will attempt WSL installation, but manual WSL setup may be required. A wrapper script (`id3v2.bat`) is created if WSL installation succeeds to make `id3v2` accessible from Windows command line.
+
+### Windows CI Differences
+
+Windows CI only runs e2e tests (unit and integration tests run on Ubuntu and macOS). This is due to WSL installation complexity preventing full dependency installation. As a result, some dependencies are skipped in Windows CI:
+
+- **Skipped in Windows CI:**
+  - `mediainfo` - Only used in integration tests for verification, not needed for e2e tests
+  - `exiftool` - Not used in e2e tests
+  - `id3v2` - Optional (only needed for FLAC files with ID3v2 tags, which e2e tests don't use)
+
+- **Required in Windows CI:**
+  - `ffmpeg` / `ffprobe` - Needed for `get_bitrate()` and `get_duration_in_sec()` on WAV files
+  - `flac` / `metaflac` - Needed for FLAC metadata writing via Vorbis
+  - `bwfmetaedit` - Needed for WAV metadata writing via RIFF
+
+The installation script automatically detects CI environment and skips unnecessary dependencies. Version verification in pytest also skips these optional tools on Windows.
 
 ## Fixtures
 

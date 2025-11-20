@@ -4,16 +4,35 @@ This document outlines the coding standards and best practices for developing th
 
 ## Table of Contents
 
-- [Code Style Conventions](#code-style-conventions)
-  - [Module Naming](#module-naming)
-- [Type Checking](#type-checking)
-  - [Type Checking Rules](#type-checking-rules)
-- [Known Linting Issues](#known-linting-issues)
-  - [Ruff F823 False Positive](#ruff-f823-false-positive)
+- [Code Quality](#code-quality)
+  - [General Practices](#general-practices)
+  - [Code Style Conventions](#code-style-conventions)
+    - [Module Naming](#module-naming)
+  - [Docstrings](#docstrings)
+    - [Docstring Format](#docstring-format)
+    - [When to Add Docstrings](#when-to-add-docstrings)
+    - [When NOT to Add Docstrings](#when-not-to-add-docstrings)
+  - [Type Checking](#type-checking)
+  - [Known Linting Issues](#known-linting-issues)
+    - [Ruff F823 False Positive](#ruff-f823-false-positive)
+- [Project Documentation](#project-documentation)
+  - [Documentation Files](#documentation-files)
 
-## Code Style Conventions
+## Code Quality
 
-### Module Naming
+### General Practices
+
+Follow these code quality standards when developing:
+
+- **Remove commented-out code** - Don't leave commented-out code in the codebase. If code is no longer needed, remove it. Use version control (git) to recover old code if needed.
+- **No hardcoded credentials, API keys, or secrets** - Never commit credentials, API keys, passwords, or other sensitive information to the repository. Use environment variables or secure configuration management instead.
+- **Run pre-commit hooks** - Always run `pre-commit run --all-files` before committing. This includes linting, formatting, type checking, assert statement checks, debug statement detection, and other quality checks. Pre-commit hooks are automatically enforced, but running them manually helps catch issues early.
+
+**Note:** Pre-commit hooks are configured to use tools from your active Python environment. Always activate the project's virtual environment (`.venv`) before running git commits. See the [Virtual Environment](.cursor/rules/virtual-environment.mdc) rules for details.
+
+### Code Style Conventions
+
+#### Module Naming
 
 All Python module files must follow PEP 8 naming conventions:
 
@@ -38,9 +57,55 @@ All Python module files must follow PEP 8 naming conventions:
 
 **Note:** The `N999` linting rule (invalid module name) is configured to ignore modules starting with `_` since these are intentionally private. However, all public modules must use `snake_case`.
 
-## Type Checking
+### Docstrings
 
-### Type Checking Rules
+Docstrings should only be added when they provide value (complex logic, public API, edge cases, etc.). When docstrings are needed, use a **systematic Google-style format** for consistency.
+
+#### Docstring Format
+
+When docstrings are needed (for public API, complex logic, etc.), use a **systematic Google-style format** for consistency:
+
+```python
+def public_api_function(param1: str, param2: int | None = None) -> dict[str, Any]:
+    """Brief one-line description.
+
+    More detailed explanation if needed. Can span multiple lines
+    to explain complex behavior, edge cases, or important details.
+
+    Args:
+        param1: Description of param1
+        param2: Description of param2. Defaults to None.
+
+    Returns:
+        Description of return value
+
+    Raises:
+        ValueError: When param1 is invalid
+        FileNotFoundError: When file doesn't exist
+
+    Examples:
+        >>> result = public_api_function("test", 42)
+        >>> print(result)
+        {'key': 'value'}
+    """
+    # Implementation
+```
+
+#### When to Add Docstrings
+
+- Public API functions/classes (exported from `__init__.py`)
+- Complex business logic that isn't obvious
+- Functions with non-obvious side effects
+- Important edge cases or assumptions
+
+#### When NOT to Add Docstrings
+
+- Simple getter/setter functions
+- Self-explanatory functions with descriptive names
+- Test functions (unless testing complex scenarios)
+- Internal helper functions that are obvious from context
+
+### Type Checking
 
 - **Production code** (`audiometa/` excluding `audiometa/test/`): Strict type checking
   - All functions must have type annotations
@@ -57,9 +122,9 @@ All Python module files must follow PEP 8 naming conventions:
 
 **Note:** Type checking is automatically enforced via pre-commit hooks and CI/CD. See the [Committing](CONTRIBUTING.md#5-committing) section in CONTRIBUTING.md for details on pre-commit hooks.
 
-## Known Linting Issues
+### Known Linting Issues
 
-### Ruff F823 False Positive
+#### Ruff F823 False Positive
 
 Ruff may incorrectly report `F823: Local variable referenced before assignment` when an imported exception class is:
 
@@ -82,3 +147,17 @@ def some_function():
     if condition:
         raise MetadataFieldNotSupportedByMetadataFormatError("message")  # noqa: F823
 ```
+
+## Project Documentation
+
+### Documentation Files
+
+When making changes to the codebase, ensure relevant documentation is updated:
+
+- **README.md**: Update when adding new features, changing behavior, or modifying installation/usage instructions
+- **CHANGELOG.md**: Always update when creating PRs (see [Changelog Best Practices](CHANGELOG.md#changelog-best-practices) for guidelines)
+- **DEVELOPMENT.md**: Update when changing development standards or adding new guidelines
+- **CONTRIBUTING.md**: Update when changing development workflow (primarily for maintainers; contributors may update in exceptional cases, e.g., when adding hooks for new features in other languages)
+- **docs/**: Update relevant documentation files in the `docs/` directory when adding features or changing behavior that affects user-facing functionality
+
+**Note:** Documentation should be updated as part of the same PR that introduces the changes, not as a separate follow-up PR.
