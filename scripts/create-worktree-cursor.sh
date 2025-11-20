@@ -21,6 +21,10 @@
 
 set -e
 
+# Source shared Cursor utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/cursor-common.sh"
+
 if [ $# -lt 1 ]; then
     echo "Usage: $0 <branch-name> [worktree-name]"
     echo ""
@@ -96,26 +100,10 @@ else
     echo ""
 fi
 
-# Open in Cursor (macOS)
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    if [ -d "/Applications/Cursor.app" ]; then
-        echo "Opening in Cursor..."
-        open -a Cursor "$WORKTREE_ABS_PATH"
-    else
-        echo "Warning: Cursor.app not found in /Applications"
-        echo "Worktree is ready at: $WORKTREE_ABS_PATH"
-        echo "Open it manually in Cursor"
-    fi
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    if command -v cursor &> /dev/null; then
-        echo "Opening in Cursor..."
-        cursor "$WORKTREE_ABS_PATH" &
-    else
-        echo "Warning: 'cursor' command not found"
-        echo "Worktree is ready at: $WORKTREE_ABS_PATH"
-        echo "Open it manually in Cursor"
-    fi
-else
+# Open in Cursor
+echo "Opening in Cursor..."
+if ! open_in_cursor "$WORKTREE_ABS_PATH"; then
+    echo "Warning: Failed to open Cursor"
     echo "Worktree is ready at: $WORKTREE_ABS_PATH"
     echo "Open it manually in Cursor"
 fi

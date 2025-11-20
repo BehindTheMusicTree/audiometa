@@ -28,6 +28,23 @@ The `create-worktree-cursor.sh` script automates the following main steps:
 
 **Important**: The script always creates worktrees from the `main` branch to ensure a consistent base for all new branches.
 
+## Opening Existing Worktrees
+
+To quickly open an existing worktree in Cursor, use the `open-worktree-cursor.sh` script:
+
+```bash
+# List all worktrees and open selected one in Cursor
+./scripts/open-worktree-cursor.sh
+```
+
+The script will:
+
+1. Display all available worktrees with their branch names
+2. Prompt you to select a worktree by number
+3. Open the selected worktree directory in Cursor
+
+This is useful when you have multiple worktrees and want to quickly switch between them without manually navigating to their directories.
+
 ## Manual Setup
 
 ```bash
@@ -86,6 +103,9 @@ git worktree list
 # Output example:
 # /path/to/audiometa-python          abc1234 [main]
 # /path/to/audiometa-python-feature2  def5678 [feature/my-feature]
+
+# Interactive script to list and open worktrees in Cursor
+./scripts/open-worktree-cursor.sh
 ```
 
 ## Notes
