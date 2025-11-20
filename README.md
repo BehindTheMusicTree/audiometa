@@ -68,7 +68,6 @@ Your support helps make this project better for everyone! 🎵
   - [Advanced Options](#advanced-options)
   - [Output Formats](#output-formats)
   - [Examples](#examples)
-- [📋 Requirements](#-requirements)
 - [📝 Changelog](#-changelog)
 - [🤝 Contributing](#-contributing)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
@@ -1509,13 +1508,6 @@ audiometa read music/ --recursive --format json --output all_metadata.json
 # Clean up metadata
 audiometa delete music/ --recursive
 ```
-
-## 📋 Requirements
-
-- Python 3.12+
-- mutagen==1.45.0
-- ffprobe (for WAV file processing)
-- flac (for FLAC MD5 validation)
 
 ## 🤝 Contributing
 
