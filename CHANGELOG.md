@@ -33,6 +33,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `open-worktree-cursor.sh`: Lists all worktrees and opens selected one in Cursor
   - `remove-worktree-interactive.sh`: Interactively lists and removes worktrees with their branches
   - `remove-worktree-branch.sh`: Directly removes worktree and branch by name
+- **Auto-approve Maintainer PRs**: Added GitHub Actions workflow to automatically approve PRs from maintainer:
+  - Automatically approves PRs opened by maintainer (Andreas-Garcia)
+  - Uses `pull_request_target` event for proper write permissions
+  - Includes review message for transparency
+  - Streamlines maintainer workflow by removing manual approval step
 
 ### Documentation
 
