@@ -1,0 +1,34 @@
+# Maintainer-only: Repository automation workflow
+# Contributors cannot modify this file. Changes to automation policies require maintainer approval.
+name: Auto Approve Maintainer PRs
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  auto-approve:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Check if PR is from maintainer
+        id: check-maintainer
+        run: |
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          MAINTAINER="Andreas-Garcia"
+          if [ "$PR_AUTHOR" = "$MAINTAINER" ]; then
+            echo "is_maintainer=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_maintainer=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Auto-approve maintainer PRs
+        if: steps.check-maintainer.outputs.is_maintainer == 'true'
+        uses: hmarr/auto-approve-action@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          review-message: "Auto-approved: PR from maintainer"
+
