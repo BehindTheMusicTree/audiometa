@@ -7,15 +7,26 @@ When working on multiple features simultaneously or when you need separate Curso
 Use the provided script to create a worktree and open it in a new Cursor window:
 
 ```bash
-# Create worktree for existing branch
+# Create worktree with new branch (always created from main)
 ./scripts/create-worktree-cursor.sh feature/my-feature
 
-# Create worktree with new branch
-./scripts/create-worktree-cursor.sh -b feature/new-feature
+# Create worktree with custom worktree directory name
+./scripts/create-worktree-cursor.sh feature/my-feature my-feature-worktree
 
 # Or use git alias (after running once: git config alias.worktree-cursor '!f() { bash scripts/create-worktree-cursor.sh "$@"; }; f')
 git worktree-cursor feature/my-feature
 ```
+
+### What the Script Does
+
+The `create-worktree-cursor.sh` script automates the following main steps:
+
+1. **Validates prerequisites**: Ensures branch doesn't exist, `main` branch exists, and worktree path is available
+2. **Creates worktree**: Creates a new git worktree from the `main` branch with your specified branch name
+3. **Sets up development environment**: Creates Python virtual environment and installs all dependencies
+4. **Opens in Cursor**: Automatically opens the worktree directory in a new Cursor window
+
+**Important**: The script always creates worktrees from the `main` branch to ensure a consistent base for all new branches.
 
 ## Manual Setup
 

@@ -1,8 +1,23 @@
 #!/bin/bash
 
 # Script to create a git worktree from main and open it in a new Cursor window
-
+#
+# This script automates the process of creating a new git worktree, setting up the
+# development environment, and opening it in Cursor. All worktrees are created
+# from the main branch to ensure a consistent base.
+#
 # Usage: ./scripts/create-worktree-cursor.sh <branch-name> [worktree-name]
+#
+# Main steps:
+# 1. Validates prerequisites (branch doesn't exist, main branch exists, worktree path available)
+# 2. Creates git worktree from main branch with the new branch name
+# 3. Sets up Python virtual environment and installs dependencies
+# 4. Opens the worktree directory in Cursor
+#
+# Examples:
+#   ./scripts/create-worktree-cursor.sh feature/my-feature
+#   ./scripts/create-worktree-cursor.sh feature/my-feature my-feature-worktree
+#   ./scripts/create-worktree-cursor.sh chore/update-dependencies
 
 set -e
 
