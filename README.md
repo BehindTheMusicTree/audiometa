@@ -32,50 +32,50 @@ Your support helps make this project better for everyone! 🎵
 ## Table of Contents
 
 - [⭐ Show Your Support](#-show-your-support)
-- [Features](#features)
-- [Supported Formats](#supported-formats)
+- [✨ Features](#-features)
+- [📁 Supported Formats](#-supported-formats)
   - [Supported Audio Formats Per Metadata Format](#supported-audio-formats-per-metadata-format)
   - [Supported Metadata Formats per Audio Format](#supported-metadata-formats-per-audio-format)
   - [Format Capabilities](#format-capabilities)
-- [Supported Fields And Audio Technical Info](#supported-fields-and-audio-technical-info)
-- [Installation](#installation)
+- [📊 Supported Fields And Audio Technical Info](#-supported-fields-and-audio-technical-info)
+- [📦 Installation](#-installation)
   - [System Requirements](#system-requirements)
   - [Installing Required Tools](#installing-required-tools)
   - [Verifying Installation](#verifying-installation)
   - [External Tools Usage](#external-tools-usage)
-- [Getting Started](#getting-started)
+- [🚀 Getting Started](#-getting-started)
   - [What You Need](#what-you-need)
   - [Your First Steps](#your-first-steps)
   - [Common Use Cases](#common-use-cases)
-- [Quick Start](#quick-start)
+- [⚡ Quick Start](#-quick-start)
   - [Reading Metadata](#reading-metadata)
   - [Validate Metadata Before Update](#validate-metadata-before-update)
   - [Writing Metadata](#writing-metadata)
   - [Deleting Metadata](#deleting-metadata)
-- [Core API Reference](#core-api-reference)
+- [📚 Core API Reference](#-core-api-reference)
   - [Reading Metadata (API Reference)](#reading-metadata-api-reference)
   - [Pre-Update Validation (API Reference)](#pre-update-validation-api-reference)
   - [Writing Metadata (API Reference)](#writing-metadata-api-reference)
   - [Deleting Metadata (API Reference)](#deleting-metadata-api-reference)
   - [Error Handling (API Reference)](#error-handling-api-reference)
-- [Metadata Guide](#metadata-guide)
+- [📖 Metadata Guide](#-metadata-guide)
   - [Metadata Field Guide: Support and Handling](#metadata-field-guide-support-and-handling)
   - [Audio Technical Info Guide](#audio-technical-info-guide)
   - [Unsupported Metadata Handling](#unsupported-metadata-handling)
-- [Command Line Interface](#command-line-interface)
+- [💻 Command Line Interface](#-command-line-interface)
   - [Installation](#cli-installation)
   - [Basic Usage](#basic-usage)
   - [Advanced Options](#advanced-options)
   - [Output Formats](#output-formats)
   - [Examples](#examples)
-- [Requirements](#requirements)
-- [Changelog](#changelog)
-- [Contributing](#contributing)
+- [📋 Requirements](#-requirements)
+- [📝 Changelog](#-changelog)
+- [🤝 Contributing](#-contributing)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security Policy](https://github.com/Andreas-Garcia/audiometa/security/policy)
 - [License](#license)
 
-## Features
+## ✨ Features
 
 - **Unified API**: A single, consistent API for reading and writing metadata across all supported formats. Use the same functions (`get_unified_metadata()`, `update_metadata()`, etc.) regardless of whether you're working with MP3, FLAC, or WAV files. The library automatically handles format-specific differences, normalizes field names, and intelligently merges metadata from multiple formats when reading.
 
@@ -93,7 +93,7 @@ Your support helps make this project better for everyone! 🎵
 
 - **Complete File Analysis**: Get full metadata including headers and technical details even when no metadata is present
 
-## Supported Formats
+## 📁 Supported Formats
 
 ### Supported Audio Formats Per Metadata Format
 
@@ -153,7 +153,7 @@ When writing Vorbis comments, the library standardizes field names to uppercase 
 - **Limitations**: Some fields not supported (BPM, lyrics, etc.)
 - **Note**: Native metadata format for WAV files
 
-## Supported Fields And Audio Technical Info
+## 📊 Supported Fields And Audio Technical Info
 
 AudioMeta supports comprehensive audio information across all formats. For technical audio information (duration, bitrate, sample rate, channels, file size, format info, MD5 checksum validation and repair), see:
 
@@ -163,7 +163,7 @@ For metadata fields (title, artist, album, genres, ratings, etc.), see:
 
 **[Metadata Field Guide: Support and Handling](docs/METADATA_FIELD_GUIDE.md)**
 
-## Installation
+## 📦 Installation
 
 ```bash
 pip install audiometa-python
@@ -251,7 +251,7 @@ AudioMeta uses a combination of Python libraries and external command-line tools
 - **Vorbis**: Uses `metaflac` external tool for writing to preserve proper uppercase key casing and avoid file corruption
 - **External tools required**: `metaflac`, `id3v2`/`mid3v2` (for FLAC files), `ffprobe`, `flac`
 
-## Getting Started
+## 🚀 Getting Started
 
 ### What You Need
 
@@ -274,7 +274,7 @@ AudioMeta uses a combination of Python libraries and external command-line tools
 - **Batch processing**: Update multiple files at once
 - **Privacy protection**: Remove personal information from files
 
-## Quick Start
+## ⚡ Quick Start
 
 ### Reading Metadata
 
@@ -542,7 +542,7 @@ print(f"Channels: {channels}")
 print(f"File Size: {file_size} bytes")
 ```
 
-## Core API Reference
+## 📚 Core API Reference
 
 ### Reading Metadata (API Reference)
 
@@ -1274,7 +1274,7 @@ The library uses mutagen internally and wraps all mutagen operations with proper
 
 See the **[Error Handling Guide](docs/ERROR_HANDLING_GUIDE.md)** for detailed information about mutagen exception handling and all exception types.
 
-## Metadata Guide
+## 📖 Metadata Guide
 
 ### Metadata Field Guide: Support and Handling
 
@@ -1379,7 +1379,7 @@ final_metadata = get_unified_metadata("song.wav")
 print(f"Final title: {final_metadata.get('title')}")  # Still "Original Title" - no changes made
 ```
 
-## Command Line Interface
+## 💻 Command Line Interface
 
 AudioMeta provides a powerful command-line interface for quick metadata operations without writing Python code.
 
@@ -1510,14 +1510,14 @@ audiometa read music/ --recursive --format json --output all_metadata.json
 audiometa delete music/ --recursive
 ```
 
-## Requirements
+## 📋 Requirements
 
 - Python 3.12+
 - mutagen==1.45.0
 - ffprobe (for WAV file processing)
 - flac (for FLAC MD5 validation)
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome and greatly appreciated! 🎉
 
@@ -1544,12 +1544,12 @@ For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Thank you for contributing! 🙏
 
-## License
+## 📄 License
 
 This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
 
 The Apache 2.0 license provides patent protection, which helps prevent contributors and users from facing patent litigation from other contributors. This makes it a safer choice for both individual contributors and organizations compared to licenses without explicit patent grants.
 
-## Changelog
+## 📝 Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for a detailed list of changes.
