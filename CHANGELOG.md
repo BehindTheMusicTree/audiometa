@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **README Improvements**: Enhanced README structure and clarity:
   - Improved metadata fields feature description (changed "Comprehensive Metadata Fields" to "Core Metadata Fields")
   - Removed redundant Requirements section (information already covered in Installation section)
+- **README Badges**: Updated download badges to use PePy for monthly and weekly statistics:
+  - Changed monthly and weekly download badges from PyPI (`/pypi/dm/`, `/pypi/dw/`) to PePy (`/pepy/dm/`, `/pepy/dw/`)
+  - PePy provides more comprehensive download statistics by tracking downloads from all sources (PyPI, mirrors, CDNs)
+  - Ensures consistent and accurate download statistics across all badges
 
 ## [0.2.7] - 2025-11-20
 

@@ -9,8 +9,8 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![PyPI version](https://img.shields.io/pypi/v/audiometa-python)](https://pypi.org/project/audiometa-python/)
 [![Downloads](https://img.shields.io/pepy/dt/audiometa-python)](https://pepy.tech/project/audiometa-python)
-[![PyPI downloads/month](https://img.shields.io/pypi/dm/audiometa-python?cacheSeconds=86400)](https://pypi.org/project/audiometa-python/)
-[![PyPI downloads/week](https://img.shields.io/pypi/dw/audiometa-python?cacheSeconds=86400)](https://pypi.org/project/audiometa-python/)
+[![Downloads/month](https://img.shields.io/pepy/dm/audiometa-python)](https://pepy.tech/project/audiometa-python)
+[![Downloads/week](https://img.shields.io/pepy/dw/audiometa-python)](https://pepy.tech/project/audiometa-python)
 [![GitHub stars](https://img.shields.io/github/stars/Andreas-Garcia/audiometa?style=social)](https://github.com/Andreas-Garcia/audiometa/stargazers)
 
 A powerful, unified Python library for reading and writing audio metadata across multiple formats. AudioMeta supports MP3, FLAC, and WAV audio files, working seamlessly with ID3v1, ID3v2, Vorbis, and RIFF metadata formats through a single, consistent API.
