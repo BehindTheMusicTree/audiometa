@@ -26,8 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Auto-approve Maintainer PRs**: Added GitHub Actions workflow to automatically approve PRs from maintainer:
   - Automatically approves PRs opened by maintainer (Andreas-Garcia)
   - Uses `pull_request_target` event for proper write permissions
+  - Uses Personal Access Token (PAT) with `repo` scope (required because GitHub Actions cannot approve PRs with default GITHUB_TOKEN)
   - Includes review message for transparency
   - Streamlines maintainer workflow by removing manual approval step
+  - Setup instructions included in workflow file comments for configuring the PAT secret
 
 ### Documentation
 

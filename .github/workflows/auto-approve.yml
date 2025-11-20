@@ -1,6 +1,17 @@
 # Maintainer-only: Repository automation workflow
 # Contributors cannot modify this file. Changes to automation policies require maintainer approval.
 # This workflow automatically approves PRs from the maintainer to streamline the review process.
+#
+# SETUP REQUIRED:
+# GitHub Actions cannot approve PRs using the default GITHUB_TOKEN. You must create a Personal
+# Access Token (PAT) with 'repo' scope and add it as a repository secret named 'AUTO_APPROVE_PAT'.
+#
+# To create the PAT:
+# 1. Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
+# 2. Generate a new token with 'repo' scope
+# 3. Go to Repository Settings → Secrets and variables → Actions
+# 4. Add a new secret named 'AUTO_APPROVE_PAT' with the token value
+#
 name: Auto Approve Maintainer PRs
 
 on:
@@ -30,6 +41,9 @@ jobs:
         if: steps.check-maintainer.outputs.is_maintainer == 'true'
         uses: hmarr/auto-approve-action@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Use PAT instead of GITHUB_TOKEN because GitHub Actions cannot approve PRs
+          # with the default GITHUB_TOKEN. Create a PAT with 'repo' scope from a bot account
+          # or user account and add it as a repository secret named 'AUTO_APPROVE_PAT'
+          github-token: ${{ secrets.AUTO_APPROVE_PAT }}
           review-message: "Auto-approved: PR from maintainer"
 
