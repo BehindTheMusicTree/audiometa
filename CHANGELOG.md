@@ -21,6 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Auto-approve Maintainer PRs**: Added GitHub Actions workflow to automatically approve PRs from maintainer:
+  - Automatically approves PRs opened by maintainer (Andreas-Garcia)
+  - Uses `pull_request_target` event for proper write permissions
+  - Includes review message for transparency
+  - Streamlines maintainer workflow by removing manual approval step
+
 ### Documentation
 
 - **README Improvements**: Enhanced README structure and clarity:
