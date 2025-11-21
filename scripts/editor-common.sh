@@ -91,8 +91,3 @@ open_in_editor() {
     eval "${EDITOR_COMMANDS[$SELECTED_INDEX]} \"$dir_path\""
     return 0
 }
-
-# Legacy alias for backwards compatibility
-open_in_cursor() {
-    open_in_editor "$@"
-}
