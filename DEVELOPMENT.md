@@ -37,10 +37,12 @@ Follow these code quality standards when developing:
 All Python module files must follow PEP 8 naming conventions:
 
 - **Use `snake_case` for module names**: Module files should use lowercase with underscores
+
   - ✅ Good: `metadata_format.py`, `unified_metadata_key.py`, `id3v1_raw_metadata.py`
   - ❌ Bad: `MetadataFormat.py`, `UnifiedMetadataKey.py`, `Id3v1RawMetadata.py`
 
 - **Private modules can start with `_`**: Internal/private modules that are not part of the public API can use a leading underscore prefix
+
   - ✅ Good: `_MetadataManager.py`, `_Id3v2Manager.py`, `_audio_file.py`
   - These indicate internal implementation details and are not imported by external users
 
@@ -108,6 +110,7 @@ def public_api_function(param1: str, param2: int | None = None) -> dict[str, Any
 ### Type Checking
 
 - **Production code** (`audiometa/` excluding `audiometa/test/`): Strict type checking
+
   - All functions must have type annotations
   - No untyped function definitions
   - Strict type compatibility checks

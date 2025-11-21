@@ -71,12 +71,14 @@ N/A - This is a documentation-only change with no breaking changes.
 ### How to Test
 
 1. Review the new documentation structure:
+
    - Check `docs/TESTING.md` contains all test documentation
    - Check `docs/COMMITTING.md` contains comprehensive commit guidelines
    - Verify `DEVELOPMENT.md` has logical code quality grouping
    - Verify `CONTRIBUTING.md` references point to correct documentation locations
 
 2. Verify links work correctly:
+
    - All internal links in `CONTRIBUTING.md` should resolve
    - PR template link to `docs/COMMITTING.md` should work
    - Cross-references between documents should be accurate
@@ -98,11 +100,13 @@ N/A - This is a documentation-only change with no breaking changes.
 **Documentation Structure Improvements:**
 
 1. **Centralized Documentation**: All documentation now lives in `docs/` directory for consistency:
+
    - `docs/TESTING.md` - Comprehensive test documentation (moved from `audiometa/test/README.md`)
    - `docs/COMMITTING.md` - Commit message guide (new)
    - Other guides already in `docs/` (e.g., `METADATA_FIELD_GUIDE.md`, `ERROR_HANDLING_GUIDE.md`)
 
 2. **DEVELOPMENT.md Reorganization**:
+
    - Grouped all code quality concerns under "Code Quality" section:
      - General Practices
      - Code Style Conventions
@@ -112,12 +116,14 @@ N/A - This is a documentation-only change with no breaking changes.
    - Renamed "Documentation" to "Project Documentation" to clarify it's about documentation files
 
 3. **CONTRIBUTING.md Streamlining**:
+
    - Shortened Testing section with link to `docs/TESTING.md`
    - Added Pre-PR Checklist as subsection 6.1
    - Added Opening a Pull Request as subsection 6.2
    - Updated all references to point to `docs/` directory
 
 4. **New Dedicated Guides**:
+
    - `docs/COMMITTING.md`: Comprehensive guide covering commit message format, types, scopes, pre-commit hooks, virtual environment requirements, and examples
    - `docs/TESTING.md`: Enhanced with Windows testing details, CI configuration, and system dependency information
 

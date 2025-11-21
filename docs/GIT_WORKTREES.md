@@ -1,47 +1,59 @@
 # Working with Multiple Branches (Git Worktrees)
 
-When working on multiple features simultaneously or when you need separate Cursor windows for different branches, use **git worktrees**. This allows you to have multiple working directories for the same repository, each on a different branch.
+When working on multiple features simultaneously or when you need separate editor windows for different branches, use **git worktrees**. This allows you to have multiple working directories for the same repository, each on a different branch.
 
-## Quick Setup (for Cursor)
+## Quick Setup
 
-Use the provided script to create a worktree and open it in a new Cursor window:
+Use the provided script to create a worktree and open it in your preferred code editor (Cursor or VS Code):
 
 ```bash
-# Create worktree with new branch (always created from main)
-./scripts/create-worktree-cursor.sh feature/my-feature
+# Create worktree with new branch (always created from latest main)
+./scripts/create-worktree.sh feature/my-feature
 
 # Create worktree with custom worktree directory name
-./scripts/create-worktree-cursor.sh feature/my-feature my-feature-worktree
+./scripts/create-worktree.sh feature/my-feature my-feature-worktree
 
-# Or use git alias (after running once: git config alias.worktree-cursor '!f() { bash scripts/create-worktree-cursor.sh "$@"; }; f')
-git worktree-cursor feature/my-feature
+# Or use git alias (after running once: git config alias.worktree '!f() { bash scripts/create-worktree.sh "$@"; }; f')
+git worktree feature/my-feature
 ```
+
+**Editor Selection:**
+
+- If both Cursor and VS Code are installed, you'll be prompted to choose
+- If only one editor is installed, it opens automatically
+- **macOS**: Fully tested. Editors must be in `/Applications`
+- **Linux**: Experimental support (not tested). Uses `cursor` or `code` commands
+- **Windows**: Experimental support (not tested). Uses `cursor` or `code` commands via Git Bash/Cygwin
+
+⚠️ **Note**: Linux and Windows support has not been tested. If you encounter issues, please report them.
 
 ### What the Script Does
 
-The `create-worktree-cursor.sh` script automates the following main steps:
+The `create-worktree.sh` script automates the following main steps:
 
 1. **Validates prerequisites**: Ensures branch doesn't exist, `main` branch exists, and worktree path is available
-2. **Creates worktree**: Creates a new git worktree from the `main` branch with your specified branch name
-3. **Sets up development environment**: Creates Python virtual environment and installs all dependencies
-4. **Opens in Cursor**: Automatically opens the worktree directory in a new Cursor window
+2. **Updates main branch**: Pulls the latest changes from `origin/main` to ensure you have the most recent code
+3. **Creates worktree**: Creates a new git worktree from the updated `main` branch with your specified branch name
+4. **Sets up development environment**: Creates Python virtual environment and installs all dependencies
+5. **Opens in editor**: Automatically opens the worktree directory in Cursor or VS Code
 
-**Important**: The script always creates worktrees from the `main` branch to ensure a consistent base for all new branches.
+**Important**: The script always creates worktrees from the `main` branch (after pulling the latest changes) to ensure a consistent and up-to-date base for all new branches.
 
 ## Opening Existing Worktrees
 
-To quickly open an existing worktree in Cursor, use the `open-worktree-cursor.sh` script:
+To quickly open an existing worktree in your editor, use the `open-worktree.sh` script:
 
 ```bash
-# List all worktrees and open selected one in Cursor
-./scripts/open-worktree-cursor.sh
+# List all worktrees and open selected one in your editor
+./scripts/open-worktree.sh
 ```
 
 The script will:
 
 1. Display all available worktrees with their branch names
 2. Prompt you to select a worktree by number
-3. Open the selected worktree directory in Cursor
+3. Prompt you to choose an editor (if both Cursor and VS Code are available)
+4. Open the selected worktree in your chosen editor
 
 This is useful when you have multiple worktrees and want to quickly switch between them without manually navigating to their directories.
 
@@ -56,6 +68,13 @@ git worktree add ../audiometa-python-feature2 -b feature/new-feature
 
 # Open in Cursor (macOS)
 open -a Cursor ../audiometa-python-feature2
+
+# Or open in VS Code (macOS)
+open -a "Visual Studio Code" ../audiometa-python-feature2
+
+# Or use command line (Linux/macOS)
+cursor ../audiometa-python-feature2  # for Cursor
+code ../audiometa-python-feature2    # for VS Code
 ```
 
 ## Benefits
@@ -82,10 +101,17 @@ To interactively list and remove worktrees:
 The script will:
 
 1. Display all available worktrees with their branch names
-2. Prompt you to select a worktree by number
-3. Show the selected worktree details and ask for confirmation
-4. Remove the worktree and its associated branch
-5. Optionally remove the remote branch if it exists
+2. Protect `main` branch and current worktree from deletion (marked as `[PROTECTED]`)
+3. Prompt you to select a worktree by number (only non-protected worktrees are selectable)
+4. Show the selected worktree details and ask for confirmation
+5. Remove the worktree and its associated branch
+6. Optionally remove the remote branch if it exists
+
+**Safety Features:**
+
+- Cannot remove `main` branch worktrees
+- Cannot remove the worktree you're currently inside (prevents shell errors)
+- Must switch to a different worktree before removing your current one
 
 ### Direct Removal
 
@@ -113,12 +139,13 @@ git worktree remove ../audiometa-python-feature2
 cd ~/audiometa-python
 
 # Create worktree for feature branch
-./scripts/create-worktree-cursor.sh feature/add-flac-support
+./scripts/create-worktree.sh feature/add-flac-support
 
-# This creates:
-# - New directory: ~/audiometa-python-feature-add-flac-support
-# - Opens new Cursor window with that directory
-# - Checks out feature/add-flac-support branch
+# This script will:
+# - Pull latest changes from origin/main
+# - Create new directory: ~/audiometa-python-feature-add-flac-support
+# - Open new editor window (Cursor or VS Code) with that directory
+# - Check out feature/add-flac-support branch from updated main
 
 # Now you can work in both windows:
 # - Main window: main branch
@@ -138,8 +165,8 @@ git worktree list
 # /path/to/audiometa-python          abc1234 [main]
 # /path/to/audiometa-python-feature2  def5678 [feature/my-feature]
 
-# Interactive script to list and open worktrees in Cursor
-./scripts/open-worktree-cursor.sh
+# Interactive script to list and open worktrees in your editor
+./scripts/open-worktree.sh
 ```
 
 ## Notes

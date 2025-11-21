@@ -35,9 +35,9 @@
 
 set -e
 
-# Source shared Cursor utilities
+# Source shared editor utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/cursor-common.sh"
+source "$SCRIPT_DIR/editor-common.sh"
 
 # Check for unexpected arguments
 if [ $# -gt 0 ]; then
@@ -49,6 +49,9 @@ fi
 
 # Get the repository root (where .git directory is)
 REPO_ROOT=$(git rev-parse --show-toplevel)
+
+# Get current worktree path
+CURRENT_WORKTREE=$(pwd)
 
 # Get all worktrees
 WORKTREES=$(git worktree list --porcelain)
@@ -100,13 +103,18 @@ if [ -n "$CURRENT_PATH" ]; then
     BRANCHES+=("$CURRENT_BRANCH")
 fi
 
-# Separate worktrees into selectable (non-main) and non-selectable (main)
+# Separate worktrees into selectable (non-main, non-current) and non-selectable (main, current)
 declare -a SELECTABLE_PATHS
 declare -a SELECTABLE_BRANCHES
 declare -a SELECTABLE_INDICES
 
 for i in "${!PATHS[@]}"; do
-    if [ "${BRANCHES[$i]}" != "main" ]; then
+    # Normalize paths for comparison
+    WORKTREE_ABS_PATH=$(cd "${PATHS[$i]}" 2>/dev/null && pwd || echo "${PATHS[$i]}")
+    CURRENT_ABS_PATH=$(cd "$CURRENT_WORKTREE" && pwd)
+
+    # Skip main branch and current worktree
+    if [ "${BRANCHES[$i]}" != "main" ] && [ "$WORKTREE_ABS_PATH" != "$CURRENT_ABS_PATH" ]; then
         SELECTABLE_PATHS+=("${PATHS[$i]}")
         SELECTABLE_BRANCHES+=("${BRANCHES[$i]}")
         SELECTABLE_INDICES+=("$i")
@@ -116,18 +124,22 @@ done
 # Check if any selectable worktrees exist
 if [ ${#SELECTABLE_PATHS[@]} -eq 0 ]; then
     echo "No removable worktrees found."
-    echo "(All worktrees have 'main' branch which is protected)"
+    echo "(All worktrees are either 'main' branch or the current worktree)"
     exit 0
 fi
 
-# Display worktrees: first selectable (non-main), then non-selectable (main)
+# Display worktrees: first selectable, then non-selectable (main/current)
 echo "Available worktrees:"
 echo ""
 
-# First, display selectable worktrees (non-main) with numbers
+# First, display selectable worktrees (non-main, non-current) with numbers
 SELECTABLE_NUM=1
 for i in "${!PATHS[@]}"; do
-    if [ "${BRANCHES[$i]}" != "main" ]; then
+    # Normalize path for comparison
+    WORKTREE_ABS_PATH=$(cd "${PATHS[$i]}" 2>/dev/null && pwd || echo "${PATHS[$i]}")
+    CURRENT_ABS_PATH=$(cd "$CURRENT_WORKTREE" && pwd)
+
+    if [ "${BRANCHES[$i]}" != "main" ] && [ "$WORKTREE_ABS_PATH" != "$CURRENT_ABS_PATH" ]; then
         BRANCH_INFO=""
         if [ -n "${BRANCHES[$i]}" ]; then
             BRANCH_INFO=" [${BRANCHES[$i]}]"
@@ -139,16 +151,23 @@ for i in "${!PATHS[@]}"; do
     fi
 done
 
-# Then, display non-selectable worktrees (main) with [PROTECTED] marker
+# Then, display non-selectable worktrees (main and current) with [PROTECTED] marker
 for i in "${!PATHS[@]}"; do
+    # Normalize path for comparison
+    WORKTREE_ABS_PATH=$(cd "${PATHS[$i]}" 2>/dev/null && pwd || echo "${PATHS[$i]}")
+    CURRENT_ABS_PATH=$(cd "$CURRENT_WORKTREE" && pwd)
+
+    BRANCH_INFO=""
+    if [ -n "${BRANCHES[$i]}" ]; then
+        BRANCH_INFO=" [${BRANCHES[$i]}]"
+    else
+        BRANCH_INFO=" (detached HEAD)"
+    fi
+
     if [ "${BRANCHES[$i]}" = "main" ]; then
-        BRANCH_INFO=""
-        if [ -n "${BRANCHES[$i]}" ]; then
-            BRANCH_INFO=" [${BRANCHES[$i]}]"
-        else
-            BRANCH_INFO=" (detached HEAD)"
-        fi
-        echo "  [PROTECTED] ${PATHS[$i]}${BRANCH_INFO} (cannot be selected - main branch is protected)"
+        echo "  [PROTECTED] ${PATHS[$i]}${BRANCH_INFO} (main branch)"
+    elif [ "$WORKTREE_ABS_PATH" = "$CURRENT_ABS_PATH" ]; then
+        echo "  [PROTECTED] ${PATHS[$i]}${BRANCH_INFO} (current worktree)"
     fi
 done
 echo ""
@@ -216,10 +235,24 @@ else
     # Check merge status first to determine confirmation level
     # Fetch latest origin/main to ensure accurate merge detection
     IS_MERGED=false
+    COMMIT_COUNT=0
     if git fetch origin main --quiet 2>/dev/null; then
-        # Check if branch is merged into origin/main (handles direct and transitive regular merges)
-        if git merge-base --is-ancestor "$SELECTED_BRANCH" "origin/main" 2>/dev/null; then
-            IS_MERGED=true
+        # Check if branch has commits beyond main (if not, it's just a pointer to main, not merged)
+        BRANCH_COMMIT=$(git rev-parse "$SELECTED_BRANCH" 2>/dev/null)
+        MAIN_COMMIT=$(git rev-parse "origin/main" 2>/dev/null)
+
+        if [ "$BRANCH_COMMIT" = "$MAIN_COMMIT" ]; then
+            # Branch points to same commit as main - freshly created, no work done
+            IS_MERGED=false
+            COMMIT_COUNT=0
+        else
+            # Count commits not in main
+            COMMIT_COUNT=$(git rev-list --count "origin/main..$SELECTED_BRANCH" 2>/dev/null || echo "0")
+
+            if git merge-base --is-ancestor "$SELECTED_BRANCH" "origin/main" 2>/dev/null; then
+                # Branch is an ancestor of main - likely merged
+                IS_MERGED=true
+            fi
         fi
     fi
 
@@ -228,9 +261,13 @@ else
     if [ "$IS_MERGED" = true ]; then
         echo "ℹ️  Branch '$SELECTED_BRANCH' is merged into origin/main (PR accepted)"
         echo "   Safe to delete - the work is already in main"
+    elif [ "$COMMIT_COUNT" -eq 0 ]; then
+        echo "ℹ️  Branch '$SELECTED_BRANCH' has 0 commits (freshly created or already merged)"
+        echo "   Safe to delete - no uncommitted work"
     else
         echo "⚠️  WARNING: This operation is DESTRUCTIVE!"
-        echo "   Branch '$SELECTED_BRANCH' may not be merged into origin/main"
+        echo "   Branch '$SELECTED_BRANCH' has $COMMIT_COUNT commit(s) not in origin/main"
+        echo "   Removing it will DELETE this uncommitted work!"
     fi
     echo ""
     echo "The following will be deleted:"
@@ -241,9 +278,9 @@ else
     echo "  - Worktree directory: $SELECTED_PATH"
     echo ""
 
-    # Require different confirmation based on merge status
-    if [ "$IS_MERGED" = true ]; then
-        read -p "Delete merged branch? (y/N): " -n 1 -r
+    # Require different confirmation based on merge status and commit count
+    if [ "$IS_MERGED" = true ] || [ "$COMMIT_COUNT" -eq 0 ]; then
+        read -p "Delete branch? (y/N): " -n 1 -r
         echo ""
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
             echo "Aborted."

@@ -156,6 +156,7 @@ Ensure you're using:
   These scripts install the same versions as CI. Configuration is documented in `system-dependencies-prod.toml`, `system-dependencies-test-only.toml`, and `system-dependencies-lint.toml`.
 
   **Required tools:**
+
   - `ffmpeg` / `ffprobe` - Audio file analysis
   - `flac` / `metaflac` - FLAC file operations
   - `mediainfo` - Media information extraction
@@ -457,10 +458,12 @@ Quick release process:
    ```
 
 2. Check `TODO.md` for any critical items that should be addressed before release
+
    - Review high-priority tasks and ensure they're either completed or deferred to next release
    - Update TODO items if needed to reflect current project status
 
 3. Update the changelog (`CHANGELOG.md`) with the new release version and changes
+
    - Review changes in the `[Unreleased]` section and decide on version number (following Semantic Versioning)
    - Move content from `[Unreleased]` section to new version entry with date (e.g., `## [0.2.3] - 2025-11-17`)
    - Review and consolidate entries if needed (group similar changes, ensure clarity)
@@ -483,6 +486,7 @@ Quick release process:
    ```
 
    **What bump2version does:**
+
    - Updates version in `pyproject.toml` (from `.bumpversion.cfg` configuration)
    - Updates version badge in `README.md`
    - Creates a commit with the configured commit message (e.g., "chore: prepare release 0.2.3")
@@ -510,6 +514,7 @@ Quick release process:
    **Important:** The tag version must match the version in `pyproject.toml` (without the `v` prefix).
 
 7. CI/CD will automatically:
+
    - **Wait for CI to complete**: The publish workflow automatically waits for CI to finish (polls every 30 seconds, max 30 minutes)
    - Verify tag version matches `pyproject.toml` version
    - Verify tag is on main branch
