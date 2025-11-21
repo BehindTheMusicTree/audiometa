@@ -322,6 +322,73 @@ pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=85
 
 **Before opening a Pull Request, ensure you have completed the [Pre-PR Checklist](#61-pre-pr-checklist) above.**
 
+##### PR Title Naming Convention
+
+Pull Request titles must follow the same format as commit messages for consistency:
+
+**Format:**
+
+```
+<type>(<optional-scope>): <short imperative description>
+```
+
+**Allowed Types:**
+
+- `feat` — new feature
+- `fix` — bug fix
+- `refactor` — code restructuring
+- `docs` — documentation update
+- `chore` — maintenance / infrastructure (dependency updates, tooling setup, repository configuration)
+- `perf` — performance improvement
+- `style` — formatting / lint-only changes
+- `ci` — CI/CD pipeline changes (GitHub Actions workflows, CI configuration)
+
+**Rules:**
+
+- Use imperative mood ("Add…", "Fix…", "Update…")
+- Keep it under ~70 characters
+- Include issue/ticket IDs when applicable (e.g., `fix(#482): handle null values`)
+- Avoid "WIP" in titles — use draft PRs instead
+- Use lowercase for type and scope (e.g., `feat(id3v2):`, not `Feat(ID3v2):`)
+
+**Note on Branch Prefixes vs PR Title Types:**
+
+Branch prefixes (`feature/`, `chore/`, `hotfix/`) are for branch organization and differ from PR title types:
+
+- Branch `feature/add-flac-support` → PR title: `feat: add flac support` (use `feat`, not `feature`)
+- Branch `chore/update-dependencies` → PR title: `chore: update dependencies` (use `chore`)
+- Branch `hotfix/critical-bug` → PR title: `fix: critical bug` (use `fix`, not `hotfix`)
+
+**Note on GitHub's Auto-Suggested Titles:**
+
+GitHub automatically generates PR titles based on branch names. For example, a branch named `chore/auto-approve-maintainer-prs` will generate:
+
+```
+Chore/auto approve maintainer prs
+```
+
+**GitHub's auto-suggested titles do not follow our convention**, so you must rewrite them to match the standard format:
+
+- ❌ **GitHub suggestion**: `Feature/add album artist tag support id3v2` (from branch `feature/add-album-artist-tag-support-id3v2`)
+- ✅ **Correct format**: `feat(id3v2): add album artist tag support`
+
+- ❌ **GitHub suggestion**: `Chore/format code with ruff` (from branch `chore/format-code-with-ruff`)
+- ✅ **Correct format**: `style: format code with ruff`
+
+- ❌ **GitHub suggestion**: `Chore/use PAT for auto approve workflow instead of GITHUB_TOKEN` (from branch `chore/use-pat-for-auto-approve-workflow`)
+- ✅ **Correct format**: `ci: use PAT for auto-approve workflow instead of GITHUB_TOKEN`
+
+**Examples:**
+
+- `feat(id3v2): add album artist tag support`
+- `fix(vorbis): correctly parse embedded picture metadata`
+- `docs: update contributing guide`
+- `chore: auto-approve maintainer PRs`
+- `test(mp3): add roundtrip test for metadata write/read`
+- `fix(#482): handle null search values`
+- `style: format code with ruff`
+- `ci: use PAT for auto-approve workflow instead of GITHUB_TOKEN`
+
 ##### PR Description
 
 When opening a Pull Request, a template will be automatically provided. Ensure your PR description includes:

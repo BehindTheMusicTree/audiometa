@@ -1,0 +1,120 @@
+---
+alwaysApply: true
+---
+
+# Pull Request Naming Convention
+
+Pull Request titles must follow the same format as commit messages for consistency across the repository.
+
+## Format
+
+```
+<type>(<optional-scope>): <short imperative description>
+```
+
+## Allowed Types
+
+| Type     | Description                                          |
+| -------- | ---------------------------------------------------- |
+| feat     | New feature or enhancement                          |
+| fix      | Bug fix                                              |
+| refactor | Code refactoring that doesn't change behavior        |
+| docs     | Documentation-only changes                           |
+| chore    | Maintenance tasks (e.g. packaging, dependencies, tooling setup, repository configuration) |
+| perf     | Performance improvements                             |
+| style    | Code style or formatting changes (no logic impact)   |
+| test     | Test-related changes                                 |
+| ci       | CI/CD pipeline changes (GitHub Actions workflows, CI configuration) |
+
+## Rules
+
+- **Use imperative mood**: "Add…", "Fix…", "Update…" (not "Added", "Fixed", "Updated")
+- **Keep it under ~70 characters**: Ensures readability in PR lists and notifications
+- **Include issue/ticket IDs when applicable**: Use format like `fix(#482): handle null values` or `feat(PLAT-231): add onboarding flow`
+- **Avoid "WIP" in titles**: Use draft PRs instead of "WIP" prefixes
+- **Use lowercase**: Type and scope should be lowercase (e.g., `feat(id3v2):`, not `Feat(ID3v2):`)
+
+## Branch Prefixes vs PR Title Types
+
+Branch prefixes (`feature/`, `chore/`, `hotfix/`) are for branch organization and differ from PR title types:
+
+- Branch `feature/add-flac-support` → PR title: `feat: add flac support` (use `feat`, not `feature`)
+- Branch `chore/update-dependencies` → PR title: `chore: update dependencies` (use `chore`)
+- Branch `hotfix/critical-bug` → PR title: `fix: critical bug` (use `fix`, not `hotfix`)
+
+**PR titles should use commit message types (`feat`, `fix`, `chore`), not branch prefixes (`feature/`, `hotfix/`, `chore/`).**
+
+## GitHub's Auto-Suggested Titles
+
+**Important:** GitHub automatically generates PR titles based on branch names. For example, a branch named `chore/auto-approve-maintainer-prs` will generate:
+
+```
+Chore/auto approve maintainer prs
+```
+
+**GitHub's auto-suggested titles do NOT follow our convention**, so you must rewrite them to match the standard format.
+
+### Example Rewrite
+
+- ❌ **GitHub suggestion**: `Feature/add album artist tag support id3v2` (from branch `feature/add-album-artist-tag-support-id3v2`)
+- ✅ **Correct format**: `feat(id3v2): add album artist tag support`
+
+- ❌ **GitHub suggestion**: `Chore/format code with ruff` (from branch `chore/format-code-with-ruff`)
+- ✅ **Correct format**: `style: format code with ruff`
+
+- ❌ **GitHub suggestion**: `Chore/use PAT for auto approve workflow instead of GITHUB_TOKEN` (from branch `chore/use-pat-for-auto-approve-workflow`)
+- ✅ **Correct format**: `ci: use PAT for auto-approve workflow instead of GITHUB_TOKEN`
+
+### Why This Matters
+
+- Ensures consistency across the repository regardless of GitHub's default suggestions
+- Makes PR history more readable and searchable
+- Aligns with commit message conventions for better traceability
+
+## Examples
+
+### With Issue/Ticket ID
+
+- `feat(PLAT-231): add onboarding flow`
+- `fix(#482): handle null search values`
+- `refactor(UI-77): simplify theme provider`
+
+### Without Issue/Ticket ID
+
+- `feat(id3v2): add album artist tag support`
+- `fix(vorbis): correctly parse embedded picture metadata`
+- `docs: update contributing guide`
+- `chore: auto-approve maintainer PRs`
+- `test(mp3): add roundtrip test for metadata write/read`
+- `refactor(core): move format detection to utils module`
+- `style: format code with ruff`
+- `ci: use PAT for auto-approve workflow instead of GITHUB_TOKEN`
+
+## Common Scopes
+
+| Scope  | Example                                     | Description                  |
+| ------ | ------------------------------------------- | ---------------------------- |
+| core   | `feat(core): simplify metadata interface`  | Core metadata handling logic |
+| id3v1  | `fix(id3v1): handle encoding issues`       | ID3v1 tag format             |
+| id3v2  | `feat(id3v2): add custom text frame support`| ID3v2 tag format             |
+| vorbis | `fix(vorbis): improve comment parsing`      | Vorbis comment format        |
+| riff   | `feat(riff): detect and write INFO chunks`  | RIFF metadata format         |
+| test   | `refactor(test): reorganize test fixtures`  | Testing infrastructure       |
+| deps   | `chore(deps): update mutagen dependency`    | Dependency management        |
+| docs   | `docs: improve README example`              | Documentation updates        |
+| ci     | `ci: update GitHub Actions workflow`        | CI/CD pipeline changes       |
+
+## Guidelines
+
+- **One logical change per PR**: Each PR should represent a single, complete change
+- **Be descriptive**: The title should clearly describe what the PR does
+- **Match commit messages**: PR titles should follow the same format as commit messages for consistency
+- **Review before submitting**: Always review and edit the auto-suggested title if needed
+
+## Bad Examples
+
+- ❌ `fixed bug` (too vague, no type/scope)
+- ❌ `WIP: working on stuff` (use draft PRs instead)
+- ❌ `Chore/auto approve maintainer prs` (GitHub default, needs rewriting)
+- ❌ `feat: added new feature` (not descriptive, not imperative)
+- ❌ `fix: fixed the thing that was broken` (redundant, not imperative)
