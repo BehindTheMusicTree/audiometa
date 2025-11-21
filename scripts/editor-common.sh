@@ -33,6 +33,18 @@ open_in_editor() {
         fi
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # Linux
+        echo "⚠️  Warning: Linux support has not been tested. Please report any issues."
+        if command -v cursor &> /dev/null; then
+            AVAILABLE_EDITORS+=("Cursor")
+            EDITOR_COMMANDS+=("cursor")
+        fi
+        if command -v code &> /dev/null; then
+            AVAILABLE_EDITORS+=("VS Code")
+            EDITOR_COMMANDS+=("code")
+        fi
+    elif [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]]; then
+        # Windows (Git Bash/Cygwin)
+        echo "⚠️  Warning: Windows support has not been tested. Please report any issues."
         if command -v cursor &> /dev/null; then
             AVAILABLE_EDITORS+=("Cursor")
             EDITOR_COMMANDS+=("cursor")
@@ -42,7 +54,7 @@ open_in_editor() {
             EDITOR_COMMANDS+=("code")
         fi
     else
-        echo "Error: Unsupported operating system"
+        echo "Error: Unsupported operating system: $OSTYPE"
         return 1
     fi
 

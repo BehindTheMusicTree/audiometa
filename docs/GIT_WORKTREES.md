@@ -17,11 +17,15 @@ Use the provided script to create a worktree and open it in your preferred code 
 git worktree feature/my-feature
 ```
 
-The script will automatically detect and open the worktree in:
+**Editor Selection:**
 
-- **Cursor** if installed (preferred)
-- **VS Code** if Cursor is not available
-- Otherwise, it will notify you to open the worktree manually
+- If both Cursor and VS Code are installed, you'll be prompted to choose
+- If only one editor is installed, it opens automatically
+- **macOS**: Fully tested. Editors must be in `/Applications`
+- **Linux**: Experimental support (not tested). Uses `cursor` or `code` commands
+- **Windows**: Experimental support (not tested). Uses `cursor` or `code` commands via Git Bash/Cygwin
+
+⚠️ **Note**: Linux and Windows support has not been tested. If you encounter issues, please report them.
 
 ### What the Script Does
 
@@ -48,7 +52,8 @@ The script will:
 
 1. Display all available worktrees with their branch names
 2. Prompt you to select a worktree by number
-3. Open the selected worktree directory in Cursor or VS Code (whichever is available)
+3. Prompt you to choose an editor (if both Cursor and VS Code are available)
+4. Open the selected worktree in your chosen editor
 
 This is useful when you have multiple worktrees and want to quickly switch between them without manually navigating to their directories.
 

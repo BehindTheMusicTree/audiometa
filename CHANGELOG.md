@@ -50,18 +50,19 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Added
 
-- **Git Worktree Management Scripts**: Added comprehensive scripts for managing git worktrees:
-  - `create-worktree.sh`: Creates a new worktree from main branch and opens it in Cursor or VS Code
+- **Git Worktree Management Scripts**: Added comprehensive scripts for managing git worktrees with VS Code support:
+  - `create-worktree.sh`: Creates a new worktree from main branch and opens it in your preferred editor
     - Automatically pulls latest changes from main before creating worktree
     - Automatically sets up Python virtual environment with Python 3.13
     - Installs all development dependencies
     - Handles existing worktrees/branches with interactive cleanup prompts
     - Ensures editor settings are configured in new worktrees
     - Requires worktrees to be created from main branch for consistency
-    - Supports both Cursor and VS Code (tries Cursor first, falls back to VS Code)
-  - `open-worktree.sh`: Lists all worktrees and opens selected one in Cursor or VS Code
+    - Supports both Cursor and VS Code (prompts user to choose when both are available)
+  - `open-worktree.sh`: Lists all worktrees and opens selected one in your preferred editor
   - `remove-worktree-interactive.sh`: Interactively lists and removes worktrees with their branches
   - `remove-worktree-branch.sh`: Directly removes worktree and branch by name
+  - `editor-common.sh`: Shared utilities for editor detection and opening (supports Cursor and VS Code)
 
 ### Fixed
 
