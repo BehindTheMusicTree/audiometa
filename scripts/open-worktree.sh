@@ -1,17 +1,18 @@
 #!/bin/bash
 
-# Script to list all git worktrees and open the selected one in Cursor
+# Script to list all git worktrees and open the selected one in a code editor
 #
 # This script displays all available git worktrees, allows you to select one,
-# and opens it in Cursor. Useful for quickly switching between worktrees.
+# and opens it in your preferred editor (Cursor or VS Code).
+# Useful for quickly switching between worktrees.
 #
-# Usage: ./scripts/open-worktree-cursor.sh
+# Usage: ./scripts/open-worktree.sh
 
 set -e
 
-# Source shared Cursor utilities
+# Source shared editor utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/cursor-common.sh"
+source "$SCRIPT_DIR/editor-common.sh"
 
 # Get the repository root (where .git directory is)
 REPO_ROOT=$(git rev-parse --show-toplevel)
@@ -110,7 +111,7 @@ echo ""
 echo "Opening: $SELECTED_PATH"
 echo ""
 
-# Open in Cursor
-if ! open_in_cursor "$SELECTED_PATH"; then
+# Open in editor
+if ! open_in_editor "$SELECTED_PATH"; then
     exit 1
 fi

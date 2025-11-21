@@ -1,29 +1,30 @@
 #!/bin/bash
 
-# Script to create a git worktree from main and open it in a new Cursor window
+# Script to create a git worktree from main and open it in a code editor (Cursor or VS Code)
 #
 # This script automates the process of creating a new git worktree, setting up the
-# development environment, and opening it in Cursor. All worktrees are created
-# from the main branch to ensure a consistent base.
+# development environment, and opening it in your preferred editor (Cursor or VS Code).
+# All worktrees are created from the main branch to ensure a consistent base.
 #
-# Usage: ./scripts/create-worktree-cursor.sh <branch-name> [worktree-name]
+# Usage: ./scripts/create-worktree.sh <branch-name> [worktree-name]
 #
 # Main steps:
 # 1. Validates prerequisites (branch doesn't exist, main branch exists, worktree path available)
-# 2. Creates git worktree from main branch with the new branch name
-# 3. Sets up Python virtual environment and installs dependencies
-# 4. Opens the worktree directory in Cursor
+# 2. Pulls latest changes from main branch to ensure up-to-date base
+# 3. Creates git worktree from main branch with the new branch name
+# 4. Sets up Python virtual environment and installs dependencies
+# 5. Opens the worktree directory in your editor (Cursor or VS Code)
 #
 # Examples:
-#   ./scripts/create-worktree-cursor.sh feature/my-feature
-#   ./scripts/create-worktree-cursor.sh feature/my-feature my-feature-worktree
-#   ./scripts/create-worktree-cursor.sh chore/update-dependencies
+#   ./scripts/create-worktree.sh feature/my-feature
+#   ./scripts/create-worktree.sh feature/my-feature my-feature-worktree
+#   ./scripts/create-worktree.sh chore/update-dependencies
 
 set -e
 
-# Source shared Cursor utilities
+# Source shared editor utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/cursor-common.sh"
+source "$SCRIPT_DIR/editor-common.sh"
 
 if [ $# -lt 1 ]; then
     echo "Usage: $0 <branch-name> [worktree-name]"
@@ -117,6 +118,22 @@ if ! git show-ref --verify --quiet "refs/heads/main" && ! git show-ref --verify 
     exit 1
 fi
 
+# Pull latest changes from main branch
+echo "Pulling latest changes from main branch..."
+CURRENT_BRANCH=$(git branch --show-current)
+if [ "$CURRENT_BRANCH" != "main" ]; then
+    echo "Switching to main branch to pull latest changes..."
+    git checkout main
+fi
+git pull origin main
+echo "✓ Main branch updated"
+echo ""
+
+# Switch back to original branch if needed
+if [ "$CURRENT_BRANCH" != "main" ] && [ -n "$CURRENT_BRANCH" ]; then
+    git checkout "$CURRENT_BRANCH"
+fi
+
 # Create worktree from main
 echo "Creating worktree from main for new branch: $BRANCH_NAME"
 git worktree add "$WORKTREE_PATH" -b "$BRANCH_NAME" main
@@ -128,14 +145,14 @@ echo ""
 echo "✓ Worktree created at: $WORKTREE_ABS_PATH"
 echo ""
 
-# Ensure .vscode/settings.json exists (for Cursor Pyright configuration)
+# Ensure .vscode/settings.json exists (for editor configuration)
 if [ ! -f "$WORKTREE_ABS_PATH/.vscode/settings.json" ]; then
-    echo "Setting up Cursor/VSCode settings..."
+    echo "Setting up editor settings..."
     mkdir -p "$WORKTREE_ABS_PATH/.vscode"
     # Copy settings from repo root if it exists
     if [ -f "$REPO_ROOT/.vscode/settings.json" ]; then
         cp "$REPO_ROOT/.vscode/settings.json" "$WORKTREE_ABS_PATH/.vscode/settings.json"
-        echo "✓ Cursor settings configured"
+        echo "✓ Editor settings configured"
     fi
     echo ""
 fi
@@ -156,12 +173,11 @@ else
     echo ""
 fi
 
-# Open in Cursor
-echo "Opening in Cursor..."
-if ! open_in_cursor "$WORKTREE_ABS_PATH"; then
-    echo "Warning: Failed to open Cursor"
+# Open in editor
+if ! open_in_editor "$WORKTREE_ABS_PATH"; then
+    echo "Warning: Failed to open editor"
     echo "Worktree is ready at: $WORKTREE_ABS_PATH"
-    echo "Open it manually in Cursor"
+    echo "Open it manually in your editor"
 fi
 
 echo ""

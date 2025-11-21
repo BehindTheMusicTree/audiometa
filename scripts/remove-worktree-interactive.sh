@@ -35,9 +35,9 @@
 
 set -e
 
-# Source shared Cursor utilities
+# Source shared editor utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/cursor-common.sh"
+source "$SCRIPT_DIR/editor-common.sh"
 
 # Check for unexpected arguments
 if [ $# -gt 0 ]; then
