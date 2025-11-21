@@ -229,7 +229,7 @@ else
         else
             # Count commits not in main
             COMMIT_COUNT=$(git rev-list --count "origin/main..$SELECTED_BRANCH" 2>/dev/null || echo "0")
-            
+
             if git merge-base --is-ancestor "$SELECTED_BRANCH" "origin/main" 2>/dev/null; then
                 # Branch is an ancestor of main - likely merged
                 IS_MERGED=true
