@@ -216,6 +216,7 @@ else
     # Check merge status first to determine confirmation level
     # Fetch latest origin/main to ensure accurate merge detection
     IS_MERGED=false
+    COMMIT_COUNT=0
     if git fetch origin main --quiet 2>/dev/null; then
         # Check if branch has commits beyond main (if not, it's just a pointer to main, not merged)
         BRANCH_COMMIT=$(git rev-parse "$SELECTED_BRANCH" 2>/dev/null)
@@ -224,9 +225,15 @@ else
         if [ "$BRANCH_COMMIT" = "$MAIN_COMMIT" ]; then
             # Branch points to same commit as main - freshly created, no work done
             IS_MERGED=false
-        elif git merge-base --is-ancestor "$SELECTED_BRANCH" "origin/main" 2>/dev/null; then
-            # Branch is an ancestor of main - likely merged
-            IS_MERGED=true
+            COMMIT_COUNT=0
+        else
+            # Count commits not in main
+            COMMIT_COUNT=$(git rev-list --count "origin/main..$SELECTED_BRANCH" 2>/dev/null || echo "0")
+            
+            if git merge-base --is-ancestor "$SELECTED_BRANCH" "origin/main" 2>/dev/null; then
+                # Branch is an ancestor of main - likely merged
+                IS_MERGED=true
+            fi
         fi
     fi
 
@@ -237,7 +244,8 @@ else
         echo "   Safe to delete - the work is already in main"
     else
         echo "⚠️  WARNING: This operation is DESTRUCTIVE!"
-        echo "   Branch '$SELECTED_BRANCH' may not be merged into origin/main"
+        echo "   Branch '$SELECTED_BRANCH' has $COMMIT_COUNT commit(s) not in origin/main"
+        echo "   Removing it may DELETE uncommitted work!"
     fi
     echo ""
     echo "The following will be deleted:"
