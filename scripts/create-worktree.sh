@@ -17,8 +17,9 @@
 #
 # Examples:
 #   ./scripts/create-worktree.sh feature/my-feature
-#   ./scripts/create-worktree.sh feature/my-feature my-feature-worktree
+#   ./scripts/create-worktree.sh feature/123-add-ogg-support
 #   ./scripts/create-worktree.sh chore/update-dependencies
+#   ./scripts/create-worktree.sh hotfix/critical-metadata-bug
 
 set -e
 
@@ -31,8 +32,9 @@ if [ $# -lt 1 ]; then
     echo ""
     echo "Examples:"
     echo "  $0 feature/my-feature"
-    echo "  $0 feature/my-feature my-feature-worktree"
+    echo "  $0 feature/123-add-ogg-support"
     echo "  $0 chore/update-dependencies"
+    echo "  $0 hotfix/critical-metadata-bug"
     exit 1
 fi
 
