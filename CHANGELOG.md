@@ -62,6 +62,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
     - Cross-platform support: macOS (fully tested), Linux, and Windows (Git Bash/Cygwin)
   - `open-worktree.sh`: Lists all worktrees and opens selected one in your preferred editor
   - `remove-worktree-interactive.sh`: Interactively lists and removes worktrees with their branches
+    - Protects main branch worktrees from deletion
+    - Protects current worktree from deletion (prevents shell errors from removing directory you're in)
+    - Displays commit count warnings before deletion
+    - Shows merge status to help determine if deletion is safe
   - `remove-worktree-branch.sh`: Directly removes worktree and branch by name
   - `editor-common.sh`: Shared utilities for editor detection and opening
     - Supports Cursor and VS Code on macOS, Linux, and Windows

@@ -50,6 +50,9 @@ fi
 # Get the repository root (where .git directory is)
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
+# Get current worktree path
+CURRENT_WORKTREE=$(pwd)
+
 # Get all worktrees
 WORKTREES=$(git worktree list --porcelain)
 
@@ -100,13 +103,18 @@ if [ -n "$CURRENT_PATH" ]; then
     BRANCHES+=("$CURRENT_BRANCH")
 fi
 
-# Separate worktrees into selectable (non-main) and non-selectable (main)
+# Separate worktrees into selectable (non-main, non-current) and non-selectable (main, current)
 declare -a SELECTABLE_PATHS
 declare -a SELECTABLE_BRANCHES
 declare -a SELECTABLE_INDICES
 
 for i in "${!PATHS[@]}"; do
-    if [ "${BRANCHES[$i]}" != "main" ]; then
+    # Normalize paths for comparison
+    WORKTREE_ABS_PATH=$(cd "${PATHS[$i]}" 2>/dev/null && pwd || echo "${PATHS[$i]}")
+    CURRENT_ABS_PATH=$(cd "$CURRENT_WORKTREE" && pwd)
+
+    # Skip main branch and current worktree
+    if [ "${BRANCHES[$i]}" != "main" ] && [ "$WORKTREE_ABS_PATH" != "$CURRENT_ABS_PATH" ]; then
         SELECTABLE_PATHS+=("${PATHS[$i]}")
         SELECTABLE_BRANCHES+=("${BRANCHES[$i]}")
         SELECTABLE_INDICES+=("$i")
@@ -116,18 +124,22 @@ done
 # Check if any selectable worktrees exist
 if [ ${#SELECTABLE_PATHS[@]} -eq 0 ]; then
     echo "No removable worktrees found."
-    echo "(All worktrees have 'main' branch which is protected)"
+    echo "(All worktrees are either 'main' branch or the current worktree)"
     exit 0
 fi
 
-# Display worktrees: first selectable (non-main), then non-selectable (main)
+# Display worktrees: first selectable, then non-selectable (main/current)
 echo "Available worktrees:"
 echo ""
 
-# First, display selectable worktrees (non-main) with numbers
+# First, display selectable worktrees (non-main, non-current) with numbers
 SELECTABLE_NUM=1
 for i in "${!PATHS[@]}"; do
-    if [ "${BRANCHES[$i]}" != "main" ]; then
+    # Normalize path for comparison
+    WORKTREE_ABS_PATH=$(cd "${PATHS[$i]}" 2>/dev/null && pwd || echo "${PATHS[$i]}")
+    CURRENT_ABS_PATH=$(cd "$CURRENT_WORKTREE" && pwd)
+
+    if [ "${BRANCHES[$i]}" != "main" ] && [ "$WORKTREE_ABS_PATH" != "$CURRENT_ABS_PATH" ]; then
         BRANCH_INFO=""
         if [ -n "${BRANCHES[$i]}" ]; then
             BRANCH_INFO=" [${BRANCHES[$i]}]"
@@ -139,16 +151,23 @@ for i in "${!PATHS[@]}"; do
     fi
 done
 
-# Then, display non-selectable worktrees (main) with [PROTECTED] marker
+# Then, display non-selectable worktrees (main and current) with [PROTECTED] marker
 for i in "${!PATHS[@]}"; do
+    # Normalize path for comparison
+    WORKTREE_ABS_PATH=$(cd "${PATHS[$i]}" 2>/dev/null && pwd || echo "${PATHS[$i]}")
+    CURRENT_ABS_PATH=$(cd "$CURRENT_WORKTREE" && pwd)
+
+    BRANCH_INFO=""
+    if [ -n "${BRANCHES[$i]}" ]; then
+        BRANCH_INFO=" [${BRANCHES[$i]}]"
+    else
+        BRANCH_INFO=" (detached HEAD)"
+    fi
+
     if [ "${BRANCHES[$i]}" = "main" ]; then
-        BRANCH_INFO=""
-        if [ -n "${BRANCHES[$i]}" ]; then
-            BRANCH_INFO=" [${BRANCHES[$i]}]"
-        else
-            BRANCH_INFO=" (detached HEAD)"
-        fi
-        echo "  [PROTECTED] ${PATHS[$i]}${BRANCH_INFO} (cannot be selected - main branch is protected)"
+        echo "  [PROTECTED] ${PATHS[$i]}${BRANCH_INFO} (main branch)"
+    elif [ "$WORKTREE_ABS_PATH" = "$CURRENT_ABS_PATH" ]; then
+        echo "  [PROTECTED] ${PATHS[$i]}${BRANCH_INFO} (current worktree)"
     fi
 done
 echo ""

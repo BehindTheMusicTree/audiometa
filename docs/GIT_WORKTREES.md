@@ -101,10 +101,17 @@ To interactively list and remove worktrees:
 The script will:
 
 1. Display all available worktrees with their branch names
-2. Prompt you to select a worktree by number
-3. Show the selected worktree details and ask for confirmation
-4. Remove the worktree and its associated branch
-5. Optionally remove the remote branch if it exists
+2. Protect `main` branch and current worktree from deletion (marked as `[PROTECTED]`)
+3. Prompt you to select a worktree by number (only non-protected worktrees are selectable)
+4. Show the selected worktree details and ask for confirmation
+5. Remove the worktree and its associated branch
+6. Optionally remove the remote branch if it exists
+
+**Safety Features:**
+
+- Cannot remove `main` branch worktrees
+- Cannot remove the worktree you're currently inside (prevents shell errors)
+- Must switch to a different worktree before removing your current one
 
 ### Direct Removal
 
