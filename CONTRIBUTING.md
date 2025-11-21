@@ -20,6 +20,7 @@ This project is currently maintained by a solo developer, but contributions, sug
     - [6.2. Opening a Pull Request](#62-opening-a-pull-request)
   - [7. Releasing _(For Maintainers)_](#7-releasing-for-maintainers)
 - [🪪 License & Attribution](#-license--attribution)
+- [📜 Code of Conduct](#-code-of-conduct)
 - [🌍 Contact & Discussions](#-contact--discussions)
 
 ## Contributors vs Maintainers
@@ -60,7 +61,8 @@ _Note: Contributors can submit fixes for critical issues via feature branches. M
 
 - Publishing workflows (`.github/workflows/publish.yml`) - handles sensitive secrets and can publish packages to PyPI
 - Stale issues/PRs workflow (`.github/workflows/stale.yml`) - affects repository management policies
-- Auto-assignment workflows - affects review process
+- Auto-assignment workflows (`.github/workflows/auto-assign.yml`) - affects review process
+- Auto-approval workflows (`.github/workflows/auto-approve.yml`) - automatically approves maintainer PRs
 - Other automation workflows that affect repository management
 
 **Auto-labeling configuration (contributors can suggest changes via PRs):**
@@ -84,7 +86,7 @@ _Note: Contributors can submit fixes for critical issues via feature branches. M
 
 **What contributors cannot do:**
 
-- Modify automation workflows (stale, auto-assignment, etc.) - these are policy decisions
+- Modify automation workflows (stale, auto-assignment, auto-approval, etc.) - these are policy decisions
 - Create or delete repository labels (maintainer-only) - repository labels are the label definitions (like `bug`, `enhancement`, `id3v1`) that exist in the repository's label list
 - Modify labels on issues/PRs they didn't create (unless they have write access)
 
@@ -207,6 +209,14 @@ Ensure you're using:
   git checkout -b chore/234-update-dependencies        # With issue number
   ```
 - Merge into `main` via Pull Request when complete
+
+#### Working with Multiple Local Branches (Git Worktrees)
+
+When working on multiple branches simultaneously or when you need separate Cursor windows for different branches, use **git worktrees**. This allows you to have multiple working directories for the same repository, each on a different branch.
+
+For detailed information on setting up and using git worktrees, see:
+
+**[Git Worktrees Guide](docs/GIT_WORKTREES.md)**
 
 ### 3. Developing
 
@@ -429,6 +439,7 @@ When you open a Pull Request, several automations will run automatically:
 - **Auto-labeling**: Component labels (like `id3v1`, `id3v2`, `vorbis`, `riff`, `cli`, `core`) and some type labels (`documentation`, `test`, `ci`, `dependencies`) are automatically added based on files changed
 - **Manual labels**: You should still add type labels (`bug`, `enhancement`, `feature`) and priority labels manually, as these can't be determined from file paths
 - **Auto-assignment**: For contributor PRs (not maintainer PRs), reviewers are automatically assigned
+- **Auto-approval**: PRs from maintainer are automatically approved (maintainer PRs don't require manual review)
 - **CI/CD checks**: Automated tests, linting, and type checking run on your PR
 - **Welcome message**: First-time contributors receive a welcome message with helpful links
 
