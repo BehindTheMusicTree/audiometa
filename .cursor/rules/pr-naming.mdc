@@ -59,6 +59,9 @@ Chore/auto approve maintainer prs
 - ❌ **GitHub suggestion**: `Feature/add album artist tag support id3v2` (from branch `feature/add-album-artist-tag-support-id3v2`)
 - ✅ **Correct format**: `feat(id3v2): add album artist tag support`
 
+- ❌ **GitHub suggestion**: `Feature/123 add ogg support` (from branch `feature/123-add-ogg-support`)
+- ✅ **Correct format**: `feat(ogg): add OGG support`
+
 - ❌ **GitHub suggestion**: `Chore/format code with ruff` (from branch `chore/format-code-with-ruff`)
 - ✅ **Correct format**: `style: format code with ruff`
 

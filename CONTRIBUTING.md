@@ -174,26 +174,37 @@ Ensure you're using:
 #### Feature Branches (`feature/<name>`)
 
 - Create one for each new feature or bug fix
-- Example:
+- Include issue numbers when applicable: `feature/123-add-ogg-support`
+- Examples:
   ```bash
   git checkout -b feature/improve-genre-classification
+  git checkout -b feature/123-add-ogg-support        # With issue number
+  git checkout -b feature/456-fix-id3v1-encoding      # With issue number
   ```
 - Merge into `main` via Pull Request when complete and tested
 
-#### Hotfix Branches (`hotfix/<issue>`) _(For Maintainers)_
+#### Hotfix Branches (`hotfix/<name>`) _(For Maintainers)_
 
 - For urgent bug fixes on production versions
+- Include issue numbers when applicable: `hotfix/789-critical-bug`
+- Examples:
+  ```bash
+  git checkout -b hotfix/critical-metadata-bug
+  git checkout -b hotfix/789-critical-security-patch   # With issue number
+  ```
 - Contributors can submit fixes via feature branches that maintainers may promote to hotfixes if needed
 
 #### Chore Branches (`chore/<name>`)
 
 - For maintenance, infrastructure, and configuration work
+- Include issue numbers when applicable: `chore/234-update-dependencies`
 - Examples: repository setup, CI/CD changes, dependency updates, documentation infrastructure
 - Valid in lightweight GitFlow/GitHub Flow workflows
-- Example:
+- Examples:
   ```bash
   git checkout -b chore/github-setup
   git checkout -b chore/update-dependencies
+  git checkout -b chore/234-update-dependencies        # With issue number
   ```
 - Merge into `main` via Pull Request when complete
 
@@ -371,6 +382,9 @@ Chore/auto approve maintainer prs
 
 - ❌ **GitHub suggestion**: `Feature/add album artist tag support id3v2` (from branch `feature/add-album-artist-tag-support-id3v2`)
 - ✅ **Correct format**: `feat(id3v2): add album artist tag support`
+
+- ❌ **GitHub suggestion**: `Feature/123 add ogg support` (from branch `feature/123-add-ogg-support`)
+- ✅ **Correct format**: `feat(ogg): add OGG support`
 
 - ❌ **GitHub suggestion**: `Chore/format code with ruff` (from branch `chore/format-code-with-ruff`)
 - ✅ **Correct format**: `style: format code with ruff`

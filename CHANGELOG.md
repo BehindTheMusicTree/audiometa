@@ -59,6 +59,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated PR template to reference `docs/COMMITTING.md` for commit message guidelines
   - Reorganized changelog best practices section with General Principles and Guidelines for Contributors subsections
   - Documented that even maintainers must go through the PR process and cannot merge directly to main, ensuring all changes receive proper review and CI validation
+  - Added PR naming convention documentation: comprehensive guide covering PR title format, types, scopes, GitHub auto-suggested title handling, branch prefix vs PR title type distinction, and PR description guidelines
+  - Enhanced branch naming convention: added guidance on including issue numbers in branch names (format: `<prefix>/<issue-number>-<description>`)
 - **README Improvements**: Enhanced README structure and clarity:
   - Improved metadata fields feature description (changed "Comprehensive Metadata Fields" to "Core Metadata Fields")
   - Removed redundant Requirements section (information already covered in Installation section)
