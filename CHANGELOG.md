@@ -60,13 +60,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - `open-worktree-cursor.sh`: Lists all worktrees and opens selected one in Cursor
   - `remove-worktree-interactive.sh`: Interactively lists and removes worktrees with their branches
   - `remove-worktree-branch.sh`: Directly removes worktree and branch by name
-- **Auto-approve Maintainer PRs**: Added GitHub Actions workflow to automatically approve PRs from maintainer:
-  - Automatically approves PRs opened by maintainer (Andreas-Garcia)
-  - Uses `pull_request_target` event for proper write permissions
-  - Uses Personal Access Token (PAT) with `repo` scope (required because GitHub Actions cannot approve PRs with default GITHUB_TOKEN)
-  - Includes review message for transparency
-  - Streamlines maintainer workflow by removing manual approval step
-  - Setup instructions included in workflow file comments for configuring the PAT secret
 
 ### Documentation
 
