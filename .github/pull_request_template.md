@@ -45,7 +45,7 @@
 
 ### Git Hygiene
 
-- [ ] Commit messages follow the [commit message convention](CONTRIBUTING.md#-commit-message-convention)
+- [ ] Commit messages follow the [commit message convention](docs/COMMITTING.md)
 - [ ] No merge conflicts with target branch
 - [ ] Branch is up to date with target branch
 - [ ] No accidental commits (large files, secrets, personal configs)

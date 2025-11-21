@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changelog Best Practices
 
+### General Principles
+
 - Changelogs are for humans, not machines.
 - Include an entry for every version, with the latest first.
 - Group similar changes under: Added, Changed, Improved, Deprecated, Removed, Fixed, Documentation, Performance, CI.
@@ -15,9 +17,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Follow Semantic Versioning where possible.
 - Use ISO 8601 date format: YYYY-MM-DD.
 - Avoid dumping raw git logs; summarize notable changes clearly.
-- **Tests should NOT be listed separately in "Added" section** - they should be mentioned with the related feature or fix entry.
 
-**Note**: This changelog is maintained by project maintainers. Contributors should not update this file directly. See `.cursor/rules/changelog.mdc` for detailed changelog guidelines.
+### Guidelines for Contributors
+
+All contributors (including maintainers) should update `CHANGELOG.md` when creating PRs:
+
+1. **Add entries to the `[Unreleased]` section** - Add your changes under the appropriate category (Added, Changed, Improved, Deprecated, Removed, Fixed, Documentation, Performance, CI)
+2. **Follow the changelog format** - See examples below and `.cursor/rules/changelog.mdc` for detailed guidelines
+3. **Group related changes** - Similar changes should be grouped together
+4. **Be descriptive** - Write clear, user-focused descriptions of what changed
+5. **Mention tests when relevant** - Tests should be mentioned within the related feature or fix entry, not as standalone entries
+
+**Example:**
+
+```markdown
+## [Unreleased]
+
+### Added
+
+- **New Feature**: Added support for FLAC metadata reading
+  - Includes comprehensive unit tests covering various metadata formats
+
+### Fixed
+
+- **Metadata Parsing**: Fixed issue with parsing ID3v2 tags containing special characters
+  - Includes regression tests to prevent future occurrences
+```
+
+**Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
 
 ## [Unreleased]
 
@@ -43,6 +70,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **Documentation Reorganization**: Comprehensive restructuring of project documentation:
+  - Moved test documentation from `audiometa/test/README.md` to `docs/TESTING.md` for consistency with other documentation
+  - Created dedicated `docs/COMMITTING.md` guide with comprehensive commit message guidelines, pre-commit hook information, and examples
+  - Reorganized `DEVELOPMENT.md`: grouped code quality-related sections (Code Style Conventions, Type Checking, Known Linting Issues, Docstrings) under Code Quality section for logical organization
+  - Renamed Documentation section to Project Documentation in `DEVELOPMENT.md` to clarify it's about documentation files, not code documentation
+  - Updated `CONTRIBUTING.md`: shortened Testing section with link to comprehensive test documentation, added Pre-PR Checklist as subsection of Pull Request Process, added Opening a Pull Request subsection with PR template reference
+  - Updated PR template to reference `docs/COMMITTING.md` for commit message guidelines
+  - Reorganized changelog best practices section with General Principles and Guidelines for Contributors subsections
+  - Documented that even maintainers must go through the PR process and cannot merge directly to main, ensuring all changes receive proper review and CI validation
+  - Added PR naming convention documentation: comprehensive guide covering PR title format, types, scopes, GitHub auto-suggested title handling, branch prefix vs PR title type distinction, and PR description guidelines
+  - Enhanced branch naming convention: added guidance on including issue numbers in branch names (format: `<prefix>/<issue-number>-<description>`)
 - **Git Worktrees Guide**: Created comprehensive git worktrees documentation:
   - Added worktrees guide to separate `docs/GIT_WORKTREES.md` document
   - Added detailed cleanup documentation with interactive, direct, and manual removal methods

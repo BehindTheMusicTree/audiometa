@@ -24,6 +24,7 @@ All branches must follow these naming patterns:
 - **Use hyphens** to separate words (not underscores or camelCase)
 - **Be descriptive** - the branch name should indicate what it does
 - **No `fix/` prefix** - use `feature/` for bug fixes or `hotfix/` for urgent production fixes
+- **Include issue numbers when applicable** - If the branch addresses a specific GitHub issue, include the issue number in the branch name (e.g., `feature/123-add-flac-support`)
 
 ### When to Use Each Prefix
 
@@ -52,16 +53,33 @@ All branches must follow these naming patterns:
 # ✅ Good
 git checkout -b feature/add-flac-support
 git checkout -b feature/fix-id3v1-encoding
+git checkout -b feature/123-add-flac-support         # With issue number
+git checkout -b feature/456-fix-id3v1-encoding       # With issue number
 git checkout -b chore/update-ruff-version
 git checkout -b chore/ci-workflow-improvements
 git checkout -b hotfix/critical-security-patch
+git checkout -b hotfix/789-critical-metadata-bug     # With issue number
 
 # ❌ Bad
 git checkout -b fix/encoding-issue          # Use feature/ instead
 git checkout -b FixEncoding                 # Wrong format
 git checkout -b feature/fix_encoding        # Use hyphens, not underscores
 git checkout -b bugfix/encoding             # Not a valid prefix
+git checkout -b feature/#123                # Missing description after issue number
 ```
+
+### Branch Names with Issue Numbers
+
+When your branch addresses a specific GitHub issue, include the issue number in the branch name:
+
+- **Format**: `<prefix>/<issue-number>-<description>`
+- **Examples**:
+  - `feature/123-add-flac-support` - Feature addressing issue #123
+  - `feature/456-fix-id3v1-encoding` - Bug fix addressing issue #456
+  - `hotfix/789-critical-security-patch` - Hotfix addressing issue #789
+  - `chore/234-update-dependencies` - Chore addressing issue #234
+
+**Note:** Always include a descriptive name after the issue number. The issue number alone is not sufficient (e.g., `feature/123` is not descriptive enough).
 
 ## Main Branch
 
