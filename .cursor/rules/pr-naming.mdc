@@ -104,12 +104,25 @@ Chore/auto approve maintainer prs
 | docs   | `docs: improve README example`              | Documentation updates        |
 | ci     | `ci: update GitHub Actions workflow`        | CI/CD pipeline changes       |
 
+## PR Description Guidelines
+
+When suggesting PR descriptions, always follow the PR template format (`.github/pull_request_template.md`) and ensure:
+
+- **PR title follows naming convention**: Use the format `<type>(<optional-scope>): <short imperative description>` as described above. Never use GitHub's auto-suggested title format (e.g., `Feature/add album artist tag support`) - always rewrite to match the convention (e.g., `feat(id3v2): add album artist tag support`)
+- **Complete all required sections**: Fill out Description, Related Issues, Type of Change checkboxes, Pre-PR Checklist, Testing Instructions, etc.
+- **Reference the PR template**: The template (`.github/pull_request_template.md`) provides structure and ensures all necessary information is included
+- **Be thorough**: Include clear descriptions, testing instructions, and any breaking changes
+- **Check Pre-PR Checklist**: Ensure all items in the Pre-PR Checklist are completed before requesting review
+
+**Note:** The PR template is automatically provided when opening a Pull Request on GitHub. Always use it as a guide when creating PR descriptions. The template includes sections for Description, Related Issues, Type of Change, Pre-PR Checklist, Breaking Changes, Testing Instructions, and Additional Context.
+
 ## Guidelines
 
 - **One logical change per PR**: Each PR should represent a single, complete change
 - **Be descriptive**: The title should clearly describe what the PR does
 - **Match commit messages**: PR titles should follow the same format as commit messages for consistency
 - **Review before submitting**: Always review and edit the auto-suggested title if needed
+- **Follow PR template**: Always use the PR template (`.github/pull_request_template.md`) when creating PR descriptions
 
 ## Bad Examples
 
