@@ -217,8 +217,15 @@ else
     # Fetch latest origin/main to ensure accurate merge detection
     IS_MERGED=false
     if git fetch origin main --quiet 2>/dev/null; then
-        # Check if branch is merged into origin/main (handles direct and transitive regular merges)
-        if git merge-base --is-ancestor "$SELECTED_BRANCH" "origin/main" 2>/dev/null; then
+        # Check if branch has commits beyond main (if not, it's just a pointer to main, not merged)
+        BRANCH_COMMIT=$(git rev-parse "$SELECTED_BRANCH" 2>/dev/null)
+        MAIN_COMMIT=$(git rev-parse "origin/main" 2>/dev/null)
+
+        if [ "$BRANCH_COMMIT" = "$MAIN_COMMIT" ]; then
+            # Branch points to same commit as main - freshly created, no work done
+            IS_MERGED=false
+        elif git merge-base --is-ancestor "$SELECTED_BRANCH" "origin/main" 2>/dev/null; then
+            # Branch is an ancestor of main - likely merged
             IS_MERGED=true
         fi
     fi
