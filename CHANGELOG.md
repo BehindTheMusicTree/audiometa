@@ -61,6 +61,14 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - `remove-worktree-interactive.sh`: Interactively lists and removes worktrees with their branches
   - `remove-worktree-branch.sh`: Directly removes worktree and branch by name
 
+### Fixed
+
+- **Auto-Labeler Configuration**: Fixed labeler v5 compatibility issue:
+  - Updated `.github/labeler.yml` to match labeler v5 format requirements
+  - Changed from direct file patterns to config options with `changed-files` key
+  - Each label now uses `any-glob-to-any-file` matcher
+  - Resolves error: "found unexpected type for label (should be array of config options)"
+
 ### Documentation
 
 - **Documentation Reorganization**: Comprehensive restructuring of project documentation:
