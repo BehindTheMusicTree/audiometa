@@ -242,10 +242,13 @@ else
     if [ "$IS_MERGED" = true ]; then
         echo "ℹ️  Branch '$SELECTED_BRANCH' is merged into origin/main (PR accepted)"
         echo "   Safe to delete - the work is already in main"
+    elif [ "$COMMIT_COUNT" -eq 0 ]; then
+        echo "ℹ️  Branch '$SELECTED_BRANCH' has 0 commits (freshly created or already merged)"
+        echo "   Safe to delete - no uncommitted work"
     else
         echo "⚠️  WARNING: This operation is DESTRUCTIVE!"
         echo "   Branch '$SELECTED_BRANCH' has $COMMIT_COUNT commit(s) not in origin/main"
-        echo "   Removing it may DELETE uncommitted work!"
+        echo "   Removing it will DELETE this uncommitted work!"
     fi
     echo ""
     echo "The following will be deleted:"
@@ -256,9 +259,9 @@ else
     echo "  - Worktree directory: $SELECTED_PATH"
     echo ""
 
-    # Require different confirmation based on merge status
-    if [ "$IS_MERGED" = true ]; then
-        read -p "Delete merged branch? (y/N): " -n 1 -r
+    # Require different confirmation based on merge status and commit count
+    if [ "$IS_MERGED" = true ] || [ "$COMMIT_COUNT" -eq 0 ]; then
+        read -p "Delete branch? (y/N): " -n 1 -r
         echo ""
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
             echo "Aborted."
