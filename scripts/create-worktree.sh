@@ -59,6 +59,22 @@ WORKTREE_PATH="../${REPO_NAME}-${WORKTREE_NAME}"
 # Check if worktree already exists
 if [ -d "$WORKTREE_PATH" ]; then
     echo "Warning: Worktree already exists at $WORKTREE_PATH"
+
+    # Check if branch has commits beyond main
+    if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
+        BRANCH_COMMIT=$(git rev-parse "$BRANCH_NAME" 2>/dev/null)
+        MAIN_COMMIT=$(git rev-parse "origin/main" 2>/dev/null || git rev-parse "main" 2>/dev/null)
+
+        if [ "$BRANCH_COMMIT" != "$MAIN_COMMIT" ]; then
+            COMMIT_COUNT=$(git rev-list --count "$MAIN_COMMIT..$BRANCH_NAME" 2>/dev/null || echo "0")
+            if [ "$COMMIT_COUNT" -gt 0 ]; then
+                echo ""
+                echo "⚠️  WARNING: Branch '$BRANCH_NAME' has $COMMIT_COUNT uncommitted work!"
+                echo "   Removing it will DELETE this work permanently."
+            fi
+        fi
+    fi
+
     echo ""
     read -p "Remove existing worktree and branch '$BRANCH_NAME'? (y/N): " -n 1 -r
     echo ""
@@ -86,6 +102,17 @@ if [ "$BRANCH_EXISTS_LOCAL" = true ] || [ "$BRANCH_EXISTS_REMOTE" = true ]; then
     echo "Warning: Branch '$BRANCH_NAME' already exists"
     if [ "$BRANCH_EXISTS_LOCAL" = true ]; then
         echo "  - Local branch exists"
+
+        # Check if branch has commits beyond main
+        BRANCH_COMMIT=$(git rev-parse "$BRANCH_NAME" 2>/dev/null)
+        MAIN_COMMIT=$(git rev-parse "origin/main" 2>/dev/null || git rev-parse "main" 2>/dev/null)
+
+        if [ "$BRANCH_COMMIT" != "$MAIN_COMMIT" ]; then
+            COMMIT_COUNT=$(git rev-list --count "$MAIN_COMMIT..$BRANCH_NAME" 2>/dev/null || echo "0")
+            if [ "$COMMIT_COUNT" -gt 0 ]; then
+                echo "     ⚠️  Has $COMMIT_COUNT uncommitted work - removing will DELETE this work!"
+            fi
+        fi
     fi
     if [ "$BRANCH_EXISTS_REMOTE" = true ]; then
         echo "  - Remote branch exists"
