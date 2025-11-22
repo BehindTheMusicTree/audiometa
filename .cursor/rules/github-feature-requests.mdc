@@ -1,0 +1,137 @@
+---
+alwaysApply: true
+---
+
+# GitHub Feature Request Generation
+
+## Feature Request Template Format
+
+When generating GitHub feature requests, format them as **standalone markdown documents** that can be copied field-by-field into the GitHub feature request form template.
+
+### Document Structure
+
+1. **Create a separate `.md` file** (e.g., `ISSUE_<TOPIC>.md`)
+2. **Include clear section headers** matching the GitHub feature request template fields
+3. **Wrap field content in code blocks** for easy copying
+4. **Provide instructions** at the end for form submission
+
+### Required Elements
+
+- **Title section**: Wrapped in code block with `[Feature]:` prefix
+- **All template fields**: Each in its own section with content in code blocks
+- **Code examples**: Use proper syntax highlighting (```python, etc.)
+- **Checkboxes**: Use `☑` for items that should be checked
+- **Instructions section**: Clear steps for copying content to GitHub
+
+## Template Fields (in order)
+
+1. **Title** - `[Feature]: <descriptive title>`
+2. **Feature Description** - Clear, concise description of the feature (required)
+3. **Problem Statement** - Related problems or frustrations (optional)
+4. **Proposed Solution** - How you'd like it to work (optional)
+5. **Alternatives Considered** - Other solutions considered (optional)
+6. **Feature Scope** - Dropdown selection (required):
+   - Core API
+   - Metadata Format Support (ID3v1, ID3v2, Vorbis, RIFF)
+   - Audio Format Support (MP3, FLAC, WAV)
+   - CLI
+   - Documentation
+   - Error Handling
+   - Performance
+   - Other
+7. **Use Case** - Example code showing usage (optional, python syntax)
+8. **Compatibility Considerations** - Checkboxes (select applicable):
+   - This feature would require changes to existing API
+   - This feature would be backward compatible
+   - This feature would require new dependencies
+   - This feature would require external tools
+9. **Additional Context** - Any other context, references, links (optional)
+
+## Example Format
+
+```markdown
+# GitHub Issue: <Topic>
+
+Copy the content below to create a new GitHub issue using the Feature Request template.
+
+---
+
+## Title:
+```
+[Feature]: <Feature Title>
+```
+
+---
+
+## Feature Description:
+```
+<Clear description of the feature>
+```
+
+---
+
+## Problem Statement:
+```
+<Problems this addresses>
+```
+
+---
+
+## Proposed Solution:
+```
+<How it should work>
+```
+
+---
+
+## Alternatives Considered:
+```
+<Other options evaluated>
+```
+
+---
+
+## Feature Scope:
+```
+<Select one option>
+```
+
+---
+
+## Use Case:
+```python
+# Example code showing usage
+```
+
+---
+
+## Compatibility Considerations:
+```
+☑ <Checked items>
+☐ <Unchecked items>
+```
+
+---
+
+## Additional Context:
+```
+<References, links, etc.>
+```
+
+---
+
+## Instructions
+
+1. Go to the GitHub repository issues page
+2. Click "New Issue"
+3. Select "Feature Request" template
+4. Copy each section above into the corresponding field in the form
+5. For "Compatibility Considerations", check the indicated checkboxes
+```
+
+## Benefits
+
+- **Easy to copy**: Each section is wrapped for clean clipboard copying
+- **Clear structure**: Matches GitHub form template exactly
+- **Complete documentation**: All context preserved in one file
+- **Reusable**: Can be saved and referenced later
