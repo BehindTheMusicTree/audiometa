@@ -71,6 +71,13 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
     - Supports Cursor and VS Code on macOS, Linux, and Windows
     - Shows platform-specific warnings for untested environments
 
+### Documentation
+
+- **README**: Removed broken download badges:
+  - Removed non-functional monthly downloads badge (`/pepy/dm/`)
+  - Removed non-functional weekly downloads badge (`/pepy/dw/`)
+  - Kept working total downloads badge
+
 ### Fixed
 
 - **Auto-Labeler Configuration**: Fixed labeler v5 compatibility issue:
