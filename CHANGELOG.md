@@ -48,6 +48,14 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Documentation
+
+- **GitHub Issue Generation**: Added Cursor rule for generating GitHub issues (`.cursor/rules/github-issues.mdc`)
+  - Defines standard format for creating Feature Request and Bug Report issues
+  - Issues are formatted as standalone markdown documents with sections wrapped in code blocks for easy copying
+  - Includes complete template field specifications for both issue types
+  - Provides example formats and instructions for submitting to GitHub
+
 ### Added
 
 - **Git Worktree Management Scripts**: Added comprehensive scripts for managing git worktrees with multi-editor support:

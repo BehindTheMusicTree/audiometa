@@ -1,0 +1,286 @@
+---
+alwaysApply: true
+---
+
+# GitHub Issue Generation
+
+## Issue Template Format
+
+When generating GitHub issues, format them as **standalone markdown documents** that can be copied field-by-field into the GitHub issue form templates.
+
+### Document Structure
+
+1. **Create a separate `.md` file** (e.g., `ISSUE_<TOPIC>.md`)
+2. **Include clear section headers** matching the GitHub issue template fields
+3. **Wrap field content in code blocks** for easy copying
+4. **Provide instructions** at the end for form submission
+
+### Required Elements
+
+- **Title section**: Wrapped in code block with proper label prefix (e.g., `[Feature]:`, `[Bug]:`)
+- **All template fields**: Each in its own section with content in code blocks
+- **Code examples**: Use proper syntax highlighting (```python, etc.)
+- **Checkboxes**: Use `☑` for items that should be checked
+- **Instructions section**: Clear steps for copying content to GitHub
+
+## Feature Request Template
+
+### Template Fields (in order)
+
+1. **Title** - `[Feature]: <descriptive title>`
+2. **Feature Description** - Clear, concise description of the feature
+3. **Problem Statement** - Related problems or frustrations (optional)
+4. **Proposed Solution** - How you'd like it to work (optional)
+5. **Alternatives Considered** - Other solutions considered (optional)
+6. **Feature Scope** - Dropdown selection (required):
+   - Core API
+   - Metadata Format Support (ID3v1, ID3v2, Vorbis, RIFF)
+   - Audio Format Support (MP3, FLAC, WAV)
+   - CLI
+   - Documentation
+   - Error Handling
+   - Performance
+   - Other
+7. **Use Case** - Example code showing usage (optional, python syntax)
+8. **Compatibility Considerations** - Checkboxes (select applicable):
+   - This feature would require changes to existing API
+   - This feature would be backward compatible
+   - This feature would require new dependencies
+   - This feature would require external tools
+9. **Additional Context** - Any other context, references, links (optional)
+
+### Feature Request Example Format
+
+```markdown
+# GitHub Issue: <Topic>
+
+Copy the content below to create a new GitHub issue using the Feature Request template.
+
+---
+
+## Title:
+```
+[Feature]: <Feature Title>
+```
+
+---
+
+## Feature Description:
+```
+<Clear description of the feature>
+```
+
+---
+
+## Problem Statement:
+```
+<Problems this addresses>
+```
+
+---
+
+## Proposed Solution:
+```
+<How it should work>
+```
+
+---
+
+## Alternatives Considered:
+```
+<Other options evaluated>
+```
+
+---
+
+## Feature Scope:
+```
+<Select one option>
+```
+
+---
+
+## Use Case:
+```python
+# Example code showing usage
+```
+
+---
+
+## Compatibility Considerations:
+```
+☑ <Checked items>
+☐ <Unchecked items>
+```
+
+---
+
+## Additional Context:
+```
+<References, links, etc.>
+```
+
+---
+
+## Instructions
+
+1. Go to the GitHub repository issues page
+2. Click "New Issue"
+3. Select "Feature Request" template
+4. Copy each section above into the corresponding field in the form
+5. For "Compatibility Considerations", check the indicated checkboxes
+```
+
+## Bug Report Template
+
+### Template Fields (in order)
+
+1. **Title** - `[Bug]: <descriptive title>`
+2. **Description** - Clear description of the bug (required)
+3. **Steps to Reproduce** - Step-by-step reproduction (required)
+4. **Expected Behavior** - What should happen (required)
+5. **Actual Behavior** - What actually happens (required)
+6. **Code Example** - Minimal code to reproduce (optional, python syntax)
+7. **Audio Format** - Dropdown selection (required):
+   - MP3
+   - FLAC
+   - WAV
+   - Multiple
+   - Not applicable
+8. **Metadata Format** - Dropdown selection (optional):
+   - ID3v1
+   - ID3v2
+   - Vorbis
+   - RIFF
+   - Multiple
+   - Not applicable
+9. **AudioMeta Version** - Version string (required, e.g., "0.1.0")
+10. **Python Version** - Version string (required, e.g., "3.12.0")
+11. **Error Message / Traceback** - Full error output (optional, shell syntax)
+12. **Environment** - OS, tools, etc. (optional, markdown format)
+13. **Additional Context** - Any other relevant information (optional)
+
+### Bug Report Example Format
+
+```markdown
+# GitHub Issue: <Bug Topic>
+
+Copy the content below to create a new GitHub issue using the Bug Report template.
+
+---
+
+## Title:
+```
+[Bug]: <Bug Title>
+```
+
+---
+
+## Description:
+```
+<Clear description of the bug>
+```
+
+---
+
+## Steps to Reproduce:
+```
+1. <First step>
+2. <Second step>
+3. <Third step>
+```
+
+---
+
+## Expected Behavior:
+```
+<What should happen>
+```
+
+---
+
+## Actual Behavior:
+```
+<What actually happens>
+```
+
+---
+
+## Code Example:
+```python
+# Minimal code to reproduce
+```
+
+---
+
+## Audio Format:
+```
+<Select one option>
+```
+
+---
+
+## Metadata Format:
+```
+<Select one option>
+```
+
+---
+
+## AudioMeta Version:
+```
+<version>
+```
+
+---
+
+## Python Version:
+```
+<version>
+```
+
+---
+
+## Error Message / Traceback:
+```
+<Full error output>
+```
+
+---
+
+## Environment:
+```
+- OS: <operating system>
+- External tools: <tool versions>
+- Other relevant information
+```
+
+---
+
+## Additional Context:
+```
+<Any other relevant information>
+```
+
+---
+
+## Instructions
+
+1. Go to the GitHub repository issues page
+2. Click "New Issue"
+3. Select "Bug Report" template
+4. Copy each section above into the corresponding field in the form
+```
+
+## Template Selection
+
+- Use **Feature Request** for: new features, enhancements, improvements
+- Use **Bug Report** for: bugs, errors, unexpected behavior, crashes
+- Consider the primary intent: if requesting something new, use Feature Request even if describing current limitations
+
+## Benefits
+
+- **Easy to copy**: Each section is wrapped for clean clipboard copying
+- **Clear structure**: Matches GitHub form template exactly
+- **Complete documentation**: All context preserved in one file
+- **Reusable**: Can be saved and referenced later
