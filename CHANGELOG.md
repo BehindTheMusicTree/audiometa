@@ -66,7 +66,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
     - Protects current worktree from deletion (prevents shell errors from removing directory you're in)
     - Displays commit count warnings before deletion
     - Shows merge status to help determine if deletion is safe
+    - Handles missing worktree directories gracefully (stale git entries)
   - `remove-worktree-branch.sh`: Directly removes worktree and branch by name
+    - Suggests specific command for removing remote branches when not deleted
+    - Automatically prunes stale worktree entries from git
   - `editor-common.sh`: Shared utilities for editor detection and opening
     - Supports Cursor and VS Code on macOS, Linux, and Windows
     - Shows platform-specific warnings for untested environments

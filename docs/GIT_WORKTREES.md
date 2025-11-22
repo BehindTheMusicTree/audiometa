@@ -112,6 +112,9 @@ The script will:
 - Cannot remove `main` branch worktrees
 - Cannot remove the worktree you're currently inside (prevents shell errors)
 - Must switch to a different worktree before removing your current one
+- Handles missing worktree directories gracefully (stale git entries are cleaned up automatically)
+
+**Note:** If a worktree directory was manually deleted, the script will detect this and clean up the stale git entries automatically.
 
 ### Direct Removal
 
@@ -123,6 +126,12 @@ If you know the branch name, you can remove it directly:
 
 # Remove worktree, local branch, and remote branch
 ./scripts/remove-worktree-branch.sh feature/my-feature --remove-remote
+```
+
+**Note:** If you choose not to delete the remote branch, the script will suggest the specific command to delete it later:
+
+```bash
+git push origin --delete feature/my-feature
 ```
 
 ### Manual Removal

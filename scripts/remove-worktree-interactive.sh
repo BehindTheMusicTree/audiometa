@@ -195,11 +195,21 @@ SELECTED_INDEX=$((SELECTION - 1))
 SELECTED_PATH="${SELECTABLE_PATHS[$SELECTED_INDEX]}"
 SELECTED_BRANCH="${SELECTABLE_BRANCHES[$SELECTED_INDEX]}"
 
-# Convert to absolute path if relative
+# Convert to absolute path if relative (only if directory exists)
 if [[ ! "$SELECTED_PATH" = /* ]]; then
-    SELECTED_PATH=$(cd "$REPO_ROOT" && cd "$SELECTED_PATH" && pwd)
+    # Relative path - convert to absolute
+    if [ -d "$REPO_ROOT/$SELECTED_PATH" ]; then
+        SELECTED_PATH=$(cd "$REPO_ROOT" && cd "$SELECTED_PATH" && pwd)
+    else
+        # Directory doesn't exist, construct absolute path manually
+        SELECTED_PATH="$REPO_ROOT/$SELECTED_PATH"
+    fi
 else
-    SELECTED_PATH=$(cd "$SELECTED_PATH" && pwd)
+    # Already absolute path
+    if [ -d "$SELECTED_PATH" ]; then
+        SELECTED_PATH=$(cd "$SELECTED_PATH" && pwd)
+    fi
+    # If directory doesn't exist, keep the path as-is for cleanup
 fi
 
 # Confirm removal

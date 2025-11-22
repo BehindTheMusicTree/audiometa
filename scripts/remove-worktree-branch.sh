@@ -85,7 +85,15 @@ if [ -d "$WORKTREE_ABS_PATH" ]; then
     }
     echo "✓ Worktree removed"
 else
-    echo "Worktree not found at: $WORKTREE_ABS_PATH (skipping)"
+    # Directory doesn't exist - check if git has a stale worktree entry
+    if git worktree list | grep -q "$WORKTREE_ABS_PATH"; then
+        echo "Worktree directory not found but git has stale entry"
+        echo "Pruning stale worktree entries..."
+        git worktree prune
+        echo "✓ Stale worktree entry removed"
+    else
+        echo "Worktree not found at: $WORKTREE_ABS_PATH (already removed)"
+    fi
 fi
 
 echo ""
@@ -116,7 +124,7 @@ if [ "$REMOVE_REMOTE" = true ]; then
 else
     if git show-ref --verify --quiet "refs/remotes/origin/$BRANCH_NAME"; then
         echo "Note: Remote branch 'origin/$BRANCH_NAME' exists but was not removed"
-        echo "      Use --remove-remote flag to remove it"
+        echo "      To remove it, run: git push origin --delete $BRANCH_NAME"
     fi
 fi
 
