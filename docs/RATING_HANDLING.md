@@ -149,6 +149,7 @@ rating = metadata.get('rating')  # Returns 0-10 scale: 0, 2, 4, 6, 8, 10, etc.
 AudioMeta uses two write profiles to ensure maximum compatibility across different audio players:
 
 - **BASE_255_NON_PROPORTIONAL** (Profile A): Used for ID3v2 (MP3) and RIFF (WAV)
+
   - Values: `[0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255]`
   - Most widely supported profile
   - Full half-star support (0.5, 1.5, 2.5, 3.5, 4.5 stars)

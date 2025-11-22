@@ -1,0 +1,275 @@
+---
+alwaysApply: true
+---
+
+# Pull Request Description Generation
+
+## PR Description Format
+
+When generating PR descriptions, create them as **standalone markdown documents** that provide comprehensive context for code reviewers and maintainers.
+
+### Document Structure
+
+1. **Create or update PR description document** based on context:
+   - For general PRs: Use or create `PR_DESCRIPTION.md`
+   - For specific features: Create `PR_DESCRIPTION_<TOPIC>.md` (e.g., `PR_DESCRIPTION_WORKTREE.md`)
+2. **Follow the standard PR template structure** (see sections below)
+3. **Be thorough and specific** - reviewers need complete context
+4. **Include all checklist items** - track what's been completed
+
+### Standard PR Template Structure
+
+```markdown
+## Description
+
+<Clear summary of what changed and why>
+
+**Key Changes/Improvements:**
+- <Major change 1>
+- <Major change 2>
+- <etc.>
+
+## Related Issues
+
+<Issue numbers or "None">
+
+## Type of Change
+
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Documentation update
+- [ ] Code refactoring (no functional changes)
+- [ ] Performance improvement
+- [ ] Test addition/update
+- [ ] CI/CD or infrastructure change
+
+## Pre-PR Checklist
+
+### Code Quality
+
+- [ ] Removed commented-out code
+- [ ] No hardcoded credentials, API keys, or secrets
+- [ ] Ran pre-commit hooks: `pre-commit run --all-files`
+
+### Tests
+
+- [ ] All tests pass: `pytest`
+- [ ] Coverage meets threshold (≥85%): `pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=85`
+- [ ] New features have corresponding tests
+- [ ] Bug fixes include regression tests
+
+### Documentation
+
+- [ ] Updated docstrings for new functions/classes (only when needed)
+- [ ] Updated README if adding new features or changing behavior
+- [ ] Updated CONTRIBUTING.md if changing development workflow
+- [ ] Added/updated type hints where appropriate
+- [ ] Updated CHANGELOG.md with changes
+
+### Git Hygiene
+
+- [ ] Commit messages follow the [commit message convention](docs/COMMITTING.md)
+- [ ] No merge conflicts with target branch
+- [ ] Branch is up to date with target branch
+- [ ] No accidental commits (large files, secrets, personal configs)
+
+## Breaking Changes
+
+- [ ] This PR includes breaking changes
+- [ ] Breaking changes are clearly documented below
+- [ ] Migration path is provided (if applicable)
+
+### Breaking Changes Description
+
+<Description or "N/A">
+
+## Testing Instructions
+
+### How to Test
+
+<Step-by-step instructions for testing the changes>
+
+### Test Results
+
+<Summary of test outcomes>
+
+## Additional Context
+
+<Any additional information that helps reviewers understand the changes>
+
+**Benefits:**
+- <Benefit 1>
+- <Benefit 2>
+
+## Checklist for Reviewers
+
+- [ ] Code follows project conventions and style
+- [ ] Logic is sound and well-structured
+- [ ] Error handling is appropriate
+- [ ] CI tests pass on all platforms and Python versions
+- [ ] Test coverage is adequate for the changes
+- [ ] Public API changes are documented
+- [ ] Breaking changes are clearly marked and documented
+- [ ] All review comments are addressed
+- [ ] No unresolved discussions
+```
+
+## Key Principles
+
+### 1. Be Comprehensive
+
+- **Description**: Explain not just what changed, but **why** it changed
+- **Context**: Include relevant background information
+- **Impact**: Describe how the changes affect users, developers, or the codebase
+
+### 2. Make Testing Easy
+
+- **Provide clear steps**: Anyone should be able to test the changes
+- **Include examples**: Show actual commands or code to run
+- **Document expected results**: What should testers see?
+
+### 3. Track Everything
+
+- **Check all applicable items**: Be honest about what's been done
+- **Note N/A items**: Explain why certain checklist items don't apply
+- **Update checklist**: Mark items as complete when they're done
+
+### 4. Consider Reviewers
+
+- **Highlight key changes**: Use bold text for important points
+- **Organize logically**: Group related information together
+- **Include references**: Link to related issues, docs, or code
+
+## Type-Specific Guidelines
+
+### Bug Fixes
+
+- **Describe the bug**: What was broken?
+- **Explain the fix**: How does the change solve the problem?
+- **Include reproduction steps**: How to verify the bug existed
+- **Show verification**: How to confirm the fix works
+- **Add regression tests**: Ensure the bug doesn't come back
+
+### New Features
+
+- **Describe the feature**: What new capability does this add?
+- **Explain the use case**: Why is this needed?
+- **Show examples**: How will users use this feature?
+- **Document API changes**: New functions, parameters, etc.
+- **Include tests**: Demonstrate the feature works correctly
+
+### Documentation Updates
+
+- **Summarize changes**: What documentation was updated?
+- **Explain motivation**: Why was the update needed?
+- **List affected files**: Which docs changed?
+- **Note improvements**: How is the documentation better?
+
+### Refactoring
+
+- **Describe the refactoring**: What code structure changed?
+- **Explain benefits**: Why is the new structure better?
+- **Confirm no functional changes**: Emphasize behavior is unchanged
+- **Show test coverage**: Demonstrate nothing broke
+
+### CI/CD Changes
+
+- **Describe the change**: What workflow/configuration changed?
+- **Explain impact**: How does this affect the build/deploy process?
+- **Show verification**: How to confirm the change works?
+- **Note platform effects**: Does this affect specific environments?
+
+## Common Patterns
+
+### For Script/Tool Changes
+
+```markdown
+**Prerequisites:**
+- List required tools
+- List required environment setup
+
+**Test Steps:**
+1. Step-by-step instructions
+2. Include actual commands
+3. Show expected output
+```
+
+### For API Changes
+
+```markdown
+**Previous API:**
+```python
+# Old code example
+```
+
+**New API:**
+```python
+# New code example
+```
+
+**Migration Path:**
+- Step 1
+- Step 2
+```
+
+### For Breaking Changes
+
+```markdown
+## Breaking Changes
+
+- [x] This PR includes breaking changes
+- [x] Breaking changes are clearly documented below
+- [x] Migration path is provided (if applicable)
+
+### Breaking Changes Description
+
+**What breaks:** <Description>
+
+**Why this change:** <Rationale>
+
+**Migration steps:**
+1. <Step 1>
+2. <Step 2>
+
+**Example migration:**
+```python
+# Before
+old_code()
+
+# After
+new_code()
+```
+```
+
+## Checklist Item Notes
+
+### When to Mark N/A
+
+- **Tests N/A**: For documentation-only changes, configuration files
+- **Coverage N/A**: For shell scripts, CI configs, docs
+- **Docstrings N/A**: For scripts, configs, non-Python changes
+- **README N/A**: For internal changes that don't affect user-facing behavior
+- **Type hints N/A**: For shell scripts, YAML files, docs
+
+### Always Required
+
+- **Pre-commit hooks**: Always run, even for docs
+- **Git hygiene**: Always applies
+- **CHANGELOG.md**: Always update in the `[Unreleased]` section
+- **Commit messages**: Always follow conventions
+
+## Examples
+
+See existing PR description files for reference:
+- `PR_DESCRIPTION.md` - Documentation reorganization
+- `PR_DESCRIPTION_WORKTREE.md` - Script enhancements with multi-editor support
+- `PR_DESCRIPTION_LABELER.md` - CI configuration fix
+
+## Benefits
+
+- **Complete context**: Reviewers understand the full scope of changes
+- **Easier reviews**: Clear structure helps reviewers focus on what matters
+- **Better tracking**: Checklists ensure nothing is forgotten
+- **Documentation**: PR descriptions serve as historical record
+- **Consistency**: Standard format across all PRs
