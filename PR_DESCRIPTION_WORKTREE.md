@@ -5,6 +5,7 @@ Comprehensive enhancement of git worktree management scripts with multi-editor s
 **Key improvements:**
 
 1. **Multi-Editor Support**: Scripts now support both Cursor and VS Code
+
    - Auto-detects available editors (checks `/Applications` on macOS)
    - Prompts user to choose when both editors are available
    - Auto-opens if only one editor is installed
@@ -13,6 +14,7 @@ Comprehensive enhancement of git worktree management scripts with multi-editor s
 2. **Auto-Pull Main**: `create-worktree.sh` now automatically pulls latest changes from `origin/main` before creating worktrees, ensuring an up-to-date base
 
 3. **Enhanced Safety Warnings**:
+
    - Shows commit count before removing branches
    - Warns when branches have uncommitted work (with commit count)
    - Distinguishes between safe (0 commits/merged) and destructive operations

@@ -258,10 +258,12 @@ The `RELEASE_DATE` field accepts two formats:
 **Valid Formats:**
 
 1. **YYYY format** (4 digits) - for year-only dates
+
    - Examples: `"2024"`, `"1900"`, `"1970"`, `"0000"`, `"9999"`
    - Use when you only know the year
 
 2. **YYYY-MM-DD format** (ISO-like format) - for full dates
+
    - Examples: `"2024-01-01"`, `"2024-12-31"`, `"1900-01-01"`, `"1970-06-15"`
    - Month and day must be zero-padded (2 digits each)
    - Use when you have the complete date

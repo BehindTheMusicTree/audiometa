@@ -105,11 +105,13 @@ For each metadata format present in the file, the library first extracts all ind
 **Step 2b - Else If One Entry: Apply Smart Multi-Value Logic**
 
 - **Multiple instances found**: Uses all instances as-is (no separator parsing)
+
   - Raw data: `["Artist One", "Artist; with; semicolons", "Artist Three"]`
   - Result: `["Artist One", "Artist; with; semicolons", "Artist Three"]`
   - ✅ Preserves separators within individual entries
 
 - **Single instance found**: Applies smart separator parsing
+
   - Raw data: `["Artist One;Artist Two;Artist Three"]`
   - Result: `["Artist One", "Artist Two", "Artist Three"]`
   - ✅ Parses concatenated values using separator detection

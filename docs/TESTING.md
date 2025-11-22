@@ -468,6 +468,7 @@ On Windows, the `id3v2` tool is not available as a native Windows binary. The in
 Windows CI only runs e2e tests (unit and integration tests run on Ubuntu and macOS). This is due to WSL installation complexity preventing full dependency installation. As a result, some dependencies are skipped in Windows CI:
 
 - **Skipped in Windows CI:**
+
   - `mediainfo` - Only used in integration tests for verification, not needed for e2e tests
   - `exiftool` - Not used in e2e tests
   - `id3v2` - Optional (only needed for FLAC files with ID3v2 tags, which e2e tests don't use)

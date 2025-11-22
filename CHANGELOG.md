@@ -73,6 +73,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Fixed
 
+- **Pre-commit Prettier Version**: Pinned Prettier to exact version `3.3.3` in `.pre-commit-config.yaml`:
+  - Changed from `prettier@^3.0.0` to `prettier@3.3.3` in `additional_dependencies`
+  - Semver range `^3.0.0` allowed different minor versions between CI and local environments
+  - Ensures consistent markdown formatting across all environments
 - **Auto-Labeler Configuration**: Fixed labeler v5 compatibility issue:
   - Updated `.github/labeler.yml` to match labeler v5 format requirements
   - Changed from direct file patterns to config options with `changed-files` key
