@@ -50,16 +50,26 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Added
 
-- **Git Worktree Management Scripts**: Added comprehensive scripts for managing git worktrees:
-  - `create-worktree-cursor.sh`: Creates a new worktree from main branch and opens it in Cursor
+- **Git Worktree Management Scripts**: Added comprehensive scripts for managing git worktrees with multi-editor support:
+  - `create-worktree.sh`: Creates a new worktree from main branch and opens it in your preferred editor
+    - Automatically pulls latest changes from main before creating worktree
     - Automatically sets up Python virtual environment with Python 3.13
     - Installs all development dependencies
     - Handles existing worktrees/branches with interactive cleanup prompts
-    - Ensures Cursor settings are configured in new worktrees
+    - Ensures editor settings are configured in new worktrees
     - Requires worktrees to be created from main branch for consistency
-  - `open-worktree-cursor.sh`: Lists all worktrees and opens selected one in Cursor
+    - Supports Cursor and VS Code (prompts user to choose when both are available)
+    - Cross-platform support: macOS (fully tested), Linux, and Windows (Git Bash/Cygwin)
+  - `open-worktree.sh`: Lists all worktrees and opens selected one in your preferred editor
   - `remove-worktree-interactive.sh`: Interactively lists and removes worktrees with their branches
+    - Protects main branch worktrees from deletion
+    - Protects current worktree from deletion (prevents shell errors from removing directory you're in)
+    - Displays commit count warnings before deletion
+    - Shows merge status to help determine if deletion is safe
   - `remove-worktree-branch.sh`: Directly removes worktree and branch by name
+  - `editor-common.sh`: Shared utilities for editor detection and opening
+    - Supports Cursor and VS Code on macOS, Linux, and Windows
+    - Shows platform-specific warnings for untested environments
 
 ### Fixed
 
