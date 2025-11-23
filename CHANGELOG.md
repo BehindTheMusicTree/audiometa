@@ -51,8 +51,9 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Fixed
 
 - **CI Pipeline**: Fixed macOS CI failure due to `hashFiles()` filesystem traversal error
-  - Changed pytest cache key from `hashFiles('**/*.py')` to `hashFiles('audiometa/**/*.py', 'pyproject.toml')`
-  - Narrowed glob pattern to specific directories to avoid macOS runner filesystem issues
+  - Changed pytest cache key from `hashFiles('**/*.py')` to `hashFiles('pyproject.toml')`
+  - Simplified to single file hash to avoid glob pattern issues on macOS runners
+  - Cache still invalidates appropriately when dependencies change
   - Prevents "Fail to hash files under directory" error on macOS runners
 
 ### Documentation
