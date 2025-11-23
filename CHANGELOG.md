@@ -48,6 +48,13 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Fixed
+
+- **CI Pipeline**: Fixed macOS CI failure due to `hashFiles()` filesystem traversal error
+  - Changed pytest cache key from `hashFiles('**/*.py')` to `hashFiles('audiometa/**/*.py', 'pyproject.toml')`
+  - Narrowed glob pattern to specific directories to avoid macOS runner filesystem issues
+  - Prevents "Fail to hash files under directory" error on macOS runners
+
 ### Documentation
 
 - **GitHub Issue Generation**: Added separate Cursor rules for generating GitHub issues
