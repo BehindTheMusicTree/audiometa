@@ -122,7 +122,8 @@ if [ "$REMOVE_REMOTE" = true ]; then
         echo "Remote branch '${REMOTE_NAME}/$BRANCH_NAME' not found (skipping)"
     fi
 else
-    if git show-ref --verify --quiet "refs/remotes/origin/$BRANCH_NAME"; then
+    # Use ls-remote to check if branch actually exists on remote (not just local tracking ref)
+    if git ls-remote --heads origin "$BRANCH_NAME" 2>/dev/null | grep -q "refs/heads/$BRANCH_NAME"; then
         echo "Note: Remote branch 'origin/$BRANCH_NAME' exists but was not removed"
         echo "      To remove it, run: git push origin --delete $BRANCH_NAME"
     fi

@@ -59,6 +59,11 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added automatic upgrade of session-manager-plugin if installed in CI environment
   - Prevents outdated package warnings from interfering with CI runs
   - Only upgrades if already installed (does not install unnecessary packages)
+- **Worktree Scripts**: Fixed remote branch detection in worktree removal scripts
+  - Changed from checking local tracking refs (`refs/remotes/origin/*`) to actual remote branches using `git ls-remote`
+  - Prevents false positives when remote branch is deleted but local tracking ref still exists
+  - Affects `remove-worktree-interactive.sh` and `remove-worktree-branch.sh`
+  - Users no longer see "remote branch exists" messages for already-deleted branches after PR merge
 
 ### Documentation
 
