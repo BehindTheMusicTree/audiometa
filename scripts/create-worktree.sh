@@ -95,6 +95,7 @@ fi
 # Check if branch already exists
 BRANCH_EXISTS_LOCAL=false
 BRANCH_EXISTS_REMOTE=false
+CREATE_FOR_EXISTING_BRANCH=false
 if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
     BRANCH_EXISTS_LOCAL=true
 fi
@@ -104,6 +105,8 @@ fi
 
 if [ "$BRANCH_EXISTS_LOCAL" = true ] || [ "$BRANCH_EXISTS_REMOTE" = true ]; then
     echo "Warning: Branch '$BRANCH_NAME' already exists"
+    COMMIT_COUNT=0
+    HAS_COMMITS=false
     if [ "$BRANCH_EXISTS_LOCAL" = true ]; then
         echo "  - Local branch exists"
 
@@ -114,34 +117,134 @@ if [ "$BRANCH_EXISTS_LOCAL" = true ] || [ "$BRANCH_EXISTS_REMOTE" = true ]; then
         if [ "$BRANCH_COMMIT" != "$MAIN_COMMIT" ]; then
             COMMIT_COUNT=$(git rev-list --count "$MAIN_COMMIT..$BRANCH_NAME" 2>/dev/null || echo "0")
             if [ "$COMMIT_COUNT" -gt 0 ]; then
-                echo "     ⚠️  Has $COMMIT_COUNT uncommitted work - removing will DELETE this work!"
+                HAS_COMMITS=true
+                echo "     ⚠️  Has $COMMIT_COUNT commit(s) - removing will DELETE this work!"
             fi
         fi
     fi
     if [ "$BRANCH_EXISTS_REMOTE" = true ]; then
         echo "  - Remote branch exists"
-    fi
-    echo ""
-    read -p "Remove existing branch? (y/N): " -n 1 -r
-    echo ""
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        REMOVE_REMOTE_FLAG=""
-        if [ "$BRANCH_EXISTS_REMOTE" = true ]; then
-            read -p "Also remove remote branch? (y/N): " -n 1 -r
-            echo ""
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                REMOVE_REMOTE_FLAG="--remove-remote"
+        # Check remote branch commits if local doesn't have commits
+        if [ "$HAS_COMMITS" = false ] && [ "$BRANCH_EXISTS_LOCAL" = false ]; then
+            REMOTE_BRANCH_COMMIT=$(git rev-parse "origin/$BRANCH_NAME" 2>/dev/null)
+            MAIN_COMMIT=$(git rev-parse "origin/main" 2>/dev/null || git rev-parse "main" 2>/dev/null)
+            if [ "$REMOTE_BRANCH_COMMIT" != "$MAIN_COMMIT" ]; then
+                COMMIT_COUNT=$(git rev-list --count "$MAIN_COMMIT..origin/$BRANCH_NAME" 2>/dev/null || echo "0")
+                if [ "$COMMIT_COUNT" -gt 0 ]; then
+                    HAS_COMMITS=true
+                    echo "     ⚠️  Has $COMMIT_COUNT commit(s) - removing will DELETE this work!"
+                fi
             fi
         fi
-        "$SCRIPT_DIR/remove-worktree-branch.sh" "$BRANCH_NAME" "$WORKTREE_PATH" $REMOVE_REMOTE_FLAG
-        echo ""
-    else
-        echo "Aborted. To remove manually, run:"
-        echo "  $SCRIPT_DIR/remove-worktree-branch.sh $BRANCH_NAME $WORKTREE_PATH"
-        if [ "$BRANCH_EXISTS_REMOTE" = true ]; then
-            echo "  # Or with remote: $SCRIPT_DIR/remove-worktree-branch.sh $BRANCH_NAME $WORKTREE_PATH --remove-remote"
+    fi
+    echo ""
+
+    # Offer to checkout/create worktree if branch has commits
+    if [ "$HAS_COMMITS" = true ]; then
+        # Check if worktree exists for this branch
+        WORKTREE_LIST=$(git worktree list --porcelain 2>/dev/null || echo "")
+        EXISTING_WORKTREE=""
+        if [ -n "$WORKTREE_LIST" ]; then
+            CURRENT_PATH=""
+            while IFS= read -r line || [ -n "$line" ]; do
+                if [[ $line == worktree* ]]; then
+                    CURRENT_PATH="${line#worktree }"
+                elif [[ $line == branch* ]]; then
+                    BRANCH_REF="${line#branch }"
+                    CURRENT_BRANCH="${BRANCH_REF#refs/heads/}"
+                    if [ "$CURRENT_BRANCH" = "$BRANCH_NAME" ]; then
+                        EXISTING_WORKTREE="$CURRENT_PATH"
+                        break
+                    fi
+                fi
+                # Empty line resets for next worktree
+                if [ -z "$line" ]; then
+                    CURRENT_PATH=""
+                fi
+            done <<< "$WORKTREE_LIST"
         fi
-        exit 1
+
+        if [ -n "$EXISTING_WORKTREE" ]; then
+            echo "💡 This branch has existing commits and a worktree already exists."
+            echo "   Worktree location: $EXISTING_WORKTREE"
+            echo ""
+            read -p "Open existing worktree? (Y/n): " -n 1 -r
+            echo ""
+            if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+                if open_in_editor "$EXISTING_WORKTREE"; then
+                    echo "✓ Worktree opened"
+                    exit 0
+                else
+                    echo "Failed to open worktree. You can open it manually:"
+                    echo "  $SCRIPT_DIR/open-worktree.sh"
+                    exit 1
+                fi
+            fi
+        else
+            echo "💡 This branch has existing commits. What would you like to do?"
+            echo ""
+            echo "  1) Create worktree for existing branch (recommended)"
+            echo "  2) Checkout branch in current repo"
+            echo "  3) Remove existing branch"
+            echo ""
+            read -p "Choose option (1-3) [1]: " -n 1 -r
+            echo ""
+
+            if [[ $REPLY =~ ^[23]$ ]]; then
+                if [[ $REPLY =~ ^2$ ]]; then
+                    # Checkout in current repo
+                    echo "Checking out branch '$BRANCH_NAME'..."
+                    if [ "$BRANCH_EXISTS_LOCAL" = true ]; then
+                        git checkout "$BRANCH_NAME"
+                    elif [ "$BRANCH_EXISTS_REMOTE" = true ]; then
+                        git checkout -b "$BRANCH_NAME" "origin/$BRANCH_NAME"
+                    fi
+                    echo "✓ Branch checked out"
+                    exit 0
+                else
+                    # Remove branch (option 3)
+                    REMOVE_REMOTE_FLAG=""
+                    if [ "$BRANCH_EXISTS_REMOTE" = true ]; then
+                        read -p "Also remove remote branch? (y/N): " -n 1 -r
+                        echo ""
+                        if [[ $REPLY =~ ^[Yy]$ ]]; then
+                            REMOVE_REMOTE_FLAG="--remove-remote"
+                        fi
+                    fi
+                    "$SCRIPT_DIR/remove-worktree-branch.sh" "$BRANCH_NAME" "$WORKTREE_PATH" $REMOVE_REMOTE_FLAG
+                    echo ""
+                    # Continue to create new worktree
+                fi
+            else
+                # Default: Create worktree for existing branch (option 1 or default)
+                echo "Creating worktree for existing branch '$BRANCH_NAME'..."
+                CREATE_FOR_EXISTING_BRANCH=true
+                # Continue to worktree creation below
+            fi
+        fi
+    else
+        # No commits, just ask if they want to remove
+        read -p "Remove existing branch? (y/N): " -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            REMOVE_REMOTE_FLAG=""
+            if [ "$BRANCH_EXISTS_REMOTE" = true ]; then
+                read -p "Also remove remote branch? (y/N): " -n 1 -r
+                echo ""
+                if [[ $REPLY =~ ^[Yy]$ ]]; then
+                    REMOVE_REMOTE_FLAG="--remove-remote"
+                fi
+            fi
+            "$SCRIPT_DIR/remove-worktree-branch.sh" "$BRANCH_NAME" "$WORKTREE_PATH" $REMOVE_REMOTE_FLAG
+            echo ""
+        else
+            echo "Aborted. To remove manually, run:"
+            echo "  $SCRIPT_DIR/remove-worktree-branch.sh $BRANCH_NAME $WORKTREE_PATH"
+            if [ "$BRANCH_EXISTS_REMOTE" = true ]; then
+                echo "  # Or with remote: $SCRIPT_DIR/remove-worktree-branch.sh $BRANCH_NAME $WORKTREE_PATH --remove-remote"
+            fi
+            exit 1
+        fi
     fi
 fi
 
@@ -151,25 +254,38 @@ if ! git show-ref --verify --quiet "refs/heads/main" && ! git show-ref --verify 
     exit 1
 fi
 
-# Pull latest changes from main branch
-echo "Pulling latest changes from main branch..."
-CURRENT_BRANCH=$(git branch --show-current)
-if [ "$CURRENT_BRANCH" != "main" ]; then
-    echo "Switching to main branch to pull latest changes..."
-    git checkout main
-fi
-git pull origin main
-echo "✓ Main branch updated"
-echo ""
+# Pull latest changes from main branch (only if creating new branch)
+if [ "$CREATE_FOR_EXISTING_BRANCH" != true ]; then
+    echo "Pulling latest changes from main branch..."
+    CURRENT_BRANCH=$(git branch --show-current)
+    if [ "$CURRENT_BRANCH" != "main" ]; then
+        echo "Switching to main branch to pull latest changes..."
+        git checkout main
+    fi
+    git pull origin main
+    echo "✓ Main branch updated"
+    echo ""
 
-# Switch back to original branch if needed
-if [ "$CURRENT_BRANCH" != "main" ] && [ -n "$CURRENT_BRANCH" ]; then
-    git checkout "$CURRENT_BRANCH"
+    # Switch back to original branch if needed
+    if [ "$CURRENT_BRANCH" != "main" ] && [ -n "$CURRENT_BRANCH" ]; then
+        git checkout "$CURRENT_BRANCH"
+    fi
 fi
 
-# Create worktree from main
-echo "Creating worktree from main for new branch: $BRANCH_NAME"
-git worktree add "$WORKTREE_PATH" -b "$BRANCH_NAME" main
+# Create worktree
+if [ "$CREATE_FOR_EXISTING_BRANCH" = true ]; then
+    echo "Creating worktree for existing branch: $BRANCH_NAME"
+    # Ensure branch exists locally (fetch if remote-only)
+    if [ "$BRANCH_EXISTS_LOCAL" = false ] && [ "$BRANCH_EXISTS_REMOTE" = true ]; then
+        echo "Fetching branch from remote..."
+        git fetch origin "$BRANCH_NAME:$BRANCH_NAME" 2>/dev/null || true
+    fi
+    # Create worktree and checkout existing branch
+    git worktree add "$WORKTREE_PATH" "$BRANCH_NAME"
+else
+    echo "Creating worktree from main for new branch: $BRANCH_NAME"
+    git worktree add "$WORKTREE_PATH" -b "$BRANCH_NAME" main
+fi
 
 # Get absolute path
 WORKTREE_ABS_PATH=$(cd "$WORKTREE_PATH" && pwd)

@@ -13,6 +13,11 @@ Use the provided script to create a worktree and open it in your preferred code 
 # Create worktree with custom worktree directory name
 ./scripts/create-worktree.sh feature/my-feature my-feature-worktree
 
+# If branch already exists with commits, script will offer options:
+# - Create worktree for existing branch (default)
+# - Checkout branch in current repo
+# - Remove existing branch and create new one
+
 # Or use git alias (after running once: git config alias.worktree '!f() { bash scripts/create-worktree.sh "$@"; }; f')
 git worktree feature/my-feature
 ```
@@ -31,13 +36,23 @@ git worktree feature/my-feature
 
 The `create-worktree.sh` script automates the following main steps:
 
-1. **Validates prerequisites**: Ensures branch doesn't exist, `main` branch exists, and worktree path is available
-2. **Updates main branch**: Pulls the latest changes from `origin/main` to ensure you have the most recent code
-3. **Creates worktree**: Creates a new git worktree from the updated `main` branch with your specified branch name
-4. **Sets up development environment**: Creates Python virtual environment and installs all dependencies
-5. **Opens in editor**: Automatically opens the worktree directory in Cursor or VS Code
+1. **Validates prerequisites**: Checks if branch/worktree exists, ensures `main` branch exists, and worktree path is available
+2. **Handles existing branches**: If branch already exists with commits, offers interactive options:
+   - **Create worktree for existing branch** (default): Creates a worktree and checks out the existing branch
+   - **Checkout in current repo**: Checks out the branch in your current repository
+   - **Remove existing branch**: Removes the branch and creates a new one from main
+   - If a worktree already exists for the branch, offers to open it directly
+3. **Updates main branch**: For new branches, pulls the latest changes from `origin/main` to ensure you have the most recent code
+4. **Creates worktree**: Creates a new git worktree:
+   - For new branches: Creates from the updated `main` branch with your specified branch name
+   - For existing branches: Creates worktree and checks out the existing branch (fetches from remote if needed)
+5. **Sets up development environment**: Creates Python virtual environment and installs all dependencies
+6. **Opens in editor**: Automatically opens the worktree directory in Cursor or VS Code
 
-**Important**: The script always creates worktrees from the `main` branch (after pulling the latest changes) to ensure a consistent and up-to-date base for all new branches.
+**Important**:
+
+- For new branches, the script always creates worktrees from the `main` branch (after pulling the latest changes) to ensure a consistent and up-to-date base
+- For existing branches, the script creates a worktree for the existing branch, preserving any existing commits
 
 ## Opening Existing Worktrees
 
