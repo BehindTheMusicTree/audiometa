@@ -39,6 +39,13 @@ HOMEBREW_PREFIX=$(get_homebrew_prefix)
 echo "Updating Homebrew to ensure latest formula definitions..."
 brew update
 
+# Upgrade session-manager-plugin if installed (common pre-installed package in CI that can cause issues)
+# This prevents outdated package warnings from interfering with CI
+if brew list --cask session-manager-plugin &>/dev/null 2>&1; then
+  echo "Upgrading session-manager-plugin to prevent outdated package warnings..."
+  brew upgrade --cask session-manager-plugin 2>&1 | grep -v "Already up-to-date" || true
+fi
+
 # Function to install a Homebrew package with version verification
 install_homebrew_package() {
   local tool_name="$1"
