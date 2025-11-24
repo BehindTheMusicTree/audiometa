@@ -46,7 +46,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
 
-## [Unreleased]
+## [0.2.8] - 2025-11-24
 
 ### Fixed
 
@@ -152,6 +152,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Changed monthly and weekly download badges from PyPI (`/pypi/dm/`, `/pypi/dw/`) to PePy (`/pepy/dm/`, `/pepy/dw/`)
   - PePy provides more comprehensive download statistics by tracking downloads from all sources (PyPI, mirrors, CDNs)
   - Ensures consistent and accurate download statistics across all badges
+
+## [Unreleased]
 
 ## [0.2.7] - 2025-11-20
 
