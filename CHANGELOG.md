@@ -79,6 +79,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
     - Automatically sets up Python virtual environment with Python 3.13
     - Installs all development dependencies
     - Handles existing worktrees/branches with interactive cleanup prompts
+    - Enhanced handling of existing branches with commits: offers interactive options (create worktree for existing branch as default, checkout in current repo, or remove branch)
+    - Automatically opens existing worktree if one already exists for the branch
+    - Properly handles both local and remote branches when creating worktrees
+    - Prevents accidental deletion of work by making checkout/worktree creation the default action
     - Ensures editor settings are configured in new worktrees
     - Requires worktrees to be created from main branch for consistency
     - Supports Cursor and VS Code (prompts user to choose when both are available)
