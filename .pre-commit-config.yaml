@@ -27,7 +27,7 @@
 # 8. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
 # 9. isort: Sort imports (configured to work with ruff-format/black)
 # 10. mypy: Type checking on formatted code
-# 11. docformatter: Format docstrings (after code formatting)
+# 11. pydocstringformatter: Format docstrings (after code formatting)
 #     NOTE: File pattern must be ^audiometa/.*\.py$ (not ^audiometa/) to avoid processing binary files
 # 12. fix-long-comments: Fix long comment lines (custom hook)
 # 13. prettier: Format markdown files (preserves list numbering without zero-padding)
