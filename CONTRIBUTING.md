@@ -131,7 +131,7 @@ Ensure you're using:
   - **Why Python 3.12 for mypy?** Setting `python_version = "3.12"` in `pyproject.toml` ensures type-checking validates code against the minimum supported Python version. This prevents accidentally using Python 3.13/3.14-only type features that would break compatibility with Python 3.12. While Python 3.14 is backward compatible and doesn't introduce breaking type system changes, this configuration ensures the codebase remains compatible with all supported versions. If Python 3.14-specific type features are needed in the future, `python_version` can be updated accordingly.
 - Ruff is configured with `target-version = "py312"` for the same compatibility reasons
 - All hooks work with Python 3.12, 3.13, or 3.14
-- **Python 3.14**: Fully supported. The project uses `pydocstringformatter` instead of `docformatter` to avoid Python 3.14 compatibility issues. No special installation steps are needed.
+- **Python 3.14**: Fully supported. No special installation steps are needed.
 
 - Virtual environment with dependencies:
 
