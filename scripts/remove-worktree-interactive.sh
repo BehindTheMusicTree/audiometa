@@ -306,8 +306,9 @@ else
     fi
 
     # Check remote branch existence (merge status already checked above)
+    # Use ls-remote to check if branch actually exists on remote (not just local tracking ref)
     REMOTE_EXISTS=false
-    if git show-ref --verify --quiet "refs/remotes/origin/$SELECTED_BRANCH" 2>/dev/null; then
+    if git ls-remote --heads origin "$SELECTED_BRANCH" 2>/dev/null | grep -q "refs/heads/$SELECTED_BRANCH"; then
         REMOTE_EXISTS=true
     fi
 

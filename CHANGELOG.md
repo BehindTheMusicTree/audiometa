@@ -59,21 +59,11 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added automatic upgrade of session-manager-plugin if installed in CI environment
   - Prevents outdated package warnings from interfering with CI runs
   - Only upgrades if already installed (does not install unnecessary packages)
-
-### Documentation
-
-- **GitHub Issue Generation**: Added separate Cursor rules for generating GitHub issues
-  - `.cursor/rules/github-feature-requests.mdc`: Feature Request template format
-  - `.cursor/rules/github-bug-reports.mdc`: Bug Report template format
-  - Issues are formatted as standalone markdown documents with sections wrapped in code blocks for easy copying
-  - Includes complete template field specifications for each issue type
-  - Provides example formats and instructions for submitting to GitHub
-- **PR Description Generation**: Added Cursor rule for generating PR descriptions (`.cursor/rules/pr-descriptions.mdc`)
-  - Defines standard format for creating comprehensive PR descriptions
-  - Includes complete PR template structure with all required sections
-  - Provides type-specific guidelines (bug fixes, features, docs, refactoring, CI/CD)
-  - Documents when checklist items apply or are N/A
-  - Includes examples and best practices for thorough PR documentation
+- **Worktree Scripts**: Fixed remote branch detection in worktree removal scripts
+  - Changed from checking local tracking refs (`refs/remotes/origin/*`) to actual remote branches using `git ls-remote`
+  - Prevents false positives when remote branch is deleted but local tracking ref still exists
+  - Affects `remove-worktree-interactive.sh` and `remove-worktree-branch.sh`
+  - Users no longer see "remote branch exists" messages for already-deleted branches after PR merge
 
 ### Added
 
@@ -108,9 +98,23 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Documentation
 
 - **README**: Removed broken download badges:
+
   - Removed non-functional monthly downloads badge (`/pepy/dm/`)
   - Removed non-functional weekly downloads badge (`/pepy/dw/`)
   - Kept working total downloads badge
+
+- **GitHub Issue Generation**: Added separate Cursor rules for generating GitHub issues
+  - `.cursor/rules/github-feature-requests.mdc`: Feature Request template format
+  - `.cursor/rules/github-bug-reports.mdc`: Bug Report template format
+  - Issues are formatted as standalone markdown documents with sections wrapped in code blocks for easy copying
+  - Includes complete template field specifications for each issue type
+  - Provides example formats and instructions for submitting to GitHub
+- **PR Description Generation**: Added Cursor rule for generating PR descriptions (`.cursor/rules/pr-descriptions.mdc`)
+  - Defines standard format for creating comprehensive PR descriptions
+  - Includes complete PR template structure with all required sections
+  - Provides type-specific guidelines (bug fixes, features, docs, refactoring, CI/CD)
+  - Documents when checklist items apply or are N/A
+  - Includes examples and best practices for thorough PR documentation
 
 ### Fixed
 
