@@ -4,7 +4,7 @@ name: CI
 
 on:
   push:
-    branches: [main, "feature/**", "hotfix/**"]
+    branches: [main, "feature/**", "chore/**", "hotfix/**"]
     tags:
       - "v*" # Also run CI on version tags to ensure code quality before publishing
   pull_request:
