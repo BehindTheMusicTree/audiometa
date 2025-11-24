@@ -34,4 +34,7 @@ Thumbs.db
 # pyenv
 .python-version
 
+# PR descriptions (temporary reference documents)
+.pr-descriptions/
+
 .DS_Store
