@@ -1,4 +1,4 @@
-"""id3v2_metadata_getter.py Helper for extracting ID3v2 metadata from audio files."""
+"""Id3v2_metadata_getter.py Helper for extracting ID3v2 metadata from audio files."""
 
 
 class ID3v2MetadataGetter:
@@ -24,7 +24,8 @@ class ID3v2MetadataGetter:
 
     @staticmethod
     def get_raw_metadata(file_path, version=None):
-        """Get the raw metadata from the audio file using manual ID3v2 parsing, returning a string with frame IDs and
+        """Get the raw metadata from the audio file using manual ID3v2 parsing, returning a string with frame IDs and.
+
         values.
 
         Args:

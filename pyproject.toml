@@ -22,6 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Multimedia :: Sound/Audio",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
@@ -42,7 +43,7 @@ dev = [
     "mypy==1.18.2",
     "pre-commit==3.0.0",
     "autoflake==2.0.0",
-    "docformatter==1.7.0",
+    "pydocstringformatter==0.7.5",
     "soundfile==0.10.1",
     "numpy==2.3.4",
     "bump2version==1.0.1",
@@ -85,9 +86,8 @@ profile = "black"
 multi_line_output = 3
 line_length = 120
 
-[tool.docformatter]
-wrap-summaries = 120
-wrap-descriptions = 120
+[tool.pydocstringformatter]
+max-line-length = 120
 
 [tool.ruff]
 line-length = 120
@@ -106,7 +106,7 @@ ignore = ["N999", "PLR0911", "PLR0912", "PLR0913", "PLR0914", "PLR0915", "TRY301
 ".pre-commit-hooks/**" = ["PLR2004"]
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

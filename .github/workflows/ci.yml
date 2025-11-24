@@ -72,7 +72,7 @@ jobs:
         # Pin OS versions for consistency with pinned package versions
         # Using -latest can cause package availability issues when OS versions change
         os: [ubuntu-24.04, macos-14, windows-2022]
-        python-version: ["3.12", "3.13"]
+        python-version: ["3.12", "3.13", "3.14"]
 
     steps:
       - uses: actions/checkout@v4

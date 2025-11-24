@@ -14,8 +14,10 @@ from audiometa.utils.metadata_format import MetadataFormat
 
 @pytest.mark.integration
 class TestMetadataFieldValidation:
-    """Test that get_unified_metadata_field raises MetadataFieldNotSupportedByMetadataFormatError when a field is not
-    supported by the specified format."""
+    """Test that get_unified_metadata_field raises MetadataFieldNotSupportedByMetadataFormatError when a field is not.
+
+    supported by the specified format.
+    """
 
     def test_replaygain_not_supported_by_riff(self, sample_wav_file: Path):
         with pytest.raises(

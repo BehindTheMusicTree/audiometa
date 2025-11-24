@@ -310,7 +310,29 @@ fi
 if [ ! -d "$WORKTREE_ABS_PATH/.venv" ]; then
     echo "Creating virtual environment..."
     cd "$WORKTREE_ABS_PATH"
-    python3.13 -m venv .venv
+
+    # Detect highest available Python version (3.14, 3.13, or 3.12)
+    PYTHON_CMD=""
+    for version in 3.14 3.13 3.12; do
+        if command -v "python${version}" >/dev/null 2>&1; then
+            PYTHON_CMD="python${version}"
+            break
+        fi
+    done
+
+    # Fallback to python3 if specific versions not found
+    if [ -z "$PYTHON_CMD" ]; then
+        if command -v python3 >/dev/null 2>&1; then
+            PYTHON_CMD="python3"
+        else
+            echo "Error: No Python 3.12+ installation found"
+            echo "Please install Python 3.12, 3.13, or 3.14"
+            exit 1
+        fi
+    fi
+
+    echo "Using $PYTHON_CMD for virtual environment"
+    "$PYTHON_CMD" -m venv .venv
     source .venv/bin/activate
     echo "Installing dependencies..."
     pip install --upgrade pip

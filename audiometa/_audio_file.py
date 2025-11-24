@@ -315,7 +315,9 @@ class _AudioFile:
         raise FlacMd5CheckFailedError(msg)
 
     def get_file_with_corrected_md5(self, delete_original: bool = False) -> str:
-        """Get a new temporary file with corrected MD5 signature. Returns the path to the corrected file.
+        """Get a new temporary file with corrected MD5 signature.
+
+        Returns the path to the corrected file.
 
         Args:
             delete_original: If True, deletes the original file after creating the corrected version.

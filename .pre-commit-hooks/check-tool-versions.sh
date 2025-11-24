@@ -37,8 +37,8 @@ get_installed_version() {
         mypy)
             mypy --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "NOT_INSTALLED"
             ;;
-        docformatter)
-            docformatter --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "NOT_INSTALLED"
+        pydocstringformatter)
+            pydocstringformatter --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "NOT_INSTALLED"
             ;;
     esac
 }
@@ -82,7 +82,7 @@ main() {
     fi
 
     local has_errors=0
-    local tools=("ruff" "isort" "mypy" "docformatter")
+    local tools=("ruff" "isort" "mypy" "pydocstringformatter")
 
     for tool in "${tools[@]}"; do
         expected=$(get_expected_version "$tool")

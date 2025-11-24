@@ -33,6 +33,8 @@
 # 13. prettier: Format markdown files (preserves list numbering without zero-padding)
 # 14. psscriptanalyzer: Lint PowerShell scripts (.ps1 files)
 
+fail_fast: true
+
 repos:
   - repo: local
     hooks:
@@ -59,7 +61,6 @@ repos:
       - id: check-toml
       - id: check-merge-conflict
       - id: debug-statements
-        language_version: python3.13
       - id: trailing-whitespace
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
@@ -113,7 +114,7 @@ repos:
         # This is expected and acceptable - real import errors are still caught by test execution
         # The mypy overrides in pyproject.toml relax type checking rules for test files
         # Use Python 3.12+ to run mypy so it can parse Python 3.12+ syntax like 'type' statements
-        # Python 3.12 and 3.13 both support 'type' statements (PEP 695)
+        # Mypy is configured to type-check against Python 3.12 (ensures code works on minimum supported version 3.12+)
         # Note: With language: system, pre-commit uses Python from your activated virtual environment
         # Use venv mypy explicitly to avoid system mypy with broken shebang
         entry: bash -c '.pre-commit-hooks/tool-wrapper.sh mypy --follow-imports=normal "$@"' --
@@ -121,14 +122,14 @@ repos:
         files: ^audiometa/.*\.py$
         exclude: ^(audiometa/test/|scripts/)
         pass_filenames: true
-      - id: docformatter
-        name: docformatter
-        # Use venv docformatter explicitly to avoid system docformatter with potentially broken shebang
-        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh docformatter --in-place --wrap-summaries=120 --wrap-descriptions=120 "$@"' --
+      - id: pydocstringformatter
+        name: pydocstringformatter
+        # Use venv pydocstringformatter explicitly to avoid system pydocstringformatter with potentially broken shebang
+        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh pydocstringformatter --write --max-line-length=120 "$@"' --
         language: system
         # IMPORTANT: Must use ^audiometa/.*\.py$ pattern, not ^audiometa/
         # Using ^audiometa/ would match binary files (e.g., .mp3, .flac, .wav in test/assets/)
-        # docformatter --in-place would corrupt binary files by treating them as text
+        # pydocstringformatter --write would corrupt binary files by treating them as text
         files: ^audiometa/.*\.py$
         pass_filenames: true
       - id: fix-long-comments
