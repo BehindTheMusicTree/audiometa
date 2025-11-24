@@ -50,12 +50,12 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Fixed
 
-- **CI Pipeline**: Fixed macOS CI failure due to `hashFiles()` filesystem traversal error
+- **macOS CI**: Fixed macOS CI failure due to `hashFiles()` filesystem traversal error
   - Changed pytest cache key from `hashFiles('**/*.py')` to `hashFiles('pyproject.toml')`
   - Simplified to single file hash to avoid glob pattern issues on macOS runners
   - Cache still invalidates appropriately when dependencies change
   - Prevents "Fail to hash files under directory" error on macOS runners
-- **macOS CI**: Fixed session-manager-plugin outdated package warnings causing CI issues
+  - Fixed session-manager-plugin outdated package warnings causing CI issues
   - Added automatic upgrade of session-manager-plugin if installed in CI environment
   - Prevents outdated package warnings from interfering with CI runs
   - Only upgrades if already installed (does not install unnecessary packages)
