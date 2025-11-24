@@ -65,21 +65,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Affects `remove-worktree-interactive.sh` and `remove-worktree-branch.sh`
   - Users no longer see "remote branch exists" messages for already-deleted branches after PR merge
 
-### Documentation
-
-- **GitHub Issue Generation**: Added separate Cursor rules for generating GitHub issues
-  - `.cursor/rules/github-feature-requests.mdc`: Feature Request template format
-  - `.cursor/rules/github-bug-reports.mdc`: Bug Report template format
-  - Issues are formatted as standalone markdown documents with sections wrapped in code blocks for easy copying
-  - Includes complete template field specifications for each issue type
-  - Provides example formats and instructions for submitting to GitHub
-- **PR Description Generation**: Added Cursor rule for generating PR descriptions (`.cursor/rules/pr-descriptions.mdc`)
-  - Defines standard format for creating comprehensive PR descriptions
-  - Includes complete PR template structure with all required sections
-  - Provides type-specific guidelines (bug fixes, features, docs, refactoring, CI/CD)
-  - Documents when checklist items apply or are N/A
-  - Includes examples and best practices for thorough PR documentation
-
 ### Added
 
 - **Git Worktree Management Scripts**: Added comprehensive scripts for managing git worktrees with multi-editor support:
@@ -113,9 +98,23 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Documentation
 
 - **README**: Removed broken download badges:
+
   - Removed non-functional monthly downloads badge (`/pepy/dm/`)
   - Removed non-functional weekly downloads badge (`/pepy/dw/`)
   - Kept working total downloads badge
+
+- **GitHub Issue Generation**: Added separate Cursor rules for generating GitHub issues
+  - `.cursor/rules/github-feature-requests.mdc`: Feature Request template format
+  - `.cursor/rules/github-bug-reports.mdc`: Bug Report template format
+  - Issues are formatted as standalone markdown documents with sections wrapped in code blocks for easy copying
+  - Includes complete template field specifications for each issue type
+  - Provides example formats and instructions for submitting to GitHub
+- **PR Description Generation**: Added Cursor rule for generating PR descriptions (`.cursor/rules/pr-descriptions.mdc`)
+  - Defines standard format for creating comprehensive PR descriptions
+  - Includes complete PR template structure with all required sections
+  - Provides type-specific guidelines (bug fixes, features, docs, refactoring, CI/CD)
+  - Documents when checklist items apply or are N/A
+  - Includes examples and best practices for thorough PR documentation
 
 ### Fixed
 
