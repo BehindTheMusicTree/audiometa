@@ -48,110 +48,31 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [0.2.8] - 2025-11-24
 
-### Fixed
-
-- **macOS CI**: Fixed macOS CI failure due to `hashFiles()` filesystem traversal error
-  - Changed pytest cache key from `hashFiles('**/*.py')` to `hashFiles('pyproject.toml')`
-  - Simplified to single file hash to avoid glob pattern issues on macOS runners
-  - Cache still invalidates appropriately when dependencies change
-  - Prevents "Fail to hash files under directory" error on macOS runners
-  - Fixed session-manager-plugin outdated package warnings causing CI issues
-  - Added automatic upgrade of session-manager-plugin if installed in CI environment
-  - Prevents outdated package warnings from interfering with CI runs
-  - Only upgrades if already installed (does not install unnecessary packages)
-- **Worktree Scripts**: Fixed remote branch detection in worktree removal scripts
-  - Changed from checking local tracking refs (`refs/remotes/origin/*`) to actual remote branches using `git ls-remote`
-  - Prevents false positives when remote branch is deleted but local tracking ref still exists
-  - Affects `remove-worktree-interactive.sh` and `remove-worktree-branch.sh`
-  - Users no longer see "remote branch exists" messages for already-deleted branches after PR merge
-
 ### Added
 
-- **Git Worktree Management Scripts**: Added comprehensive scripts for managing git worktrees with multi-editor support:
-  - `create-worktree.sh`: Creates a new worktree from main branch and opens it in your preferred editor
-    - Automatically pulls latest changes from main before creating worktree
-    - Automatically sets up Python virtual environment with Python 3.13
-    - Installs all development dependencies
-    - Handles existing worktrees/branches with interactive cleanup prompts
-    - Enhanced handling of existing branches with commits: offers interactive options (create worktree for existing branch as default, checkout in current repo, or remove branch)
-    - Automatically opens existing worktree if one already exists for the branch
-    - Properly handles both local and remote branches when creating worktrees
-    - Prevents accidental deletion of work by making checkout/worktree creation the default action
-    - Ensures editor settings are configured in new worktrees
-    - Requires worktrees to be created from main branch for consistency
-    - Supports Cursor and VS Code (prompts user to choose when both are available)
-    - Cross-platform support: macOS (fully tested), Linux, and Windows (Git Bash/Cygwin)
-  - `open-worktree.sh`: Lists all worktrees and opens selected one in your preferred editor
-  - `remove-worktree-interactive.sh`: Interactively lists and removes worktrees with their branches
-    - Protects main branch worktrees from deletion
-    - Protects current worktree from deletion (prevents shell errors from removing directory you're in)
-    - Displays commit count warnings before deletion
-    - Shows merge status to help determine if deletion is safe
-    - Handles missing worktree directories gracefully (stale git entries)
-  - `remove-worktree-branch.sh`: Directly removes worktree and branch by name
-    - Suggests specific command for removing remote branches when not deleted
-    - Automatically prunes stale worktree entries from git
-  - `editor-common.sh`: Shared utilities for editor detection and opening
-    - Supports Cursor and VS Code on macOS, Linux, and Windows
-    - Shows platform-specific warnings for untested environments
-
-### Documentation
-
-- **README**: Removed broken download badges:
-
-  - Removed non-functional monthly downloads badge (`/pepy/dm/`)
-  - Removed non-functional weekly downloads badge (`/pepy/dw/`)
-  - Kept working total downloads badge
-
-- **GitHub Issue Generation**: Added separate Cursor rules for generating GitHub issues
-  - `.cursor/rules/github-feature-requests.mdc`: Feature Request template format
-  - `.cursor/rules/github-bug-reports.mdc`: Bug Report template format
-  - Issues are formatted as standalone markdown documents with sections wrapped in code blocks for easy copying
-  - Includes complete template field specifications for each issue type
-  - Provides example formats and instructions for submitting to GitHub
-- **PR Description Generation**: Added Cursor rule for generating PR descriptions (`.cursor/rules/pr-descriptions.mdc`)
-  - Defines standard format for creating comprehensive PR descriptions
-  - Includes complete PR template structure with all required sections
-  - Provides type-specific guidelines (bug fixes, features, docs, refactoring, CI/CD)
-  - Documents when checklist items apply or are N/A
-  - Includes examples and best practices for thorough PR documentation
+- **Git Worktree Management Scripts**: Added comprehensive scripts for managing git worktrees with multi-editor support
+  - `create-worktree.sh`: Creates worktrees from main branch with automatic environment setup and editor integration
+  - `open-worktree.sh`: Lists and opens existing worktrees in your preferred editor
+  - `remove-worktree-interactive.sh`: Interactively removes worktrees with safety checks and merge status detection
+  - `remove-worktree-branch.sh`: Directly removes worktrees and branches by name
+  - Supports Cursor and VS Code on macOS, Linux, and Windows
 
 ### Fixed
 
-- **Pre-commit Prettier Version**: Pinned Prettier to exact version `3.3.3` in `.pre-commit-config.yaml`:
-  - Changed from `prettier@^3.0.0` to `prettier@3.3.3` in `additional_dependencies`
-  - Semver range `^3.0.0` allowed different minor versions between CI and local environments
-  - Ensures consistent markdown formatting across all environments
-- **Auto-Labeler Configuration**: Fixed labeler v5 compatibility issue:
-  - Updated `.github/labeler.yml` to match labeler v5 format requirements
-  - Changed from direct file patterns to config options with `changed-files` key
-  - Each label now uses `any-glob-to-any-file` matcher
-  - Resolves error: "found unexpected type for label (should be array of config options)"
+- **macOS CI**: Fixed CI failures due to `hashFiles()` filesystem traversal errors and session-manager-plugin warnings
+- **Pre-commit Prettier Version**: Pinned Prettier to exact version `3.3.3` to ensure consistent markdown formatting across environments
+- **Auto-Labeler Configuration**: Fixed labeler v5 compatibility issue in `.github/labeler.yml`
+- **Worktree Scripts**: Fixed remote branch detection to use actual remote branches instead of local tracking refs
 
 ### Documentation
 
-- **Documentation Reorganization**: Comprehensive restructuring of project documentation:
-  - Moved test documentation from `audiometa/test/README.md` to `docs/TESTING.md` for consistency with other documentation
-  - Created dedicated `docs/COMMITTING.md` guide with comprehensive commit message guidelines, pre-commit hook information, and examples
-  - Reorganized `DEVELOPMENT.md`: grouped code quality-related sections (Code Style Conventions, Type Checking, Known Linting Issues, Docstrings) under Code Quality section for logical organization
-  - Renamed Documentation section to Project Documentation in `DEVELOPMENT.md` to clarify it's about documentation files, not code documentation
-  - Updated `CONTRIBUTING.md`: shortened Testing section with link to comprehensive test documentation, added Pre-PR Checklist as subsection of Pull Request Process, added Opening a Pull Request subsection with PR template reference
-  - Updated PR template to reference `docs/COMMITTING.md` for commit message guidelines
-  - Reorganized changelog best practices section with General Principles and Guidelines for Contributors subsections
-  - Documented that even maintainers must go through the PR process and cannot merge directly to main, ensuring all changes receive proper review and CI validation
-  - Added PR naming convention documentation: comprehensive guide covering PR title format, types, scopes, GitHub auto-suggested title handling, branch prefix vs PR title type distinction, and PR description guidelines
-  - Enhanced branch naming convention: added guidance on including issue numbers in branch names (format: `<prefix>/<issue-number>-<description>`)
-- **Git Worktrees Guide**: Created comprehensive git worktrees documentation:
-  - Added worktrees guide to separate `docs/GIT_WORKTREES.md` document
-  - Added detailed cleanup documentation with interactive, direct, and manual removal methods
-  - Updated table of contents in CONTRIBUTING.md to reference the new guide
-- **README Improvements**: Enhanced README structure and clarity:
-  - Improved metadata fields feature description (changed "Comprehensive Metadata Fields" to "Core Metadata Fields")
-  - Removed redundant Requirements section (information already covered in Installation section)
-- **README Badges**: Updated download badges to use PePy for monthly and weekly statistics:
-  - Changed monthly and weekly download badges from PyPI (`/pypi/dm/`, `/pypi/dw/`) to PePy (`/pepy/dm/`, `/pepy/dw/`)
-  - PePy provides more comprehensive download statistics by tracking downloads from all sources (PyPI, mirrors, CDNs)
-  - Ensures consistent and accurate download statistics across all badges
+- **Documentation Reorganization**: Restructured project documentation for better organization and discoverability
+  - Moved test documentation to `docs/TESTING.md` and created `docs/COMMITTING.md` guide
+  - Reorganized `DEVELOPMENT.md` and `CONTRIBUTING.md` with improved structure and cross-references
+  - Added comprehensive PR naming convention and branch naming guidelines
+- **Git Worktrees Guide**: Created `docs/GIT_WORKTREES.md` with comprehensive worktree management documentation
+- **GitHub Issue and PR Templates**: Added Cursor rules for generating GitHub issues and PR descriptions
+- **README**: Removed broken download badges and updated remaining badges to use PePy for more accurate statistics
 
 ## [Unreleased]
 
