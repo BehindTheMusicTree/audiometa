@@ -11,8 +11,7 @@ When generating PR descriptions, create them as **standalone markdown documents*
 ### Document Structure
 
 1. **Create or update PR description document** in the `.pr-descriptions/` directory (gitignored):
-   - For general PRs: Use or create `.pr-descriptions/PR_DESCRIPTION.md`
-   - For specific features: Create `.pr-descriptions/PR_DESCRIPTION_<TOPIC>.md` (e.g., `.pr-descriptions/PR_DESCRIPTION_WORKTREE.md`)
+   - Create `.pr-descriptions/PR_DESCRIPTION_<TOPIC>.md` (e.g., `.pr-descriptions/PR_DESCRIPTION_WORKTREE.md`)
 2. **Follow the standard PR template structure** (see sections below)
 3. **Be thorough and specific** - reviewers need complete context
 4. **Include all checklist items** - track what's been completed
@@ -264,9 +263,9 @@ new_code()
 ## Examples
 
 PR description files should be created in `.pr-descriptions/` directory:
-- `.pr-descriptions/PR_DESCRIPTION.md` - For general PRs
 - `.pr-descriptions/PR_DESCRIPTION_WORKTREE.md` - For worktree-related changes
 - `.pr-descriptions/PR_DESCRIPTION_LABELER.md` - For labeler CI changes
+- `.pr-descriptions/PR_DESCRIPTION_<TOPIC>.md` - Use descriptive topic names
 
 ## Benefits
 
