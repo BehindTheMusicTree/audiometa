@@ -48,6 +48,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [0.2.9] - 2025-11-25
+
 ### Added
 
 - **Python 3.14 Support**: Added support for Python 3.14:
