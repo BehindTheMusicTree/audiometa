@@ -68,6 +68,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added `--no-split-summary-body` to prevent breaking sentences when docstrings are pre-split across lines
   - Added `--no-final-period` to prevent adding periods to summary lines (fixes issues like "not." -> "not." breaks)
   - Added `--linewrap-full-docstring` to wrap long docstring lines to max-line-length without breaking sentences
+- **Pytest Warning Filtering**: Replaced `--disable-warnings` with `filterwarnings` configuration in `pyproject.toml` to selectively suppress only expected UserWarnings about unsupported metadata fields. This provides more precise control and ensures unexpected warnings are still visible, improving test output quality while maintaining clean CI logs
 
 ## [0.2.8] - 2025-11-24
 

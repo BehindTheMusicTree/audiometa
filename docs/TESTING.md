@@ -10,6 +10,8 @@ This document provides comprehensive documentation for the test suite of audiome
   - [Run Tests by Category](#run-tests-by-category)
   - [Run Tests by Folder](#run-tests-by-folder)
   - [Combine Markers](#combine-markers)
+- [Pytest Configuration](#pytest-configuration)
+  - [Warning Filtering](#warning-filtering)
 - [Code Coverage](#code-coverage)
   - [Running Tests with Coverage](#running-tests-with-coverage)
   - [Running Tests Without Coverage (Default)](#running-tests-without-coverage-default)
@@ -116,6 +118,29 @@ pytest -m "not e2e"
 
 # Run only fast tests
 pytest -m unit
+```
+
+## Pytest Configuration
+
+### Warning Filtering
+
+Pytest is configured to filter out expected UserWarnings about unsupported metadata fields. These warnings are intentional and part of the library's API behavior - they occur when metadata formats don't support certain fields (e.g., ID3v1 doesn't support COMPOSERS, COPYRIGHT, PUBLISHER, RATING, BPM).
+
+**Configuration:** The `filterwarnings` setting in `pyproject.toml` uses regex pattern matching to suppress only these specific warnings while keeping other warnings visible. This provides more precise control than disabling all warnings and ensures unexpected warnings are still reported.
+
+**For tests that need to verify warnings:** Use `warnings.catch_warnings()` to explicitly capture and verify warnings:
+
+```python
+import warnings
+
+def test_unsupported_field_warning():
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        # Your code that triggers the warning
+        update_metadata(file_path, {UnifiedMetadataKey.COMPOSERS: ["Composer"]})
+
+        assert len(w) > 0
+        assert any("unsupported" in str(warning.message).lower() for warning in w)
 ```
 
 ## Code Coverage
