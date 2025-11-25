@@ -126,8 +126,9 @@ repos:
         name: pydocstringformatter
         # Use venv pydocstringformatter explicitly to avoid system pydocstringformatter with potentially broken shebang
         # --no-split-summary-body: Prevents breaking sentences when docstrings are pre-split across lines
+        # --no-final-period: Prevents adding periods to summary lines (avoids "not." -> "not." breaks)
         # --linewrap-full-docstring: Wraps long docstring lines to max-line-length without breaking sentences
-        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh pydocstringformatter --write --max-line-length=120 --no-split-summary-body --linewrap-full-docstring "$@"' --
+        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh pydocstringformatter --write --max-line-length=120 --no-split-summary-body --no-final-period --linewrap-full-docstring "$@"' --
         language: system
         # IMPORTANT: Must use ^audiometa/.*\.py$ pattern, not ^audiometa/
         # Using ^audiometa/ would match binary files (e.g., .mp3, .flac, .wav in test/assets/)
