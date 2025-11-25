@@ -57,13 +57,17 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated `create-worktree.sh` to automatically detect and use highest available Python version (3.14, 3.13, or 3.12)
   - Removed Python version restriction from pre-commit `debug-statements` hook to support Python 3.12, 3.13, and 3.14 flexibly
   - Updated CONTRIBUTING.md to clarify that pre-commit hooks use Python from the activated virtual environment and document mypy configuration rationale (type-checking against Python 3.12 ensures compatibility with minimum supported version)
-  - Replaced `docformatter` with `pydocstringformatter` to avoid Python 3.14 compatibility issues with `untokenize` (a dependency of `docformatter`). `pydocstringformatter` provides the same PEP 257 docstring formatting functionality without requiring Python 3.14 workarounds. Removed Python 3.14 patching scripts (`install-dev-deps-python314.sh`) and simplified installation process
-  - **Python 3.14 Changes**: Python 3.14 introduces significant features including free-threaded Python (PEP 779), deferred evaluation of annotations (PEP 649), template string literals (PEP 750), multiple interpreters support (PEP 734), Zstandard compression (PEP 784), improved error messages, and an experimental JIT compiler. The library remains compatible with all these changes while maintaining backward compatibility with Python 3.12 and 3.13
+  - Replaced `docformatter` with `pydocstringformatter` to avoid Python 3.14 compatibility issues with `untokenize` (a dependency of `docformatter`). `pydocstringformatter` provides the same PEP 257 docstring formatting functionality without requiring Python 3.14 workarounds.
+  - Updated `pytest` from 7.0.0 to 9.0.1 and `pytest-mock` from 3.10.0 to 3.15.1 for Python 3.14 compatibility. Both versions are compatible with Python 3.12, 3.13, and 3.14
 
 ### Improved
 
 - **Pre-commit Fail Fast**: Updated `.pre-commit-config.yaml` to use `fail_fast: true`, ensuring pre-commit fails immediately when hooks are unavailable or fail, rather than skipping them
 - **Docstring Formatter**: Replaced `docformatter` with `pydocstringformatter` to eliminate Python 3.14 compatibility issues. `pydocstringformatter` provides the same PEP 257 docstring formatting functionality without requiring workarounds, simplifying the installation process
+- **Pydocstringformatter Configuration**: Improved pydocstringformatter configuration to prevent breaking sentences and adding incorrect periods:
+  - Added `--no-split-summary-body` to prevent breaking sentences when docstrings are pre-split across lines
+  - Added `--no-final-period` to prevent adding periods to summary lines (fixes issues like "not." -> "not." breaks)
+  - Added `--linewrap-full-docstring` to wrap long docstring lines to max-line-length without breaking sentences
 
 ## [0.2.8] - 2025-11-24
 
