@@ -24,16 +24,16 @@ class ID3v2MetadataGetter:
 
     @staticmethod
     def get_raw_metadata(file_path, version=None):
-        """Get the raw metadata from the audio file using manual ID3v2 parsing, returning a string with frame IDs and.
+        """Get raw metadata from audio file using manual ID3v2 parsing.
 
-        values.
+        Returns a dictionary mapping frame IDs to lists of values.
 
         Args:
             file_path: Path to the audio file.
             version: The ID3v2 version to parse ("2.3" for ID3v2.3, "2.4" for ID3v2.4). Defaults to "2.4".
 
         Returns:
-            String with metadata in 'frame_id=value' format, one per line, or error string if parsing fails.
+            Dictionary mapping frame IDs to lists of values, None if wrong version, or error string if parsing fails.
         """
         try:
             with file_path.open("rb") as f:
