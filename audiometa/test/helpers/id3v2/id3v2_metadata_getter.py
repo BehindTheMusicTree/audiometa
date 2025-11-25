@@ -1,4 +1,4 @@
-"""Id3v2_metadata_getter.py Helper for extracting ID3v2 metadata from audio files."""
+"""Helper for extracting ID3v2 metadata from audio files."""
 
 
 class ID3v2MetadataGetter:
