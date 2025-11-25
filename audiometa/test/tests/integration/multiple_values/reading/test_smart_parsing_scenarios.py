@@ -24,7 +24,7 @@ class TestSmartParsingScenarios:
     """
 
     def test_scenario_1_multiple_entries_no_parsing_id3v2_3(self):
-        """Scenario 1: ID3v2.3 uses single frame with separators - gets parsed on read"""
+        """Scenario 1: ID3v2.3 uses single frame with separators - gets parsed on read."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.3") as test_file:
             ID3v2MetadataSetter.set_artists(
                 test_file,
@@ -45,7 +45,7 @@ class TestSmartParsingScenarios:
             assert artists == ["Artist One", "Artist; with; semicolons", "Artist Three"]
 
     def test_scenario_1_multiple_entries_no_parsing_id3v2_4(self):
-        """Scenario 1: ID3v2.4 uses single frame with separators - gets parsed on read"""
+        """Scenario 1: ID3v2.4 uses single frame with separators - gets parsed on read."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set multiple separate artist entries (ID3v2.4 will concatenate them)
             ID3v2MetadataSetter.set_artists(
@@ -67,7 +67,7 @@ class TestSmartParsingScenarios:
             assert artists == ["Artist One", "Artist; with; semicolons", "Artist Three"]
 
     def test_scenario_1_multiple_entries_no_parsing_vorbis(self):
-        """Scenario 1: Modern file with separate entries - separators preserved (Vorbis)"""
+        """Scenario 1: Modern file with separate entries - separators preserved (Vorbis)."""
         with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file:
             # Set multiple separate artist entries (modern format)
             VorbisMetadataSetter.set_artists(test_file, ["Artist One", "Artist; with; semicolons", "Artist Three"])
@@ -83,7 +83,7 @@ class TestSmartParsingScenarios:
             assert artists == ["Artist One", "Artist; with; semicolons", "Artist Three"]
 
     def test_scenario_1_multiple_entries_no_parsing_riff(self):
-        """Scenario 1: Modern file with separate entries - separators preserved (RIFF)"""
+        """Scenario 1: Modern file with separate entries - separators preserved (RIFF)."""
         with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file:
             # Set multiple separate artist entries (modern format)
             RIFFMetadataSetter.set_artists(
@@ -100,7 +100,7 @@ class TestSmartParsingScenarios:
             assert artists == ["Artist One", "Artist; with; semicolons", "Artist Three"]
 
     def test_scenario_2_single_entry_parsed_id3v2_3(self):
-        """Scenario 2: Legacy data in modern format - single entry gets parsed (ID3v2.3)"""
+        """Scenario 2: Legacy data in modern format - single entry gets parsed (ID3v2.3)."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.3") as test_file:
             # Set single artist entry with semicolons (legacy data in modern format)
             ID3v2MetadataSetter.set_artists(
@@ -117,7 +117,7 @@ class TestSmartParsingScenarios:
             assert artists == ["Artist One", "Artist Two", "Artist Three"]
 
     def test_scenario_2_single_entry_parsed_id3v2_4(self):
-        """Scenario 2: Legacy data in modern format - single entry gets parsed (ID3v2.4)"""
+        """Scenario 2: Legacy data in modern format - single entry gets parsed (ID3v2.4)."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set single artist entry with semicolons (legacy data in modern format)
             ID3v2MetadataSetter.set_artists(
@@ -134,7 +134,7 @@ class TestSmartParsingScenarios:
             assert artists == ["Artist One", "Artist Two", "Artist Three"]
 
     def test_scenario_2_single_entry_parsed_vorbis(self):
-        """Scenario 2: Legacy data in modern format - single entry gets parsed (Vorbis)"""
+        """Scenario 2: Legacy data in modern format - single entry gets parsed (Vorbis)."""
         with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file:
             # Set single artist entry with semicolons (legacy data in modern format)
             VorbisMetadataSetter.set_artists(test_file, ["Artist One;Artist Two;Artist Three"])
@@ -148,7 +148,7 @@ class TestSmartParsingScenarios:
             assert artists == ["Artist One", "Artist Two", "Artist Three"]
 
     def test_scenario_2_single_entry_parsed_riff(self):
-        """Scenario 3: Legacy format (RIFF) - always applies separator parsing"""
+        """Scenario 3: Legacy format (RIFF) - always applies separator parsing."""
         with temp_file_with_metadata({"title": "Test Song"}, "wav") as test_file:
             # Set single artist entry with semicolons in RIFF format
             RIFFMetadataSetter.set_artists(test_file, ["Artist One;Artist Two"], in_separate_frames=False)
@@ -162,7 +162,7 @@ class TestSmartParsingScenarios:
             assert artists == ["Artist One", "Artist Two"]
 
     def test_scenario_3_legacy_format_always_parses_id3v1(self):
-        """Scenario 3: Legacy format (ID3v1) - always applies separator parsing"""
+        """Scenario 3: Legacy format (ID3v1) - always applies separator parsing."""
         with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
             # Set single artist entry with semicolons in ID3v1 format
             ID3v1MetadataSetter.set_artist(test_file, "Artist One;Artist Two")

@@ -8,7 +8,7 @@ alwaysApply: true
 
 All code must pass pre-commit hooks before committing:
 
-- Code formatting (trailing-whitespace, isort, ruff-format, docformatter, ruff)
+- Code formatting (trailing-whitespace, isort, ruff-format, pydocstringformatter, ruff)
 - Type checking (mypy)
 - Linting (ruff - replaces autoflake and flake8)
 - Assert statement check (custom hook - will fail if asserts are found)

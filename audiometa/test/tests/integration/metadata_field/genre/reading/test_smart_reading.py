@@ -25,7 +25,7 @@ class TestGenreSmartReading:
             assert genres == ["Rock", "Grunge"]
 
     def test_single_entry_codes_without_separators_id3v2(self):
-        """Test single genre entry with codes without separators: '(17)(6)' -> ['Rock', 'Grunge']"""
+        """Test single genre entry with codes without separators: '(17)(6)' -> ['Rock', 'Grunge']."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with codes without separators
             ID3v2MetadataSetter.set_genres(test_file, ["(17)(6)"], version="2.4")
@@ -40,7 +40,7 @@ class TestGenreSmartReading:
             assert genres == ["Rock", "Grunge"]
 
     def test_single_entry_codes_without_separators_vorbis(self):
-        """Test single genre entry with codes without separators in Vorbis: '(17)(6)' -> ['Rock', 'Grunge']"""
+        """Test single genre entry with codes without separators in Vorbis: '(17)(6)' -> ['Rock', 'Grunge']."""
         with temp_file_with_metadata({"title": "Test Song"}, "flac") as test_file:
             # Set genre with codes without separators
             VorbisMetadataSetter.set_genres(test_file, ["(17)(6)"])
@@ -54,7 +54,7 @@ class TestGenreSmartReading:
             assert genres == ["Rock", "Grunge"]
 
     def test_code_text_then_text_part_even_if_different(self):
-        """Test code+text: '(17)Rock' -> 'Rock' (text part only)"""
+        """Test code+text: '(17)Rock' -> 'Rock' (text part only)."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with code+text
             ID3v2MetadataSetter.set_genres(test_file, ["(17)Rock"], version="2.4")
@@ -65,7 +65,7 @@ class TestGenreSmartReading:
             assert genres == ["Rock"]
 
     def test_single_entry_code_text_without_separators(self):
-        """Test single genre entry with code+text without separators: '(17)Rock(6)Blues' -> ['Rock', 'Grunge']"""
+        """Test single genre entry with code+text without separators: '(17)Rock(6)Blues' -> ['Rock', 'Grunge']."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with code+text without separators
             ID3v2MetadataSetter.set_genres(test_file, ["(17)Rock(6)Blues"], version="2.4")
@@ -83,7 +83,7 @@ class TestGenreSmartReading:
             assert genres == ["Rock", "Blues"]
 
     def test_one_code_and_one_code_text_in_single_entry(self):
-        """Test one code and one code+text: '(17)', '(6)Grunge' -> ['Rock', 'Grunge']"""
+        """Test one code and one code+text: '(17)', '(6)Grunge' -> ['Rock', 'Grunge']."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with one code and one code+text
             ID3v2MetadataSetter.set_genres(test_file, ["(17)(6)Grunge"], version="2.4")
@@ -94,7 +94,7 @@ class TestGenreSmartReading:
             assert genres == ["Rock", "Grunge"]
 
     def test_one_code_and_one_code_text_in_multi_entries(self):
-        """Test one code and one code+text: '(17)', '(6)Grunge' -> ['Rock', 'Grunge']"""
+        """Test one code and one code+text: '(17)', '(6)Grunge' -> ['Rock', 'Grunge']."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with one code and one code+text
             ID3v2MetadataSetter.set_genres(test_file, ["(17)", "(6)Grunge"], in_separate_frames=True, version="2.4")
@@ -109,7 +109,7 @@ class TestGenreSmartReading:
             assert genres == ["Rock", "Grunge"]
 
     def test_single_entry_text_with_slash_separators(self):
-        """Test single genre entry with text with slash separators: 'Rock/Blues' -> ['Rock', 'Blues']"""
+        """Test single genre entry with text with slash separators: 'Rock/Blues' -> ['Rock', 'Blues']."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with text with separators
             ID3v2MetadataSetter.set_genres(test_file, ["Rock/Blues"], version="2.4")
@@ -142,7 +142,7 @@ class TestGenreSmartReading:
             assert genres == ["Rock", "Alternative"]
 
     def test_multi_codes_with_text_with_separators(self):
-        """Test single genre entry with mixed separators: '(17)Rock/(6)Blues' -> ['Rock', 'Blues']"""
+        """Test single genre entry with mixed separators: '(17)Rock/(6)Blues' -> ['Rock', 'Blues']."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with mixed separators
             ID3v2MetadataSetter.set_genres(test_file, ["(17)Rock/(6)Blues"], version="2.4")
@@ -180,7 +180,7 @@ class TestGenreSmartReading:
             assert genres == ["Rock"]
 
     def test_code_text_uses_text_part(self):
-        """Test code+text: '(199)Rock' -> 'Rock' (text part only)"""
+        """Test code+text: '(199)Rock' -> 'Rock' (text part only)."""
         with temp_file_with_metadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with code+text
             ID3v2MetadataSetter.set_genres(test_file, ["(199)Rock"], version="2.4")

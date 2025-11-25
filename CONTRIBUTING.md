@@ -122,12 +122,16 @@ cd audiometa
 
 Ensure you're using:
 
-- **Python 3.13** (required for development - see note below)
+- **Python 3.12, 3.13, or 3.14** (all supported - see note below)
 
-**Note:** While the library itself supports Python 3.12+, the development environment requires Python 3.13 due to:
+**Note:** While the library itself supports Python 3.12+, the development environment works with Python 3.12, 3.13, or 3.14:
 
-- The `debug-statements` hook explicitly requires `python3.13`
-- Mypy is configured for Python 3.13 in `pyproject.toml`
+- Pre-commit hooks use Python from your activated virtual environment (`language: system`)
+- Mypy 1.18.2 runs on Python 3.12, 3.13, or 3.14 and is configured to type-check against Python 3.12 syntax (ensures code is compatible with the minimum supported version)
+  - **Why Python 3.12 for mypy?** Setting `python_version = "3.12"` in `pyproject.toml` ensures type-checking validates code against the minimum supported Python version. This prevents accidentally using Python 3.13/3.14-only type features that would break compatibility with Python 3.12. While Python 3.14 is backward compatible and doesn't introduce breaking type system changes, this configuration ensures the codebase remains compatible with all supported versions. If Python 3.14-specific type features are needed in the future, `python_version` can be updated accordingly.
+- Ruff is configured with `target-version = "py312"` for the same compatibility reasons
+- All hooks work with Python 3.12, 3.13, or 3.14
+- **Python 3.14**: Fully supported. No special installation steps are needed.
 
 - Virtual environment with dependencies:
 

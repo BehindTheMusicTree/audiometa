@@ -46,6 +46,30 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
 
+## [Unreleased]
+
+### Added
+
+- **Python 3.14 Support**: Added support for Python 3.14:
+  - Updated `pyproject.toml` to include Python 3.14 classifier
+  - Added Python 3.14 to CI test matrix (Ubuntu, macOS, Windows)
+  - Updated README badges and documentation to reflect Python 3.12, 3.13, and 3.14 support
+  - Updated `create-worktree.sh` to automatically detect and use highest available Python version (3.14, 3.13, or 3.12)
+  - Removed Python version restriction from pre-commit `debug-statements` hook to support Python 3.12, 3.13, and 3.14 flexibly
+  - Updated CONTRIBUTING.md to clarify that pre-commit hooks use Python from the activated virtual environment and document mypy configuration rationale (type-checking against Python 3.12 ensures compatibility with minimum supported version)
+  - Replaced `docformatter` with `pydocstringformatter` to avoid Python 3.14 compatibility issues with `untokenize` (a dependency of `docformatter`). `pydocstringformatter` provides the same PEP 257 docstring formatting functionality without requiring Python 3.14 workarounds.
+  - Updated `pytest` from 7.0.0 to 9.0.1 and `pytest-mock` from 3.10.0 to 3.15.1 for Python 3.14 compatibility. Both versions are compatible with Python 3.12, 3.13, and 3.14
+
+### Improved
+
+- **Pre-commit Fail Fast**: Updated `.pre-commit-config.yaml` to use `fail_fast: true`, ensuring pre-commit fails immediately when hooks are unavailable or fail, rather than skipping them
+- **Docstring Formatter**: Replaced `docformatter` with `pydocstringformatter` to eliminate Python 3.14 compatibility issues. `pydocstringformatter` provides the same PEP 257 docstring formatting functionality without requiring workarounds, simplifying the installation process
+- **Pydocstringformatter Configuration**: Improved pydocstringformatter configuration to prevent breaking sentences and adding incorrect periods:
+  - Added `--no-split-summary-body` to prevent breaking sentences when docstrings are pre-split across lines
+  - Added `--no-final-period` to prevent adding periods to summary lines (fixes issues like "not." -> "not." breaks)
+  - Added `--linewrap-full-docstring` to wrap long docstring lines to max-line-length without breaking sentences
+- **Pytest Warning Filtering**: Replaced `--disable-warnings` with `filterwarnings` configuration in `pyproject.toml` to selectively suppress only expected UserWarnings about unsupported metadata fields. This provides more precise control and ensures unexpected warnings are still visible, improving test output quality while maintaining clean CI logs
+
 ## [0.2.8] - 2025-11-24
 
 ### Added
@@ -73,8 +97,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **Git Worktrees Guide**: Created `docs/GIT_WORKTREES.md` with comprehensive worktree management documentation
 - **GitHub Issue and PR Templates**: Added Cursor rules for generating GitHub issues and PR descriptions
 - **README**: Removed broken download badges and updated remaining badges to use PePy for more accurate statistics
-
-## [Unreleased]
 
 ## [0.2.7] - 2025-11-20
 
