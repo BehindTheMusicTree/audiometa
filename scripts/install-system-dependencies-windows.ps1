@@ -727,6 +727,37 @@ if ($wslRequiredPackages.Count -gt 0) {
     Write-Output ""
 }
 else {
+    # Check/install npm/node (required for git-worktree-scripts dev dependency)
+    Write-Output ""
+    Write-Output "Checking npm/node installation (required for git-worktree-scripts)..."
+    $npmCheck = Get-Command npm -ErrorAction SilentlyContinue
+    if (-not $npmCheck) {
+        $nodeCheck = Get-Command node -ErrorAction SilentlyContinue
+        if (-not $nodeCheck) {
+            Write-Output "Installing Node.js (includes npm) via Chocolatey..."
+            choco install nodejs -y
+            if ($LASTEXITCODE -ne 0) {
+                Write-Error "ERROR: Failed to install Node.js."
+                exit 1
+            }
+        }
+        else {
+            Write-Output "Node.js is installed but npm is not available."
+            Write-Output "Please install npm manually or reinstall Node.js."
+            exit 1
+        }
+    }
+
+    # Verify npm is available in PATH after installation
+    $npmCheck = Get-Command npm -ErrorAction SilentlyContinue
+    if (-not $npmCheck) {
+        Write-Error "ERROR: npm is not available in PATH after installation."
+        exit 1
+    }
+
+    $npmVersion = npm --version
+    Write-Output "  npm is installed: $npmVersion"
+
     Write-Output "All system dependencies installed successfully!"
 }
 
