@@ -5,7 +5,7 @@ cd "$WORKTREE_PATH"
 
 if [ ! -d ".venv" ]; then
     echo "Creating Python virtual environment..."
-    
+
     PYTHON_CMD=""
     for version in 3.14 3.13 3.12; do
         if command -v "python${version}" >/dev/null 2>&1; then
@@ -33,6 +33,3 @@ if [ ! -d ".venv" ]; then
 else
     echo "Virtual environment already exists at .venv"
 fi
-
-
-
