@@ -48,6 +48,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Changed
+
+- **Git Worktree Scripts**: Migrated from local scripts to npm package `git-worktree-scripts`. System dependency installation scripts now automatically install Node.js/npm. Added repository-specific `scripts/setup-worktree.sh` for Python virtual environment setup.
+
 ## [0.2.9] - 2025-11-25
 
 ### Added

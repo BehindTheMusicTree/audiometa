@@ -346,4 +346,36 @@ if [[ "$CATEGORY" != "lint" ]]; then
   fi
 fi
 
+# Check/install npm/node (required for git-worktree-scripts dev dependency)
+echo ""
+echo "Checking npm/node installation (required for git-worktree-scripts)..."
+if ! command -v npm &>/dev/null; then
+  if ! command -v node &>/dev/null; then
+    echo "Installing Node.js and npm..."
+    if ! curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -; then
+      echo "ERROR: Failed to add NodeSource repository."
+      exit 1
+    fi
+    if ! sudo apt-get install -y nodejs; then
+      echo "ERROR: Failed to install Node.js."
+      exit 1
+    fi
+  else
+    echo "Node.js is installed but npm is not available."
+    echo "Installing npm..."
+    if ! sudo apt-get install -y npm; then
+      echo "ERROR: Failed to install npm."
+      exit 1
+    fi
+  fi
+fi
+
+# Verify npm is available in PATH after installation
+if ! command -v npm &>/dev/null; then
+  echo "ERROR: npm is not available in PATH after installation."
+  exit 1
+fi
+
+echo "  npm is installed: $(npm --version)"
+
 echo "All system dependencies installed successfully!"

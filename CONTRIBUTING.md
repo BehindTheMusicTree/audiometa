@@ -142,6 +142,14 @@ Ensure you're using:
   pip install -e ".[dev]"
   ```
 
+- **Node.js dependencies** (for git worktree scripts):
+
+  ```bash
+  npm install
+  ```
+
+  This installs the `git-worktree-scripts` package as a dev dependency for managing git worktrees.
+
 - **System dependencies** (required for testing and linting):
 
   To ensure your local environment matches CI exactly, use the automated installation scripts:
@@ -218,9 +226,22 @@ Ensure you're using:
 
 When working on multiple branches simultaneously or when you need separate Cursor windows for different branches, use **git worktrees**. This allows you to have multiple working directories for the same repository, each on a different branch.
 
-For detailed information on setting up and using git worktrees, see:
+This repository uses the [`git-worktree-scripts`](https://www.npmjs.com/package/git-worktree-scripts) npm package for managing worktrees:
 
-**[Git Worktrees Guide](docs/GIT_WORKTREES.md)**
+```bash
+# Create a new worktree
+npx git-worktree create feature/my-feature
+
+# Open an existing worktree
+npx git-worktree open
+
+# Remove a worktree
+npx git-worktree remove
+```
+
+For complete documentation, usage examples, and advanced features, see the [package documentation](https://www.npmjs.com/package/git-worktree-scripts).
+
+**Note:** This repository includes a `scripts/setup-worktree.sh` file that automatically sets up a Python virtual environment when creating new worktrees.
 
 ### 3. Developing
 

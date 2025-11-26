@@ -618,6 +618,31 @@ if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
   exit 1
 fi
 
+# Check/install npm/node (required for git-worktree-scripts dev dependency)
+echo ""
+echo "Checking npm/node installation (required for git-worktree-scripts)..."
+if ! command -v npm &>/dev/null; then
+  if ! command -v node &>/dev/null; then
+    echo "Installing Node.js (includes npm)..."
+    if ! brew install node; then
+      echo "ERROR: Failed to install Node.js."
+      exit 1
+    fi
+  else
+    echo "Node.js is installed but npm is not available."
+    echo "Please install npm manually or reinstall Node.js."
+    exit 1
+  fi
+fi
+
+# Verify npm is available in PATH after installation
+if ! command -v npm &>/dev/null; then
+  echo "ERROR: npm is not available in PATH after installation."
+  exit 1
+fi
+
+echo "  npm is installed: $(npm --version)"
+
 echo "All system dependencies installed successfully!"
 
 # Automatically add PATH setup to shell profile for local development
