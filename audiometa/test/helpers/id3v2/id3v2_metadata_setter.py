@@ -43,6 +43,7 @@ class ID3v2MetadataSetter:
                 "mood": "--TMOO",
                 "key": "--TKEY",
                 "publisher": "--TPUB",
+                "disc_number": "--TPOS",
             }
         else:
             tool = "mid3v2"
@@ -70,6 +71,7 @@ class ID3v2MetadataSetter:
                 "key": "--TKEY",
                 "publisher": "--TPUB",
                 "bpm": "--TBPM",
+                "disc_number": "--TPOS",
             }
 
         metadata_added = False
