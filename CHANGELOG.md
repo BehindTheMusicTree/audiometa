@@ -48,6 +48,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-11-27
+
 ### Added
 
 - **Disc Number Support**: Added support for disc number metadata fields (`DISC_NUMBER` and `DISC_TOTAL`):
