@@ -50,7 +50,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Changed
 
-- **Git Worktree Scripts**: Updated `git-worktree-scripts` from version 1.0.3 to 1.2.5
+- **Git Worktree Scripts**: Migrated from local scripts to npm package `git-worktree-scripts`. System dependency installation scripts now automatically install Node.js/npm. Added repository-specific `scripts/setup-worktree.sh` for Python virtual environment setup.
 
 ## [0.2.9] - 2025-11-25
 
