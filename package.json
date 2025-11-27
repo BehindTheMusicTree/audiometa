@@ -4,6 +4,6 @@
   "private": true,
   "description": "Development dependencies for audiometa-python",
   "devDependencies": {
-    "git-worktree-scripts": "1.0.3"
+    "git-worktree-scripts": "1.2.5"
   }
 }
