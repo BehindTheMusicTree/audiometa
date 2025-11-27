@@ -12,6 +12,7 @@ This document consolidates comprehensive metadata field handling across all supp
 - [Rating Handling](#rating-handling)
 - [Release Date Validation Rules](#release-date-validation-rules)
 - [Track Number Handling](#track-number-handling)
+- [Disc Number Handling](#disc-number-handling)
 - [Lyrics Support](#lyrics-support)
 - [None vs Empty String Handling](#none-vs-empty-string-handling)
 
@@ -34,7 +35,8 @@ The library supports a comprehensive set of metadata fields across different aud
 | Release Date        | YEAR (4)          | TYER (4) + TDAT (4) (v2.3) | DATE (10)            | ICRD (10)       | RELEASE_DATE          |
 |                     |                   | TDRC (10) (v2.4)           |                      |                 |                       |
 | Track Number        | TRACK (1#) (v1.1) | TRCK (0-255#)              | TRACKNUMBER (Unlim#) | IPRT\* (Unlim#) | TRACK_NUMBER          |
-| Disc Number         | ✗                 | TPOS (0-255#)              | DISCNUMBER (Unlim#)  | ✗               |                       |
+| Disc Number         | ✗                 | TPOS (0-255#)              | DISCNUMBER (Unlim#)  | ✗               | DISC_NUMBER           |
+| Disc Total          | ✗                 | TPOS (0-255#)              | DISCTOTAL (Unlim#)   | ✗               | DISC_TOTAL            |
 | Rating              | ✗                 | POPM (0-255#)              | RATING (0-100#)      | IRTD\* (0-100#) | RATING                |
 | BPM                 | ✗                 | TBPM (0-65535#)            | BPM (0-65535#)       | IBPM\*          | BPM                   |
 | Language            | ✗                 | TLAN (3)                   | LANGUAGE (3)         | ILNG\* (3)      | LANGUAGE              |
@@ -341,6 +343,24 @@ The library returns track numbers as strings. Edge cases:
 - **ID3v2**: Supports full track/total format (e.g., "5/12") as per ID3v2 specification
 - **Vorbis**: Supports full track/total format through TRACKNUMBER field
 - **RIFF**: Track number writing is not currently supported
+
+For detailed information, see the **[Track Number Handling Guide](TRACK_NUMBER.md)**.
+
+## Disc Number Handling
+
+The library provides two separate unified metadata fields for disc number:
+
+- **`DISC_NUMBER`**: Integer representing the current disc number (required)
+- **`DISC_TOTAL`**: Integer representing the total number of discs, or `None` if unknown (optional)
+
+**Format Support:**
+
+- **ID3v1**: ✗ Not supported (format limitation)
+- **ID3v2**: TPOS frame - maps `"disc/total"` format to/from `DISC_NUMBER` and `DISC_TOTAL`, limited to 0-255 range
+- **Vorbis**: Native separate `DISCNUMBER` and `DISCTOTAL` fields, unlimited range
+- **RIFF**: ✗ Not supported (format limitation)
+
+For detailed information on disc number formats, limitations, reading/writing behavior, and examples, see the **[Disc Number Handling Guide](DISC_NUMBER.md)**.
 
 ## Lyrics Support
 
