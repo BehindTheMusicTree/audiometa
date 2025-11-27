@@ -70,6 +70,34 @@ def format_as_table(data: dict[str, Any]) -> str:
     """Format metadata as a simple table."""
     lines = []
 
+    # Handle unified metadata dict directly (from unified command)
+    if "unified_metadata" not in data and isinstance(data, dict):
+        # Check if this is a unified metadata dict (has UnifiedMetadataKey values)
+        unified_keys = {
+            "title",
+            "artists",
+            "album",
+            "album_artists",
+            "genres_names",
+            "release_date",
+            "track_number",
+            "disc_number",
+            "disc_total",
+            "rating",
+            "bpm",
+            "language",
+            "composer",
+            "publisher",
+            "copyright",
+            "unsynchronized_lyrics",
+            "comment",
+            "replaygain",
+            "archival_location",
+        }
+        if unified_keys.intersection(set(data.keys())):
+            # This is a unified metadata dict, wrap it
+            data = {"unified_metadata": data}
+
     if "unified_metadata" in data:
         lines.append("=== UNIFIED METADATA ===")
         for key, value in data["unified_metadata"].items():
@@ -142,31 +170,83 @@ def _write_metadata(args: argparse.Namespace) -> None:
     # Build metadata dictionary from command line arguments
     metadata: UnifiedMetadata = {}
 
-    # Validate rating
+    # String fields
+    if args.title and args.title.strip():
+        metadata[UnifiedMetadataKey.TITLE] = args.title
+    if args.album and args.album.strip():
+        metadata[UnifiedMetadataKey.ALBUM] = args.album
+    if args.language and args.language.strip():
+        metadata[UnifiedMetadataKey.LANGUAGE] = args.language
+    if args.publisher and args.publisher.strip():
+        metadata[UnifiedMetadataKey.PUBLISHER] = args.publisher
+    if args.copyright and args.copyright.strip():
+        metadata[UnifiedMetadataKey.COPYRIGHT] = args.copyright
+    if args.lyrics and args.lyrics.strip():
+        metadata[UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS] = args.lyrics
+    if args.comment and args.comment.strip():
+        metadata[UnifiedMetadataKey.COMMENT] = args.comment
+    if args.replaygain and args.replaygain.strip():
+        metadata[UnifiedMetadataKey.REPLAYGAIN] = args.replaygain
+    if args.archival_location and args.archival_location.strip():
+        metadata[UnifiedMetadataKey.ARCHIVAL_LOCATION] = args.archival_location
+
+    # List fields (can be specified multiple times)
+    if args.artist:
+        artists = [a.strip() for a in args.artist if a and a.strip()]
+        if artists:
+            metadata[UnifiedMetadataKey.ARTISTS] = artists
+    if args.album_artists:
+        album_artists = [a.strip() for a in args.album_artists if a and a.strip()]
+        if album_artists:
+            metadata[UnifiedMetadataKey.ALBUM_ARTISTS] = album_artists
+    if args.genre:
+        genres = [g.strip() for g in args.genre if g and g.strip()]
+        if genres:
+            metadata[UnifiedMetadataKey.GENRES_NAMES] = genres
+    if args.composer:
+        composers = [c.strip() for c in args.composer if c and c.strip()]
+        if composers:
+            metadata[UnifiedMetadataKey.COMPOSERS] = composers
+
+    # Integer fields
     if args.rating is not None:
         if args.rating < 0:
             sys.stderr.write("Error: rating cannot be negative\n")
             sys.exit(1)
         metadata[UnifiedMetadataKey.RATING] = args.rating
+    if args.disc_number is not None:
+        if args.disc_number < 0:
+            sys.stderr.write("Error: disc-number cannot be negative\n")
+            sys.exit(1)
+        metadata[UnifiedMetadataKey.DISC_NUMBER] = args.disc_number
+    if args.disc_total is not None:
+        if args.disc_total < 0:
+            sys.stderr.write("Error: disc-total cannot be negative\n")
+            sys.exit(1)
+        metadata[UnifiedMetadataKey.DISC_TOTAL] = args.disc_total
+    if args.bpm is not None:
+        if args.bpm < 0:
+            sys.stderr.write("Error: bpm cannot be negative\n")
+            sys.exit(1)
+        metadata[UnifiedMetadataKey.BPM] = args.bpm
 
-    # Validate year
+    # Release date (year takes precedence over release-date if both specified)
     if args.year is not None:
         if args.year < 0:
             sys.stderr.write("Error: year cannot be negative\n")
             sys.exit(1)
         metadata[UnifiedMetadataKey.RELEASE_DATE] = str(args.year)
+    elif args.release_date and args.release_date.strip():
+        metadata[UnifiedMetadataKey.RELEASE_DATE] = args.release_date
 
-    # Only add non-empty string values
-    if args.title and args.title.strip():
-        metadata[UnifiedMetadataKey.TITLE] = args.title
-    if args.artist and args.artist.strip():
-        metadata[UnifiedMetadataKey.ARTISTS] = [args.artist]
-    if args.album and args.album.strip():
-        metadata[UnifiedMetadataKey.ALBUM] = args.album
-    if args.genre and args.genre.strip():
-        metadata[UnifiedMetadataKey.GENRES_NAMES] = [args.genre]
-    if args.comment and args.comment.strip():
-        metadata[UnifiedMetadataKey.COMMENT] = args.comment
+    # Track number (string, can be "5" or "5/12")
+    if args.track_number and args.track_number.strip():
+        metadata[UnifiedMetadataKey.TRACK_NUMBER] = args.track_number
+
+    # Check if any metadata was provided
+    if not metadata:
+        sys.stderr.write("Error: No metadata fields specified\n")
+        sys.exit(1)
 
     try:
         validate_metadata_for_update(metadata)
@@ -320,12 +400,34 @@ Examples:
     write_parser = subparsers.add_parser("write", help="Write metadata to audio file(s)")
     write_parser.add_argument("files", nargs="+", help="Audio file(s) or pattern(s)")
     write_parser.add_argument("--title", help="Song title")
-    write_parser.add_argument("--artist", help="Artist name")
+    write_parser.add_argument(
+        "--artist", action="append", help="Artist name (can be specified multiple times for multiple artists)"
+    )
     write_parser.add_argument("--album", help="Album name")
+    write_parser.add_argument(
+        "--album-artist",
+        action="append",
+        dest="album_artists",
+        help="Album artist name (can be specified multiple times)",
+    )
     write_parser.add_argument("--year", type=int, help="Release year")
-    write_parser.add_argument("--genre", help="Genre")
+    write_parser.add_argument("--release-date", help="Release date in YYYY or YYYY-MM-DD format")
+    write_parser.add_argument(
+        "--genre", action="append", help="Genre (can be specified multiple times for multiple genres)"
+    )
+    write_parser.add_argument("--track-number", help="Track number (e.g., '5' or '5/12')")
+    write_parser.add_argument("--disc-number", type=int, help="Disc number")
+    write_parser.add_argument("--disc-total", type=int, help="Total number of discs")
     write_parser.add_argument("--rating", type=float, help="Rating value (integer or whole-number float like 196.0)")
+    write_parser.add_argument("--bpm", type=int, help="Beats per minute")
+    write_parser.add_argument("--language", help="Language code (3 characters, e.g., 'eng')")
+    write_parser.add_argument("--composer", action="append", help="Composer name (can be specified multiple times)")
+    write_parser.add_argument("--publisher", help="Publisher name")
+    write_parser.add_argument("--copyright", help="Copyright information")
+    write_parser.add_argument("--lyrics", help="Unsynchronized lyrics text")
     write_parser.add_argument("--comment", help="Comment")
+    write_parser.add_argument("--replaygain", help="ReplayGain information")
+    write_parser.add_argument("--archival-location", help="Archival location")
     write_parser.add_argument(
         "--force-format",
         choices=["id3v2", "id3v1", "vorbis", "riff"],

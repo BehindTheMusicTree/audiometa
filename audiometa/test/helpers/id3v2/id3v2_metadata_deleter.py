@@ -12,7 +12,7 @@ class ID3v2MetadataDeleter:
     def delete_frame(file_path: Path, frame_id: str) -> None:
         """Delete a specific ID3v2 frame."""
         try:
-            command = ["mid3v2", "--delete", frame_id, str(file_path)]
+            command = ["mid3v2", "--delete-frames", frame_id, str(file_path)]
             run_external_tool(command, "mid3v2")
         except Exception:
             # Ignore if frame doesn't exist

@@ -48,6 +48,32 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **CLI Support for All Metadata Fields**: Added CLI command-line arguments for all metadata fields supported by the library:
+  - `--album-artist` (multiple values): Album artist names
+  - `--language`: Language code (3 characters, e.g., 'eng')
+  - `--track-number`: Track number (e.g., '5' or '5/12')
+  - `--disc-number`: Disc number
+  - `--disc-total`: Total number of discs
+  - `--bpm`: Beats per minute
+  - `--composer` (multiple values): Composer names
+  - `--publisher`: Publisher name
+  - `--copyright`: Copyright information
+  - `--lyrics`: Unsynchronized lyrics text
+  - `--replaygain`: ReplayGain information
+  - `--archival-location`: Archival location
+  - `--release-date`: Release date in YYYY or YYYY-MM-DD format
+  - Updated `--artist`, `--album-artist`, `--genre`, and `--composer` to support multiple values using `action="append"`
+  - Includes comprehensive E2E tests for all CLI read and write operations
+  - Refactored CLI tests into `read/` and `write/` subdirectories for better organization
+
+### Documentation
+
+- **Metadata Field Guide**: Added CLI support column to metadata field table:
+  - Shows which metadata fields can be written via CLI command-line arguments
+  - Indicates CLI argument names (e.g., `--title`, `--artist`, `--album`) for supported fields
+
 ## [0.3.0] - 2025-11-27
 
 ### Added

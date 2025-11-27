@@ -147,10 +147,78 @@ class ManualID3v2FrameCreator:
         return struct.pack("4B", *result)
 
     @staticmethod
+    def _syncsafe_decode(data: bytes) -> int:
+        """Decode a 4-byte syncsafe integer."""
+        return ((data[0] & 0x7F) << 21) | ((data[1] & 0x7F) << 14) | ((data[2] & 0x7F) << 7) | (data[3] & 0x7F)
+
+    @staticmethod
     def _write_id3v2_tag(file_path: Path, frames: list[bytes], version: str) -> None:
-        """Write ID3v2 tag with the given frames to the file."""
-        # Calculate total size of all frames
-        frames_data = b"".join(frames)
+        """Write ID3v2 tag with the given frames to the file, preserving existing frames."""
+
+        # Read existing file content
+        with file_path.open("rb") as f:
+            original_data = f.read()
+
+        # Extract existing frames and audio data
+        existing_frames: list[bytes] = []
+        audio_data = original_data
+        frame_ids_to_replace: set[str] = set()
+
+        # Extract frame IDs from new frames to know which ones to replace
+        for frame_bytes in frames:
+            if len(frame_bytes) >= 4:
+                frame_id = frame_bytes[:4].decode("ascii", errors="ignore")
+                frame_ids_to_replace.add(frame_id)
+
+        if original_data.startswith(b"ID3") and len(original_data) >= 10:
+            # Parse existing ID3v2 tag
+            existing_version = original_data[3]
+            size_bytes = original_data[6:10]
+
+            if existing_version == 4:
+                # ID3v2.4 uses synchsafe integers
+                existing_tag_size = 0
+                for byte in size_bytes:
+                    existing_tag_size = (existing_tag_size << 7) | (byte & 0x7F)
+            else:
+                # ID3v2.3 and earlier use regular integers
+                existing_tag_size = struct.unpack(">I", size_bytes)[0]
+
+            # Read existing tag data
+            tag_data = original_data[10 : 10 + existing_tag_size]
+            audio_data = original_data[10 + existing_tag_size :]
+
+            # Parse existing frames, preserving those not being replaced
+            pos = 0
+            while pos < len(tag_data) - 10:
+                frame_id_bytes = tag_data[pos : pos + 4]
+                if frame_id_bytes == b"\x00\x00\x00\x00":
+                    break
+
+                try:
+                    frame_id_str = frame_id_bytes.decode("ascii")
+                except UnicodeDecodeError:
+                    break
+
+                # Determine frame size based on version
+                if existing_version == 4:
+                    frame_size = ManualID3v2FrameCreator._syncsafe_decode(tag_data[pos + 4 : pos + 8])
+                else:
+                    frame_size = int.from_bytes(tag_data[pos + 4 : pos + 8], "big")
+
+                if pos + 10 + frame_size > len(tag_data):
+                    break
+
+                # Only preserve frames that aren't being replaced
+                if frame_id_str not in frame_ids_to_replace:
+                    frame_data = tag_data[pos : pos + 10 + frame_size]
+                    existing_frames.append(frame_data)
+
+                pos += 10 + frame_size
+
+        # Combine existing frames (that aren't being replaced) with new frames
+        all_frames = existing_frames + frames
+        frames_data = b"".join(all_frames)
         tag_size = len(frames_data)
 
         # Create header based on version
@@ -171,31 +239,7 @@ class ManualID3v2FrameCreator:
                 + ManualID3v2FrameCreator._synchsafe_int(tag_size)  # Size as synchsafe integer
             )
 
-        # Read existing file content (audio data)
-        with file_path.open("rb") as f:
-            original_data = f.read()
-
-        # Remove any existing ID3v2 tag
-        audio_data = original_data
-        if original_data.startswith(b"ID3") and len(original_data) >= 10:
-            # Skip existing ID3v2 tag
-            # Extract version and size from existing tag
-            existing_version = original_data[3]
-            size_bytes = original_data[6:10]
-
-            if existing_version == 4:
-                # ID3v2.4 uses synchsafe integers
-                existing_tag_size = 0
-                for byte in size_bytes:
-                    existing_tag_size = (existing_tag_size << 7) | (byte & 0x7F)
-            else:
-                # ID3v2.3 and earlier use regular integers
-                existing_tag_size = struct.unpack(">I", size_bytes)[0]
-
-            # Audio data starts after header (10 bytes) + tag size
-            audio_data = original_data[10 + existing_tag_size :]
-
-        # Write new file with our custom ID3v2 tag
+        # Write new file with merged ID3v2 tag
         with file_path.open("wb") as f:
             f.write(header)
             f.write(frames_data)

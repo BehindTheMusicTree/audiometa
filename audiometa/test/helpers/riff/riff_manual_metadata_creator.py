@@ -91,15 +91,57 @@ class ManualRIFFMetadataCreator:
 
     @staticmethod
     def create_bpm_field(file_path: Path, bpm: str) -> None:
-        """Create IBPM field in the RIFF INFO chunk."""
-        field_data = ManualRIFFMetadataCreator._create_info_field("IBPM", bpm)
-        ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, [field_data])
+        """Create IBPM field in the RIFF INFO chunk, preserving existing fields."""
+        # Read existing fields and add BPM
+        existing_fields = ManualRIFFMetadataCreator._read_existing_info_fields(file_path)
+        # Remove existing IBPM if present (we'll replace it)
+        existing_fields = [f for f in existing_fields if f[:4] != b"IBPM"]
+        # Add new BPM field
+        bpm_field = ManualRIFFMetadataCreator._create_info_field("IBPM", bpm)
+        all_fields = [*existing_fields, bpm_field]
+        ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, all_fields)
 
     @staticmethod
     def create_lyrics_field(file_path: Path, lyrics: str) -> None:
         """Create ILYR field in the RIFF INFO chunk."""
         field_data = ManualRIFFMetadataCreator._create_info_field("ILYR", lyrics)
         ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, [field_data])
+
+    @staticmethod
+    def create_language_field(file_path: Path, language: str) -> None:
+        """Create ILNG field in the RIFF INFO chunk, preserving existing fields."""
+        # Read existing fields and add language
+        existing_fields = ManualRIFFMetadataCreator._read_existing_info_fields(file_path)
+        # Remove existing ILNG if present (we'll replace it)
+        existing_fields = [f for f in existing_fields if f[:4] != b"ILNG"]
+        # Add new language field
+        language_field = ManualRIFFMetadataCreator._create_info_field("ILNG", language)
+        all_fields = [*existing_fields, language_field]
+        ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, all_fields)
+
+    @staticmethod
+    def create_composer_field(file_path: Path, composer: str) -> None:
+        """Create ICMP field in the RIFF INFO chunk, preserving existing fields."""
+        # Read existing fields and add composer
+        existing_fields = ManualRIFFMetadataCreator._read_existing_info_fields(file_path)
+        # Remove existing ICMP if present (we'll replace it)
+        existing_fields = [f for f in existing_fields if f[:4] != b"ICMP"]
+        # Add new composer field
+        composer_field = ManualRIFFMetadataCreator._create_info_field("ICMP", composer)
+        all_fields = [*existing_fields, composer_field]
+        ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, all_fields)
+
+    @staticmethod
+    def create_rating_field(file_path: Path, rating: str) -> None:
+        """Create IRTD field in the RIFF INFO chunk, preserving existing fields."""
+        # Read existing fields and add rating
+        existing_fields = ManualRIFFMetadataCreator._read_existing_info_fields(file_path)
+        # Remove existing IRTD if present (we'll replace it)
+        existing_fields = [f for f in existing_fields if f[:4] != b"IRTD"]
+        # Add new rating field
+        rating_field = ManualRIFFMetadataCreator._create_info_field("IRTD", rating)
+        all_fields = [*existing_fields, rating_field]
+        ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, all_fields)
 
     @staticmethod
     def _create_info_field(field_id: str, text: str) -> bytes:
@@ -189,6 +231,46 @@ class ManualRIFFMetadataCreator:
             # Skip the header (10 bytes) plus the size of the tag
             return data[10 + size :]
         return data
+
+    @staticmethod
+    def _read_existing_info_fields(file_path: Path) -> list[bytes]:
+        """Read existing INFO chunk fields from the file."""
+        with file_path.open("rb") as f:
+            data = f.read()
+
+        # Skip ID3v2 tags if present
+        audio_data = ManualRIFFMetadataCreator._skip_id3v2_tags(data)
+
+        fields = []
+        pos = 0
+        while pos < len(audio_data) - 8:
+            # Look for LIST chunk containing INFO
+            if audio_data[pos : pos + 4] == b"LIST" and pos + 12 <= len(audio_data):
+                chunk_size = int.from_bytes(audio_data[pos + 4 : pos + 8], "little")
+                if pos + 12 <= len(audio_data) and audio_data[pos + 8 : pos + 12] == b"INFO":
+                    # Found INFO chunk, extract all fields
+                    info_data = audio_data[pos + 12 : pos + 8 + chunk_size]
+                    field_pos = 0
+                    while field_pos < len(info_data) - 8:
+                        if field_pos + 8 <= len(info_data):
+                            field_size = int.from_bytes(info_data[field_pos + 4 : field_pos + 8], "little")
+                            if field_pos + 8 + field_size <= len(info_data):
+                                # Extract the entire field (header + data)
+                                field_data = info_data[field_pos : field_pos + 8 + field_size]
+                                # Ensure proper alignment
+                                aligned_size = (field_size + 1) & ~1
+                                if field_pos + 8 + aligned_size <= len(info_data):
+                                    field_data = info_data[field_pos : field_pos + 8 + aligned_size]
+                                fields.append(field_data)
+                                field_pos += 8 + aligned_size
+                            else:
+                                break
+                        else:
+                            break
+                    break
+            pos += 1
+
+        return fields
 
     @staticmethod
     def _remove_existing_info_chunk(data: bytes) -> bytes:

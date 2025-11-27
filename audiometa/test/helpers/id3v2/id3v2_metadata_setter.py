@@ -74,16 +74,90 @@ class ID3v2MetadataSetter:
                 "disc_number": "--TPOS",
             }
 
+        # Initialize metadata_added flag
         metadata_added = False
+
+        # Handle special fields that need combined values
+        disc_number = None
+        disc_total = None
         for key, value in metadata.items():
-            if key.lower() in key_mapping:
-                cmd.extend([key_mapping[key.lower()], str(value)])
+            if key.lower() == "disc_number" and not isinstance(value, list):
+                disc_number = value
+            elif key.lower() == "disc_total" and not isinstance(value, list):
+                disc_total = value
+
+        # Handle disc_number/disc_total combination (TPOS frame)
+        if disc_number is not None or disc_total is not None:
+            if disc_number is not None and disc_total is not None:
+                tpos_value = f"{disc_number}/{disc_total}"
+            elif disc_number is not None:
+                tpos_value = str(disc_number)
+            else:
+                tpos_value = f"0/{disc_total}"
+            if version == "2.3":
+                cmd.extend(["--TPOS", tpos_value])
+            else:
+                cmd.extend(["--TPOS", tpos_value])
+            metadata_added = True
+
+        # Handle release_date (year) - include in main cmd instead of separate call
+        release_date = None
+        for key, value in metadata.items():
+            if key.lower() in ["release_date", "year"] and not isinstance(value, list):
+                release_date = str(value)
+                break
+
+        if release_date:
+            if version == "2.3":
+                # For ID3v2.3, use --year (TYER frame)
+                cmd.extend(["--year", release_date])
+            else:
+                # For ID3v2.4, use --TDRC
+                cmd.extend(["--TDRC", release_date])
+            metadata_added = True
+
+        # Handle non-list values (excluding already handled fields and list fields)
+        # Only exclude list fields if they're actually lists (single strings should be processed)
+        list_field_keys = set()
+        for k, v in metadata.items():
+            if isinstance(v, list):
+                list_field_keys.add(k.lower())
+
+        for key, value in metadata.items():
+            if (
+                key.lower() in key_mapping
+                and not isinstance(value, list)
+                and key.lower() not in ["disc_number", "disc_total", "release_date", "year"]
+                and key.lower() not in list_field_keys  # Only exclude if it's actually a list
+            ):
+                # Special handling for rating (POPM frame requires app name prefix)
+                if key.lower() == "rating":
+                    if version == "2.3":
+                        cmd.extend(["--POPM", f"Windows Media Player 9 Series:{value}"])
+                    else:
+                        cmd.extend(["--POPM", f"Windows Media Player 9 Series:{value}"])
+                else:
+                    cmd.extend([key_mapping[key.lower()], str(value)])
                 metadata_added = True
 
         # Only run the tool if metadata was actually added
         if metadata_added:
             cmd.append(str(file_path))
             run_external_tool(cmd, tool)
+
+        # Handle list values AFTER other metadata (to avoid being overwritten)
+        # Process in reverse order so the last one (composer) doesn't overwrite others
+        list_items = [(k, v) for k, v in metadata.items() if isinstance(v, list) and v]
+        # Reverse the list so we process composer last (it seems to work)
+        for key, value in reversed(list_items):
+            if key.lower() == "artist":
+                ID3v2MetadataSetter.set_artists(file_path, value, version=version)
+            elif key.lower() == "genre":
+                ID3v2MetadataSetter.set_genres(file_path, value, version=version)
+            elif key.lower() == "composer":
+                ID3v2MetadataSetter.set_composers(file_path, value, version=version)
+            elif key.lower() == "album_artist":
+                ID3v2MetadataSetter.set_album_artists(file_path, value)
 
     @staticmethod
     def set_max_metadata(file_path: Path) -> None:
@@ -403,13 +477,15 @@ class ID3v2MetadataSetter:
             "TCON": "--genre",
             "TIT2": "--song",
             "TPE1": "--artist",
+            "TPE2": "--TPE2",
             "TALB": "--album",
             "TDRC": "--year",
             "TRCK": "--track",
             "COMM": "--comment",
+            "TCOM": "--TCOM",
         }
 
-        flag = flag_mapping.get(frame_id, f"--{frame_id.lower()}")
+        flag = flag_mapping.get(frame_id, f"--{frame_id}")
 
         if version == "2.3":
             # Use id3v2 for ID3v2.3

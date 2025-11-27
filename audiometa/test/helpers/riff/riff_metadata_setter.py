@@ -21,32 +21,94 @@ class RIFFMetadataSetter:
             "album": "--IPRD",
             "genre": "--IGNR",
             "date": "--ICRD",
+            "year": "--ICRD",
+            "release_date": "--ICRD",
             "comment": "--ICMT",
             "track": "--ITRK",
+            "track_number": "--ITRK",
             "bpm": "--TBPM",
             "composer": "--ICMP",
             "lyrics": "--ILYR",
             "language": "--ILNG",
             "album_artist": "--IAAR",
             "rating": "--IRTD",
+            "copyright": "--ICOP",
         }
 
+        # Handle list values - include first value in main command to avoid overwriting
+        artist_value = None
+        genre_value = None
+        composer_value = None
+        for key, value in metadata.items():
+            if isinstance(value, list) and value:
+                if key.lower() == "artist":
+                    artist_value = value[0]  # Store first artist for main command
+                elif key.lower() == "genre":
+                    genre_value = value[0]  # Store first genre for main command
+                elif key.lower() == "composer":
+                    composer_value = value[0]  # Store first composer for main command
+
+        # Handle non-list values and include list values in main command
+        # Note: Rating, BPM, Language, and Composer need to be set AFTER bwfmetaedit to avoid being overwritten
+        rating_value = None
+        bpm_value = None
+        language_value = None
+        composer_single_value = None
         metadata_added = False
         for key, value in metadata.items():
-            if key.lower() in key_mapping:
+            if key.lower() in key_mapping and not isinstance(value, list):
                 if key.lower() == "bpm":
-                    from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
-
-                    ManualRIFFMetadataCreator.create_bpm_field(file_path, str(value))
-                    metadata_added = True
+                    bpm_value = str(value)  # Store for later
+                elif key.lower() == "rating":
+                    rating_value = str(value)  # Store for later
+                elif key.lower() == "language":
+                    language_value = str(value)  # Store for later
+                elif key.lower() == "composer":
+                    composer_single_value = str(value)  # Store for later
                 else:
                     cmd.extend([f"{key_mapping[key.lower()]}={value}"])
                     metadata_added = True
 
-        # Only run bwfmetaedit if metadata was actually added
+        # Add artist if it was provided as a list
+        if artist_value is not None:
+            cmd.extend([f"{key_mapping['artist']}={artist_value}"])
+            metadata_added = True
+
+        # Add genre if it was provided as a list
+        if genre_value is not None:
+            cmd.extend([f"{key_mapping['genre']}={genre_value}"])
+            metadata_added = True
+
+        # Run bwfmetaedit first if metadata was actually added
         if metadata_added:
             cmd.append(str(file_path))
             run_external_tool(cmd, "bwfmetaedit")
+
+        # Set BPM, rating, and language AFTER bwfmetaedit to avoid being overwritten
+        if bpm_value is not None:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+
+            ManualRIFFMetadataCreator.create_bpm_field(file_path, bpm_value)
+
+        if rating_value is not None:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+
+            ManualRIFFMetadataCreator.create_rating_field(file_path, rating_value)
+
+        if language_value is not None:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+
+            ManualRIFFMetadataCreator.create_language_field(file_path, language_value)
+
+        # Set composer (from list or single value) AFTER bwfmetaedit
+        if composer_value is not None:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+
+            ManualRIFFMetadataCreator.create_composer_field(file_path, composer_value)
+        elif composer_single_value is not None:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+
+            ManualRIFFMetadataCreator.create_composer_field(file_path, composer_single_value)
 
     @staticmethod
     def set_comment(file_path: Path, comment: str) -> None:
