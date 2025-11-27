@@ -510,6 +510,21 @@ def validate_metadata_for_update(
             if isinstance(track_number_value, str | int):
                 _MetadataManager.validate_track_number(track_number_value)
 
+    # Validate disc number if present and non-empty
+    if UnifiedMetadataKey.DISC_NUMBER in normalized_metadata:
+        disc_number_value = normalized_metadata[UnifiedMetadataKey.DISC_NUMBER]
+        if disc_number_value is not None:
+            from .manager._MetadataManager import _MetadataManager
+
+            _MetadataManager.validate_disc_number(disc_number_value)
+
+    # Validate disc total if present
+    if UnifiedMetadataKey.DISC_TOTAL in normalized_metadata:
+        disc_total_value = normalized_metadata[UnifiedMetadataKey.DISC_TOTAL]
+        from .manager._MetadataManager import _MetadataManager
+
+        _MetadataManager.validate_disc_total(disc_total_value)
+
 
 def update_metadata(
     file: PublicFileType,

@@ -48,6 +48,16 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **Disc Number Support**: Added support for disc number metadata fields (`DISC_NUMBER` and `DISC_TOTAL`):
+  - Two separate unified metadata fields: `DISC_NUMBER` (int) and `DISC_TOTAL` (int | None)
+  - ID3v2 support: Reads/writes TPOS frame in "disc/total" format, with 0-255 range limitation
+  - Vorbis support: Reads/writes separate `DISCNUMBER` and `DISCTOTAL` fields with unlimited range
+  - ID3v1 and RIFF formats properly raise exceptions when attempting to read/write disc numbers (not supported)
+  - Includes comprehensive unit tests (23 test cases) and integration tests (27 test cases) covering validation, reading, writing, and deletion across all supported formats
+  - See `docs/DISC_NUMBER.md` for detailed documentation on format support, limitations, and usage examples
+
 ### Changed
 
 - **Git Worktree Scripts**: Migrated from local scripts to npm package `git-worktree-scripts`. System dependency installation scripts now automatically install Node.js/npm. Added repository-specific `scripts/setup-worktree.sh` for Python virtual environment setup.

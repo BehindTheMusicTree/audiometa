@@ -48,6 +48,8 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         GENRES_NAMES = "GENRE"
         DATE = "DATE"  # Creation/Release date
         TRACK_NUMBER = "TRACKNUMBER"
+        DISC_NUMBER = "DISCNUMBER"
+        DISC_TOTAL = "DISCTOTAL"
         COMMENT = "COMMENT"
         PERFORMER = "PERFORMER"
         COPYRIGHT = "COPYRIGHT"
@@ -80,6 +82,8 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.VorbisKey.DATE,
             UnifiedMetadataKey.TRACK_NUMBER: self.VorbisKey.TRACK_NUMBER,
+            UnifiedMetadataKey.DISC_NUMBER: self.VorbisKey.DISC_NUMBER,
+            UnifiedMetadataKey.DISC_TOTAL: self.VorbisKey.DISC_TOTAL,
             UnifiedMetadataKey.BPM: self.VorbisKey.BPM,
             UnifiedMetadataKey.COMPOSERS: self.VorbisKey.COMPOSERS,
             UnifiedMetadataKey.COPYRIGHT: self.VorbisKey.COPYRIGHT,
@@ -98,6 +102,8 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.VorbisKey.DATE,
             UnifiedMetadataKey.TRACK_NUMBER: self.VorbisKey.TRACK_NUMBER,
+            UnifiedMetadataKey.DISC_NUMBER: self.VorbisKey.DISC_NUMBER,
+            UnifiedMetadataKey.DISC_TOTAL: self.VorbisKey.DISC_TOTAL,
             UnifiedMetadataKey.BPM: self.VorbisKey.BPM,
             UnifiedMetadataKey.COMPOSERS: self.VorbisKey.COMPOSERS,
             UnifiedMetadataKey.COPYRIGHT: self.VorbisKey.COPYRIGHT,
@@ -312,6 +318,13 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
         self._validate_and_process_rating(unified_metadata)
 
+        # Handle DISC_NUMBER and DISC_TOTAL relationship: if DISC_NUMBER is None, DISC_TOTAL should also be None
+        if (
+            UnifiedMetadataKey.DISC_NUMBER in unified_metadata
+            and unified_metadata[UnifiedMetadataKey.DISC_NUMBER] is None
+        ):
+            unified_metadata[UnifiedMetadataKey.DISC_TOTAL] = None
+
         # Get current metadata
         current_metadata = self._extract_mutagen_metadata()
 
@@ -365,6 +378,8 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                 "GENRE": "GENRE",
                 "COMMENT": "COMMENT",
                 "TRACKNUMBER": "TRACKNUMBER",
+                "DISCNUMBER": "DISCNUMBER",
+                "DISCTOTAL": "DISCTOTAL",
                 "BPM": "BPM",
                 "COMPOSER": "COMPOSER",
                 "COPYRIGHT": "COPYRIGHT",

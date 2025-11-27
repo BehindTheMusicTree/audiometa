@@ -60,6 +60,8 @@ class VorbisMetadataSetter:
             "url": "URL",
             "isrc": "ISRC",
             "publisher": "PUBLISHER",
+            "disc_number": "DISCNUMBER",
+            "disc_total": "DISCTOTAL",
         }
 
         metadata_added = False

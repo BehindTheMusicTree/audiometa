@@ -158,6 +158,63 @@ class _MetadataManager:
                 track_number,
             )
 
+    @staticmethod
+    def validate_disc_number(disc_number: int) -> None:
+        """Validate disc number format.
+
+        Disc numbers must be non-negative integers.
+
+        Args:
+            disc_number: The disc number to validate (int)
+
+        Raises:
+            InvalidMetadataFieldFormatError: If the disc number format is invalid
+
+        Examples:
+            >>> _MetadataManager.validate_disc_number(1)  # Valid
+            >>> _MetadataManager.validate_disc_number(0)  # Valid
+            >>> _MetadataManager.validate_disc_number(-1)  # Raises InvalidMetadataFieldFormatError
+        """
+        if not isinstance(disc_number, int):
+            raise InvalidMetadataFieldFormatError(
+                UnifiedMetadataKey.DISC_NUMBER.value, "integer", str(type(disc_number).__name__)
+            )
+
+        if disc_number < 0:
+            raise InvalidMetadataFieldFormatError(
+                UnifiedMetadataKey.DISC_NUMBER.value, "non-negative integer", str(disc_number)
+            )
+
+    @staticmethod
+    def validate_disc_total(disc_total: int | None) -> None:
+        """Validate disc total format.
+
+        Disc totals must be non-negative integers or None.
+
+        Args:
+            disc_total: The disc total to validate (int or None)
+
+        Raises:
+            InvalidMetadataFieldFormatError: If the disc total format is invalid
+
+        Examples:
+            >>> _MetadataManager.validate_disc_total(2)  # Valid
+            >>> _MetadataManager.validate_disc_total(None)  # Valid
+            >>> _MetadataManager.validate_disc_total(-1)  # Raises InvalidMetadataFieldFormatError
+        """
+        if disc_total is None:
+            return
+
+        if not isinstance(disc_total, int):
+            raise InvalidMetadataFieldFormatError(
+                UnifiedMetadataKey.DISC_TOTAL.value, "integer or None", str(type(disc_total).__name__)
+            )
+
+        if disc_total < 0:
+            raise InvalidMetadataFieldFormatError(
+                UnifiedMetadataKey.DISC_TOTAL.value, "non-negative integer", str(disc_total)
+            )
+
     @abstractmethod
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         raise NotImplementedError
@@ -535,7 +592,7 @@ class _MetadataManager:
         if unified_metadata_key_optional_type is float:
             return float(value[0]) if value else None
         if origin is not None and (origin == Union or (hasattr(origin, "__name__") and origin.__name__ == "UnionType")):
-            # Handle union types like int | float
+            # Handle union types like int | float or int | None
             arg_types = get_args(unified_metadata_key_optional_type)
             if int in arg_types and float in arg_types:
                 # For int | float, prefer int if it's a whole number, otherwise float
@@ -545,6 +602,12 @@ class _MetadataManager:
                         return int(num_value)
                     else:  # noqa: RET505
                         return num_value
+                except (ValueError, TypeError):
+                    return None
+            if int in arg_types and type(None) in arg_types:
+                # For int | None, convert to int if value exists, otherwise None
+                try:
+                    return int(value[0]) if value else None
                 except (ValueError, TypeError):
                     return None
         if unified_metadata_key_optional_type is str:

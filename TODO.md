@@ -38,7 +38,16 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
   - Compatibility with iTunes and other Apple ecosystem tools
 
 - [ ] **Support of non-supported fields**
+
   - Add support for metadata fields that are currently not handled by the library
+
+- [ ] **Separate track number into TRACK_NUMBER and TRACK_TOTAL fields**
+  - Split `TRACK_NUMBER` (currently stores `"track/total"` format) into two separate fields
+  - `TRACK_NUMBER`: Integer representing the current track number (required)
+  - `TRACK_TOTAL`: Integer representing the total number of tracks, or `None` if unknown (optional)
+  - Provides type safety, flexibility, and consistency with `DISC_NUMBER`/`DISC_TOTAL` approach
+  - Requires mapping to/from ID3v2's `"track/total"` format and Vorbis' separate `TRACKNUMBER`/`TRACKTOTAL` fields
+  - Breaking change: Will require updating all code using `TRACK_NUMBER` field
 
 ### Medium Priority
 
