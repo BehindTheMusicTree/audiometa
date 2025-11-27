@@ -20,6 +20,8 @@ class UnifiedMetadataKey(str, Enum):
     LANGUAGE = "language"
     RELEASE_DATE = "release_date"
     TRACK_NUMBER = "track_number"
+    DISC_NUMBER = "disc_number"
+    DISC_TOTAL = "disc_total"
     BPM = "bpm"
     COMPOSERS = "composer"
     PUBLISHER = "publisher"
@@ -65,6 +67,8 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.LANGUAGE: str,
             UnifiedMetadataKey.RELEASE_DATE: str,
             UnifiedMetadataKey.TRACK_NUMBER: str,  # Can be int or str
+            UnifiedMetadataKey.DISC_NUMBER: int,
+            UnifiedMetadataKey.DISC_TOTAL: int | None,
             UnifiedMetadataKey.BPM: int,
             UnifiedMetadataKey.COMPOSERS: list[str],
             UnifiedMetadataKey.PUBLISHER: str,

@@ -25,6 +25,7 @@ from mutagen.id3._frames import (
     TMOO,
     TPE1,
     TPE2,
+    TPOS,
     TPUB,
     TRCK,
     TSRC,
@@ -213,6 +214,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         YEAR = "TYER"  # ID3v2.3 year
         DATE = "TDAT"  # ID3v2.3 date (DDMM)
         TRACK_NUMBER = "TRCK"
+        DISC_NUMBER = "TPOS"
         BPM = "TBPM"
 
         # Additional metadata fields
@@ -240,6 +242,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         Id3TextFrame.YEAR: TYER,
         Id3TextFrame.DATE: TDAT,
         Id3TextFrame.TRACK_NUMBER: TRCK,
+        Id3TextFrame.DISC_NUMBER: TPOS,
         Id3TextFrame.BPM: TBPM,
         Id3TextFrame.RATING: POPM,
         Id3TextFrame.COMPOSERS: TCOM,
@@ -271,6 +274,8 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.Id3TextFrame.RECORDING_TIME,
             UnifiedMetadataKey.TRACK_NUMBER: self.Id3TextFrame.TRACK_NUMBER,
+            UnifiedMetadataKey.DISC_NUMBER: None,
+            UnifiedMetadataKey.DISC_TOTAL: None,
             UnifiedMetadataKey.BPM: self.Id3TextFrame.BPM,
             UnifiedMetadataKey.COMPOSERS: self.Id3TextFrame.COMPOSERS,
             UnifiedMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
@@ -289,6 +294,8 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.Id3TextFrame.RECORDING_TIME,
             UnifiedMetadataKey.TRACK_NUMBER: self.Id3TextFrame.TRACK_NUMBER,
+            UnifiedMetadataKey.DISC_NUMBER: None,
+            UnifiedMetadataKey.DISC_TOTAL: None,
             UnifiedMetadataKey.BPM: self.Id3TextFrame.BPM,
             UnifiedMetadataKey.COMPOSERS: self.Id3TextFrame.COMPOSERS,
             UnifiedMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
@@ -434,6 +441,56 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             if app_metadata_value is not None:
                 # Add new TXXX frame with desc 'REPLAYGAIN'
                 raw_mutagen_metadata.add(TXXX(encoding=3, desc="REPLAYGAIN", text=str(app_metadata_value)))
+        elif unified_metadata_key in (UnifiedMetadataKey.DISC_NUMBER, UnifiedMetadataKey.DISC_TOTAL):
+            tpos_key = self.Id3TextFrame.DISC_NUMBER
+            tpos_frame_class = TPOS
+            encoding = 0 if self.id3v2_version[1] == ID3V2_VERSION_3 else 3
+
+            if unified_metadata_key == UnifiedMetadataKey.DISC_NUMBER:
+                current_tpos = raw_mutagen_metadata.get(tpos_key)
+                current_total = None
+                if current_tpos and len(current_tpos.text) > 0:
+                    tpos_str = str(current_tpos.text[0])
+                    import re
+
+                    match = re.match(r"^(\d+)/(\d+)$", tpos_str)
+                    if match:
+                        current_total = int(match.group(2))
+
+                raw_mutagen_metadata.delall(tpos_key)
+                if app_metadata_value is not None:
+                    if not isinstance(app_metadata_value, int):
+                        msg = f"DISC_NUMBER must be an integer, got {type(app_metadata_value).__name__}"
+                        raise TypeError(msg)
+                    disc_number = min(255, max(0, app_metadata_value))
+                    tpos_value = f"{disc_number}/{current_total}" if current_total is not None else str(disc_number)
+                    raw_mutagen_metadata.add(tpos_frame_class(encoding=encoding, text=tpos_value))
+            elif unified_metadata_key == UnifiedMetadataKey.DISC_TOTAL:
+                current_tpos = raw_mutagen_metadata.get(tpos_key)
+                current_disc_number = None
+                if current_tpos and len(current_tpos.text) > 0:
+                    tpos_str = str(current_tpos.text[0])
+                    import re
+
+                    match = re.match(r"^(\d+)(?:/(\d+))?$", tpos_str)
+                    if match:
+                        current_disc_number = int(match.group(1))
+
+                raw_mutagen_metadata.delall(tpos_key)
+                if app_metadata_value is not None:
+                    if not isinstance(app_metadata_value, int):
+                        msg = f"DISC_TOTAL must be an integer, got {type(app_metadata_value).__name__}"
+                        raise TypeError(msg)
+                    disc_total = min(255, max(0, app_metadata_value))
+                    if current_disc_number is not None:
+                        tpos_value = f"{current_disc_number}/{disc_total}"
+                        raw_mutagen_metadata.add(tpos_frame_class(encoding=encoding, text=tpos_value))
+                    else:
+                        msg = "Cannot set DISC_TOTAL without DISC_NUMBER"
+                        raise ValueError(msg)
+                elif current_disc_number is not None:
+                    tpos_value = str(current_disc_number)
+                    raw_mutagen_metadata.add(tpos_frame_class(encoding=encoding, text=tpos_value))
         else:
             super()._update_undirectly_mapped_metadata(  # type: ignore[safe-super]
                 cast(Any, raw_mutagen_metadata), app_metadata_value, unified_metadata_key
@@ -453,6 +510,34 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 return None
             first_value = replaygain_value[0]
             return cast(UnifiedMetadataValue, first_value)
+        if unified_metadata_key == UnifiedMetadataKey.DISC_NUMBER:
+            tpos_key = self.Id3TextFrame.DISC_NUMBER
+            if tpos_key not in raw_clean_metadata:
+                return None
+            tpos_value = raw_clean_metadata[tpos_key]
+            if tpos_value is None or len(tpos_value) == 0:
+                return None
+            tpos_str = str(tpos_value[0])
+            import re
+
+            match = re.match(r"^(\d+)(?:/(\d+))?$", tpos_str)
+            if match:
+                return int(match.group(1))
+            return None
+        if unified_metadata_key == UnifiedMetadataKey.DISC_TOTAL:
+            tpos_key = self.Id3TextFrame.DISC_NUMBER
+            if tpos_key not in raw_clean_metadata:
+                return None
+            tpos_value = raw_clean_metadata[tpos_key]
+            if tpos_value is None or len(tpos_value) == 0:
+                return None
+            tpos_str = str(tpos_value[0])
+            import re
+
+            match = re.match(r"^(\d+)/(\d+)$", tpos_str)
+            if match:
+                return int(match.group(2))
+            return None
         msg = f"Metadata key not handled: {unified_metadata_key}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
