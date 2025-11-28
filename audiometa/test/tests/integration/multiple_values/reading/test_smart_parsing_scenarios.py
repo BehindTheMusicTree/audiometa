@@ -177,7 +177,7 @@ class TestSmartParsingScenarios:
 
     def test_mixed_scenario_modern_format_with_both_patterns(self):
         """Test mixed scenario: ID3v2 concatenates multiple entries, single entries get parsed."""
-        with temp_file_with_metadata({"title": "Test Song"}, "mp3") as test_file:
+        with temp_file_with_metadata({"title": "Test Song"}, "id3v2.3") as test_file:
             # Set artists as multiple separate entries (ID3v2 will concatenate them)
             ID3v2MetadataSetter.set_artists(
                 test_file,
