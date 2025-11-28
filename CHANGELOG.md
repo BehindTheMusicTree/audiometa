@@ -48,6 +48,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [0.3.1] - 2025-11-28
+
 ### Added
 
 - **CLI Support for All Metadata Fields**: Added CLI command-line arguments for all metadata fields supported by the library:
