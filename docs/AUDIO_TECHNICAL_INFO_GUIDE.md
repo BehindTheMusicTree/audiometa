@@ -1,14 +1,41 @@
 # Audio Technical Info Guide: Support and Handling
 
-This document provides comprehensive information about technical audio information support across all supported audio formats (MP3, FLAC, WAV). This includes duration, bitrate, sample rate, channels, file size, format information, and MD5 checksum validation and repair.
+This document provides comprehensive information about technical audio information support across all supported audio formats (MP3, FLAC, WAV). This includes file validation, duration, bitrate, sample rate, channels, file size, format information, and MD5 checksum validation and repair.
 
 ## Table of Contents
 
+- [File Validation](#file-validation)
 - [Technical Info Support by Audio Format](#technical-info-support-by-audio-format)
 - [MD5 Checksum Validation and Repair](#md5-checksum-validation-and-repair)
   - [MD5 Checksum Validation](#md5-checksum-validation)
     - [MD5 Checksum States](#md5-checksum-states)
   - [MD5 Checksum Repair](#md5-checksum-repair)
+
+## File Validation
+
+Before processing audio files, you can check if a file is a valid audio file supported by the library using the `is_audio_file()` function. This function validates that the file exists, has a supported extension (`.mp3`, `.flac`, `.wav`), and contains valid audio content for that format.
+
+```python
+from audiometa import is_audio_file
+
+# Check if a file is a valid audio file
+if is_audio_file("song.mp3"):
+    print("Valid audio file")
+    # Process the file
+else:
+    print("Not a valid audio file")
+```
+
+The function returns:
+
+- `True` if the file is a valid audio file (exists, has supported extension, and contains valid audio content)
+- `False` if the file doesn't exist, has an unsupported extension, or contains invalid/corrupted content
+
+**Use cases:**
+
+- Validate files before processing to avoid exceptions
+- Filter file lists to only process valid audio files
+- Check file integrity before metadata operations
 
 ## Technical Info Support by Audio Format
 

@@ -523,20 +523,24 @@ update_metadata("song.mp3", {
 The library provides functional APIs for getting technical information about audio files:
 
 ```python
-from audiometa import get_duration_in_sec, get_bitrate, get_sample_rate, get_channels, get_file_size
+from audiometa import get_duration_in_sec, get_bitrate, get_sample_rate, get_channels, get_file_size, is_audio_file
 
-# Get technical information using functional API (recommended)
-duration = get_duration_in_sec("path/to/your/audio.flac")
-bitrate = get_bitrate("path/to/your/audio.flac")
-sample_rate = get_sample_rate("path/to/your/audio.flac")
-channels = get_channels("path/to/your/audio.flac")
-file_size = get_file_size("path/to/your/audio.flac")
+# Check if a file is a valid audio file before processing
+if is_audio_file("path/to/your/audio.flac"):
+    # Get technical information using functional API (recommended)
+    duration = get_duration_in_sec("path/to/your/audio.flac")
+    bitrate = get_bitrate("path/to/your/audio.flac")
+    sample_rate = get_sample_rate("path/to/your/audio.flac")
+    channels = get_channels("path/to/your/audio.flac")
+    file_size = get_file_size("path/to/your/audio.flac")
 
-print(f"Duration: {duration} seconds")
-print(f"Bitrate: {bitrate} kbps")
-print(f"Sample Rate: {sample_rate} Hz")
-print(f"Channels: {channels}")
-print(f"File Size: {file_size} bytes")
+    print(f"Duration: {duration} seconds")
+    print(f"Bitrate: {bitrate} kbps")
+    print(f"Sample Rate: {sample_rate} Hz")
+    print(f"Channels: {channels}")
+    print(f"File Size: {file_size} bytes")
+else:
+    print("File is not a valid audio file")
 ```
 
 ## 📚 Core API Reference

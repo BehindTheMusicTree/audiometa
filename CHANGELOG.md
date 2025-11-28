@@ -48,6 +48,16 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **File Validation Endpoint**: Added `is_audio_file()` function to check if a file is a valid audio file:
+  - Validates file existence, supported extension (`.mp3`, `.flac`, `.wav`), and valid audio content
+  - Returns `True` for valid audio files, `False` for nonexistent files, unsupported extensions, or corrupted content
+  - Useful for validating files before processing to avoid exceptions
+  - Includes comprehensive unit tests (8 test cases) covering all supported formats and edge cases
+  - Includes integration tests verifying compatibility with other library functions
+  - Documentation added to README.md and Audio Technical Info Guide
+
 ## [0.3.1] - 2025-11-28
 
 ### Added
