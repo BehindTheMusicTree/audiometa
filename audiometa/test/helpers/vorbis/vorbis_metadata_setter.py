@@ -62,11 +62,26 @@ class VorbisMetadataSetter:
             "publisher": "PUBLISHER",
             "disc_number": "DISCNUMBER",
             "disc_total": "DISCTOTAL",
+            "replaygain": "REPLAYGAIN",
+            "archival_location": "ARCHIVAL_LOCATION",
         }
 
+        # Handle list values first (they need special handling)
+        for key, value in metadata.items():
+            if isinstance(value, list) and value:
+                if key.lower() == "artist":
+                    VorbisMetadataSetter.set_artists(file_path, value)
+                elif key.lower() == "genre":
+                    VorbisMetadataSetter.set_genres(file_path, value)
+                elif key.lower() == "composer":
+                    VorbisMetadataSetter.set_composers(file_path, value)
+                elif key.lower() == "album_artist":
+                    VorbisMetadataSetter.set_album_artists(file_path, value)
+
+        # Handle non-list values
         metadata_added = False
         for key, value in metadata.items():
-            if key.lower() in key_mapping:
+            if key.lower() in key_mapping and not isinstance(value, list):
                 cmd.extend([f"--set-tag={key_mapping[key.lower()]}={value}"])
                 metadata_added = True
 
@@ -141,11 +156,15 @@ class VorbisMetadataSetter:
         audio = FLAC(str(file_path))
         key = "artist" if key_lower_case else "ARTIST"
         if removing_existing:
-            existing = []
+            existing: list[str] = []
         else:
-            existing = audio.get(key, [])
-            if isinstance(existing, str):
-                existing = [existing]
+            existing_raw = audio.get(key, [])
+            if existing_raw is None:
+                existing = []
+            elif isinstance(existing_raw, str):
+                existing = [existing_raw]
+            else:
+                existing = list(existing_raw)
         if in_single_entry:
             value = "\x00".join(artists)
             existing.append(value)
