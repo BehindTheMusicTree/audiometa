@@ -1018,6 +1018,39 @@ def get_sample_rate(file: PublicFileType) -> int:
     return audio_file.get_sample_rate()
 
 
+def is_audio_file(file: PublicFileType) -> bool:
+    """Check if a file is a valid audio file supported by the library.
+
+    This function validates that the file exists, has a supported extension (.mp3, .flac, .wav),
+    and contains valid audio content for that format.
+
+    Args:
+        file: File path (str or Path) to check
+
+    Returns:
+        True if the file is a valid audio file, False otherwise
+
+    Examples:
+        # Check if a file is a valid audio file
+        if is_audio_file("song.mp3"):
+            print("Valid audio file")
+        else:
+            print("Not a valid audio file")
+
+        # Check before processing
+        if is_audio_file("unknown.txt"):
+            metadata = get_unified_metadata("unknown.txt")
+        else:
+            print("File is not a supported audio format")
+    """
+    try:
+        _AudioFile(file)
+    except (FileNotFoundError, FileTypeNotSupportedError, FileCorruptedError):
+        return False
+    else:
+        return True
+
+
 def get_duration_in_sec(file: PublicFileType) -> float:
     """Get the duration of an audio file in seconds.
 

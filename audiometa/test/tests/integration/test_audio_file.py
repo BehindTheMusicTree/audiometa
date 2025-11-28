@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from audiometa import get_unified_metadata, get_unified_metadata_field
+from audiometa import get_unified_metadata, get_unified_metadata_field, is_audio_file
 from audiometa.utils.metadata_format import MetadataFormat
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
@@ -21,3 +21,15 @@ class TestAudioFileIntegration:
         # Test specific metadata with file path
         title = get_unified_metadata_field(str(sample_mp3_file), UnifiedMetadataKey.TITLE)
         assert title is None or isinstance(title, str)
+
+    def test_is_audio_file_with_valid_files(self, sample_mp3_file: Path, sample_flac_file: Path, sample_wav_file: Path):
+        assert is_audio_file(sample_mp3_file) is True
+        assert is_audio_file(sample_flac_file) is True
+        assert is_audio_file(sample_wav_file) is True
+
+    def test_is_audio_file_before_processing(self, sample_mp3_file: Path):
+        if is_audio_file(sample_mp3_file):
+            metadata = get_unified_metadata(sample_mp3_file)
+            assert isinstance(metadata, dict)
+        else:
+            pytest.fail("Valid audio file should return True")

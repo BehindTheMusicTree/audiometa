@@ -4,6 +4,45 @@ alwaysApply: true
 
 # Test Organization
 
+## Test File Structure
+
+**One test class per test file.**
+
+Each test file should contain exactly one test class. This improves:
+- File organization and discoverability
+- Easier navigation when looking for specific tests
+- Clearer separation of concerns
+- Better alignment with test class names and file names
+
+### ✅ CORRECT - One class per file:
+
+```python
+# test_is_audio_file.py
+@pytest.mark.unit
+class TestIsAudioFile:
+    def test_valid_mp3_file_returns_true(self, sample_mp3_file: Path):
+        # ...
+
+# test_file_validation.py
+@pytest.mark.unit
+class TestAudioFileFileTypeValidation:
+    def test_extension_mp3_then_ok(self, sample_mp3_file: Path):
+        # ...
+```
+
+### ❌ WRONG - Multiple classes per file:
+
+```python
+# test_file_validation.py
+@pytest.mark.unit
+class TestAudioFileFileTypeValidation:
+    # ...
+
+@pytest.mark.unit
+class TestIsAudioFile:
+    # ...
+```
+
 ## Test Types and Markers
 
 Tests are organized into three categories with clear markers:
