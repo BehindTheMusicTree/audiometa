@@ -343,6 +343,67 @@ Common RIFF INFO chunk fields:
 
 **Note on BWF**: Broadcast Wave Format (BWF) files are WAV files that include a `bext` chunk. Adding a `bext` chunk to a WAV file makes it a BWF file. The `bext` chunk is a RIFF chunk (follows RIFF chunk structure) but is separate from the RIFF INFO chunk system - it exists at the same level as other top-level chunks like `fmt` and `data`. BWF files can contain both standard RIFF INFO chunks and the additional `bext` chunk for broadcast-specific metadata.
 
+### Broadcast Wave Format (BWF) Versions
+
+BWF has evolved through multiple versions, each adding new capabilities:
+
+#### Version 0 (1997)
+
+- **Initial Release**: Original BWF specification by European Broadcasting Union (EBU)
+- **bext Chunk Structure**: Basic fields without UMID support
+- **Version Field**: `0x0000` (as recommended by FADGI)
+- **Fields**: Description, Originator, OriginatorReference, OriginationDate, OriginationTime, TimeReference, CodingHistory
+- **UMID**: Not supported (64 bytes reserved for future use)
+
+#### Version 1 (2001)
+
+- **UMID Support**: Added Unique Material Identifier (UMID) as defined by SMPTE standard ST 330:2011
+- **Version Field**: `0x0001`
+- **Fields**: All v0 fields plus UMID (64 bytes)
+- **Backward Compatible**: v1 files are readable by v0 implementations (UMID ignored)
+
+#### Version 2 (2011)
+
+- **Loudness Metadata**: Added audio loudness metadata fields aligned with EBU R-128 recommendation
+- **Version Field**: `0x0002`
+- **Fields**: All v1 fields plus loudness metadata:
+  - LoudnessValue
+  - LoudnessRange
+  - MaxTruePeakLevel
+  - MaxMomentaryLoudness
+  - MaxShortTermLoudness
+- **Backward Compatible**: v2 files are readable by v1/v0 implementations (loudness fields ignored)
+
+**bext Chunk Structure (v1/v2):**
+
+```
+Offset  Size    Field
+------  ----    -----
+0       256     Description (ASCII, null-terminated)
+256     32      Originator (ASCII, null-terminated)
+288     32      OriginatorReference (ASCII, null-terminated)
+320     10      OriginationDate (ASCII, YYYY-MM-DD)
+330     8       OriginationTime (ASCII, HH:MM:SS)
+338     8       TimeReference (uint64, little-endian)
+346     2       Version (uint16, little-endian): 0x0000/0x0001/0x0002
+348     64      UMID (binary, v1+ only)
+412     190     Reserved (zeros, or loudness metadata in v2)
+602+    var     CodingHistory (ASCII, null-terminated, variable length)
+```
+
+**Version Compatibility:**
+
+- All versions are backward compatible
+- Older implementations ignore unsupported fields
+- Newer implementations assign default values to missing fields
+- The Version field (2 bytes) indicates which BWF version is used
+
+**BWF Field Support in Other Formats:**
+
+Most BWF fields are BWF-specific and not natively supported by other metadata formats. The exception is **ISRC**, which is also supported by **ID3v2**: TSRC frame and **Vorbis**: ISRC field.
+
+BWF fields are designed for professional broadcasting workflows and include specialized metadata (time references, UMID identifiers, loudness measurements) that are unique to the BWF specification and not found in consumer-oriented formats like ID3v2 or Vorbis.
+
 ### Disadvantages
 
 - ❌ **WAV Only**: Only used in WAV files (not MP3 or FLAC)
@@ -371,8 +432,12 @@ Common RIFF INFO chunk fields:
 - **Read/Write**: Full support
 - **File Types**: WAV (native)
 - **Implementation**: Custom implementation (mutagen doesn't support writing RIFF)
-- **BWF Support**: Planned but not yet implemented (bext chunk)
-  - When implemented, writing `bext` metadata to a WAV file without a `bext` chunk will automatically create/add the `bext` chunk, converting the file to BWF format
+- **BWF Support**: Raw extraction implemented (bext chunk reading)
+  - **BWF Versions**: Supports reading v0, v1, and v2 bext chunks
+  - **Fields Extracted**: Description, Originator, OriginatorReference, OriginationDate, OriginationTime, TimeReference, Version, UMID, CodingHistory
+  - **Loudness Metadata**: Not yet parsed (v2 loudness fields are in reserved space)
+  - **Writing**: Planned but not yet implemented
+    - When implemented, writing `bext` metadata to a WAV file without a `bext` chunk will automatically create/add the `bext` chunk, converting the file to BWF format
 
 ---
 
