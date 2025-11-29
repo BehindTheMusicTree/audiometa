@@ -48,6 +48,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [0.4.1] - 2025-11-29
+
 ### Fixed
 
 - **macOS CI**: Fixed macOS CI failures due to `brew update` network errors:
