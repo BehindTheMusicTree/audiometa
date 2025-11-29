@@ -48,6 +48,14 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Fixed
+
+- **macOS CI**: Fixed macOS CI failures due to `brew update` network errors:
+  - Added retry logic (3 attempts with 5-second delays) for `brew update` to handle transient network issues
+  - Improved error handling to continue with cached formula definitions if update fails after retries
+  - Version verification still ensures pinned versions are available, maintaining CI reliability
+  - Prevents CI failures from transient Homebrew API network issues
+
 ## [0.4.0] - 2025-11-29
 
 ### Added
