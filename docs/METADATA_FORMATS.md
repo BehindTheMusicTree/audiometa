@@ -302,6 +302,7 @@ RIFF Header
 │       ├── IART (Artist) - FourCC + size + data
 │       ├── IPRD (Album) - FourCC + size + data
 │       └── ...
+├── bext chunk (BWF only - broadcast extension)
 └── data chunk (audio data)
 ```
 
@@ -311,6 +312,8 @@ RIFF Header
 - **Chunk Structure**: Each field is a sub-chunk with size and data
 - **Word Alignment**: Data padded to word boundaries (2-byte alignment)
 - **UTF-8 Encoding**: Modern implementations use UTF-8
+
+**Note on `bext` chunk**: The `bext` chunk is a RIFF chunk (follows RIFF chunk structure), but it's separate from the RIFF INFO chunk system. It's a BWF-specific chunk that exists at the same level as `fmt`, `LIST`, and `data` chunks, not nested within the INFO chunk.
 
 ### Standard Fields (FourCC Codes)
 
@@ -337,6 +340,8 @@ Common RIFF INFO chunk fields:
 - ✅ **Extensible**: Can add custom FourCC codes
 - ✅ **Professional Use**: Used in professional audio applications
 - ✅ **BWF Compatible**: Works with Broadcast Wave Format (BWF) extensions
+
+**Note on BWF**: Broadcast Wave Format (BWF) files are WAV files that include a `bext` chunk. Adding a `bext` chunk to a WAV file makes it a BWF file. The `bext` chunk is a RIFF chunk (follows RIFF chunk structure) but is separate from the RIFF INFO chunk system - it exists at the same level as other top-level chunks like `fmt` and `data`. BWF files can contain both standard RIFF INFO chunks and the additional `bext` chunk for broadcast-specific metadata.
 
 ### Disadvantages
 
@@ -367,6 +372,7 @@ Common RIFF INFO chunk fields:
 - **File Types**: WAV (native)
 - **Implementation**: Custom implementation (mutagen doesn't support writing RIFF)
 - **BWF Support**: Planned but not yet implemented (bext chunk)
+  - When implemented, writing `bext` metadata to a WAV file without a `bext` chunk will automatically create/add the `bext` chunk, converting the file to BWF format
 
 ---
 
