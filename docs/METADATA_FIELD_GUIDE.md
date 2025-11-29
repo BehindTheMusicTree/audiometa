@@ -70,6 +70,8 @@ The library supports a comprehensive set of metadata fields across different aud
 
 \*\* Fields marked with double asterisk (\*\*) are supported in Broadcast Wave Format (BWF) files via the `bext` chunk. See the [Metadata Formats Guide](METADATA_FORMATS.md#broadcast-wave-format-bwf-versions) for details.
 
+\*\*\* Fields marked with triple asterisk (\*\*\*) are supported in Broadcast Wave Format (BWF) v2 files via the `bext` chunk loudness metadata section. These fields are parsed by AudioMeta when the bext chunk version is 2 or higher. See the [Metadata Formats Guide](METADATA_FORMATS.md#broadcast-wave-format-bwf-versions) for details.
+
 ## Multiple Values Handling
 
 The library intelligently handles multiple values across different metadata formats, automatically choosing the best approach for each situation.

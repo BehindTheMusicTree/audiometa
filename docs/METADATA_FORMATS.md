@@ -435,7 +435,7 @@ BWF fields are designed for professional broadcasting workflows and include spec
 - **BWF Support**: Raw extraction implemented (bext chunk reading)
   - **BWF Versions**: Supports reading v0, v1, and v2 bext chunks
   - **Fields Extracted**: Description, Originator, OriginatorReference, OriginationDate, OriginationTime, TimeReference, Version, UMID, CodingHistory
-  - **Loudness Metadata**: Not yet parsed (v2 loudness fields are in reserved space)
+  - **Loudness Metadata**: Parsed for BWF v2 (LoudnessValue, LoudnessRange, MaxTruePeakLevel, MaxMomentaryLoudness, MaxShortTermLoudness)
   - **Writing**: Planned but not yet implemented
     - When implemented, writing `bext` metadata to a WAV file without a `bext` chunk will automatically create/add the `bext` chunk, converting the file to BWF format
 
