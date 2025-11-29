@@ -48,6 +48,21 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **BWF Support**: Added raw extraction support for Broadcast Wave Format (BWF) bext chunks (v0, v1, v2):
+  - Standard bext fields: Description, Originator, OriginatorReference, OriginationDate, OriginationTime, TimeReference, Version, UMID, CodingHistory
+  - BWF v2 loudness metadata: LoudnessValue, LoudnessRange, MaxTruePeakLevel, MaxMomentaryLoudness, MaxShortTermLoudness
+
+### Improved
+
+- **Test Organization**: Reorganized `get_full_metadata` integration tests into focused files (format-specific, structure, consistency, error handling, performance, edge cases)
+
+### Documentation
+
+- **Metadata Formats Guide**: Added `METADATA_FORMATS.md` guide documenting all supported metadata formats with BWF versions and structure details
+- **Metadata Field Guide**: Enhanced `METADATA_FIELD_GUIDE.md` with BWF field support and improved table presentation
+
 ## [0.4.1] - 2025-11-29
 
 ### Fixed

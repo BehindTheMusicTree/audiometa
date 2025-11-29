@@ -75,6 +75,42 @@ Tests are implementation details that support features or fixes. They should be 
   - Includes comprehensive unit tests (21 test cases) covering all exception handling scenarios
 ```
 
+## Documentation Entries
+
+**Documentation changes should be listed in the "Documentation" section, not "Added" or "Improved".**
+
+Documentation-only changes (new guides, documentation updates, README changes, etc.) should be categorized under "Documentation" to clearly distinguish them from code changes.
+
+### ✅ CORRECT - Documentation in Documentation section:
+
+```markdown
+### Documentation
+
+- **Metadata Formats Guide**: Added comprehensive `METADATA_FORMATS.md` guide documenting all supported metadata formats
+- **Metadata Field Guide**: Enhanced `METADATA_FIELD_GUIDE.md` with BWF field support
+```
+
+### ❌ WRONG - Documentation in Added section:
+
+```markdown
+### Added
+
+- **Metadata Formats Guide**: Added comprehensive `METADATA_FORMATS.md` guide
+```
+
+### When to Use Documentation Section
+
+- New documentation files (guides, tutorials, API docs)
+- Updates to existing documentation
+- README changes
+- Documentation structure improvements
+- Clarifications and corrections to documentation
+
+### When NOT to Use Documentation Section
+
+- Code changes that happen to include documentation updates (use "Added", "Fixed", etc.)
+- Docstring updates that are part of code changes (mention in the code change entry)
+
 ## When to Mention Tests
 
 - **Mention tests** when they provide important context about the change (e.g., "includes tests covering edge cases")

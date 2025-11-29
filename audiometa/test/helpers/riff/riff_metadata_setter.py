@@ -256,3 +256,118 @@ class RIFFMetadataSetter:
     def set_release_date(file_path: Path, release_date: str) -> None:
         command = ["bwfmetaedit", f"--ICRD={release_date}", str(file_path)]
         run_external_tool(command, "bwfmetaedit")
+
+    @staticmethod
+    def set_bext_description(file_path: Path, description: str) -> None:
+        """Set BWF bext Description field."""
+        command = ["bwfmetaedit", f"--Description={description}", str(file_path)]
+        run_external_tool(command, "bwfmetaedit")
+
+    @staticmethod
+    def set_bext_originator(file_path: Path, originator: str) -> None:
+        """Set BWF bext Originator field."""
+        command = ["bwfmetaedit", f"--Originator={originator}", str(file_path)]
+        run_external_tool(command, "bwfmetaedit")
+
+    @staticmethod
+    def set_bext_originator_reference(file_path: Path, originator_reference: str) -> None:
+        """Set BWF bext OriginatorReference field."""
+        command = ["bwfmetaedit", f"--OriginatorReference={originator_reference}", str(file_path)]
+        run_external_tool(command, "bwfmetaedit")
+
+    @staticmethod
+    def set_bext_origination_date(file_path: Path, origination_date: str) -> None:
+        """Set BWF bext OriginationDate field (YYYY-MM-DD format)."""
+        command = ["bwfmetaedit", f"--OriginationDate={origination_date}", str(file_path)]
+        run_external_tool(command, "bwfmetaedit")
+
+    @staticmethod
+    def set_bext_origination_time(file_path: Path, origination_time: str) -> None:
+        """Set BWF bext OriginationTime field (HH:MM:SS format)."""
+        command = ["bwfmetaedit", f"--OriginationTime={origination_time}", str(file_path)]
+        run_external_tool(command, "bwfmetaedit")
+
+    @staticmethod
+    def set_bext_time_reference(file_path: Path, time_reference: int) -> None:
+        """Set BWF bext TimeReference field."""
+        command = ["bwfmetaedit", f"--Timereference={time_reference}", str(file_path)]
+        run_external_tool(command, "bwfmetaedit")
+
+    @staticmethod
+    def set_bext_coding_history(file_path: Path, coding_history: str) -> None:
+        """Set BWF bext CodingHistory field."""
+        command = ["bwfmetaedit", f"--History={coding_history}", str(file_path)]
+        run_external_tool(command, "bwfmetaedit")
+
+    @staticmethod
+    def set_bext_metadata(file_path: Path, bext_metadata: dict[str, Any]) -> None:
+        """Set multiple BWF bext metadata fields at once.
+
+        Args:
+            file_path: Path to WAV file
+            bext_metadata: Dictionary with bext field names as keys:
+                - Description: str
+                - Originator: str
+                - OriginatorReference: str
+                - OriginationDate: str (YYYY-MM-DD format)
+                - OriginationTime: str (HH:MM:SS format)
+                - TimeReference: int (uint64)
+                - UMID: str (hex string)
+                - CodingHistory: str
+                - LoudnessValue: float (LU, converted to 0.1 LU units)
+                - LoudnessRange: float (LU, converted to 0.1 LU units)
+                - MaxTruePeakLevel: float (dB, converted to 0.1 dB units)
+                - MaxMomentaryLoudness: float (LU, converted to 0.1 LU units)
+                - MaxShortTermLoudness: float (LU, converted to 0.1 LU units)
+        """
+        # Map bext field names to bwfmetaedit arguments
+        field_mapping = {
+            "Description": "--Description",
+            "Originator": "--Originator",
+            "OriginatorReference": "--OriginatorReference",
+            "OriginationDate": "--OriginationDate",
+            "OriginationTime": "--OriginationTime",
+            "TimeReference": "--Timereference",
+            "UMID": "--UMID",
+            "CodingHistory": "--History",
+            "LoudnessValue": "--LoudnessValue",
+            "LoudnessRange": "--LoudnessRange",
+            "MaxTruePeakLevel": "--MaxTruePeakLevel",
+            "MaxMomentaryLoudness": "--MaxMomentaryLoudness",
+            "MaxShortTermLoudness": "--MaxShortTermLoudness",
+        }
+
+        # Separate loudness fields from other fields
+        # Loudness fields need to be set after other fields to ensure BWF v2 is created
+        loudness_fields = [
+            "LoudnessValue",
+            "LoudnessRange",
+            "MaxTruePeakLevel",
+            "MaxMomentaryLoudness",
+            "MaxShortTermLoudness",
+        ]
+        regular_fields = {}
+        loudness_metadata = {}
+
+        for field_name, value in bext_metadata.items():
+            if field_name in field_mapping and value is not None:
+                if field_name in loudness_fields:
+                    loudness_metadata[field_name] = value
+                else:
+                    regular_fields[field_name] = value
+
+        # Set regular fields first
+        if regular_fields:
+            cmd_regular = ["bwfmetaedit"]
+            for field_name, value in regular_fields.items():
+                cmd_regular.extend([f"{field_mapping[field_name]}={value}"])
+            cmd_regular.append(str(file_path))
+            run_external_tool(cmd_regular, "bwfmetaedit")
+
+        # Set loudness fields in separate command (ensures BWF v2 is properly created)
+        if loudness_metadata:
+            cmd_loudness = ["bwfmetaedit"]
+            for field_name, value in loudness_metadata.items():
+                cmd_loudness.extend([f"{field_mapping[field_name]}={value}"])
+            cmd_loudness.append(str(file_path))
+            run_external_tool(cmd_loudness, "bwfmetaedit")
