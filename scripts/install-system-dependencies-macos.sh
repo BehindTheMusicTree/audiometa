@@ -36,8 +36,37 @@ HOMEBREW_PREFIX=$(get_homebrew_prefix)
 
 # Update Homebrew to ensure we have the latest formula definitions
 # This ensures consistency across CI runs - all runners will use the same formula versions
+# Retry on network failures (common in CI environments)
 echo "Updating Homebrew to ensure latest formula definitions..."
-brew update
+MAX_RETRIES=3
+RETRY_COUNT=0
+BREW_UPDATE_SUCCESS=0
+
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+  set +e
+  brew update 2>&1
+  BREW_UPDATE_STATUS=$?
+  set -e
+
+  if [ $BREW_UPDATE_STATUS -eq 0 ]; then
+    BREW_UPDATE_SUCCESS=1
+    break
+  fi
+
+  RETRY_COUNT=$((RETRY_COUNT + 1))
+  if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+    echo "WARNING: brew update failed (attempt $RETRY_COUNT/$MAX_RETRIES), retrying in 5 seconds..."
+    sleep 5
+  fi
+done
+
+if [ $BREW_UPDATE_SUCCESS -eq 0 ]; then
+  echo "ERROR: brew update failed after $MAX_RETRIES attempts."
+  echo "This may indicate network issues or Homebrew service problems."
+  echo "CI will continue, but version verification will fail if pinned versions are not available."
+  echo "If this persists, check GitHub Actions status or Homebrew service status."
+  # Don't exit here - let version verification catch any missing versions
+fi
 
 # Upgrade session-manager-plugin if installed (common pre-installed package in CI that can cause issues)
 # This prevents outdated package warnings from interfering with CI
