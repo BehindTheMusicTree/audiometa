@@ -16,6 +16,11 @@ from ....utils.unified_metadata_key import UnifiedMetadataKey
 from .._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
 from ..id3v2._id3v2_constants import ID3V2_HEADER_SIZE
 from ._riff_constants import (
+    BEXT_LOUDNESS_METADATA_SIZE,
+    BEXT_MIN_CHUNK_SIZE,
+    BEXT_ORIGINATION_DATE_SIZE,
+    BEXT_ORIGINATION_TIME_SIZE,
+    BWF_V2_VERSION,
     RIFF_AUDIO_FORMAT_IEEE_FLOAT,
     RIFF_CHUNK_ID_SIZE,
     RIFF_FORMAT_CHUNK_MIN_SIZE,
@@ -233,6 +238,192 @@ class _RiffManager(_RatingSupportingMetadataManager):
             pos += 8 + ((chunk_size + 1) & ~1)
 
         return info_tags
+
+    def _extract_bext_chunk(self, file_data: bytes) -> dict[str, Any] | None:
+        """Extract and parse the bext chunk from BWF files.
+
+        BWF has multiple versions:
+        - Version 0 (1997): Original specification, no UMID field
+        - Version 1 (2001): Added UMID field (64 bytes)
+        - Version 2 (2011): Added loudness metadata fields (not yet parsed)
+
+        The bext chunk structure (v1):
+        - Description (256 bytes, ASCII, null-terminated)
+        - Originator (32 bytes, ASCII, null-terminated)
+        - OriginatorReference (32 bytes, ASCII, null-terminated)
+        - OriginationDate (10 bytes, ASCII, YYYY-MM-DD)
+        - OriginationTime (8 bytes, ASCII, HH:MM:SS)
+        - TimeReference (8 bytes, uint64, little-endian)
+        - Version (2 bytes, uint16, little-endian): 0x0000 (v0), 0x0001 (v1), 0x0002 (v2)
+        - UMID (64 bytes, binary, v1+ only)
+        - Reserved (190 bytes, zeros)
+        - CodingHistory (variable length, ASCII, null-terminated)
+
+        BWF v2 adds loudness metadata fields (10 bytes total) at the START of reserved bytes (offset 412):
+        - LoudnessValue (2 bytes, int16, little-endian, stored as 0.01 LU units by bwfmetaedit)
+        - LoudnessRange (2 bytes, int16, little-endian, stored as 0.01 LU units)
+        - MaxTruePeakLevel (2 bytes, int16, little-endian, stored as 0.01 dB units)
+        - MaxMomentaryLoudness (2 bytes, int16, little-endian, stored as 0.01 LU units)
+        - MaxShortTermLoudness (2 bytes, int16, little-endian, stored as 0.01 LU units)
+        Note: bwfmetaedit stores loudness values as 0.01 units (centi-units), so values are divided by 100.
+
+        Returns:
+            Dictionary with parsed bext fields or None if bext chunk not found
+        """
+        # Skip ID3v2 if present
+        file_data = self._skip_id3v2_tags(file_data)
+
+        # Validate RIFF header
+        if (
+            len(file_data) < RIFF_HEADER_SIZE
+            or file_data[:RIFF_CHUNK_ID_SIZE] != b"RIFF"
+            or file_data[RIFF_WAVE_FORMAT_POSITION:RIFF_HEADER_SIZE] != b"WAVE"
+        ):
+            return None
+
+        pos = 12  # Start after RIFF header
+        while pos < len(file_data) - 8:
+            chunk_id = file_data[pos : pos + 4]
+            chunk_size = int.from_bytes(file_data[pos + 4 : pos + 8], "little")
+
+            if chunk_id == b"bext":
+                # Found bext chunk
+                bext_data_start = pos + 8
+                bext_data_end = bext_data_start + chunk_size
+
+                if bext_data_end > len(file_data):
+                    return None
+
+                bext_data = file_data[bext_data_start:bext_data_end]
+
+                # Minimum bext chunk size is 602 bytes (256+32+32+10+8+8+2+64+190)
+                if len(bext_data) < BEXT_MIN_CHUNK_SIZE:
+                    return None
+
+                bext_fields: dict[str, Any] = {}
+
+                # Parse fixed fields
+                offset = 0
+
+                # Description (256 bytes)
+                description_bytes = bext_data[offset : offset + 256]
+                description = description_bytes.split(b"\x00")[0].decode("ascii", errors="ignore").strip()
+                if description:
+                    bext_fields["Description"] = description
+                offset += 256
+
+                # Originator (32 bytes)
+                originator_bytes = bext_data[offset : offset + 32]
+                originator = originator_bytes.split(b"\x00")[0].decode("ascii", errors="ignore").strip()
+                if originator:
+                    bext_fields["Originator"] = originator
+                offset += 32
+
+                # OriginatorReference (32 bytes)
+                originator_ref_bytes = bext_data[offset : offset + 32]
+                originator_ref = originator_ref_bytes.split(b"\x00")[0].decode("ascii", errors="ignore").strip()
+                if originator_ref:
+                    bext_fields["OriginatorReference"] = originator_ref
+                offset += 32
+
+                # OriginationDate (10 bytes, YYYY-MM-DD)
+                origination_date_bytes = bext_data[offset : offset + BEXT_ORIGINATION_DATE_SIZE]
+                origination_date = origination_date_bytes.decode("ascii", errors="ignore").strip()
+                if origination_date and len(origination_date) == BEXT_ORIGINATION_DATE_SIZE:
+                    bext_fields["OriginationDate"] = origination_date
+                offset += BEXT_ORIGINATION_DATE_SIZE
+
+                # OriginationTime (8 bytes, HH:MM:SS)
+                origination_time_bytes = bext_data[offset : offset + BEXT_ORIGINATION_TIME_SIZE]
+                origination_time = origination_time_bytes.decode("ascii", errors="ignore").strip()
+                if origination_time and len(origination_time) == BEXT_ORIGINATION_TIME_SIZE:
+                    bext_fields["OriginationTime"] = origination_time
+                offset += BEXT_ORIGINATION_TIME_SIZE
+
+                # TimeReference (8 bytes, uint64, little-endian)
+                if offset + 8 <= len(bext_data):
+                    time_reference = int.from_bytes(bext_data[offset : offset + 8], "little")
+                    bext_fields["TimeReference"] = time_reference
+                offset += 8
+
+                # Version (2 bytes, uint16, little-endian)
+                if offset + 2 <= len(bext_data):
+                    version = int.from_bytes(bext_data[offset : offset + 2], "little")
+                    bext_fields["Version"] = version
+                offset += 2
+
+                # UMID (64 bytes, binary)
+                if offset + 64 <= len(bext_data):
+                    umid_bytes = bext_data[offset : offset + 64]
+                    # Check if UMID is not all zeros
+                    if any(umid_bytes):
+                        # Format as hex string for readability
+                        umid_hex = umid_bytes.hex().upper()
+                        bext_fields["UMID"] = umid_hex
+                offset += 64
+
+                # Reserved (190 bytes) - in BWF v2, loudness metadata is stored at the START of reserved bytes
+                # Parse loudness metadata if BWF v2 (version >= 2)
+                if version >= BWF_V2_VERSION and offset + BEXT_LOUDNESS_METADATA_SIZE <= len(bext_data):
+                    # Loudness metadata starts at offset 412 (start of reserved bytes area)
+                    # LoudnessValue (2 bytes, int16, little-endian, stored as 0.01 LU units by bwfmetaedit)
+                    loudness_value_raw = int.from_bytes(bext_data[offset : offset + 2], "little", signed=True)
+                    if loudness_value_raw != 0:  # 0 means not set
+                        # bwfmetaedit stores as 0.01 units, convert to LU
+                        bext_fields["LoudnessValue"] = round(loudness_value_raw / 100.0, 2)
+                    offset += 2
+
+                    # LoudnessRange (2 bytes, int16, little-endian, stored as 0.01 LU units)
+                    if offset + 2 <= len(bext_data):
+                        loudness_range_raw = int.from_bytes(bext_data[offset : offset + 2], "little", signed=True)
+                        if loudness_range_raw != 0:  # 0 means not set
+                            bext_fields["LoudnessRange"] = round(loudness_range_raw / 100.0, 2)
+                        offset += 2
+
+                    # MaxTruePeakLevel (2 bytes, int16, little-endian, stored as 0.01 dB units)
+                    if offset + 2 <= len(bext_data):
+                        max_true_peak_raw = int.from_bytes(bext_data[offset : offset + 2], "little", signed=True)
+                        if max_true_peak_raw != 0:  # 0 means not set
+                            bext_fields["MaxTruePeakLevel"] = round(max_true_peak_raw / 100.0, 2)
+                        offset += 2
+
+                    # MaxMomentaryLoudness (2 bytes, int16, little-endian, stored as 0.01 LU units)
+                    if offset + 2 <= len(bext_data):
+                        max_momentary_raw = int.from_bytes(bext_data[offset : offset + 2], "little", signed=True)
+                        if max_momentary_raw != 0:  # 0 means not set
+                            bext_fields["MaxMomentaryLoudness"] = round(max_momentary_raw / 100.0, 2)
+                        offset += 2
+
+                    # MaxShortTermLoudness (2 bytes, int16, little-endian, stored as 0.01 LU units)
+                    if offset + 2 <= len(bext_data):
+                        max_short_term_raw = int.from_bytes(bext_data[offset : offset + 2], "little", signed=True)
+                        if max_short_term_raw != 0:  # 0 means not set
+                            bext_fields["MaxShortTermLoudness"] = round(max_short_term_raw / 100.0, 2)
+                        offset += 2
+
+                    # Skip remaining reserved bytes (190 - 10 = 180 bytes)
+                    offset += 180
+                else:
+                    # Skip all reserved bytes if not v2
+                    offset += 190
+
+                # CodingHistory (variable length, null-terminated)
+                if offset < len(bext_data):
+                    coding_history_bytes = bext_data[offset:]
+                    # Find null terminator or end of chunk
+                    null_pos = coding_history_bytes.find(b"\x00")
+                    if null_pos >= 0:
+                        coding_history_bytes = coding_history_bytes[:null_pos]
+                    coding_history = coding_history_bytes.decode("ascii", errors="ignore").strip()
+                    if coding_history:
+                        bext_fields["CodingHistory"] = coding_history
+
+                return bext_fields if bext_fields else None
+
+            # Move to next chunk, maintaining alignment
+            pos += 8 + ((chunk_size + 1) & ~1)
+
+        return None
 
     @contextlib.contextmanager
     def _suppress_output(self) -> Any:
@@ -758,7 +949,24 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 self.raw_clean_metadata = extracted_metadata
 
             if not self.raw_clean_metadata:
-                return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
+                # Still try to extract bext chunk even if no INFO metadata
+                chunk_structure = {}
+                try:
+                    self.audio_file.seek(0)
+                    file_data = self.audio_file.read()
+                    bext_data = self._extract_bext_chunk(file_data)
+                    if bext_data:
+                        chunk_structure["bext"] = bext_data
+                except Exception:
+                    pass
+
+                return {
+                    "raw_data": None,
+                    "parsed_fields": {},
+                    "frames": {},
+                    "comments": {},
+                    "chunk_structure": chunk_structure,
+                }
 
             raw_clean_metadata: RawMetadataDict = self.raw_clean_metadata
 
@@ -766,6 +974,17 @@ class _RiffManager(_RatingSupportingMetadataManager):
             parsed_fields = {}
             for key, value in raw_clean_metadata.items():
                 parsed_fields[key] = value[0] if value else ""
+
+            # Extract bext chunk
+            chunk_structure = {}
+            try:
+                self.audio_file.seek(0)
+                file_data = self.audio_file.read()
+                bext_data = self._extract_bext_chunk(file_data)
+                if bext_data:
+                    chunk_structure["bext"] = bext_data
+            except Exception:
+                pass
         except Exception:
             return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
         else:
@@ -774,5 +993,5 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 "parsed_fields": parsed_fields,
                 "frames": {},
                 "comments": {},
-                "chunk_structure": {},
+                "chunk_structure": chunk_structure,
             }

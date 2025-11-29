@@ -1,3 +1,5 @@
+"""Tests for get_full_metadata function structure validation."""
+
 from pathlib import Path
 
 import pytest
@@ -7,7 +9,81 @@ from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 
 @pytest.mark.integration
-class TestParsedFieldsKeys:
+class TestGetFullMetadataStructure:
+    def test_get_full_metadata_headers_present_flags(self, sample_mp3_file: Path):
+        result = get_full_metadata(sample_mp3_file)
+
+        # Check ID3v2 headers
+        id3v2_headers = result["headers"]["id3v2"]
+        assert "present" in id3v2_headers
+        assert "version" in id3v2_headers
+        assert "header_size_bytes" in id3v2_headers
+        assert "flags" in id3v2_headers
+        assert "extended_header" in id3v2_headers
+
+        # Check ID3v1 headers
+        id3v1_headers = result["headers"]["id3v1"]
+        assert "present" in id3v1_headers
+        assert "position" in id3v1_headers
+        assert "size_bytes" in id3v1_headers
+        assert "version" in id3v1_headers
+        assert "has_track_number" in id3v1_headers
+
+    def test_get_full_metadata_raw_metadata_structure(self, sample_mp3_file: Path):
+        result = get_full_metadata(sample_mp3_file)
+
+        # Check ID3v2 raw metadata
+        id3v2_raw = result["raw_metadata"]["id3v2"]
+        assert "raw_data" in id3v2_raw
+        assert "parsed_fields" in id3v2_raw
+        assert "frames" in id3v2_raw
+        assert "comments" in id3v2_raw
+        assert "chunk_structure" in id3v2_raw
+
+        # Check ID3v1 raw metadata
+        id3v1_raw = result["raw_metadata"]["id3v1"]
+        assert "raw_data" in id3v1_raw
+        assert "parsed_fields" in id3v1_raw
+        assert "frames" in id3v1_raw
+        assert "comments" in id3v1_raw
+        assert "chunk_structure" in id3v1_raw
+
+    def test_get_full_metadata_riff_raw_metadata_structure(self, sample_wav_file: Path):
+        """Test RIFF raw metadata structure in get_full_metadata."""
+        result = get_full_metadata(sample_wav_file)
+
+        # Check RIFF raw metadata
+        riff_raw = result["raw_metadata"]["riff"]
+        assert "raw_data" in riff_raw
+        assert "parsed_fields" in riff_raw
+        assert "frames" in riff_raw
+        assert "comments" in riff_raw
+        assert "chunk_structure" in riff_raw
+
+    def test_get_full_metadata_header_detection_accuracy(self, sample_mp3_file: Path):
+        result = get_full_metadata(sample_mp3_file)
+
+        # Check that headers are detected correctly
+        headers = result["headers"]
+
+        for metadata_format_name, header_info in headers.items():
+            assert "present" in header_info
+            assert isinstance(header_info["present"], bool)
+
+            if header_info["present"]:
+                # If header is present, should have additional info
+                if metadata_format_name == "id3v2":
+                    assert "version" in header_info
+                    assert "header_size_bytes" in header_info
+                elif metadata_format_name == "id3v1":
+                    assert "position" in header_info
+                    assert "size_bytes" in header_info
+                elif metadata_format_name == "vorbis":
+                    assert "vendor_string" in header_info
+                    assert "comment_count" in header_info
+                elif metadata_format_name == "riff":
+                    assert "chunk_info" in header_info
+
     def test_id3v1_parsed_fields_use_unified_keys(self, sample_mp3_file: Path):
         result = get_full_metadata(sample_mp3_file)
 

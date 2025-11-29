@@ -1,5 +1,6 @@
 """RIFF metadata inspection utilities for testing audio file metadata."""
 
+import contextlib
 from pathlib import Path
 
 from ..common.external_tool_runner import run_external_tool
@@ -116,3 +117,103 @@ class RIFFMetadataGetter:
         command = ["exiftool", "-TITLE", "-s3", str(file_path)]
         result = run_external_tool(command, "exiftool")
         return result.stdout.strip()
+
+    @staticmethod
+    def get_bext_metadata(file_path: Path) -> dict[str, str | int | float | None]:
+        """Get BWF bext metadata using bwfmetaedit --out-xml.
+
+        Args:
+            file_path: Path to WAV/BWF file
+
+        Returns:
+            Dictionary with bext field names as keys and their values
+        """
+        import xml.etree.ElementTree as ET
+
+        command = ["bwfmetaedit", "--out-xml=-", str(file_path)]
+        result = run_external_tool(command, "bwfmetaedit", check=False)
+
+        # If bwfmetaedit returns non-zero, file might not have bext chunk
+        if result.returncode != 0:
+            return {}
+
+        try:
+            root = ET.fromstring(result.stdout)
+            bext_data: dict[str, str | int | None] = {}
+
+            # Parse bext fields from XML - they're under <Core> element
+            core_elem = root.find(".//Core")
+            if core_elem is None:
+                return {}
+
+            # Description
+            desc_elem = core_elem.find("Description")
+            if desc_elem is not None and desc_elem.text:
+                bext_data["Description"] = desc_elem.text.strip()
+
+            # Originator
+            originator_elem = core_elem.find("Originator")
+            if originator_elem is not None and originator_elem.text:
+                bext_data["Originator"] = originator_elem.text.strip()
+
+            # OriginatorReference
+            originator_ref_elem = core_elem.find("OriginatorReference")
+            if originator_ref_elem is not None and originator_ref_elem.text:
+                bext_data["OriginatorReference"] = originator_ref_elem.text.strip()
+
+            # OriginationDate
+            orig_date_elem = core_elem.find("OriginationDate")
+            if orig_date_elem is not None and orig_date_elem.text:
+                bext_data["OriginationDate"] = orig_date_elem.text.strip()
+
+            # OriginationTime
+            orig_time_elem = core_elem.find("OriginationTime")
+            if orig_time_elem is not None and orig_time_elem.text:
+                bext_data["OriginationTime"] = orig_time_elem.text.strip()
+
+            # TimeReference
+            time_ref_elem = core_elem.find("TimeReference")
+            if time_ref_elem is not None and time_ref_elem.text:
+                with contextlib.suppress(ValueError):
+                    bext_data["TimeReference"] = int(time_ref_elem.text.strip())
+
+            # CodingHistory
+            coding_history_elem = core_elem.find("CodingHistory")
+            if coding_history_elem is not None and coding_history_elem.text:
+                bext_data["CodingHistory"] = coding_history_elem.text.strip()
+
+            # Parse loudness metadata from <Core> element (BWF v2)
+            # LoudnessValue
+            loudness_value_elem = core_elem.find("LoudnessValue")
+            if loudness_value_elem is not None and loudness_value_elem.text:
+                with contextlib.suppress(ValueError):
+                    bext_data["LoudnessValue"] = float(loudness_value_elem.text.strip())
+
+            # LoudnessRange
+            loudness_range_elem = core_elem.find("LoudnessRange")
+            if loudness_range_elem is not None and loudness_range_elem.text:
+                with contextlib.suppress(ValueError):
+                    bext_data["LoudnessRange"] = float(loudness_range_elem.text.strip())
+
+            # MaxTruePeakLevel
+            max_true_peak_elem = core_elem.find("MaxTruePeakLevel")
+            if max_true_peak_elem is not None and max_true_peak_elem.text:
+                with contextlib.suppress(ValueError):
+                    bext_data["MaxTruePeakLevel"] = float(max_true_peak_elem.text.strip())
+
+            # MaxMomentaryLoudness
+            max_momentary_elem = core_elem.find("MaxMomentaryLoudness")
+            if max_momentary_elem is not None and max_momentary_elem.text:
+                with contextlib.suppress(ValueError):
+                    bext_data["MaxMomentaryLoudness"] = float(max_momentary_elem.text.strip())
+
+            # MaxShortTermLoudness
+            max_short_term_elem = core_elem.find("MaxShortTermLoudness")
+            if max_short_term_elem is not None and max_short_term_elem.text:
+                with contextlib.suppress(ValueError):
+                    bext_data["MaxShortTermLoudness"] = float(max_short_term_elem.text.strip())
+
+        except ET.ParseError:
+            return {}
+        else:
+            return bext_data
