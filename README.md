@@ -111,6 +111,8 @@ Your support helps make this project better for everyone! 🎵
 
 ### Format Capabilities
 
+For comprehensive information about each metadata format (history, structure, advantages, disadvantages, use cases), see the **[Metadata Formats Guide](docs/METADATA_FORMATS.md)**.
+
 #### ID3v1 Metadata Format
 
 - **Primary Support**: MP3 files (native format)

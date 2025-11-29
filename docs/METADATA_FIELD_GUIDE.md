@@ -2,6 +2,8 @@
 
 This document consolidates comprehensive metadata field handling across all supported audio formats (ID3v1, ID3v2, Vorbis, RIFF). It merges documentation on multiple values, genre handling, rating handling, track number handling, release date validation rules, and lyrics support into a single authoritative reference.
 
+**Note**: For detailed information about each metadata format (history, structure, advantages, disadvantages), see the **[Metadata Formats Guide](METADATA_FORMATS.md)**.
+
 **Note**: For audio information (duration, bitrate, sample rate, channels, file size, format info, MD5 checksum), see the **[Audio Technical Info Guide](AUDIO_TECHNICAL_INFO_GUIDE.md)**.
 
 ## Table of Contents
@@ -20,34 +22,48 @@ This document consolidates comprehensive metadata field handling across all supp
 
 The library supports a comprehensive set of metadata fields across different audio formats. The table below shows which fields are supported by each format:
 
-| Field               | ID3v1             | ID3v2                      | Vorbis               | RIFF            | AudioMeta Support     | CLI Support                  |
-| ------------------- | ----------------- | -------------------------- | -------------------- | --------------- | --------------------- | ---------------------------- |
-| Text Encoding       | ASCII             | UTF-16/ISO (v2.3)          | UTF-8                | ASCII/UTF-8     | UTF-8                 |                              |
-|                     |                   | + UTF-8 (v2.4)             |                      |                 |                       |                              |
-| Max Text Length     | 30 chars          | ~8M chars                  | ~8M chars            | ~1M chars       | Format limit          |                              |
-| Date Time Formats   | YYYY              | YYYY+DDMM (v2.3)           | YYYY-MM-DD           | YYYY-MM-DD      | ISO 8601              |                              |
-|                     |                   | YYYY-MM-DD (v2.4)          |                      |                 |                       |                              |
-| Title               | TITLE (30)        | TIT2                       | TITLE                | INAM            | TITLE                 | ✓ (--title)                  |
-| Artists             | ARTIST (30)       | TPE1                       | ARTIST               | IART            | ARTISTS (list)        | ✓ (--artist, multiple)       |
-| Album               | ALBUM (30)        | TALB                       | ALBUM                | IPRD            | ALBUM                 | ✓ (--album)                  |
-| Album Artists       | ✗                 | TPE2                       | ALBUMARTIST          | IAAR\*          | ALBUM_ARTISTS (list)  | ✓ (--album-artist, multiple) |
-| Genres              | GENRE (1#)        | TCON                       | GENRE                | IGNR            | GENRES_NAMES (list)   | ✓ (--genre, multiple)        |
-| Release Date        | YEAR (4)          | TYER (4) + TDAT (4) (v2.3) | DATE (10)            | ICRD (10)       | RELEASE_DATE          | ✓ (--year or --release-date) |
-|                     |                   | TDRC (10) (v2.4)           |                      |                 |                       |                              |
-| Track Number        | TRACK (1#) (v1.1) | TRCK (0-255#)              | TRACKNUMBER (Unlim#) | IPRT\* (Unlim#) | TRACK_NUMBER          | ✓ (--track-number)           |
-| Disc Number         | ✗                 | TPOS (0-255#)              | DISCNUMBER (Unlim#)  | ✗               | DISC_NUMBER           | ✓ (--disc-number)            |
-| Disc Total          | ✗                 | TPOS (0-255#)              | DISCTOTAL (Unlim#)   | ✗               | DISC_TOTAL            | ✓ (--disc-total)             |
-| Rating              | ✗                 | POPM (0-255#)              | RATING (0-100#)      | IRTD\* (0-100#) | RATING                | ✓ (--rating)                 |
-| BPM                 | ✗                 | TBPM (0-65535#)            | BPM (0-65535#)       | IBPM\*          | BPM                   | ✓ (--bpm)                    |
-| Language            | ✗                 | TLAN (3)                   | LANGUAGE (3)         | ILNG\* (3)      | LANGUAGE              | ✓ (--language)               |
-| Composers           | ✗                 | TCOM                       | COMPOSER             | ICMP            | COMPOSERS (list)      | ✓ (--composer, multiple)     |
-| Publisher           | ✗                 | TPUB                       | ORGANIZATION         | ✗               | PUBLISHER             | ✓ (--publisher)              |
-| Copyright           | ✗                 | TCOP                       | COPYRIGHT            | ICOP            | COPYRIGHT             | ✓ (--copyright)              |
-| Lyrics              | ✗                 | USLT                       | LYRICS\*             | ✗               | UNSYNCHRONIZED_LYRICS | ✓ (--lyrics)                 |
-| Synchronized Lyrics | ✗                 | SYLT                       | ✗                    | ✗               |                       | ✗                            |
-| Comment             | COMMENT (28)      | COMM                       | COMMENT              | ICMT            | COMMENT               | ✓ (--comment)                |
-| ReplayGain          | ✗                 | ✗                          | REPLAYGAIN           | ✗               | REPLAYGAIN            | ✓ (--replaygain)             |
-| Archival Location   | ✗                 | TXXX                       | ARCHIVAL_LOCATION    | ✗               | ARCHIVAL_LOCATION     | ✓ (--archival-location)      |
+| Field                | ID3v1             | ID3v2                      | Vorbis               | RIFF                       | AudioMeta Support     | CLI Support              |
+| -------------------- | ----------------- | -------------------------- | -------------------- | -------------------------- | --------------------- | ------------------------ |
+| Text Encoding        | ASCII             | UTF-16/ISO (v2.3)          | UTF-8                | ASCII/UTF-8                | UTF-8                 | ✗                        |
+|                      |                   | + UTF-8 (v2.4)             |                      |                            |                       |                          |
+| Max Text Length      | 30 chars          | ~8M chars                  | ~8M chars            | ~1M chars                  | Format limit          | ✗                        |
+| Date Time Formats    | YYYY              | YYYY+DDMM (v2.3)           | YYYY-MM-DD           | YYYY-MM-DD                 | ISO 8601              | ✗                        |
+|                      |                   | YYYY-MM-DD (v2.4)          |                      |                            |                       |                          |
+| Title                | TITLE (30)        | TIT2                       | TITLE                | INAM                       | TITLE                 | --title                  |
+| Artists              | ARTIST (30)       | TPE1                       | ARTIST               | IART                       | ARTISTS (list)        | --artist, multiple       |
+| Album                | ALBUM (30)        | TALB                       | ALBUM                | IPRD                       | ALBUM                 | --album                  |
+| Album Artists        | ✗                 | TPE2                       | ALBUMARTIST          | IAAR\*                     | ALBUM_ARTISTS (list)  | --album-artist, multiple |
+| Genres               | GENRE (1#)        | TCON                       | GENRE                | IGNR                       | GENRES_NAMES (list)   | --genre, multiple        |
+| Release Date         | YEAR (4)          | TYER (4) + TDAT (4) (v2.3) | DATE (10)            | ICRD (10)                  | RELEASE_DATE          | --year or --release-date |
+|                      |                   | TDRC (10) (v2.4)           |                      |                            |                       |                          |
+| Track Number         | TRACK (1#) (v1.1) | TRCK (0-255#)              | TRACKNUMBER (Unlim#) | IPRT\* (Unlim#)            | TRACK_NUMBER          | --track-number           |
+| Disc Number          | ✗                 | TPOS (0-255#)              | DISCNUMBER (Unlim#)  | ✗                          | DISC_NUMBER           | --disc-number            |
+| Disc Total           | ✗                 | TPOS (0-255#)              | DISCTOTAL (Unlim#)   | ✗                          | DISC_TOTAL            | --disc-total             |
+| Rating               | ✗                 | POPM (0-255#)              | RATING (0-100#)      | IRTD\* (0-100#)            | RATING                | --rating                 |
+| BPM                  | ✗                 | TBPM (0-65535#)            | BPM (0-65535#)       | IBPM\*                     | BPM                   | --bpm                    |
+| Language             | ✗                 | TLAN (3)                   | LANGUAGE (3)         | ILNG\* (3)                 | LANGUAGE              | --language               |
+| Composers            | ✗                 | TCOM                       | COMPOSER             | ICMP                       | COMPOSERS (list)      | --composer, multiple     |
+| Publisher            | ✗                 | TPUB                       | ORGANIZATION         | ✗                          | PUBLISHER             | --publisher              |
+| Copyright            | ✗                 | TCOP                       | COPYRIGHT            | ICOP                       | COPYRIGHT             | --copyright              |
+| Lyrics               | ✗                 | USLT                       | LYRICS\*             | ✗                          | UNSYNCHRONIZED_LYRICS | --lyrics                 |
+| Synchronized Lyrics  | ✗                 | SYLT                       | ✗                    | ✗                          |                       | ✗                        |
+| Comment              | COMMENT (28)      | COMM                       | COMMENT              | ICMT                       | COMMENT               | --comment                |
+| ReplayGain           | ✗                 | ✗                          | REPLAYGAIN           | ✗                          | REPLAYGAIN            | --replaygain             |
+| Archival Location    | ✗                 | TXXX                       | ARCHIVAL_LOCATION    | ✗                          | ARCHIVAL_LOCATION     | --archival-location      |
+| ISRC                 | ✗                 | TSRC                       | ISRC                 | \*\* (ISRC)                |                       | ✗                        |
+| Description          | ✗                 | ✗                          | ✗                    | \*\* (Description)         |                       | ✗                        |
+| Originator           | ✗                 | ✗                          | ✗                    | \*\* (Originator)          |                       | ✗                        |
+| Originator Reference | ✗                 | ✗                          | ✗                    | \*\* (OriginatorReference) |                       | ✗                        |
+| Origination Date     | ✗                 | ✗                          | ✗                    | \*\* (OriginationDate)     |                       | ✗                        |
+| Origination Time     | ✗                 | ✗                          | ✗                    | \*\* (OriginationTime)     |                       | ✗                        |
+| Time Reference       | ✗                 | ✗                          | ✗                    | \*\* (TimeReference)       |                       | ✗                        |
+| Version              | ✗                 | ✗                          | ✗                    | \*\* (Version)             |                       | ✗                        |
+| UMID                 | ✗                 | ✗                          | ✗                    | \*\* (UMID)                |                       | ✗                        |
+| Coding History       | ✗                 | ✗                          | ✗                    | \*\* (CodingHistory)       |                       | ✗                        |
+
+\* Fields marked with asterisk (\*) are supported via RIFF INFO chunks but may have limited or non-standard implementations.
+
+\*\* Fields marked with double asterisk (\*\*) are supported in Broadcast Wave Format (BWF) files via the `bext` chunk. These fields use the same names as shown in the table (e.g., `Description`, `Originator`, `ISRC`, `TimeReference`, etc.). See the [Metadata Formats Guide](METADATA_FORMATS.md#riff-info-metadata-format) for details.
 
 ## Multiple Values Handling
 
