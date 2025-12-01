@@ -63,6 +63,13 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Includes E2E CLI tests for read and write operations
   - See `docs/METADATA_FIELD_GUIDE.md` for validation rules and format documentation
 
+### Improved
+
+- **Metadata Validation**: Refactored metadata field format validation into shared helper function:
+  - Consolidates validation for release_date, track_number, disc_number, disc_total, and isrc
+  - Adds missing disc_number and disc_total validation to `update_metadata()`
+  - Reduces code duplication between `validate_metadata_for_update()` and `update_metadata()`
+
 ## [0.5.0] - 2025-12-01
 
 ### Added

@@ -392,6 +392,43 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
             )
 
 
+def _validate_metadata_field_formats(unified_metadata: UnifiedMetadata) -> None:
+    """Validate format of metadata fields that have specific format requirements.
+
+    Validates release_date, track_number, disc_number, disc_total, and isrc formats.
+    This is a shared helper used by both validate_metadata_for_update() and update_metadata().
+    """
+    # Validate release date if present and non-empty
+    if UnifiedMetadataKey.RELEASE_DATE in unified_metadata:
+        release_date_value = unified_metadata[UnifiedMetadataKey.RELEASE_DATE]
+        if release_date_value is not None and isinstance(release_date_value, str) and release_date_value:
+            _MetadataManager.validate_release_date(release_date_value)
+
+    # Validate track number if present and non-empty
+    if UnifiedMetadataKey.TRACK_NUMBER in unified_metadata:
+        track_number_value = unified_metadata[UnifiedMetadataKey.TRACK_NUMBER]
+        if track_number_value is not None and isinstance(track_number_value, str | int):
+            _MetadataManager.validate_track_number(track_number_value)
+
+    # Validate disc number if present and non-empty
+    if UnifiedMetadataKey.DISC_NUMBER in unified_metadata:
+        disc_number_value = unified_metadata[UnifiedMetadataKey.DISC_NUMBER]
+        if disc_number_value is not None and isinstance(disc_number_value, int):
+            _MetadataManager.validate_disc_number(disc_number_value)
+
+    # Validate disc total if present
+    if UnifiedMetadataKey.DISC_TOTAL in unified_metadata:
+        disc_total_value = unified_metadata[UnifiedMetadataKey.DISC_TOTAL]
+        if disc_total_value is None or isinstance(disc_total_value, int):
+            _MetadataManager.validate_disc_total(disc_total_value)
+
+    # Validate ISRC format if present and non-empty
+    if UnifiedMetadataKey.ISRC in unified_metadata:
+        isrc_value = unified_metadata[UnifiedMetadataKey.ISRC]
+        if isrc_value is not None and isinstance(isrc_value, str) and isrc_value:
+            _MetadataManager.validate_isrc(isrc_value)
+
+
 def validate_metadata_for_update(
     unified_metadata: dict[UnifiedMetadataKey, Any] | UnifiedMetadata,
     normalized_rating_max_value: int | None = None,
@@ -493,45 +530,8 @@ def validate_metadata_for_update(
                 msg = f"Rating value must be numeric, got {type(rating_value).__name__}"
                 raise InvalidRatingValueError(msg)
 
-    # Validate release date if present and non-empty
-    if UnifiedMetadataKey.RELEASE_DATE in normalized_metadata:
-        release_date_value = normalized_metadata[UnifiedMetadataKey.RELEASE_DATE]
-        if release_date_value is not None and isinstance(release_date_value, str) and release_date_value:
-            from .manager._MetadataManager import _MetadataManager
-
-            _MetadataManager.validate_release_date(release_date_value)
-
-    # Validate track number if present and non-empty
-    if UnifiedMetadataKey.TRACK_NUMBER in normalized_metadata:
-        track_number_value = normalized_metadata[UnifiedMetadataKey.TRACK_NUMBER]
-        if track_number_value is not None:
-            from .manager._MetadataManager import _MetadataManager
-
-            if isinstance(track_number_value, str | int):
-                _MetadataManager.validate_track_number(track_number_value)
-
-    # Validate disc number if present and non-empty
-    if UnifiedMetadataKey.DISC_NUMBER in normalized_metadata:
-        disc_number_value = normalized_metadata[UnifiedMetadataKey.DISC_NUMBER]
-        if disc_number_value is not None:
-            from .manager._MetadataManager import _MetadataManager
-
-            _MetadataManager.validate_disc_number(disc_number_value)
-
-    # Validate disc total if present
-    if UnifiedMetadataKey.DISC_TOTAL in normalized_metadata:
-        disc_total_value = normalized_metadata[UnifiedMetadataKey.DISC_TOTAL]
-        from .manager._MetadataManager import _MetadataManager
-
-        _MetadataManager.validate_disc_total(disc_total_value)
-
-    # Validate ISRC format if present and non-empty
-    if UnifiedMetadataKey.ISRC in normalized_metadata:
-        isrc_value = normalized_metadata[UnifiedMetadataKey.ISRC]
-        if isrc_value is not None and isinstance(isrc_value, str) and isrc_value:
-            from .manager._MetadataManager import _MetadataManager
-
-            _MetadataManager.validate_isrc(isrc_value)
+    # Validate field formats (release_date, track_number, disc_number, disc_total, isrc)
+    _validate_metadata_field_formats(normalized_metadata)
 
 
 def update_metadata(
@@ -649,30 +649,8 @@ def update_metadata(
     # Validate provided unified_metadata value types before attempting any writes
     _validate_unified_metadata_types(unified_metadata)
 
-    # Validate release date format if present and non-empty
-    if UnifiedMetadataKey.RELEASE_DATE in unified_metadata:
-        release_date_value = unified_metadata[UnifiedMetadataKey.RELEASE_DATE]
-        if release_date_value is not None and isinstance(release_date_value, str) and release_date_value:
-            from .manager._MetadataManager import _MetadataManager
-
-            _MetadataManager.validate_release_date(release_date_value)
-
-    # Validate track number format if present and non-empty
-    if UnifiedMetadataKey.TRACK_NUMBER in unified_metadata:
-        track_number_value = unified_metadata[UnifiedMetadataKey.TRACK_NUMBER]
-        if track_number_value is not None:
-            from .manager._MetadataManager import _MetadataManager
-
-            if isinstance(track_number_value, str | int):
-                _MetadataManager.validate_track_number(track_number_value)
-
-    # Validate ISRC format if present and non-empty
-    if UnifiedMetadataKey.ISRC in unified_metadata:
-        isrc_value = unified_metadata[UnifiedMetadataKey.ISRC]
-        if isrc_value is not None and isinstance(isrc_value, str) and isrc_value:
-            from .manager._MetadataManager import _MetadataManager
-
-            _MetadataManager.validate_isrc(isrc_value)
+    # Validate field formats (release_date, track_number, disc_number, disc_total, isrc)
+    _validate_metadata_field_formats(unified_metadata)
 
     _handle_metadata_strategy(
         audio_file,
