@@ -30,6 +30,7 @@ class TestCLIReadComprehensive:
                 "copyright": "© 2024",
                 "lyrics": "Test lyrics",
                 "comment": "Test comment",
+                "isrc": "USRC17607839",
             },
             "mp3",
         ) as test_file:
@@ -60,6 +61,7 @@ class TestCLIReadComprehensive:
             assert unified.get(UnifiedMetadataKey.COPYRIGHT) == "© 2024"
             assert unified.get(UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS) == "Test lyrics"
             assert unified.get(UnifiedMetadataKey.COMMENT) == "Test comment"
+            assert unified.get(UnifiedMetadataKey.ISRC) == "USRC17607839"
             # REPLAYGAIN and ARCHIVAL_LOCATION are not supported by ID3v2 format (MP3)
 
     def test_cli_read_all_fields_comprehensive_flac(self):
@@ -79,6 +81,7 @@ class TestCLIReadComprehensive:
                 "lyrics": "FLAC lyrics",
                 "comment": "FLAC comment",
                 "replaygain": "+2.5 dB",
+                "isrc": "FRXXX1800001",
             },
             "flac",
         ) as test_file:
@@ -106,6 +109,7 @@ class TestCLIReadComprehensive:
             assert unified.get(UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS) == "FLAC lyrics"
             assert unified.get(UnifiedMetadataKey.COMMENT) == "FLAC comment"
             assert unified.get(UnifiedMetadataKey.REPLAYGAIN) == "+2.5 dB"
+            assert unified.get(UnifiedMetadataKey.ISRC) == "FRXXX1800001"
             # ARCHIVAL_LOCATION is not supported by Vorbis format (FLAC)
 
     def test_cli_read_all_fields_comprehensive_wav(self):
@@ -122,6 +126,7 @@ class TestCLIReadComprehensive:
                 "composer": ["WAV Composer"],
                 "copyright": "© WAV",
                 "comment": "WAV comment",
+                "isrc": "GBUM71505078",
             },
             "wav",
         ) as test_file:
@@ -146,6 +151,7 @@ class TestCLIReadComprehensive:
             assert unified.get(UnifiedMetadataKey.COMPOSERS) == ["WAV Composer"]
             assert unified.get(UnifiedMetadataKey.COPYRIGHT) == "© WAV"
             assert unified.get(UnifiedMetadataKey.COMMENT) == "WAV comment"
+            assert unified.get(UnifiedMetadataKey.ISRC) == "GBUM71505078"
 
     def test_cli_read_comprehensive_roundtrip(self):
         """Test that we can write all fields via CLI and read them back correctly."""
@@ -195,6 +201,8 @@ class TestCLIReadComprehensive:
                     "Roundtrip lyrics",
                     "--comment",
                     "Roundtrip comment",
+                    "--isrc",
+                    "USRC17607839",
                 ],
                 capture_output=True,
                 text=True,
@@ -229,3 +237,4 @@ class TestCLIReadComprehensive:
             assert unified.get(UnifiedMetadataKey.COPYRIGHT) == "© Roundtrip"
             assert unified.get(UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS) == "Roundtrip lyrics"
             assert unified.get(UnifiedMetadataKey.COMMENT) == "Roundtrip comment"
+            assert unified.get(UnifiedMetadataKey.ISRC) == "USRC17607839"
