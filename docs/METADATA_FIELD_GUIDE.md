@@ -50,7 +50,7 @@ The library supports a comprehensive set of metadata fields across different aud
 | Comment                 | COMMENT (28)      | COMM                       | COMMENT           | ICMT                          | COMMENT               | --comment                |
 | ReplayGain              | ✗                 | ✗                          | REPLAYGAIN        | ✗                             | REPLAYGAIN            | --replaygain             |
 | Archival Location       | ✗                 | TXXX                       | ARCHIVAL_LOCATION | ✗                             | ARCHIVAL_LOCATION     | --archival-location      |
-| ISRC                    | ✗                 | TSRC                       | ISRC              | \*\* (ISRC)                   |                       | ✗                        |
+| ISRC                    | ✗                 | TSRC                       | ISRC              | \*\* (ISRC)                   | ISRC                  | --isrc                   |
 | Description             | ✗                 | ✗                          | ✗                 | \*\* (Description)            |                       | ✗                        |
 | Originator              | ✗                 | ✗                          | ✗                 | \*\* (Originator)             |                       | ✗                        |
 | Originator Reference    | ✗                 | ✗                          | ✗                 | \*\* (OriginatorReference)    |                       | ✗                        |
@@ -68,9 +68,9 @@ The library supports a comprehensive set of metadata fields across different aud
 
 \* Fields marked with asterisk (\*) are supported via RIFF INFO chunks but may have limited or non-standard implementations.
 
-\*\* Fields marked with double asterisk (\*\*) are supported in Broadcast Wave Format (BWF) files via the `bext` chunk. See the [Metadata Formats Guide](METADATA_FORMATS.md#broadcast-wave-format-bwf-versions) for details.
+\*\* Fields marked with double asterisk (\*\*) are Broadcast Wave Format (BWF) fields via the `bext` chunk. Currently only ISRC is exposed in unified metadata. Other BWF fields are available via raw metadata access. See the [Metadata Formats Guide](METADATA_FORMATS.md#broadcast-wave-format-bwf-versions) for details.
 
-\*\*\* Fields marked with triple asterisk (\*\*\*) are supported in Broadcast Wave Format (BWF) v2 files via the `bext` chunk loudness metadata section. These fields are parsed by AudioMeta when the bext chunk version is 2 or higher. See the [Metadata Formats Guide](METADATA_FORMATS.md#broadcast-wave-format-bwf-versions) for details.
+\*\*\* Fields marked with triple asterisk (\*\*\*) are Broadcast Wave Format (BWF) v2 loudness metadata fields via the `bext` chunk. These fields are currently available via raw metadata access only, not through unified metadata. See the [Metadata Formats Guide](METADATA_FORMATS.md#broadcast-wave-format-bwf-versions) for details.
 
 ## Multiple Values Handling
 
