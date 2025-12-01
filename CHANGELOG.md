@@ -65,9 +65,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Improved
 
-- **Metadata Validation**: Refactored metadata field format validation into shared helper function:
-  - Consolidates validation for release_date, track_number, disc_number, disc_total, and isrc
-  - Adds missing disc_number and disc_total validation to `update_metadata()`
+- **Metadata Validation**: Refactored metadata field validation into shared helper functions:
+  - Consolidates field format validation for release_date, track_number, disc_number, disc_total, and isrc
+  - Consolidates rating validation into shared `_validate_rating_value()` helper
+  - Adds missing disc_number, disc_total, and rating validation to `update_metadata()`
   - Reduces code duplication between `validate_metadata_for_update()` and `update_metadata()`
 
 ## [0.5.0] - 2025-12-01

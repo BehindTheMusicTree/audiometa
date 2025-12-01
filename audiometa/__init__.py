@@ -392,6 +392,43 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
             )
 
 
+def _validate_rating_value(unified_metadata: UnifiedMetadata, normalized_rating_max_value: int | None) -> None:
+    """Validate rating value if present.
+
+    This is a shared helper used by both validate_metadata_for_update() and update_metadata().
+    """
+    if UnifiedMetadataKey.RATING not in unified_metadata:
+        return
+
+    rating_value = unified_metadata[UnifiedMetadataKey.RATING]
+    if rating_value is None:
+        return
+
+    if isinstance(rating_value, int | float):
+        # In raw mode (no normalization), only accept floats that can be parsed to int
+        # This allows the library to accept values like 196.0 as 196
+        if normalized_rating_max_value is None and isinstance(rating_value, float):
+            if rating_value.is_integer():
+                # Note: We can't modify the original dict here, caller handles this if needed
+                pass
+            else:
+                from .exceptions import InvalidRatingValueError
+
+                msg = (
+                    f"Rating value {rating_value} is invalid. In raw mode, float values must be whole numbers "
+                    f"(e.g., 196.0). Half-star values like {rating_value} require normalization."
+                )
+                raise InvalidRatingValueError(msg)
+        from .manager._rating_supporting._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
+
+        _RatingSupportingMetadataManager.validate_rating_value(rating_value, normalized_rating_max_value)
+    else:
+        from .exceptions import InvalidRatingValueError
+
+        msg = f"Rating value must be numeric, got {type(rating_value).__name__}"
+        raise InvalidRatingValueError(msg)
+
+
 def _validate_metadata_field_formats(unified_metadata: UnifiedMetadata) -> None:
     """Validate format of metadata fields that have specific format requirements.
 
@@ -500,35 +537,8 @@ def validate_metadata_for_update(
     # Validate types
     _validate_unified_metadata_types(normalized_metadata)
 
-    # Validate rating if present and non-empty
-    if UnifiedMetadataKey.RATING in normalized_metadata:
-        rating_value = normalized_metadata[UnifiedMetadataKey.RATING]
-        if rating_value is not None:
-            if isinstance(rating_value, int | float):
-                # In raw mode (no normalization), only accept floats that can be parsed to int
-                # This allows the library to accept values like 196.0 as 196
-                if normalized_rating_max_value is None and isinstance(rating_value, float):
-                    if rating_value.is_integer():
-                        rating_value = int(rating_value)
-                        normalized_metadata[UnifiedMetadataKey.RATING] = rating_value
-                    else:
-                        from .exceptions import InvalidRatingValueError
-
-                        msg = (
-                            f"Rating value {rating_value} is invalid. In raw mode, float values must be whole numbers "
-                            f"(e.g., 196.0). Half-star values like {rating_value} require normalization."
-                        )
-                        raise InvalidRatingValueError(msg)
-                from .manager._rating_supporting._RatingSupportingMetadataManager import (
-                    _RatingSupportingMetadataManager,
-                )
-
-                _RatingSupportingMetadataManager.validate_rating_value(rating_value, normalized_rating_max_value)
-            else:
-                from .exceptions import InvalidRatingValueError
-
-                msg = f"Rating value must be numeric, got {type(rating_value).__name__}"
-                raise InvalidRatingValueError(msg)
+    # Validate rating if present
+    _validate_rating_value(normalized_metadata, normalized_rating_max_value)
 
     # Validate field formats (release_date, track_number, disc_number, disc_total, isrc)
     _validate_metadata_field_formats(normalized_metadata)
@@ -648,6 +658,9 @@ def update_metadata(
     # Handle strategy-specific behavior before writing
     # Validate provided unified_metadata value types before attempting any writes
     _validate_unified_metadata_types(unified_metadata)
+
+    # Validate rating if present
+    _validate_rating_value(unified_metadata, normalized_rating_max_value)
 
     # Validate field formats (release_date, track_number, disc_number, disc_total, isrc)
     _validate_metadata_field_formats(unified_metadata)
