@@ -48,6 +48,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [0.5.0] - 2025-12-01
+
 ### Added
 
 - **BWF Support**: Added raw extraction support for Broadcast Wave Format (BWF) bext chunks (v0, v1, v2):
