@@ -63,6 +63,8 @@ class TestCLIWriteComprehensive:
                     "+2.5 dB",
                     "--archival-location",
                     "Archive",
+                    "--isrc",
+                    "USRC17607839",
                 ],
                 capture_output=True,
                 text=True,
@@ -89,6 +91,7 @@ class TestCLIWriteComprehensive:
             assert metadata.get(UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS) == "Test lyrics"
             assert metadata.get(UnifiedMetadataKey.COMMENT) == "Test comment"
             assert metadata.get(UnifiedMetadataKey.REPLAYGAIN) == "+2.5 dB"
+            assert metadata.get(UnifiedMetadataKey.ISRC) == "USRC17607839"
             # ARCHIVAL_LOCATION is not supported by ID3v2 format (MP3)
             # It's only supported by Vorbis (FLAC)
 
@@ -127,6 +130,8 @@ class TestCLIWriteComprehensive:
                     "FLAC lyrics",
                     "--comment",
                     "FLAC comment",
+                    "--isrc",
+                    "FRXXX1800001",
                 ],
                 capture_output=True,
                 text=True,
@@ -148,6 +153,7 @@ class TestCLIWriteComprehensive:
             assert metadata.get(UnifiedMetadataKey.COPYRIGHT) == "© FLAC"
             assert metadata.get(UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS) == "FLAC lyrics"
             assert metadata.get(UnifiedMetadataKey.COMMENT) == "FLAC comment"
+            assert metadata.get(UnifiedMetadataKey.ISRC) == "FRXXX1800001"
 
     def test_cli_write_wav_all_fields(self):
         with temp_file_with_metadata({}, "wav") as test_file:
@@ -180,6 +186,8 @@ class TestCLIWriteComprehensive:
                     "© WAV",
                     "--comment",
                     "WAV comment",
+                    "--isrc",
+                    "GBUM71505078",
                 ],
                 capture_output=True,
                 text=True,
@@ -199,3 +207,4 @@ class TestCLIWriteComprehensive:
             assert metadata.get(UnifiedMetadataKey.COMPOSERS) == ["WAV Composer"]
             assert metadata.get(UnifiedMetadataKey.COPYRIGHT) == "© WAV"
             assert metadata.get(UnifiedMetadataKey.COMMENT) == "WAV comment"
+            assert metadata.get(UnifiedMetadataKey.ISRC) == "GBUM71505078"

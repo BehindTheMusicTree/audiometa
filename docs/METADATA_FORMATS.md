@@ -432,13 +432,13 @@ BWF fields are designed for professional broadcasting workflows and include spec
 - **Read/Write**: Full support
 - **File Types**: WAV (native)
 - **Implementation**: Custom implementation (mutagen doesn't support writing RIFF)
-- **BWF Support**: Raw extraction implemented (bext chunk reading)
+- **BWF Support**: Raw extraction of Broadcast Wave Format (BWF) fields via `bext` chunk
   - **BWF Versions**: Supports reading v0, v1, and v2 bext chunks
   - **Fields Extracted**: Description, Originator, OriginatorReference, OriginationDate, OriginationTime, TimeReference, Version, UMID, CodingHistory
   - **Loudness Metadata**: Parsed for BWF v2 (LoudnessValue, LoudnessRange, MaxTruePeakLevel, MaxMomentaryLoudness, MaxShortTermLoudness)
-  - **Access Method**: Bext data is available via `get_raw_metadata_info()` or `get_full_metadata()` only, not via `get_unified_metadata()`
-  - **Writing**: Planned but not yet implemented
-    - When implemented, writing `bext` metadata to a WAV file without a `bext` chunk will automatically create/add the `bext` chunk, converting the file to BWF format
+  - **ISRC Support**: Full read/write support. ISRC is exposed in unified metadata via `UnifiedMetadataKey.ISRC` and CLI `--isrc` option
+  - **Access Method**: Raw BWF metadata (other than ISRC) is available via `get_raw_metadata_info()` and `get_full_metadata()` only, not via `get_unified_metadata()`
+  - **Writing**: ISRC full support (read/write). Other `bext` metadata writing is planned but not yet implemented
 
 ---
 

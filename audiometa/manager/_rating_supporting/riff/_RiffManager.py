@@ -104,6 +104,9 @@ class _RiffManager(_RatingSupportingMetadataManager):
         BPM = "IBPM"
         UNSYNCHRONIZED_LYRICS = "ILYR"
 
+        # BWF
+        ISRC = "ISRC"  # International Standard Recording Code
+
     def __init__(self, audio_file: "_AudioFile", normalized_rating_max_value: None | int = None):
         # Validate that the file is a WAV file
         if audio_file.file_extension != ".wav":
@@ -125,6 +128,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.BPM: self.RiffTagKey.BPM,
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.RiffTagKey.UNSYNCHRONIZED_LYRICS,
             UnifiedMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
+            UnifiedMetadataKey.ISRC: self.RiffTagKey.ISRC,
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
@@ -141,6 +145,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.BPM: self.RiffTagKey.BPM,
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.RiffTagKey.UNSYNCHRONIZED_LYRICS,
             UnifiedMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
+            UnifiedMetadataKey.ISRC: self.RiffTagKey.ISRC,
         }
         super().__init__(
             audio_file=audio_file,
