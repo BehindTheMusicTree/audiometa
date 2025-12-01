@@ -48,6 +48,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [0.6.0] - 2025-12-01
+
 ### Changed
 
 - **BREAKING: Bitrate Unit Standardization**: `get_bitrate()` now returns bits per second (bps) instead of kilobits per second (kbps):
