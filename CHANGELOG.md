@@ -50,6 +50,15 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Added
 
+- **Bitrate Test Assets**: Added comprehensive test assets for bitrate validation:
+
+  - Six dedicated bitrate test files covering MP3, FLAC, and WAV formats with various bitrates
+  - Small bitrate files: 192 kbps MP3, 723 kbps FLAC, 1152 kbps WAV
+  - Large bitrate files: 320 kbps MP3, 946 kbps FLAC, 1411 kbps WAV
+  - Integration tests validating `get_bitrate()` endpoint against expected bitrate values
+  - Fixtures added to conftest for easy test access to bitrate assets
+  - Updated pre-commit configuration to exclude test assets directory from large file checks
+
 - **ISRC Support**: Added unified metadata support for International Standard Recording Code (ISRC):
   - New `UnifiedMetadataKey.ISRC` for reading and writing ISRC codes across formats
   - ID3v2 support: Reads/writes TSRC frame
