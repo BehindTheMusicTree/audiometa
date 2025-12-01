@@ -22,7 +22,7 @@ class TestCLIFormatting:
     def test_format_output_table(self):
         data = {
             "unified_metadata": {"title": "Test Song", "artist": "Test Artist"},
-            "technical_info": {"duration_seconds": 180, "bitrate_kbps": 320},
+            "technical_info": {"duration_seconds": 180, "bitrate_bps": 320000},
         }
         result = format_as_table(data)
         assert "Test Song" in result

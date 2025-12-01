@@ -232,6 +232,21 @@ def bitrate_1411_wav(assets_dir: Path) -> Path:
 
 
 @pytest.fixture
+def bitrate_192_mp3(assets_dir: Path) -> Path:
+    return assets_dir / "bitrate in kbps_small=192.mp3"
+
+
+@pytest.fixture
+def bitrate_723_flac(assets_dir: Path) -> Path:
+    return assets_dir / "bitrate in kbps_small=723.flac"
+
+
+@pytest.fixture
+def bitrate_1152_wav(assets_dir: Path) -> Path:
+    return assets_dir / "bitrate in kbps_small=1152.wav"
+
+
+@pytest.fixture
 def size_small_mp3(assets_dir: Path) -> Path:
     return assets_dir / "size_small=0.01mo.mp3"
 

@@ -174,7 +174,7 @@ class _AudioFile:
             audio = MP3(path)
             # Get MP3 bitrate directly from audio stream
             if audio.info.bitrate:
-                return int(audio.info.bitrate) // 1000
+                return int(audio.info.bitrate)
             return 0
         if self.file_extension == ".wav":
             try:
@@ -208,7 +208,7 @@ class _AudioFile:
                 stream = data["streams"][0]
                 # Get bitrate directly if available
                 if "bit_rate" in stream:
-                    return int(stream["bit_rate"]) // 1000
+                    return int(stream["bit_rate"])
 
                 # Calculate from sample_rate * channels * bits_per_sample if no direct bitrate
                 sample_rate = int(stream.get("sample_rate", 0))
@@ -219,7 +219,7 @@ class _AudioFile:
                     msg = "Missing audio stream information"
                     raise RuntimeError(msg) from None
 
-                return (sample_rate * channels * bits_per_sample) // 1000
+                return sample_rate * channels * bits_per_sample
             except json.JSONDecodeError as e:
                 msg = "Failed to parse audio file metadata from ffprobe output"
                 raise AudioFileMetadataParseError(msg) from e
@@ -228,7 +228,7 @@ class _AudioFile:
                 raise RuntimeError(msg) from exc
         elif self.file_extension == ".flac":
             audio_info = cast(StreamInfo, FLAC(path).info)
-            return int(float(audio_info.bitrate) / 1000)
+            return int(audio_info.bitrate)
         else:
             msg = f"Reading is not supported for file type: {self.file_extension}"
             raise FileTypeNotSupportedError(msg)

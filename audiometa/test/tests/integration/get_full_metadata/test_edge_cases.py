@@ -119,5 +119,5 @@ class TestGetFullMetadataEdgeCases:
             # Technical info should still be present
             tech_info = result["technical_info"]
             assert "duration_seconds" in tech_info
-            assert "bitrate_kbps" in tech_info
+            assert "bitrate_bps" in tech_info
             assert "file_size_bytes" in tech_info
