@@ -537,7 +537,7 @@ if is_audio_file("path/to/your/audio.flac"):
     file_size = get_file_size("path/to/your/audio.flac")
 
     print(f"Duration: {duration} seconds")
-    print(f"Bitrate: {bitrate} kbps")
+    print(f"Bitrate: {bitrate} bps ({bitrate // 1000} kbps)")
     print(f"Sample Rate: {sample_rate} Hz")
     print(f"Channels: {channels}")
     print(f"File Size: {file_size} bytes")
@@ -669,7 +669,7 @@ print(f"Artists: {full_metadata['unified_metadata'][UnifiedMetadataKey.ARTISTS]}
 
 # Access technical information
 print(f"Duration: {full_metadata['technical_info']['duration_seconds']} seconds")
-print(f"Bitrate: {full_metadata['technical_info']['bitrate_kbps']} kbps")
+print(f"Bitrate: {full_metadata['technical_info']['bitrate_bps']} bps ({full_metadata['technical_info']['bitrate_bps'] // 1000} kbps)")
 print(f"Sample Rate: {full_metadata['technical_info']['sample_rate_hz']} Hz")
 print(f"Channels: {full_metadata['technical_info']['channels']}")
 print(f"File Size: {full_metadata['technical_info']['file_size_bytes']} bytes")
@@ -709,7 +709,7 @@ A comprehensive dictionary containing:
     },
     'technical_info': {
         'duration_seconds': 180.5,
-        'bitrate_kbps': 320,
+        'bitrate_bps': 320000,
         'sample_rate_hz': 44100,
         'channels': 2,
         'file_size_bytes': 7234567,

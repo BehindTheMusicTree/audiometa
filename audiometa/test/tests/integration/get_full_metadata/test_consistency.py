@@ -25,7 +25,7 @@ class TestGetFullMetadataConsistency:
 
         # Compare with direct _AudioFile methods
         assert tech_info["duration_seconds"] == audio_file.get_duration_in_sec()
-        assert tech_info["bitrate_kbps"] == audio_file.get_bitrate()
+        assert tech_info["bitrate_bps"] == audio_file.get_bitrate()
         assert tech_info["sample_rate_hz"] == audio_file.get_sample_rate()
         assert tech_info["channels"] == audio_file.get_channels()
         assert tech_info["file_size_bytes"] == audio_file.get_file_size()

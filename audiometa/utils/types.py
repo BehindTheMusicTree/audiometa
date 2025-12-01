@@ -41,7 +41,7 @@ class TechnicalInfo(TypedDict):
     """Type for technical audio information."""
 
     duration_seconds: float
-    bitrate_kbps: int
+    bitrate_bps: int
     sample_rate_hz: int
     channels: int
     file_size_bytes: int

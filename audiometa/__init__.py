@@ -948,7 +948,7 @@ def get_bitrate(file: PublicFileType) -> int:
         file: Audio file path (str or Path)
 
     Returns:
-        Bitrate in bits per second
+        Bitrate in bits per second (bps)
 
     Raises:
         FileTypeNotSupportedError: If the file format is not supported
@@ -957,6 +957,7 @@ def get_bitrate(file: PublicFileType) -> int:
     Examples:
         bitrate = get_bitrate("song.mp3")
         print(f"Bitrate: {bitrate} bps")
+        print(f"Bitrate: {bitrate // 1000} kbps")
     """
     audio_file = _AudioFile(file)
     return audio_file.get_bitrate()
@@ -1167,7 +1168,8 @@ def get_full_metadata(
 
         # Access technical information
         print(f"Duration: {full_metadata['technical_info']['duration_seconds']} seconds")
-        print(f"Bitrate: {full_metadata['technical_info']['bitrate_kbps']} kbps")
+        bitrate_bps = full_metadata['technical_info']['bitrate_bps']
+        print(f"Bitrate: {bitrate_bps} bps ({bitrate_bps // 1000} kbps)")
 
         # Access format-specific metadata
         print(f"ID3v2 Title: {full_metadata['metadata_format']['id3v2']['title']}")
@@ -1206,7 +1208,7 @@ def get_full_metadata(
         try:
             result["technical_info"] = {
                 "duration_seconds": audio_file.get_duration_in_sec(),
-                "bitrate_kbps": audio_file.get_bitrate(),
+                "bitrate_bps": audio_file.get_bitrate(),
                 "sample_rate_hz": audio_file.get_sample_rate(),
                 "channels": audio_file.get_channels(),
                 "file_size_bytes": get_file_size(file),
@@ -1219,7 +1221,7 @@ def get_full_metadata(
         except Exception:
             result["technical_info"] = {
                 "duration_seconds": 0,
-                "bitrate_kbps": 0,
+                "bitrate_bps": 0,
                 "sample_rate_hz": 0,
                 "channels": 0,
                 "file_size_bytes": 0,

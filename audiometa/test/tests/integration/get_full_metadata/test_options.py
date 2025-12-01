@@ -29,7 +29,7 @@ class TestGetFullMetadataOptions:
         # Verify technical info is still included
         assert result["technical_info"] != {}
         assert "duration_seconds" in result["technical_info"]
-        assert "bitrate_kbps" in result["technical_info"]
+        assert "bitrate_bps" in result["technical_info"]
 
         # Verify unified metadata is still included
         assert isinstance(result["unified_metadata"], dict)
