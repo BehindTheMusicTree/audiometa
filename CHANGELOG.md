@@ -57,17 +57,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Changed return value from kbps to bps to follow industry standard (mutagen, ffprobe, mediainfo all use bps internally)
   - Updated `get_full_metadata()` technical_info key from `bitrate_kbps` to `bitrate_bps`
   - Updated `TechnicalInfo` TypedDict to use `bitrate_bps` field
-  - To convert to kbps: `bitrate_bps // 1000`
   - Updated all documentation and examples to reflect the change
   - Includes comprehensive integration tests validating bitrate values across MP3, FLAC, and WAV formats
 
-- **Bitrate Test Assets**: Added comprehensive test assets for bitrate validation:
-  - Six dedicated bitrate test files covering MP3, FLAC, and WAV formats with various bitrates
-  - Small bitrate files: 192 kbps MP3, 723 kbps FLAC, 1152 kbps WAV
-  - Large bitrate files: 320 kbps MP3, 946 kbps FLAC, 1411 kbps WAV
-  - Integration tests validating `get_bitrate()` endpoint against expected bitrate values
-  - Fixtures added to conftest for easy test access to bitrate assets
-  - Updated pre-commit configuration to exclude test assets directory from large file checks
+- **Bitrate Test Assets**: Added test files covering MP3, FLAC, and WAV formats with various bitrates (192-1411 kbps) and updated pre-commit configuration to exclude test assets directory from large file checks
 
 ### Added
 
