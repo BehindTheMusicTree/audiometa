@@ -57,6 +57,7 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
         args: ["--maxkb=10000"]
+        exclude: ^audiometa/test/assets/
       - id: check-json
       - id: check-toml
       - id: check-merge-conflict
