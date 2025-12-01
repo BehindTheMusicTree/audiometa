@@ -48,6 +48,21 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **ISRC Support**: Added unified metadata support for International Standard Recording Code (ISRC):
+  - New `UnifiedMetadataKey.ISRC` for reading and writing ISRC codes across formats
+  - ID3v2 support: Reads/writes TSRC frame
+  - Vorbis support: Reads/writes `ISRC` field
+  - RIFF support: Reads/writes `ISRC` INFO chunk field
+  - Two accepted formats per ISO 3901: 12 alphanumeric characters (`USRC17607839`) or 15 characters with hyphens (`US-RC1-76-07839`)
+  - Format validation with `InvalidMetadataFieldFormatError` for invalid formats
+  - CLI support via `--isrc` argument
+  - Includes comprehensive unit tests (42 test cases) covering type and format validation
+  - Includes integration tests for reading and writing across all supported formats
+  - Includes E2E CLI tests for read and write operations
+  - See `docs/METADATA_FIELD_GUIDE.md` for validation rules and format documentation
+
 ## [0.5.0] - 2025-12-01
 
 ### Added

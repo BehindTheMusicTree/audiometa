@@ -283,6 +283,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.Id3TextFrame.UNSYNCHRONIZED_LYRICS,
             UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
             UnifiedMetadataKey.REPLAYGAIN: None,
+            UnifiedMetadataKey.ISRC: self.Id3TextFrame.ISRC,
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
@@ -303,6 +304,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.Id3TextFrame.UNSYNCHRONIZED_LYRICS,
             UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
             UnifiedMetadataKey.REPLAYGAIN: None,
+            UnifiedMetadataKey.ISRC: self.Id3TextFrame.ISRC,
         }
 
         super().__init__(

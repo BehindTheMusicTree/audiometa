@@ -30,6 +30,7 @@ class UnifiedMetadataKey(str, Enum):
     COMMENT = "comment"
     REPLAYGAIN = "replaygain"
     ARCHIVAL_LOCATION = "archival_location"
+    ISRC = "isrc"
 
     def can_semantically_have_multiple_values(self) -> bool:
         """Check if the metadata key can semantically have multiple values.
@@ -77,6 +78,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.COMMENT: str,
             UnifiedMetadataKey.REPLAYGAIN: str,
             UnifiedMetadataKey.ARCHIVAL_LOCATION: str,
+            UnifiedMetadataKey.ISRC: str,
         }
         result_type = app_metadata_keys_optional_types_map.get(self)
         if not result_type:

@@ -13,6 +13,7 @@ This document consolidates comprehensive metadata field handling across all supp
 - [Genre Handling](#genre-handling)
 - [Rating Handling](#rating-handling)
 - [Release Date Validation Rules](#release-date-validation-rules)
+- [ISRC Validation Rules](#isrc-validation-rules)
 - [Track Number Handling](#track-number-handling)
 - [Disc Number Handling](#disc-number-handling)
 - [Lyrics Support](#lyrics-support)
@@ -328,6 +329,68 @@ update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: ""})
 update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: "2024/01/01"})
 # Raises: InvalidMetadataFieldFormatError
 ```
+
+## ISRC Validation Rules
+
+The `ISRC` (International Standard Recording Code) field accepts two formats based on ISO 3901:
+
+**Valid Formats:**
+
+1. **12 alphanumeric characters** (without hyphens) - compact format
+
+   - Format: `CCXXXYYNNNNN`
+   - Examples: `"USRC17607839"`, `"GBAYE0000001"`, `"JPAB01234567"`
+   - CC = Country code (2 letters)
+   - XXX = Registrant code (3 alphanumeric)
+   - YY = Year of reference (2 digits)
+   - NNNNN = Unique designation code (5 digits)
+
+2. **15 characters with hyphens** - human-readable format
+
+   - Format: `CC-XXX-YY-NNNNN`
+   - Examples: `"US-RC1-76-07839"`, `"GB-AYE-00-00001"`, `"JP-AB0-12-34567"`
+
+3. **Empty string** - allowed and represents no ISRC
+   - Example: `""`
+
+**Invalid Formats:**
+
+The following formats will raise `InvalidMetadataFieldFormatError`:
+
+- Too short: `"USRC1760783"`, `"ABC"`, `"U"`
+- Too long: `"USRC176078390"`, `"USRC1760783901234"`
+- Wrong hyphen positions: `"USRC-17607839"`, `"US-RC17607839"`
+- Special characters: `"USRC1760783!"`, `"USRC@7607839"`, `"USRC 7607839"`
+- Wrong segment lengths in hyphenated format: `"US-R-76-07839"`, `"USA-RC1-76-07839"`
+
+**Examples:**
+
+```python
+from audiometa import update_metadata
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+
+# Valid: 12-character format
+update_metadata("song.mp3", {UnifiedMetadataKey.ISRC: "USRC17607839"})
+
+# Valid: hyphenated format
+update_metadata("song.mp3", {UnifiedMetadataKey.ISRC: "US-RC1-76-07839"})
+
+# Valid: empty string
+update_metadata("song.mp3", {UnifiedMetadataKey.ISRC: ""})
+
+# Invalid: too short
+update_metadata("song.mp3", {UnifiedMetadataKey.ISRC: "ABC"})
+# Raises: InvalidMetadataFieldFormatError
+```
+
+**Format Support:**
+
+| Format | ISRC Support |
+| ------ | ------------ |
+| ID3v1  | ❌           |
+| ID3v2  | ✅ (TSRC)    |
+| Vorbis | ✅ (ISRC)    |
+| RIFF   | ✅ (ISRC)    |
 
 ## Track Number Handling
 

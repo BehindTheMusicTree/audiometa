@@ -525,6 +525,14 @@ def validate_metadata_for_update(
 
         _MetadataManager.validate_disc_total(disc_total_value)
 
+    # Validate ISRC format if present and non-empty
+    if UnifiedMetadataKey.ISRC in normalized_metadata:
+        isrc_value = normalized_metadata[UnifiedMetadataKey.ISRC]
+        if isrc_value is not None and isinstance(isrc_value, str) and isrc_value:
+            from .manager._MetadataManager import _MetadataManager
+
+            _MetadataManager.validate_isrc(isrc_value)
+
 
 def update_metadata(
     file: PublicFileType,
@@ -657,6 +665,14 @@ def update_metadata(
 
             if isinstance(track_number_value, str | int):
                 _MetadataManager.validate_track_number(track_number_value)
+
+    # Validate ISRC format if present and non-empty
+    if UnifiedMetadataKey.ISRC in unified_metadata:
+        isrc_value = unified_metadata[UnifiedMetadataKey.ISRC]
+        if isrc_value is not None and isinstance(isrc_value, str) and isrc_value:
+            from .manager._MetadataManager import _MetadataManager
+
+            _MetadataManager.validate_isrc(isrc_value)
 
     _handle_metadata_strategy(
         audio_file,

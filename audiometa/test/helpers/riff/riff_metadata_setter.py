@@ -33,6 +33,7 @@ class RIFFMetadataSetter:
             "album_artist": "--IAAR",
             "rating": "--IRTD",
             "copyright": "--ICOP",
+            "isrc": "--ISRC",
         }
 
         # Handle list values - include first value in main command to avoid overwriting

@@ -215,6 +215,46 @@ class _MetadataManager:
                 UnifiedMetadataKey.DISC_TOTAL.value, "non-negative integer", str(disc_total)
             )
 
+    @staticmethod
+    def validate_isrc(isrc: str) -> None:
+        """Validate ISRC (International Standard Recording Code) format.
+
+        ISRC must be in one of the following formats:
+        - 12 alphanumeric characters without hyphens (e.g., "USRC17607839")
+        - 15 characters with hyphens in format CC-XXX-YY-NNNNN (e.g., "US-RC1-76-07839")
+          where CC=country code, XXX=registrant, YY=year, NNNNN=unique ID
+        - Empty string is allowed (represents no ISRC)
+
+        Args:
+            isrc: The ISRC string to validate
+
+        Raises:
+            InvalidMetadataFieldFormatError: If the ISRC format is invalid
+
+        Examples:
+            >>> _MetadataManager.validate_isrc("USRC17607839")  # Valid (12 chars)
+            >>> _MetadataManager.validate_isrc("US-RC1-76-07839")  # Valid (with hyphens)
+            >>> _MetadataManager.validate_isrc("")  # Valid (empty string)
+            >>> _MetadataManager.validate_isrc("ABC")  # Raises InvalidMetadataFieldFormatError
+        """
+        if not isrc:
+            return
+
+        # 12 alphanumeric characters without hyphens
+        if re.match(r"^[A-Za-z0-9]{12}$", isrc):
+            return
+
+        # 15 characters with hyphens: CC-XXX-YY-NNNNN
+        if re.match(r"^[A-Za-z]{2}-[A-Za-z0-9]{3}-\d{2}-\d{5}$", isrc):
+            return
+
+        raise InvalidMetadataFieldFormatError(
+            UnifiedMetadataKey.ISRC.value,
+            "12 alphanumeric characters (e.g., 'USRC17607839') or 15 characters with hyphens "
+            "(e.g., 'US-RC1-76-07839')",
+            isrc,
+        )
+
     @abstractmethod
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         raise NotImplementedError
