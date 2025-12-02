@@ -27,7 +27,18 @@ def run_external_tool(
     """
     try:
         text = not isinstance(input_data, bytes) if input_data is not None else True
-        return subprocess.run(command, capture_output=True, text=text, check=check, input=input_data)
+
+        # Ensure venv's bin directory is in PATH for Python tools like mid3v2
+        import os
+        import sys
+
+        env = os.environ.copy()
+        if hasattr(sys, "prefix"):
+            venv_bin = Path(sys.prefix) / "bin"
+            if venv_bin.exists():
+                env["PATH"] = f"{venv_bin}:{env.get('PATH', '')}"
+
+        return subprocess.run(command, capture_output=True, text=text, check=check, input=input_data, env=env)
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
         msg = f"{tool_name} failed: {e}"
         raise ExternalMetadataToolError(msg) from e

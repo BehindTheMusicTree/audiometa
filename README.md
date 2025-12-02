@@ -438,6 +438,8 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 update_metadata("song.wav", new_metadata, metadata_format=MetadataFormat.RIFF)
 ```
 
+**For comprehensive documentation** on writing strategies, format handling, and unsupported field management, see the **[Writing Metadata Guide](docs/WRITING_METADATA.md)**.
+
 ### Deleting Metadata
 
 There are two ways to remove metadata from audio files:
@@ -894,6 +896,10 @@ validate_metadata_for_update({UnifiedMetadataKey.RELEASE_DATE: "2024/01/01"})
 
 ### Writing Metadata (API Reference)
 
+**For comprehensive writing metadata documentation**, including writing strategies, format handling, unsupported field management, and advanced examples, see the dedicated guide:
+
+**[Writing Metadata Guide](docs/WRITING_METADATA.md)**
+
 For validation before writing, see [Pre-Update Validation (API Reference)](#pre-update-validation-api-reference).
 
 #### Metadata Dictionary Structure
@@ -1015,6 +1021,7 @@ The library provides flexible control over how metadata is written to files that
 1. **`SYNC` (Default)**: Write to native format and synchronize other metadata formats that are already present
 2. **`PRESERVE`**: Write to native format only, preserve existing metadata in other formats
 3. **`CLEANUP`**: Write to native format and remove all non-native metadata formats
+4. **`FORCE`**: Write only to the specified format (when `metadata_format` is provided), fail on unsupported fields
 
 ##### Usage Examples
 
@@ -1033,34 +1040,16 @@ update_metadata("song.wav", {"title": "New Title"},
 # PRESERVE strategy - keep other formats unchanged
 update_metadata("song.wav", {"title": "New Title"},
                     metadata_strategy=MetadataWritingStrategy.PRESERVE)
+
+# FORCE strategy - write only to specified format
+from audiometa.utils.MetadataFormat import MetadataFormat
+update_metadata("song.mp3", {"title": "New Title"},
+                    metadata_format=MetadataFormat.ID3V2)
 ```
 
 ##### Default Behavior
 
 By default, the library uses the **SYNC strategy** which writes metadata to the native format and synchronizes other metadata formats that are already present. This provides the best user experience by writing metadata where possible and handling unsupported fields gracefully.
-
-- **MP3 files**: Writes to ID3v2 and syncs other formats
-- **FLAC files**: Writes to Vorbis comments and syncs other formats
-- **WAV files**: Writes to RIFF and syncs other formats
-
-#### Forced Format Behavior
-
-When you specify a `metadata_format` parameter, you **cannot** also specify a `metadata_strategy`:
-
-- **Write only to the specified format**: Other formats are left completely untouched
-- **Fail fast on unsupported fields**: Raises `MetadataFieldNotSupportedByMetadataFormatError` for any unsupported metadata
-- **Predictable behavior**: No side effects on other metadata formats
-
-```python
-# Correct usage - specify only the format
-update_metadata("song.mp3", metadata,
-                    metadata_format=MetadataFormat.RIFF)  # Writes only to RIFF, ignores ID3v2
-
-# This will raise MetadataWritingConflictParametersError - cannot specify both parameters
-update_metadata("song.mp3", metadata,
-                    metadata_format=MetadataFormat.RIFF,
-                    metadata_strategy=MetadataWritingStrategy.CLEANUP)  # Raises MetadataWritingConflictParametersError
-```
 
 #### Usage Examples
 
@@ -1069,13 +1058,14 @@ update_metadata("song.mp3", metadata,
 ```python
 from audiometa import update_metadata
 
-# WAV file with existing ID3v1 tags (30-char limit)
-update_metadata("song.wav", {"title": "This is a Very Long Title That Exceeds ID3v1 Limits"})
+# WAV file with existing ID3v1 tags (30-char limit and no album artist support)
+update_metadata("song.wav", {"title": "This is a Very Long Title That Exceeds ID3v1 Limits",
+                                 "album_artist": "Various Artists"})
 
 # Result:
-# - RIFF tags: Updated with full title (native format)
-# - ID3v1 tags: Synchronized with truncated title (30 chars max)
-# - When reading: RIFF title is returned (higher precedence)
+# - RIFF tags: Updated with full title (native format) and album artist
+# - ID3v1 tags: Synchronized only with truncated 30-char truncated title and no album artist (not supported)
+# - When reading: RIFF title is returned (higher precedence) and album artist is available
 # Note: ID3v1 title becomes "This is a Very Long Title Th" (truncated)
 ```
 
@@ -1110,10 +1100,14 @@ update_metadata("song.wav", {"title": "New Title"},
 # Note: SYNC preserves and updates ALL existing metadata formats
 ```
 
-**Format-Specific Writing**
+**FORCE Strategy - Format-Specific Writing**
 
 ```python
 from audiometa.utils.MetadataFormat import MetadataFormat
+
+# Write specifically to ID3v1 format
+update_metadata("song.flac", {"title": "New Title"},
+                    metadata_format=MetadataFormat.ID3V1)
 
 # Write specifically to ID3v2 format (even for WAV files)
 update_metadata("song.wav", {"title": "New Title"},
@@ -1122,6 +1116,10 @@ update_metadata("song.wav", {"title": "New Title"},
 # Write specifically to RIFF format
 update_metadata("song.wav", {"title": "New Title"},
                     metadata_format=MetadataFormat.RIFF)
+
+# Write specifically to Vorbis format
+update_metadata("song.flac", {"title": "New Title"},
+                    metadata_format=MetadataFormat.VORBIS)
 ```
 
 ### Deleting Metadata (API Reference)
@@ -1302,17 +1300,17 @@ For comprehensive documentation on all exceptions that can be raised by the libr
 The library handles unsupported metadata consistently across all strategies:
 
 - **Forced format** (when `metadata_format` is specified): Always fails fast by raising `MetadataFieldNotSupportedByMetadataFormatError` for any unsupported field. **No writing is performed** - the file remains completely unchanged.
-- **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` (default)**: Handle unsupported fields gracefully by logging warnings and continuing with supported fields
+- **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` (default)**: Handle unsupported fields gracefully by logging individual warnings for each unsupported field and continuing with supported fields. For SYNC strategy, unsupported fields are filtered per-format, allowing all supported fields to sync to each format.
 - **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=True`**: Fails fast if any field is not supported by the target format. **No writing is performed** - the file remains completely unchanged (atomic operation).
 
 #### Format-Specific Limitations
 
-| Format         | Forced Format                     | All Strategies with `fail_on_unsupported_field=False`       | All Strategies with `fail_on_unsupported_field=True` |
-| -------------- | --------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------- |
-| **RIFF (WAV)** | Always fails fast, **no writing** | Logs warnings for unsupported fields, writes supported ones | Fails fast for unsupported fields, **no writing**    |
-| **ID3v1**      | Always fails fast, **no writing** | Logs warnings for unsupported fields, writes supported ones | Fails fast for unsupported fields, **no writing**    |
-| **ID3v2**      | Always fails fast, **no writing** | All fields supported                                        | All fields supported                                 |
-| **Vorbis**     | Always fails fast, **no writing** | All fields supported                                        | All fields supported                                 |
+| Format         | Forced Format                     | All Strategies with `fail_on_unsupported_field=False`                 | All Strategies with `fail_on_unsupported_field=True` |
+| -------------- | --------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------- |
+| **RIFF (WAV)** | Always fails fast, **no writing** | Logs individual warnings per unsupported field, writes supported ones | Fails fast for unsupported fields, **no writing**    |
+| **ID3v1**      | Always fails fast, **no writing** | Logs individual warnings per unsupported field, writes supported ones | Fails fast for unsupported fields, **no writing**    |
+| **ID3v2**      | Always fails fast, **no writing** | All fields supported                                                  | All fields supported                                 |
+| **Vorbis**     | Always fails fast, **no writing** | All fields supported                                                  | All fields supported                                 |
 
 #### Atomic Write Operations
 

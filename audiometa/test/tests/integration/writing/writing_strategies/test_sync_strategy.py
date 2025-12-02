@@ -213,3 +213,67 @@ class TestSyncStrategy:
 
             vorbis_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.VORBIS)
             assert vorbis_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"
+
+    def test_sync_strategy_mp3_genre_and_album_artist(self):
+        """Test SYNC strategy updates genre and album artist on MP3 file with ID3v1 present.
+
+        This test verifies that when writing metadata with SYNC strategy:
+        1. ID3v2 metadata is written with all fields including genre and album artist
+        2. ID3v1 metadata is synced with supported fields (genre) but unsupported fields (album_artists) are skipped
+        """
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            # Add ID3v1 metadata using external tools (to establish ID3v1 as an existing format)
+            ID3v1MetadataSetter.set_metadata(
+                test_file,
+                {
+                    "title": "ID3v1 Title",
+                    "artist": "ID3v1 Artist",
+                    "album": "ID3v1 Album",
+                    "genre": "Rock",
+                },
+            )
+
+            # Verify ID3v1 metadata was written
+            id3v1_result = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V1)
+            assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
+            assert id3v1_result.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
+
+            # Now write ID3v2 metadata with SYNC strategy including genre and album artist
+            # SYNC should write to ID3v2 (native format) and sync to ID3v1 (existing format)
+            id3v2_metadata = {
+                UnifiedMetadataKey.TITLE: "Synced Title",
+                UnifiedMetadataKey.ARTISTS: ["Synced Artist"],
+                UnifiedMetadataKey.ALBUM: "Synced Album",
+                UnifiedMetadataKey.GENRES_NAMES: ["Jazz", "Blues"],
+                UnifiedMetadataKey.ALBUM_ARTISTS: ["Album Artist 1", "Album Artist 2"],
+            }
+            update_metadata(test_file, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
+
+            # Verify ID3v2 metadata has all values including multiple genres and album artists
+            id3v2_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
+            assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"
+            assert id3v2_after.get(UnifiedMetadataKey.ARTISTS) == ["Synced Artist"]
+            assert id3v2_after.get(UnifiedMetadataKey.ALBUM) == "Synced Album"
+            assert id3v2_after.get(UnifiedMetadataKey.GENRES_NAMES) == ["Jazz", "Blues"]
+            assert id3v2_after.get(UnifiedMetadataKey.ALBUM_ARTISTS) == ["Album Artist 1", "Album Artist 2"]
+
+            # Verify ID3v1 metadata was synced with supported fields only
+            # When SYNC strategy encounters unsupported fields (like ALBUM_ARTISTS in ID3v1),
+            # it should sync only the supported fields and skip the unsupported ones.
+            # This is the correct behavior for non-target formats in SYNC strategy.
+            id3v1_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V1)
+
+            # ID3v1 should be synced with all supported fields
+            assert id3v1_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"
+            assert id3v1_after.get(UnifiedMetadataKey.ARTISTS) == ["Synced Artist"]
+            assert id3v1_after.get(UnifiedMetadataKey.ALBUM) == "Synced Album"
+            assert id3v1_after.get(UnifiedMetadataKey.GENRES_NAMES) == ["Jazz"]  # Only first genre in ID3v1
+
+            # Album artists are not supported in ID3v1, should be None (field is skipped)
+            assert id3v1_after.get(UnifiedMetadataKey.ALBUM_ARTISTS) is None
+
+            # Merged metadata should prefer ID3v2 (higher precedence)
+            merged = get_unified_metadata(test_file)
+            assert merged.get(UnifiedMetadataKey.TITLE) == "Synced Title"
+            assert merged.get(UnifiedMetadataKey.GENRES_NAMES) == ["Jazz", "Blues"]
+            assert merged.get(UnifiedMetadataKey.ALBUM_ARTISTS) == ["Album Artist 1", "Album Artist 2"]

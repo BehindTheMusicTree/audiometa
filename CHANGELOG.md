@@ -48,6 +48,33 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Fixed
+
+- **SYNC Strategy**: Fixed SYNC strategy to filter unsupported fields per-format with individual warnings:
+
+  - SYNC strategy now filters unsupported fields for each non-target format individually
+  - Warns about each unsupported field separately instead of bulk warnings
+  - Allows supported fields to sync even when some fields are unsupported
+  - Applies per-field warning approach to both SYNC and CLEANUP strategies
+  - Fixes issue where SYNC strategy would fail completely when any field was unsupported by secondary formats (e.g., ALBUM_ARTISTS not supported by ID3v1)
+  - Includes test case `test_sync_strategy_mp3_genre_and_album_artist` validating per-format field filtering
+
+- **Test Infrastructure**: Fixed mid3v2 test helper to work correctly in virtual environments:
+  - Updated external_tool_runner to ensure venv's bin directory is in PATH
+  - Added mid3v2 to brew_package_map in tool_path_resolver
+  - Updated id3v2_metadata_setter to use get_tool_path for mid3v2 calls
+  - Updated verification script to detect broken mid3v2 shebang lines (e.g., after Python version upgrades)
+  - Fixes test failures when globally installed mid3v2 has broken shebang after Python upgrades
+
+### Documentation
+
+- **Writing Metadata Guide**: Created dedicated `docs/WRITING_METADATA.md` guide:
+  - Comprehensive documentation for writing strategies (SYNC, PRESERVE, CLEANUP, FORCE)
+  - Detailed unsupported field handling documentation with per-format behavior
+  - Advanced examples demonstrating atomic write operations
+  - Cross-referenced from README.md for better documentation organization
+- **README Updates**: Updated README.md to reflect per-field warning behavior in SYNC strategy and reference new writing metadata guide
+
 ## [0.6.0] - 2025-12-01
 
 ### Changed

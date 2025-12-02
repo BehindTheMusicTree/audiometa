@@ -571,7 +571,9 @@ def update_metadata(
         metadata_format: Specific format to write to. If None, uses the file's native format.
             When specified, strategy is ignored and metadata is written only to this format.
         fail_on_unsupported_field: If True, fails when any metadata field is not supported by the target format.
-            Applies to all strategies (SYNC, PRESERVE, CLEANUP). Defaults to False (graceful handling with warnings).
+            If False (default), unsupported fields are filtered out with individual warnings for each field.
+            For SYNC strategy, this applies per-format: unsupported fields are skipped for each format that
+            doesn't support them, while still syncing all supported fields.
 
     Returns:
         None
@@ -597,7 +599,8 @@ def update_metadata(
 
         When metadata_strategy is used, unsupported metadata fields are handled based on the
         fail_on_unsupported_field parameter: True raises MetadataFieldNotSupportedByMetadataFormatError, False (default)
-        handles gracefully with warnings.
+        filters unsupported fields and warns about each one individually. For SYNC strategy, unsupported fields
+        are skipped per-format, allowing supported fields to sync while warning about unsupported ones.
 
         Data Filtering:
         For list-type metadata fields (e.g., ARTISTS, GENRES), empty strings and None values
@@ -738,10 +741,12 @@ def _handle_metadata_strategy(
             if fail_on_unsupported_field:
                 msg = f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
-            warnings.warn(
-                f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}",
-                stacklevel=2,
-            )
+            # Warn about each unsupported field individually
+            for unsupported_field in unsupported_fields:
+                field_warn_msg = (
+                    f"Field {unsupported_field} not supported by {target_format_actual.value} format, skipped"
+                )
+                warnings.warn(field_warn_msg, stacklevel=2)
             # Create filtered metadata without unsupported fields
             filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
             unified_metadata = filtered_metadata
@@ -777,10 +782,12 @@ def _handle_metadata_strategy(
                 ) and field not in target_manager.metadata_keys_direct_map_write:
                     unsupported_fields.append(field)
             if unsupported_fields:
-                unsupported_warn_msg = (
-                    f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}"
-                )
-                warnings.warn(unsupported_warn_msg, stacklevel=2)
+                # Warn about each unsupported field individually for target format
+                for unsupported_field in unsupported_fields:
+                    field_warn_msg = (
+                        f"Field {unsupported_field} not supported by {target_format_actual.value} format, skipped"
+                    )
+                    warnings.warn(field_warn_msg, stacklevel=2)
                 # Create filtered metadata without unsupported fields
                 filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
                 unified_metadata = filtered_metadata
@@ -804,16 +811,31 @@ def _handle_metadata_strategy(
         # Then sync all other available formats
         # Note: We need to be careful about the order to avoid conflicts
         for fmt_name, manager in other_managers.items():
-            try:
-                manager.update_metadata(unified_metadata)
-            except MetadataFieldNotSupportedByMetadataFormatError as e:
-                # For SYNC strategy, log warning but continue with other formats
-                format_warn_msg = f"Format {fmt_name} doesn't support some metadata fields: {e}"
-                warnings.warn(format_warn_msg, stacklevel=2)
-                continue
-            except Exception:
-                # Some managers might not support writing or might fail for other reasons
-                pass
+            # For non-target formats, filter out unsupported fields and warn about them
+            # This allows syncing supported fields even when some fields are not supported
+            unsupported_fields = []
+            if hasattr(manager, "metadata_keys_direct_map_write") and manager.metadata_keys_direct_map_write:
+                for field in unified_metadata:
+                    if field not in manager.metadata_keys_direct_map_write:
+                        unsupported_fields.append(field)
+
+            # Create filtered metadata with only supported fields
+            format_metadata = (
+                {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
+                if unsupported_fields
+                else unified_metadata
+            )
+
+            # Warn about each unsupported field individually for non-target formats
+            for unsupported_field in unsupported_fields:
+                field_warn_msg = f"Field {unsupported_field} not supported by {fmt_name} format, skipped"
+                warnings.warn(field_warn_msg, stacklevel=2)
+
+            # Try to update with supported fields only
+            if format_metadata:  # Only update if there are supported fields
+                with contextlib.suppress(Exception):
+                    # Some managers might fail for other reasons - continue with next format
+                    manager.update_metadata(format_metadata)
 
     elif strategy == MetadataWritingStrategy.PRESERVE:
         # For PRESERVE, we need to save existing metadata from other formats first
