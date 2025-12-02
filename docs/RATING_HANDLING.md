@@ -1,5 +1,18 @@
 # Rating Handling
 
+## Table of Contents
+
+- [The Rating Profile Problem](#the-rating-profile-problem)
+- [Rating Profile Types](#rating-profile-types)
+- [Rating Normalization](#rating-normalization)
+- [Normalized Rating Scale](#normalized-rating-scale)
+- [How AudioMeta Handles Rating Profiles](#how-audiometa-handles-rating-profiles)
+  - [Reading Ratings](#reading-ratings)
+  - [Writing Ratings](#writing-ratings)
+    - [Rating Writing Profiles](#rating-writing-profiles)
+    - [Rating Validation Rules](#rating-validation-rules)
+- [Half-Star Rating Support](#half-star-rating-support)
+
 AudioMeta implements a sophisticated rating profile system to handle the complex compatibility requirements across different audio players and formats. This system ensures that ratings work consistently regardless of which software was used to create them.
 
 ## The Rating Profile Problem
