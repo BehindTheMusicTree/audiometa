@@ -3,6 +3,8 @@
 from pathlib import Path
 from typing import Any
 
+from audiometa.utils.tool_path_resolver import get_tool_path
+
 from ..common.external_tool_runner import run_external_tool
 
 
@@ -47,7 +49,7 @@ class ID3v2MetadataSetter:
             }
         else:
             tool = "mid3v2"
-            cmd = ["mid3v2"]
+            cmd = [get_tool_path("mid3v2")]
             # Map common metadata keys to mid3v2 tool arguments
             key_mapping = {
                 "title": "--song",
@@ -174,7 +176,7 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--song", title, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--song", title, str(file_path)]
+            command = [get_tool_path("mid3v2"), "--song", title, str(file_path)]
             run_external_tool(command, "mid3v2")
 
     @staticmethod
@@ -200,7 +202,7 @@ class ID3v2MetadataSetter:
                 run_external_tool(command, "id3v2")
             else:
                 # Use mid3v2 for ID3v2.4
-                command = ["mid3v2", "--artist", artists, str(file_path)]
+                command = [get_tool_path("mid3v2"), "--artist", artists, str(file_path)]
                 run_external_tool(command, "mid3v2")
         else:
             # For list input, use multiple values handling
@@ -214,7 +216,7 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--album", album, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--album", album, str(file_path)]
+            command = [get_tool_path("mid3v2"), "--album", album, str(file_path)]
             run_external_tool(command, "mid3v2")
 
     @staticmethod
@@ -232,7 +234,7 @@ class ID3v2MetadataSetter:
             command = ["id3v2", "--id3v2-only", "--USLT", lyrics, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--USLT", lyrics, str(file_path)]
+            command = [get_tool_path("mid3v2"), "--USLT", lyrics, str(file_path)]
             run_external_tool(command, "mid3v2")
 
     @staticmethod
@@ -287,7 +289,7 @@ class ID3v2MetadataSetter:
                 run_external_tool(command, "id3v2")
         else:
             # ID3v2.4: Use TDRC with full date
-            command = ["mid3v2", "--TDRC", date_str, str(file_path)]
+            command = [get_tool_path("mid3v2"), "--TDRC", date_str, str(file_path)]
             run_external_tool(command, "mid3v2")
 
     @staticmethod

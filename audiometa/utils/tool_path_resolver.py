@@ -27,7 +27,7 @@ def get_tool_path(tool_name: str) -> str:
     name if pinned version path cannot be resolved (relies on PATH).
 
     Args:
-        tool_name: Name of the tool (e.g., "flac", "ffprobe", "metaflac")
+        tool_name: Name of the tool (e.g., "flac", "ffprobe", "metaflac", "mid3v2")
 
     Returns:
         Absolute path to pinned version executable, or tool name if not found
@@ -48,6 +48,7 @@ def get_tool_path(tool_name: str) -> str:
         "metaflac": "flac",  # metaflac comes from flac package
         "mediainfo": "media-info",
         "id3v2": "id3v2",
+        "mid3v2": "mutagen",  # mid3v2 comes from mutagen package
         "bwfmetaedit": "bwfmetaedit",
         "exiftool": "exiftool",
     }

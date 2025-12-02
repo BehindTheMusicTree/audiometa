@@ -10,7 +10,7 @@ ubuntu = [
     "mediainfo --version",
     "bwfmetaedit --version || echo 'bwfmetaedit not found'",
     "id3v2 --version || echo 'id3v2 not found'",
-    "which mid3v2 && mid3v2 --version || echo 'mid3v2 not found (mutagen provides it, may not be in PATH)'",
+    "mid3v2 --version 2>&1 | grep -q 'bad interpreter' && echo 'ERROR: mid3v2 has broken shebang (Python version mismatch). Reinstall mutagen or use venv.' || mid3v2 --version || echo 'mid3v2 not found'",
     "exiftool -ver || echo 'exiftool not found'"
 ]
 
@@ -21,7 +21,7 @@ macos = [
     "mediainfo --version",
     "bwfmetaedit --version || echo 'bwfmetaedit not found'",
     "id3v2 --version || echo 'id3v2 not found'",
-    "which mid3v2 && mid3v2 --version || echo 'mid3v2 not found (mutagen provides it, may not be in PATH)'",
+    "mid3v2 --version 2>&1 | grep -q 'bad interpreter' && echo 'ERROR: mid3v2 has broken shebang (Python version mismatch). Reinstall mutagen or use venv.' || mid3v2 --version || echo 'mid3v2 not found'",
     "exiftool -ver || echo 'exiftool not found'"
 ]
 
