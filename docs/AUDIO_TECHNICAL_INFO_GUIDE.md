@@ -73,6 +73,12 @@ else:
 
 **Note on Unset MD5**: When a FLAC file has an unset MD5 checksum (all zeros), the function returns `False` (invalid). An unset MD5 cannot verify file integrity, so it is considered invalid.
 
+**Note on FLAC Files with ID3 Metadata**: FLAC files may contain ID3v1 or ID3v2 metadata tags, which are non-standard for the FLAC format. When ID3v2 tags are prepended to a FLAC file, the file no longer starts with the `fLaC` marker but with the `ID3` header instead.
+
+This causes an issue because the `flac` tool (used internally via `flac -t`) may report errors such as "MD5 signature mismatch" or "FLAC\_\_STREAM_DECODER_ERROR_STATUS_LOST_SYNC" when processing FLAC files with ID3 tags.
+
+The library handles this by searching for the `fLaC` marker in the file rather than assuming it's at position 0. This allows the library to correctly locate the STREAMINFO block and read the MD5 checksum even when ID3v2 tags are prepended to the file. Without this approach, the library would read bytes from inside the ID3 tag data instead of the actual MD5 checksum.
+
 #### MD5 Checksum States
 
 FLAC files can have MD5 checksums in different states:
@@ -102,3 +108,5 @@ fix_md5_checking("song.flac")
 - **Corrupted MD5**: Recalculates and sets the correct checksum
 - **Invalid MD5**: Recalculates and sets the correct checksum
 - **Missing/Unset MD5** (all zeros): Calculates and sets a new MD5 checksum, effectively enabling integrity checking for files that were encoded without MD5
+
+**FLAC Files with ID3 Metadata**: When repairing MD5 checksums on FLAC files that contain ID3v1 or ID3v2 tags, the `flac` tool will decode and re-encode the audio stream. This process removes non-standard metadata formats like ID3 tags, keeping only the native Vorbis comments. If you need to preserve ID3 metadata after MD5 repair, you should back up the ID3 tags before repair and restore them afterward. However, note that adding ID3 tags back may cause MD5 validation to fail again, as ID3 tags are non-standard in FLAC and can interfere with the MD5 validation process.

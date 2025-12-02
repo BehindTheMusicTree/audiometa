@@ -48,6 +48,15 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Documentation
+
+- **MD5 Validation Guide**: Added documentation explaining how the library handles FLAC files with ID3 metadata for MD5 validation:
+  - Explains that ID3v2 tags prepended to FLAC files cause the file to start with `ID3` instead of `fLaC`
+  - Documents the `flac` tool errors that can occur with ID3-tagged FLAC files
+  - Describes how the library searches for the `fLaC` marker to correctly locate the STREAMINFO block
+  - Added note about MD5 repair behavior with ID3 metadata (ID3 tags are removed during re-encoding)
+  - Includes integration tests verifying the ID3 tag skipping behavior
+
 ## [0.6.1] - 2025-12-02
 
 ### Fixed
