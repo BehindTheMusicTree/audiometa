@@ -46,6 +46,15 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
 
+## [0.7.1] - 2025-12-02
+
+### Fixed
+
+- **get_full_metadata FLAC MD5 Validation**: Fixed `get_full_metadata()` to convert `FlacMd5State` enum to bool in technical_info:
+  - Converts `FlacMd5State.VALID` to `True` and all other states to `False` for the `is_flac_md5_valid` field
+  - Fixes issue where `get_full_metadata()` would return enum values instead of boolean in technical_info dictionary
+  - Ensures consistent boolean return type for `is_flac_md5_valid` field in technical_info
+
 ## [0.7.0] - 2025-12-02
 
 ### Changed
