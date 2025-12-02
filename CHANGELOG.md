@@ -48,6 +48,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [0.6.1] - 2025-12-02
+
 ### Fixed
 
 - **SYNC Strategy**: Fixed SYNC strategy to filter unsupported fields per-format with individual warnings:
