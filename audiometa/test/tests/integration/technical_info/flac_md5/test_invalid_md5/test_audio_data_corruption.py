@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import is_flac_md5_valid
+from audiometa import FlacMd5State, is_flac_md5_valid
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 from audiometa.test.tests.integration.technical_info.flac_md5.conftest import corrupt_audio_data, ensure_flac_has_md5
 
@@ -18,4 +18,5 @@ class TestAudioDataCorruption:
             # If the decoded PCM is unchanged, the MD5 will still match (correct behavior).
             # Manual MD5 verification works correctly - it will detect when MD5 doesn't match PCM.
             # This test verifies the function handles this scenario gracefully.
-            assert isinstance(result, bool)
+            assert isinstance(result, FlacMd5State)
+            assert result in [FlacMd5State.VALID, FlacMd5State.INVALID]

@@ -30,6 +30,7 @@ from .manager._rating_supporting.id3v2._Id3v2Manager import _Id3v2Manager
 from .manager._rating_supporting.riff._RiffManager import _RiffManager
 from .manager._rating_supporting.vorbis._VorbisManager import _VorbisManager
 from .manager.id3v1._Id3v1Manager import _Id3v1Manager
+from .utils.flac_md5_state import FlacMd5State
 from .utils.metadata_format import MetadataFormat
 from .utils.metadata_writing_strategy import MetadataWritingStrategy
 from .utils.types import UnifiedMetadata, UnifiedMetadataValue
@@ -1106,8 +1107,8 @@ def get_duration_in_sec(file: PublicFileType) -> float:
     return audio_file.get_duration_in_sec()
 
 
-def is_flac_md5_valid(file: PublicFileType) -> bool:
-    """Check if a FLAC file's MD5 signature is valid.
+def is_flac_md5_valid(file: PublicFileType) -> FlacMd5State:
+    """Check the MD5 checksum validation state of a FLAC file.
 
     This function verifies the integrity of a FLAC file by checking its MD5 signature.
     Only works with FLAC files.
@@ -1116,17 +1117,27 @@ def is_flac_md5_valid(file: PublicFileType) -> bool:
         file: Audio file path (str or Path; must be FLAC)
 
     Returns:
-        True if MD5 signature is valid, False otherwise
+        FlacMd5State indicating the validation state:
+        - FlacMd5State.VALID: MD5 is set and matches the audio data
+        - FlacMd5State.UNSET: MD5 is all zeros (not set)
+        - FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1: MD5 is set but cannot be validated due to ID3v1 tags
+        - FlacMd5State.INVALID: MD5 is set but doesn't match the audio data (corrupted)
 
     Raises:
         FileTypeNotSupportedError: If the file is not a FLAC file
         FileNotFoundError: If the file does not exist
 
     Examples:
+        from audiometa import is_flac_md5_valid, FlacMd5State
+
         # Check FLAC file integrity
-        is_valid = is_flac_md5_valid("song.flac")
-        if is_valid:
+        state = is_flac_md5_valid("song.flac")
+        if state == FlacMd5State.VALID:
             print("FLAC file is intact")
+        elif state == FlacMd5State.UNSET:
+            print("MD5 checksum is not set")
+        elif state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1:
+            print("MD5 cannot be validated due to ID3v1 tags")
         else:
             print("FLAC file may be corrupted")
     """
@@ -1134,7 +1145,7 @@ def is_flac_md5_valid(file: PublicFileType) -> bool:
     try:
         return audio_file.is_flac_file_md5_valid()
     except FileCorruptedError:
-        return False
+        return FlacMd5State.INVALID
 
 
 def fix_md5_checking(file: PublicFileType) -> str:
