@@ -23,6 +23,7 @@ from .exceptions import (
 )
 from .manager._rating_supporting.id3v2._id3v2_constants import ID3V2_HEADER_SIZE
 from .manager._rating_supporting.riff._riff_constants import RIFF_HEADER_SIZE
+from .utils.flac_md5_state import FlacMd5State
 from .utils.metadata_format import MetadataFormat
 from .utils.mutagen_exception_handler import handle_mutagen_exception
 from .utils.tool_path_resolver import get_tool_path
@@ -280,14 +281,31 @@ class _AudioFile:
         except Exception:
             return False
 
-    def is_flac_file_md5_valid(self) -> bool:
+    def _has_id3v1_tags(self) -> bool:
+        """Check if FLAC file has ID3v1 tags.
+
+        Only ID3v1 tags cause validation failures, so we only need to check for ID3v1.
+        ID3v2 tags do not interfere with flac -t validation.
+        """
+        try:
+            with Path(self.file_path).open("rb") as f:
+                # Check for ID3v1 at the end (last 128 bytes)
+                f.seek(-128, 2)
+                id3v1_header = f.read(3)
+                return id3v1_header == b"TAG"
+        except Exception:
+            return False
+
+    def is_flac_file_md5_valid(self) -> FlacMd5State:
         if self.file_extension != ".flac":
             msg = "The file is not a FLAC file"
             raise FileTypeNotSupportedError(msg)
 
+        # Check if MD5 is unset (all zeros)
         if self._is_md5_unset():
-            return False
+            return FlacMd5State.UNSET
 
+        # Run flac -t to validate MD5
         result = subprocess.run([get_tool_path("flac"), "-t", self.file_path], capture_output=True, check=False)
 
         # Combine stdout and stderr as flac may output to either
@@ -295,20 +313,26 @@ class _AudioFile:
         stderr_output = result.stderr.decode()
         combined_output = stdout_output + stderr_output
 
-        # flac -t returns 0 on success, non-zero on error
-        # If return code is non-zero, the file is invalid
-        if result.returncode != 0:
-            return False
-
-        # Check for explicit error messages (shouldn't happen with return code 0, but defensive)
-        if "MD5 signature mismatch" in combined_output:
-            return False
-        if "FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC" in combined_output:
-            return False
-
         # Check for explicit success message
-        if "ok" in combined_output.lower():
-            return True
+        if result.returncode == 0 and "ok" in combined_output.lower():
+            return FlacMd5State.VALID
+
+        # Check for ID3v1-related errors when ID3v1 tags are present
+        has_id3v1 = self._has_id3v1_tags()
+        if has_id3v1 and "FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC" in combined_output:
+            return FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
+
+        # Check for explicit MD5 mismatch (corruption)
+        if "MD5 signature mismatch" in combined_output:
+            return FlacMd5State.INVALID
+
+        # If flac -t failed and we have ID3v1 tags, it's likely due to ID3v1 interference
+        if has_id3v1 and result.returncode != 0:
+            return FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
+
+        # If return code is non-zero and no specific error message, assume invalid
+        if result.returncode != 0:
+            return FlacMd5State.INVALID
 
         # If return code was 0 but no "ok" found, something unexpected happened
         msg = "The Flac file md5 check failed"

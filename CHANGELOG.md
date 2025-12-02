@@ -48,14 +48,17 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
-### Documentation
+### Changed
 
-- **MD5 Validation Guide**: Added documentation explaining how the library handles FLAC files with ID3 metadata for MD5 validation:
-  - Explains that ID3v2 tags prepended to FLAC files cause the file to start with `ID3` instead of `fLaC`
-  - Documents the `flac` tool errors that can occur with ID3-tagged FLAC files
-  - Describes how the library searches for the `fLaC` marker to correctly locate the STREAMINFO block
-  - Added note about MD5 repair behavior with ID3 metadata (ID3 tags are removed during re-encoding)
-  - Includes integration tests verifying the ID3 tag skipping behavior
+- **BREAKING: MD5 Validation State Enum**: `is_flac_md5_valid()` now returns `FlacMd5State` enum instead of `bool`:
+  - Returns `FlacMd5State.VALID` when MD5 is set and matches audio data
+  - Returns `FlacMd5State.UNSET` when MD5 is all zeros (not set)
+  - Returns `FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1` when MD5 is set but cannot be validated due to ID3v1 tags
+  - Returns `FlacMd5State.INVALID` when MD5 is set but doesn't match audio data (corrupted)
+  - Provides clear distinction between all four MD5 validation states
+  - Added `_has_id3v1_tags()` helper method to detect ID3v1 tags in FLAC files (only ID3v1 causes validation failures)
+  - Updated state detection logic to only check for ID3v1 tags (ID3v2 tags do not interfere with validation)
+  - Includes comprehensive documentation in `AUDIO_TECHNICAL_INFO_GUIDE.md` explaining all states and detection logic
 
 ## [0.6.1] - 2025-12-02
 
