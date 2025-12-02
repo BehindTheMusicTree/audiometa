@@ -1248,7 +1248,9 @@ def get_full_metadata(
                 "file_extension": audio_file.file_extension,
                 "audio_format_name": audio_file.get_audio_format_name(),
                 "is_flac_md5_valid": (
-                    audio_file.is_flac_file_md5_valid() if audio_file.file_extension == ".flac" else None
+                    audio_file.is_flac_file_md5_valid() == FlacMd5State.VALID
+                    if audio_file.file_extension == ".flac"
+                    else None
                 ),
             }
         except Exception:
