@@ -46,7 +46,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
 
-## [Unreleased]
+## [0.7.0] - 2025-12-02
 
 ### Changed
 
@@ -60,7 +60,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated state detection logic to only check for ID3v1 tags (ID3v2 tags do not interfere with validation)
   - Includes comprehensive documentation in `AUDIO_TECHNICAL_INFO_GUIDE.md` explaining all states and detection logic
 
-## [0.6.1] - 2025-12-02
+## [Unreleased]
 
 ### Fixed
 
