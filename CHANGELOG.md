@@ -48,6 +48,18 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Fixed
+
+- **SYNC Strategy Implementation**: Fixed SYNC strategy to correctly implement documented behavior:
+  - SYNC now only writes to native format + existing metadata formats (not all possible formats)
+  - Prevents creation of new metadata formats when they don't already exist
+  - Fixes issue where SYNC would add ID3V1 tags to FLAC files, breaking MD5 validation
+  - Maintains backward compatibility while ensuring MD5 integrity for FLAC files
+  - Added comprehensive end-to-end test for FLAC MD5 checksum validation workflow:
+  - Tests invalid MD5 detection, checksum correction, validity verification, and metadata updates while preserving MD5 integrity
+  - Validates that metadata operations don't break FLAC MD5 checksums
+  - Includes integration with `fix_md5_checking()` and `is_flac_md5_valid()` functions
+
 ### Documentation
 
 - **Repository Organization Move**: Repository moved from `Andreas-Garcia/audiometa` to `BehindTheMusicTree/audiometa` organization:
@@ -73,10 +85,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Warns users that ID3v1 tags will be removed during the repair process
   - Includes comprehensive unit tests (3 test cases) covering warning scenarios and delete_original parameter behavior
   - Includes integration tests validating warning behavior across different FLAC files with ID3v1 tags
-
-### Improved
-
-- **FLAC MD5 Test Organization**: Reorganized FLAC MD5 tests into separate `md5_checking/` and `md5_repair/` directories for better maintainability and separation of concerns
+  - Reorganized FLAC MD5 tests into separate `md5_checking/` and `md5_repair/` directories for better maintainability and separation of concerns
 
 ### Documentation
 

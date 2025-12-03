@@ -830,6 +830,28 @@ def _handle_metadata_strategy(
         # Then sync all other available formats
         # Note: We need to be careful about the order to avoid conflicts
         for fmt_name, manager in other_managers.items():
+            # Check if this format has existing metadata (for SYNC strategy)
+            has_existing = False
+            if fmt_name == "id3v1":
+                has_existing = audio_file._has_id3v1_tags()
+            elif fmt_name == "id3v2":
+                # Check if file starts with ID3
+                try:
+                    from pathlib import Path
+
+                    with Path(audio_file.file_path).open("rb") as f:
+                        header = f.read(3)
+                        has_existing = header == b"ID3"
+                except Exception:
+                    has_existing = False
+            elif fmt_name == "vorbis":
+                has_existing = audio_file.file_extension == ".flac"  # Vorbis is native for FLAC
+            elif fmt_name == "riff":
+                has_existing = audio_file.file_extension == ".wav"  # RIFF is native for WAV
+
+            if not has_existing:
+                continue
+
             # For non-target formats, filter out unsupported fields and warn about them
             # This allows syncing supported fields even when some fields are not supported
             unsupported_fields = []
