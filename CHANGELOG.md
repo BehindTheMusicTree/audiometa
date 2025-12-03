@@ -48,6 +48,13 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Documentation
+
+- **Repository Organization Move**: Repository moved from `Andreas-Garcia/audiometa` to `BehindTheMusicTree/audiometa` organization:
+  - Updated all GitHub links and references in README.md, SECURITY.md, and GitHub configuration files
+  - Updated remote URL to point to new organization location
+  - Maintains all existing functionality and contribution workflows
+
 ## [0.8.0] - 2025-12-03
 
 ### Added
