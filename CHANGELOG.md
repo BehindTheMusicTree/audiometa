@@ -46,6 +46,12 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
 
+## [Unreleased]
+
+## Documentation
+
+- **Genre and Rating Handling Guides**: Added Table of Contents to improve navigation and added cross-references between metadata field guides
+
 ## [0.7.1] - 2025-12-02
 
 ### Fixed
@@ -68,8 +74,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added `_has_id3v1_tags()` helper method to detect ID3v1 tags in FLAC files (only ID3v1 causes validation failures)
   - Updated state detection logic to only check for ID3v1 tags (ID3v2 tags do not interfere with validation)
   - Includes comprehensive documentation in `AUDIO_TECHNICAL_INFO_GUIDE.md` explaining all states and detection logic
-
-## [Unreleased]
 
 ### Fixed
 
@@ -97,7 +101,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Advanced examples demonstrating atomic write operations
   - Cross-referenced from README.md for better documentation organization
 - **README Updates**: Updated README.md to reflect per-field warning behavior in SYNC strategy and reference new writing metadata guide
-- **Genre and Rating Handling Guides**: Added Table of Contents to improve navigation and added cross-references between metadata field guides
 
 ## [0.6.0] - 2025-12-01
 
