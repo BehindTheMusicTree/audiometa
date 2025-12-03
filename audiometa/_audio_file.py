@@ -5,6 +5,7 @@ import json
 import subprocess
 import tempfile
 import types
+import warnings
 from pathlib import Path
 from typing import cast
 
@@ -355,6 +356,16 @@ class _AudioFile:
         if self.file_extension != ".flac":
             msg = "The file is not a FLAC file"
             raise FileTypeNotSupportedError(msg)
+
+        # Warn if ID3v1 tags will be removed during re-encoding
+        if self._has_id3v1_tags():
+            warnings.warn(
+                "ID3v1 tags detected in FLAC file. These tags will be removed during MD5 repair "
+                "as they are non-standard in FLAC format and interfere with integrity validation. "
+                "Consider backing up ID3v1 metadata before repair if you need to preserve it.",
+                UserWarning,
+                stacklevel=3,
+            )
 
         # Create a temporary file to store the corrected FLAC content
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".flac")

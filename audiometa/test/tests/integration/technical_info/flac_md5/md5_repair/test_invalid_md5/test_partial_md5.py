@@ -9,15 +9,6 @@ from audiometa.test.tests.integration.technical_info.flac_md5.conftest import co
 
 @pytest.mark.integration
 class TestPartialMd5:
-    def test_is_flac_md5_valid_detects_partial_md5_corruption(self):
-        with temp_file_with_metadata({}, "flac") as test_file:
-            ensure_flac_has_md5(test_file)
-            corrupt_md5(test_file, "partial")
-
-            assert (
-                is_flac_md5_valid(test_file) == FlacMd5State.INVALID
-            ), "Partially corrupted MD5 should be detected as INVALID"
-
     def test_fix_md5_checking_with_partial_corruption(self):
         with temp_file_with_metadata({}, "flac") as test_file:
             ensure_flac_has_md5(test_file)

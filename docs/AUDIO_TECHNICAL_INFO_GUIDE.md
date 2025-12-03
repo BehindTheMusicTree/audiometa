@@ -8,6 +8,7 @@ This document provides comprehensive information about technical audio informati
 - [Technical Info Support by Audio Format](#technical-info-support-by-audio-format)
 - [MD5 Checksum Validation and Repair](#md5-checksum-validation-and-repair)
   - [MD5 Checksum Validation](#md5-checksum-validation)
+    - [Validation Process Steps](#validation-process-steps)
     - [MD5 Checksum States](#md5-checksum-states)
   - [MD5 Checksum Repair](#md5-checksum-repair)
 
@@ -222,6 +223,8 @@ fix_md5_checking("song.flac")
 - **`FlacMd5State.UNSET`**: Calculates and sets a new MD5 checksum, effectively enabling integrity checking for files that were encoded without MD5
 - **`FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1`**: Recalculates and sets the correct checksum (note: this will remove ID3v1 tags as part of the repair process)
 
-**FLAC Files with ID3 Metadata**: When repairing MD5 checksums on FLAC files that contain ID3v1 or ID3v2 tags, the `flac` tool will decode and re-encode the audio stream. This process removes non-standard metadata formats like ID3 tags, keeping only the native Vorbis comments. If you need to preserve ID3 metadata after MD5 repair, you should back up the ID3 tags before repair and restore them afterward. However, note that adding ID3v1 tags back may cause MD5 validation to fail again, as ID3v1 tags are non-standard in FLAC and interfere with the MD5 validation process.
+**FLAC Files with ID3v1 Metadata**: When repairing MD5 checksums on FLAC files that contain ID3v1 tags, the `flac` tool will decode and re-encode the audio stream. This process removes non-standard metadata formats like ID3v1 tags, keeping only the native Vorbis comments. If you need to preserve ID3v1 metadata after MD5 repair, you should back up the ID3v1 tags before repair and restore them afterward. However, note that adding ID3v1 tags back may cause MD5 validation to fail again, as ID3v1 tags are non-standard in FLAC and interfere with the MD5 validation process.
+
+**Warning**: When ID3v1 tags are detected in a FLAC file before MD5 repair, the library will issue a `UserWarning` to alert you that these tags will be removed during the repair process. This warning helps prevent accidental loss of metadata. The warning message suggests backing up ID3v1 metadata if preservation is needed.
 
 **Note on Non-FLAC Files**: The `fix_md5_checking()` function only works with FLAC files. Attempting to repair MD5 checksums on non-FLAC files (e.g., MP3 or WAV) will raise `FileTypeNotSupportedError`. MD5 checksums are a FLAC-specific feature and are not supported in other audio formats.

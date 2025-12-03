@@ -9,13 +9,6 @@ from audiometa.test.tests.integration.technical_info.flac_md5.conftest import co
 
 @pytest.mark.integration
 class TestFlippedMd5:
-    def test_is_flac_md5_valid_detects_flipped_md5(self):
-        with temp_file_with_metadata({}, "flac") as test_file:
-            ensure_flac_has_md5(test_file)
-            corrupt_md5(test_file, "flip_all")
-
-            assert is_flac_md5_valid(test_file) == FlacMd5State.INVALID, "Flipped MD5 should be detected as INVALID"
-
     def test_fix_md5_checking_flac(self):
         with temp_file_with_metadata({}, "flac") as test_file:
             ensure_flac_has_md5(test_file)

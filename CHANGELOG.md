@@ -48,7 +48,16 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
-## Documentation
+### Improved
+
+- **FLAC MD5 Repair Warning**: Added user warning when ID3v1 tags are destroyed during MD5 checksum repair:
+  - Issues `UserWarning` when `get_file_with_corrected_md5()` encounters ID3v1 tags that interfere with repair
+  - Warns users that ID3v1 tags will be removed during the repair process
+  - Includes comprehensive unit tests (3 test cases) covering warning scenarios and delete_original parameter behavior
+  - Includes integration tests validating warning behavior across different FLAC files with ID3v1 tags
+- **FLAC MD5 Test Organization**: Reorganized FLAC MD5 tests into separate `md5_checking/` and `md5_repair/` directories for better maintainability and separation of concerns
+
+### Documentation
 
 - **Genre and Rating Handling Guides**: Added Table of Contents to improve navigation and added cross-references between metadata field guides
 
