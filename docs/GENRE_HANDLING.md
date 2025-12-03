@@ -1,5 +1,24 @@
 # Genre Handling
 
+## Table of Contents
+
+- [Genre Support by Format](#genre-support-by-format)
+  - [Genre Support Matrix](#genre-support-matrix)
+  - [ID3v1 Genre Support](#id3v1-genre-support)
+  - [ID3v2.3 Genre Support](#id3v23-genre-support)
+  - [ID3v2.4 Genre Support](#id3v24-genre-support)
+  - [Vorbis Genre Support](#vorbis-genre-support)
+  - [RIFF Genre Support](#riff-genre-support)
+- [ID3v1 Genre Code System](#id3v1-genre-code-system)
+- [Reading and Writing Strategy](#reading-and-writing-strategy)
+  - [Reading Genres](#reading-genres)
+  - [Writing Genres](#writing-genres)
+    - [Writing Genres for ID3v1](#writing-genres-for-id3v1)
+    - [Writing Genres for ID3v2.3](#writing-genres-for-id3v23)
+    - [Writing Genres for ID3v2.4](#writing-genres-for-id3v24)
+    - [Writing Genres for Vorbis](#writing-genres-for-vorbis)
+    - [Writing Genres for RIFF](#writing-genres-for-riff)
+
 AudioMeta provides comprehensive genre support across all audio formats, with intelligent handling of genre codes, multiple genres, and format-specific limitations.
 
 ## Genre Support by Format
@@ -9,10 +28,10 @@ AudioMeta provides comprehensive genre support across all audio formats, with in
 | Format      | Multiple | Id3v1 Codes | Code + Text | Custom Text |
 | ----------- | -------- | ----------- | ----------- | ----------- |
 | **ID3v1**   | ❌       | ✅          | ❌          | ❌          |
-| **ID3v2.3** | ✅       | ✅          | ✅          | ✓           |
-| **ID3v2.4** | ✅       | ✓           | ✓           | ✅          |
+| **ID3v2.3** | ✅       | ✅          | ✅          | ✅          |
+| **ID3v2.4** | ✅       | ✅          | ✅          | ✅          |
 | **Vorbis**  | ✅       | ❌          | ❌          | ✅          |
-| **RIFF**    | ✓        | ✓           | ✓           | ✅          |
+| **RIFF**    | ✅       | ✅          | ✅          | ✅          |
 
 ### ID3v1 Genre Support
 
