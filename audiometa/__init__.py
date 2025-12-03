@@ -553,6 +553,7 @@ def update_metadata(
     metadata_strategy: MetadataWritingStrategy | None = None,
     metadata_format: MetadataFormat | None = None,
     fail_on_unsupported_field: bool = False,
+    warn_on_unsupported_field: bool = True,
 ) -> None:
     """Update metadata in an audio file.
 
@@ -575,6 +576,9 @@ def update_metadata(
             If False (default), unsupported fields are filtered out with individual warnings for each field.
             For SYNC strategy, this applies per-format: unsupported fields are skipped for each format that
             doesn't support them, while still syncing all supported fields.
+        warn_on_unsupported_field: If True (default), issues warnings when unsupported fields are encountered.
+            If False, suppresses warnings about unsupported fields. Automatically set to False when
+            fail_on_unsupported_field is True.
 
     Returns:
         None
@@ -600,8 +604,9 @@ def update_metadata(
 
         When metadata_strategy is used, unsupported metadata fields are handled based on the
         fail_on_unsupported_field parameter: True raises MetadataFieldNotSupportedByMetadataFormatError, False (default)
-        filters unsupported fields and warns about each one individually. For SYNC strategy, unsupported fields
-        are skipped per-format, allowing supported fields to sync while warning about unsupported ones.
+        filters unsupported fields and warns about each one individually (unless warn_on_unsupported_field is False).
+        For SYNC strategy, unsupported fields are skipped per-format, allowing supported fields to sync while warning
+        about unsupported ones.
 
         Data Filtering:
         For list-type metadata fields (e.g., ARTISTS, GENRES), empty strings and None values
@@ -642,6 +647,9 @@ def update_metadata(
         }
         # Results in: ["Artist 1", "Artist 2"] - empty strings and None filtered out
         update_metadata("song.mp3", metadata)
+
+        # Suppress warnings about unsupported fields
+        update_metadata("song.mp3", metadata, warn_on_unsupported_field=False)
     """
     audio_file = _AudioFile(file)
 
@@ -654,6 +662,11 @@ def update_metadata(
             "or metadata_format for single-format writing."
         )
         raise MetadataWritingConflictParametersError(msg)
+
+    # Automatically disable warnings when failing on unsupported fields
+    # This provides a more intuitive API where fail takes precedence over warn
+    if fail_on_unsupported_field:
+        warn_on_unsupported_field = False
 
     # Default to SYNC strategy if not specified
     if metadata_strategy is None:
@@ -677,6 +690,7 @@ def update_metadata(
         id3v2_version,
         metadata_format,
         fail_on_unsupported_field,
+        warn_on_unsupported_field,
     )
 
 
@@ -688,6 +702,7 @@ def _handle_metadata_strategy(
     id3v2_version: tuple[int, int, int] | None,
     target_format: MetadataFormat | None = None,
     fail_on_unsupported_field: bool = False,
+    warn_on_unsupported_field: bool = True,
 ) -> None:
     """Handle metadata strategy-specific behavior for all strategies."""
 
@@ -743,11 +758,12 @@ def _handle_metadata_strategy(
                 msg = f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             # Warn about each unsupported field individually
-            for unsupported_field in unsupported_fields:
-                field_warn_msg = (
-                    f"Field {unsupported_field} not supported by {target_format_actual.value} format, skipped"
-                )
-                warnings.warn(field_warn_msg, stacklevel=2)
+            if warn_on_unsupported_field:
+                for unsupported_field in unsupported_fields:
+                    field_warn_msg = (
+                        f"Field {unsupported_field} not supported by {target_format_actual.value} format, skipped"
+                    )
+                    warnings.warn(field_warn_msg, stacklevel=2)
             # Create filtered metadata without unsupported fields
             filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
             unified_metadata = filtered_metadata
@@ -784,11 +800,12 @@ def _handle_metadata_strategy(
                     unsupported_fields.append(field)
             if unsupported_fields:
                 # Warn about each unsupported field individually for target format
-                for unsupported_field in unsupported_fields:
-                    field_warn_msg = (
-                        f"Field {unsupported_field} not supported by {target_format_actual.value} format, skipped"
-                    )
-                    warnings.warn(field_warn_msg, stacklevel=2)
+                if warn_on_unsupported_field:
+                    for unsupported_field in unsupported_fields:
+                        field_warn_msg = (
+                            f"Field {unsupported_field} not supported by {target_format_actual.value} format, skipped"
+                        )
+                        warnings.warn(field_warn_msg, stacklevel=2)
                 # Create filtered metadata without unsupported fields
                 filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
                 unified_metadata = filtered_metadata
@@ -799,8 +816,9 @@ def _handle_metadata_strategy(
             target_manager.update_metadata(unified_metadata)
         except MetadataFieldNotSupportedByMetadataFormatError as e:
             # For SYNC strategy, log warning but continue with other formats
-            format_warn_msg = f"Format {target_format_actual} doesn't support some metadata fields: {e}"
-            warnings.warn(format_warn_msg, stacklevel=2)
+            if warn_on_unsupported_field:
+                format_warn_msg = f"Format {target_format_actual} doesn't support some metadata fields: {e}"
+                warnings.warn(format_warn_msg, stacklevel=2)
         except Exception as e:
             # Re-raise user errors (like InvalidRatingValueError) immediately
             from .exceptions import ConfigurationError, InvalidRatingValueError
@@ -828,9 +846,10 @@ def _handle_metadata_strategy(
             )
 
             # Warn about each unsupported field individually for non-target formats
-            for unsupported_field in unsupported_fields:
-                field_warn_msg = f"Field {unsupported_field} not supported by {fmt_name} format, skipped"
-                warnings.warn(field_warn_msg, stacklevel=2)
+            if warn_on_unsupported_field:
+                for unsupported_field in unsupported_fields:
+                    field_warn_msg = f"Field {unsupported_field} not supported by {fmt_name} format, skipped"
+                    warnings.warn(field_warn_msg, stacklevel=2)
 
             # Try to update with supported fields only
             if format_metadata:  # Only update if there are supported fields
@@ -868,7 +887,8 @@ def _handle_metadata_strategy(
             unsupported_warn_msg = (
                 f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}"
             )
-            warnings.warn(unsupported_warn_msg, stacklevel=2)
+            if warn_on_unsupported_field:
+                warnings.warn(unsupported_warn_msg, stacklevel=2)
             # Create filtered metadata without unsupported fields
             filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
             unified_metadata = filtered_metadata
