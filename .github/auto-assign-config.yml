@@ -4,7 +4,7 @@
 
 # Default reviewers to assign
 reviewers:
-  - Andreas-Garcia
+  - BehindTheMusicTree
 
 # Number of reviewers to assign
 number-of-reviewers: 1

@@ -19,7 +19,7 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 
 1. **Do NOT** open a public GitHub issue for security vulnerabilities
 2. Instead, please report security vulnerabilities by one of the following methods:
-   - Open a [GitHub Security Advisory](https://github.com/Andreas-Garcia/audiometa-python/security/advisories/new)
+   - Open a [GitHub Security Advisory](https://github.com/BehindTheMusicTree/audiometa-python/security/advisories/new)
    - Or contact the maintainer directly (contact information available on GitHub profile)
 
 ### What to Include
