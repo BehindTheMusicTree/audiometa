@@ -48,6 +48,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [0.8.0] - 2025-12-03
+
 ### Added
 
 - **Warning Suppression for Unsupported Fields**: Added `warn_on_unsupported_field` parameter to `update_metadata()`:
@@ -64,6 +66,9 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Warns users that ID3v1 tags will be removed during the repair process
   - Includes comprehensive unit tests (3 test cases) covering warning scenarios and delete_original parameter behavior
   - Includes integration tests validating warning behavior across different FLAC files with ID3v1 tags
+
+### Improved
+
 - **FLAC MD5 Test Organization**: Reorganized FLAC MD5 tests into separate `md5_checking/` and `md5_repair/` directories for better maintainability and separation of concerns
 
 ### Documentation
