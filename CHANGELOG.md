@@ -97,6 +97,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Advanced examples demonstrating atomic write operations
   - Cross-referenced from README.md for better documentation organization
 - **README Updates**: Updated README.md to reflect per-field warning behavior in SYNC strategy and reference new writing metadata guide
+- **Genre and Rating Handling Guides**: Added Table of Contents to improve navigation and added cross-references between metadata field guides
 
 ## [0.6.0] - 2025-12-01
 
