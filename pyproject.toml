@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audiometa-python"
-version = "0.8.0"
+version = "0.8.1"
 description = "A comprehensive Python library for reading and writing audio metadata across multiple formats"
 readme = "README.md"
 requires-python = ">=3.12"
