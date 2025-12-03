@@ -1,27 +1,27 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Andreas-Garcia/audiometa/main/assets/logo.png" alt="AudioMeta Logo" width="200"/>
+  <img src="https://raw.githubusercontent.com/BehindTheMusicTree/audiometa/main/assets/logo.png" alt="AudioMeta Logo" width="200"/>
 </div>
 
 # AudioMeta Python
 
-[![CI](https://github.com/Andreas-Garcia/audiometa/actions/workflows/ci.yml/badge.svg)](https://github.com/Andreas-Garcia/audiometa/actions/workflows/ci.yml)
+[![CI](https://github.com/BehindTheMusicTree/audiometa/actions/workflows/ci.yml/badge.svg)](https://github.com/BehindTheMusicTree/audiometa/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![PyPI version](https://img.shields.io/pypi/v/audiometa-python)](https://pypi.org/project/audiometa-python/)
 [![Downloads](https://img.shields.io/pepy/dt/audiometa-python)](https://pepy.tech/project/audiometa-python)
-[![GitHub stars](https://img.shields.io/github/stars/Andreas-Garcia/audiometa?style=social)](https://github.com/Andreas-Garcia/audiometa/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/BehindTheMusicTree/audiometa?style=social)](https://github.com/BehindTheMusicTree/audiometa/stargazers)
 
 A powerful, unified Python library for reading and writing audio metadata across multiple formats. AudioMeta supports MP3, FLAC, and WAV audio files, working seamlessly with ID3v1, ID3v2, Vorbis, and RIFF metadata formats through a single, consistent API.
 
-**Author**: [Andreas Garcia](https://github.com/Andreas-Garcia)
+**Author**: [Andreas Garcia](https://github.com/BehindTheMusicTree)
 
 ## ⭐ Show Your Support
 
 If you find AudioMeta Python useful, please consider:
 
 - ⭐ **Starring this repository** - It helps others discover the project
-- 🐛 **Reporting bugs** - Help improve the library by [opening an issue](https://github.com/Andreas-Garcia/audiometa/issues)
-- 💡 **Suggesting features** - Share your ideas via [GitHub Discussions](https://github.com/Andreas-Garcia/audiometa/discussions) or [feature requests](https://github.com/Andreas-Garcia/audiometa/issues)
+- 🐛 **Reporting bugs** - Help improve the library by [opening an issue](https://github.com/BehindTheMusicTree/audiometa/issues)
+- 💡 **Suggesting features** - Share your ideas via [GitHub Discussions](https://github.com/BehindTheMusicTree/audiometa/discussions) or [feature requests](https://github.com/BehindTheMusicTree/audiometa/issues)
 - 🤝 **Contributing** - See [CONTRIBUTING.md](CONTRIBUTING.md) for ways to help
 - 📢 **Sharing** - Tell others about AudioMeta Python
 
@@ -69,7 +69,7 @@ Your support helps make this project better for everyone! 🎵
 - [📝 Changelog](#-changelog)
 - [🤝 Contributing](#-contributing)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Security Policy](https://github.com/Andreas-Garcia/audiometa/security/policy)
+- [Security Policy](https://github.com/BehindTheMusicTree/audiometa/security/policy)
 - [License](#license)
 
 ## ✨ Features
@@ -1519,11 +1519,11 @@ Whether you're fixing bugs, adding features, improving documentation, or sharing
 
 **Ways to contribute:**
 
-- 🐛 **Report bugs** - Use the [bug report template](https://github.com/Andreas-Garcia/audiometa/issues/new?template=bug_report.yml)
-- 💡 **Suggest features** - Use the [feature request template](https://github.com/Andreas-Garcia/audiometa/issues/new?template=feature_request.yml)
+- 🐛 **Report bugs** - Use the [bug report template](https://github.com/BehindTheMusicTree/audiometa/issues/new?template=bug_report.yml)
+- 💡 **Suggest features** - Use the [feature request template](https://github.com/BehindTheMusicTree/audiometa/issues/new?template=feature_request.yml)
 - 🔧 **Submit pull requests** - See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
 - 📝 **Improve documentation** - Fix typos, clarify explanations, add examples
-- 💬 **Join discussions** - Share ideas and help others in [GitHub Discussions](https://github.com/Andreas-Garcia/audiometa/discussions)
+- 💬 **Join discussions** - Share ideas and help others in [GitHub Discussions](https://github.com/BehindTheMusicTree/audiometa/discussions)
 - ⭐ **Star the repo** - Help others discover the project
 
 For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
