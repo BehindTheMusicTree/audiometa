@@ -225,4 +225,6 @@ fix_md5_checking("song.flac")
 
 **FLAC Files with ID3v1 Metadata**: When repairing MD5 checksums on FLAC files that contain ID3v1 tags, the `flac` tool will decode and re-encode the audio stream. This process removes non-standard metadata formats like ID3v1 tags, keeping only the native Vorbis comments. If you need to preserve ID3v1 metadata after MD5 repair, you should back up the ID3v1 tags before repair and restore them afterward. However, note that adding ID3v1 tags back may cause MD5 validation to fail again, as ID3v1 tags are non-standard in FLAC and interfere with the MD5 validation process.
 
+**Warning**: When ID3v1 tags are detected in a FLAC file before MD5 repair, the library will issue a `UserWarning` to alert you that these tags will be removed during the repair process. This warning helps prevent accidental loss of metadata. The warning message suggests backing up ID3v1 metadata if preservation is needed.
+
 **Note on Non-FLAC Files**: The `fix_md5_checking()` function only works with FLAC files. Attempting to repair MD5 checksums on non-FLAC files (e.g., MP3 or WAV) will raise `FileTypeNotSupportedError`. MD5 checksums are a FLAC-specific feature and are not supported in other audio formats.
