@@ -6,8 +6,18 @@ capabilities and limitations.
 
 import pytest
 
-from audiometa import delete_all_metadata, get_bitrate, get_duration_in_sec, get_unified_metadata, update_metadata
+from audiometa import (
+    FlacMd5State,
+    delete_all_metadata,
+    fix_md5_checking,
+    get_bitrate,
+    get_duration_in_sec,
+    get_unified_metadata,
+    is_flac_md5_valid,
+    update_metadata,
+)
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
+from audiometa.test.tests.integration.technical_info.flac_md5.conftest import corrupt_md5, ensure_flac_has_md5
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 
@@ -96,6 +106,54 @@ class TestFormatSpecificWorkflows:
             assert isinstance(duration, float)
             assert bitrate > 0
             assert duration > 0
+
+    def test_flac_md5_validity_workflow(self):
+        """E2E test for FLAC MD5 validity checking and correction workflow."""
+        # Create a FLAC file with initial metadata
+        initial_metadata = {
+            "title": "MD5 Test FLAC Title",
+            "artist": "MD5 Test FLAC Artist",
+            "album": "MD5 Test FLAC Album",
+        }
+        with temp_file_with_metadata(initial_metadata, "flac") as test_file:
+            # Ensure the file has a valid MD5 checksum
+            ensure_flac_has_md5(test_file)
+
+            # 1. Verify initial MD5 is valid
+            initial_md5_state = is_flac_md5_valid(test_file)
+            assert initial_md5_state == FlacMd5State.VALID, "Initial FLAC file should have valid MD5"
+
+            # 2. Corrupt the MD5 checksum
+            corrupt_md5(test_file, "random")
+
+            # 3. Verify MD5 is now invalid
+            corrupted_md5_state = is_flac_md5_valid(test_file)
+            assert corrupted_md5_state == FlacMd5State.INVALID, "Corrupted MD5 should be detected as invalid"
+
+            # 4. Correct the MD5 checksum
+            corrected_file_path = fix_md5_checking(test_file)
+
+            # 5. Verify the corrected file has valid MD5
+            corrected_md5_state = is_flac_md5_valid(corrected_file_path)
+            assert corrected_md5_state == FlacMd5State.VALID, "Corrected file should have valid MD5"
+
+            # 6. Update metadata on the corrected file
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "Updated MD5 Test Title",
+                UnifiedMetadataKey.ARTISTS: ["Updated MD5 Test Artist"],
+                UnifiedMetadataKey.ALBUM: "Updated MD5 Test Album",
+            }
+            update_metadata(corrected_file_path, test_metadata)
+
+            # 7. Verify metadata was updated
+            updated_metadata = get_unified_metadata(corrected_file_path)
+            assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Updated MD5 Test Title"
+            assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Updated MD5 Test Artist"]
+            assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "Updated MD5 Test Album"
+
+            # 8. Verify MD5 is still valid after metadata update
+            final_md5_state = is_flac_md5_valid(corrected_file_path)
+            assert final_md5_state == FlacMd5State.VALID, "MD5 should remain valid after metadata update"
 
     def test_complete_metadata_workflow_wav(self):
         # Use external script to set initial metadata
