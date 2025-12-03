@@ -48,6 +48,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### (No changes)
+
+## [0.8.1] - 2025-12-04
+
 ### Fixed
 
 - **SYNC Strategy Implementation**: Fixed SYNC strategy to correctly implement documented behavior:
@@ -56,7 +60,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Fixes issue where SYNC would add ID3V1 tags to FLAC files, breaking MD5 validation
   - Maintains backward compatibility while ensuring MD5 integrity for FLAC files
   - Added comprehensive end-to-end test for FLAC MD5 checksum validation workflow:
-  - Tests invalid MD5 detection, checksum correction, validity verification, and metadata updates while preserving MD5 integrity
+    - Tests invalid MD5 detection, checksum correction, validity verification, and metadata updates while preserving MD5 integrity
   - Validates that metadata operations don't break FLAC MD5 checksums
   - Includes integration with `fix_md5_checking()` and `is_flac_md5_valid()` functions
 
