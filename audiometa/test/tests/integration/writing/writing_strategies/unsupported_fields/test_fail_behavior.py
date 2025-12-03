@@ -40,3 +40,41 @@ class TestFailBehavior:
 
             metadata = get_unified_metadata(test_file)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
+
+    def test_warn_on_unsupported_field_disabled(self):
+        with temp_file_with_metadata({"title": "Test"}, "wav") as test_file:
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "Test Title",
+                UnifiedMetadataKey.REPLAYGAIN: "89 dB",  # REPLAYGAIN is not supported by RIFF format
+            }
+
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always")
+                update_metadata(test_file, test_metadata, warn_on_unsupported_field=False)
+
+                # Should not have any warnings about unsupported fields
+                warning_messages = [str(warning.message) for warning in w]
+                assert not any(
+                    "unsupported" in msg.lower() or "not supported" in msg.lower() for msg in warning_messages
+                )
+
+            metadata = get_unified_metadata(test_file)
+            assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
+
+    def test_warn_on_unsupported_field_enabled_explicit(self):
+        with temp_file_with_metadata({"title": "Test"}, "wav") as test_file:
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "Test Title",
+                UnifiedMetadataKey.REPLAYGAIN: "89 dB",  # REPLAYGAIN is not supported by RIFF format
+            }
+
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always")
+                update_metadata(test_file, test_metadata, warn_on_unsupported_field=True)
+
+                assert len(w) > 0
+                warning_messages = [str(warning.message) for warning in w]
+                assert any("unsupported" in msg.lower() or "not supported" in msg.lower() for msg in warning_messages)
+
+            metadata = get_unified_metadata(test_file)
+            assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"

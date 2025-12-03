@@ -48,7 +48,16 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
-### Improved
+### Added
+
+- **Warning Suppression for Unsupported Fields**: Added `warn_on_unsupported_field` parameter to `update_metadata()`:
+
+  - New optional boolean parameter (default: `True`) to control warnings about unsupported metadata fields
+  - When set to `False`, suppresses `UserWarning`s about fields not supported by target metadata formats
+  - Useful for applications that expect certain fields to be unsupported and want to avoid warning noise
+  - Maintains existing behavior by default (warnings enabled)
+  - Includes comprehensive unit tests validating warning suppression behavior
+  - Includes integration tests ensuring metadata operations work correctly with warnings disabled
 
 - **FLAC MD5 Repair Warning**: Added user warning when ID3v1 tags are destroyed during MD5 checksum repair:
   - Issues `UserWarning` when `get_file_with_corrected_md5()` encounters ID3v1 tags that interfere with repair
