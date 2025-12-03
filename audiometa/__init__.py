@@ -577,8 +577,8 @@ def update_metadata(
             For SYNC strategy, this applies per-format: unsupported fields are skipped for each format that
             doesn't support them, while still syncing all supported fields.
         warn_on_unsupported_field: If True (default), issues warnings when unsupported fields are encountered.
-            If False, suppresses warnings about unsupported fields. Only effective when
-            fail_on_unsupported_field is False.
+            If False, suppresses warnings about unsupported fields. Automatically set to False when
+            fail_on_unsupported_field is True.
 
     Returns:
         None
@@ -662,6 +662,11 @@ def update_metadata(
             "or metadata_format for single-format writing."
         )
         raise MetadataWritingConflictParametersError(msg)
+
+    # Automatically disable warnings when failing on unsupported fields
+    # This provides a more intuitive API where fail takes precedence over warn
+    if fail_on_unsupported_field:
+        warn_on_unsupported_field = False
 
     # Default to SYNC strategy if not specified
     if metadata_strategy is None:
