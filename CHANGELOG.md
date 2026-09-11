@@ -47,20 +47,27 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-29`).
 
-## [Unreleased]
+## [1.4.4] - 2026-09-11
 
 ### Changed
+
+- **Shared audio test fixtures**: Extracted the 92 test-fixture files duplicated with `hear-the-music-tree-api` into the `audio-test-fixtures` git submodule, mounted at `audiometa/test/assets/shared`. CI checkout now uses `submodules: true`.
 
 - **Release tooling**: Replaced unmaintained **`bump2version`** with **`bump-my-version`**; configuration lives in **`pyproject.toml`** under **`[tool.bumpversion]`**. Removed **`.bumpversion.cfg`**. **`scripts/prepare_release.py`** invokes **`bump-my-version bump`** (no commit/tag; the script commits and tags separately).
 - **Release tooling safety**: `scripts/prepare_release.py` now validates `project.version` matches `tool.bumpversion.current_version` before bumping, and exits with a clear error if they drift.
 
 ### CI
 
+- **macOS CI fixes**: `scripts/install-system-dependencies-macos.sh` now falls back to building `tesseract` from source when Homebrew has no bottle for it on the runner, before retrying the `ffmpeg` bottle install — fixes intermittent `no bottle available` failures. Bumped pinned macOS `mediainfo` (26.05) and `bwfmetaedit` (26.08.1) versions to match current Homebrew formulas.
 - **python-project-standards v4.2.0**: Lint delegates to **`reusable-pre-commit.yml@v4.2.0`**; root **`STANDARDS_VERSION`** **`4.2.0`**. **`scripts/verify-standards.sh`** matches org template skip logic for the standards meta-repo ( **`templates/pyproject/pyproject.toml`** without consumer **`baselines/ruff.toml`**). Added **`.cursor/rules/changelog-alignment.mdc`** ( **`alwaysApply`** ) so substantive edits stay paired with **`CHANGELOG.md`** updates. Previous **`v4.1.1`** baseline work ( **`baselines/`**, **`check_lint_baseline.py`**, digest for **`expected-mypy.json`**, thin Ruff/Mypy overlay) is unchanged.
 
 - **python-project-standards v4.3.1** ([org **`v4.3.1`**](https://github.com/BehindTheMusicTree/python-project-standards/releases/tag/v4.3.1)): Lint delegates to **`reusable-pre-commit.yml@v4.3.1`**; root **`STANDARDS_VERSION`** **`4.3.1`**. [**`scripts/verify-standards.sh`**](scripts/verify-standards.sh) and [**`scripts/check_lint_baseline.py`**](scripts/check_lint_baseline.py) match org **`templates/scripts/`** on that tag (verification rejects an **isort** pre-commit hook). Removed the **isort** hook from [**.pre-commit-config.yaml**](.pre-commit-config.yaml); **isort** remains in **[`pyproject.toml`](pyproject.toml)** dev extras for optional local or IDE use. Org **[`docs/versioning.md`](https://github.com/BehindTheMusicTree/python-project-standards/blob/main/docs/versioning.md)** documents **`BUMP_MY_VERSION_PYTHON`** for macOS **`bump-my-version`** crashes.
 
 - **python-project-standards v4.3.2** ([org **`v4.3.2`**](https://github.com/BehindTheMusicTree/python-project-standards/releases/tag/v4.3.2)): Lint delegates to **`reusable-pre-commit.yml@v4.3.2`**; root **`STANDARDS_VERSION`** **`4.3.2`**. [**`scripts/check_lint_baseline.py`**](scripts/check_lint_baseline.py) requires **`baselines/ruff.toml`** and **`baselines/expected-mypy.json`** in **`baselines/DIGESTS`**. [**`scripts/verify-standards.sh`**](scripts/verify-standards.sh) matches org on this bump.
+
+
+## [Unreleased]
+
 
 ## [1.4.3] - 2026-04-11
 
