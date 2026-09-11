@@ -34,7 +34,7 @@ libsndfile1 = "latest"  # TEST dependency - required by soundfile (used only in 
 # Note: mediainfo (media-info in Homebrew) cannot be pinned - Homebrew installs whatever version
 # is currently in the formula. If CI fails with version mismatch, update this pinned version to
 # match what Homebrew currently provides (check with: brew info media-info).
-mediainfo = "26.01"
+mediainfo = "26.05"
 exiftool = { source = "exiftool_org", pinned_version = "13.55" }
 bwfmetaedit = "26.01"  # Used in test helpers for RIFF metadata setup
 libsndfile = "1.2.2"  # TEST dependency - required by soundfile (used only in tests)
