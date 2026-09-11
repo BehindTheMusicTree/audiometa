@@ -25,7 +25,7 @@ class TestBase255NonProportional:
         ],
     )
     def test_id3v2_mp3(self, assets_dir: Path, star_rating, expected_normalized_rating):
-        file_path = assets_dir / f"rating_id3v2={star_rating} star.mp3"
+        file_path = assets_dir / f"shared/rating_id3v2={star_rating} star.mp3"
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None

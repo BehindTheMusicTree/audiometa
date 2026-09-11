@@ -37,6 +37,8 @@ jobs:
       COVERAGE_FAIL_UNDER: "80"
     steps:
       - uses: actions/checkout@v6
+        with:
+          submodules: true
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6

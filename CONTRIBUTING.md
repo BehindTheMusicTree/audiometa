@@ -123,6 +123,12 @@ git clone https://github.com/Andreas-Garcia/audiometa.git
 cd audiometa
 ```
 
+**Shared test fixtures:** the shared audio test fixtures live in a git submodule
+(`audiometa/test/assets/shared`, backed by
+[`audio-test-fixtures`](https://github.com/BehindTheMusicTree/audio-test-fixtures)). After
+cloning, run `git submodule update --init` to pull them (or clone with `--recurse-submodules`
+from the start), otherwise fixture-dependent tests will fail with missing files.
+
 ### 1. Environment Setup
 
 Ensure you're using:

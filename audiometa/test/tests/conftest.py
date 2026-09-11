@@ -188,12 +188,12 @@ def album_koko_vorbis_flac(assets_dir: Path) -> Path:
 
 @pytest.fixture
 def genre_code_id3v1_abstract_mp3(assets_dir: Path) -> Path:
-    return assets_dir / "genre_code_id3v1=Abstract.mp3"
+    return assets_dir / "shared" / "genre_code_id3v1=Abstract.mp3"
 
 
 @pytest.fixture
 def genre_code_id3v1_unknown_mp3(assets_dir: Path) -> Path:
-    return assets_dir / "genre_code_id3v1=Unknown.mp3"
+    return assets_dir / "shared" / "genre_code_id3v1=Unknown.mp3"
 
 
 @pytest.fixture
@@ -203,47 +203,47 @@ def duration_1s_mp3(assets_dir: Path) -> Path:
 
 @pytest.fixture
 def duration_182s_mp3(assets_dir: Path) -> Path:
-    return assets_dir / "duration=182.mp3"
+    return assets_dir / "shared" / "duration=182.mp3"
 
 
 @pytest.fixture
 def duration_335s_flac(assets_dir: Path) -> Path:
-    return assets_dir / "duration=335s.flac"
+    return assets_dir / "shared" / "duration=335s.flac"
 
 
 @pytest.fixture
 def duration_472s_wav(assets_dir: Path) -> Path:
-    return assets_dir / "duration=472s.wav"
+    return assets_dir / "shared" / "duration=472s.wav"
 
 
 @pytest.fixture
 def bitrate_320_mp3(assets_dir: Path) -> Path:
-    return assets_dir / "bitrate in kbps_big=320.mp3"
+    return assets_dir / "shared" / "bitrate in kbps_big=320.mp3"
 
 
 @pytest.fixture
 def bitrate_946_flac(assets_dir: Path) -> Path:
-    return assets_dir / "bitrate in kbps_big=946.flac"
+    return assets_dir / "shared" / "bitrate in kbps_big=946.flac"
 
 
 @pytest.fixture
 def bitrate_1411_wav(assets_dir: Path) -> Path:
-    return assets_dir / "bitrate in kbps_big=1411.wav"
+    return assets_dir / "shared" / "bitrate in kbps_big=1411.wav"
 
 
 @pytest.fixture
 def bitrate_192_mp3(assets_dir: Path) -> Path:
-    return assets_dir / "bitrate in kbps_small=192.mp3"
+    return assets_dir / "shared" / "bitrate in kbps_small=192.mp3"
 
 
 @pytest.fixture
 def bitrate_723_flac(assets_dir: Path) -> Path:
-    return assets_dir / "bitrate in kbps_small=723.flac"
+    return assets_dir / "shared" / "bitrate in kbps_small=723.flac"
 
 
 @pytest.fixture
 def bitrate_1152_wav(assets_dir: Path) -> Path:
-    return assets_dir / "bitrate in kbps_small=1152.wav"
+    return assets_dir / "shared" / "bitrate in kbps_small=1152.wav"
 
 
 @pytest.fixture

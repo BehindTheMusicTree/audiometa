@@ -25,7 +25,7 @@ class TestBase100Proportional:
         ],
     )
     def test_vorbis(self, assets_dir: Path, star_rating, expected_normalized_rating):
-        file_path = assets_dir / f"rating_vorbis={star_rating} star.flac"
+        file_path = assets_dir / f"shared/rating_vorbis={star_rating} star.flac"
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
@@ -49,7 +49,7 @@ class TestBase100Proportional:
         ],
     )
     def test_id3v2(self, assets_dir: Path, star_rating, expected_normalized_rating):
-        file_path = assets_dir / f"rating_id3v2_base 100={star_rating} star.wav"
+        file_path = assets_dir / f"shared/rating_id3v2_base 100={star_rating} star.wav"
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
@@ -67,7 +67,7 @@ class TestBase100Proportional:
         ],
     )
     def test_wav_riff(self, assets_dir: Path, star_rating, expected_normalized_rating):
-        file_path = assets_dir / f"rating_riff_base 100_kid3={star_rating} star.wav"
+        file_path = assets_dir / f"shared/rating_riff_base 100_kid3={star_rating} star.wav"
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
@@ -75,7 +75,7 @@ class TestBase100Proportional:
         assert rating == expected_normalized_rating
 
     def test_none_rating_wav_riff(self, assets_dir: Path):
-        file_path = assets_dir / "rating_riff_kid3=none.wav"
+        file_path = assets_dir / "shared/rating_riff_kid3=none.wav"
         metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is None

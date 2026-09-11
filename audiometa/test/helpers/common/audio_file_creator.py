@@ -18,7 +18,7 @@ class AudioFileCreator:
             assets_dir: Directory containing template files
         """
         if format_type.lower() in ["mp3", "id3v1", "id3v2.3", "id3v2.4"]:
-            template_file = assets_dir / "metadata=none.mp3"
+            template_file = assets_dir / "shared" / "metadata=none.mp3"
         elif format_type.lower() == "flac":
             template_file = assets_dir / "metadata=none.flac"
         elif format_type.lower() == "wav":

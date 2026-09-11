@@ -1,0 +1,3 @@
+[submodule "audiometa/test/assets/shared"]
+	path = audiometa/test/assets/shared
+	url = https://github.com/BehindTheMusicTree/audio-test-fixtures
