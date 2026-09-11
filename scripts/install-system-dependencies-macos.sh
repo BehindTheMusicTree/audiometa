@@ -242,12 +242,14 @@ install_ffmpeg() {
 
     if [ $INSTALL_FAILED -eq 1 ]; then
       echo "  --force-bottle install failed (likely a transitive dependency has no bottle for this runner)."
-      echo "  Retrying without --force-bottle so Homebrew can build the missing bottle(s) from source..."
+      echo "  Retrying with --build-from-source so Homebrew can build the missing bottle(s) locally..."
+      echo "  (plain 'brew install' would still hard-fail here: Homebrew requires --build-from-source"
+      echo "  explicitly in non-interactive shells when a dependency has no bottle for this runner.)"
       INSTALL_FAILED=0
       if command -v stdbuf >/dev/null 2>&1; then
-        stdbuf -oL -eL brew install --verbose ffmpeg@${pinned_version} || INSTALL_FAILED=1
+        stdbuf -oL -eL brew install --verbose --build-from-source ffmpeg@${pinned_version} || INSTALL_FAILED=1
       else
-        brew install --verbose ffmpeg@${pinned_version} || INSTALL_FAILED=1
+        brew install --verbose --build-from-source ffmpeg@${pinned_version} || INSTALL_FAILED=1
       fi
     fi
 
