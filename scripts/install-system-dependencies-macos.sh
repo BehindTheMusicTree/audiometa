@@ -241,11 +241,25 @@ install_ffmpeg() {
     fi
 
     if [ $INSTALL_FAILED -eq 1 ]; then
+      echo "  --force-bottle install failed (likely a transitive dependency has no bottle for this runner)."
+      echo "  --build-from-source on ffmpeg itself does not propagate to a dependency that also lacks a"
+      echo "  bottle (e.g. tesseract, a Tier 3 formula on this runner) - Homebrew still hard-errors on it"
+      echo "  unless that dependency is built from source explicitly. Doing that, then retrying ffmpeg..."
+      brew install --build-from-source tesseract 2>&1 || true
+      INSTALL_FAILED=0
+      if command -v stdbuf >/dev/null 2>&1; then
+        stdbuf -oL -eL brew install --verbose --force-bottle ffmpeg@${pinned_version} || INSTALL_FAILED=1
+      else
+        brew install --verbose --force-bottle ffmpeg@${pinned_version} || INSTALL_FAILED=1
+      fi
+    fi
+
+    if [ $INSTALL_FAILED -eq 1 ]; then
       echo "ERROR: Failed to install ffmpeg@${pinned_version}."
       echo "This may indicate:"
       echo "  - Network connectivity issues"
       echo "  - Homebrew service problems"
-      echo "  - Bottle not available for this macOS version (may try building from source)"
+      echo "  - Bottle not available for this macOS version, and building from source also failed"
       echo "  - Installation was interrupted"
       echo ""
       echo "To check if brew is still running: ps aux | grep brew"
