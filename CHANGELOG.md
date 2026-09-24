@@ -49,6 +49,12 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [1.4.4] - 2026-09-11
 
+### Fixed
+
+- **Metadata schema**: `DISC_NUMBER`'s optional type now allows `None` (was `int`), matching `DISC_TOTAL` and files without a disc number.
+- **Field schema regression**: [**`unified_metadata_field_schema.py`**](audiometa/utils/unified_metadata_field_schema.py) special-cased `DISC_TOTAL` to report `value_type: "integer"` / `optional_value: True`, but relied on `get_optional_type() is int` for `DISC_NUMBER`; since `DISC_NUMBER`'s optional type is now `int | None`, that check silently fell through to `"string"` / `optional_value: False`. `DISC_NUMBER` now shares `DISC_TOTAL`'s explicit branch.
+- **Type annotation**: [**`UnifiedMetadataKey.get_optional_type()`**](audiometa/utils/unified_metadata_key.py) was annotated as returning `type[int | float | str | list[str]]`, but its map already returned non-`type` runtime objects (e.g. `int | float`, and now `int | None`). Corrected the return annotation to `object` and narrowed with `cast()` at the one call site that requires a plain `type` for `isinstance()`.
+
 ### Changed
 
 - **Shared audio test fixtures**: Extracted the 92 test-fixture files duplicated with `hear-the-music-tree-api` into the `audio-test-fixtures` git submodule, mounted at `audiometa/test/assets/shared`. CI checkout now uses `submodules: true`.
