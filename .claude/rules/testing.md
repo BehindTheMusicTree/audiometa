@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Test Organization
 
 ## Test File Structure
@@ -9,6 +5,7 @@ alwaysApply: true
 **One test class per test file.**
 
 Each test file should contain exactly one test class. This improves:
+
 - File organization and discoverability
 - Easier navigation when looking for specific tests
 - Clearer separation of concerns
@@ -126,7 +123,7 @@ Integration tests should verify **component interactions**, not duplicate unit t
 - Test component interactions
 - Verify non-trivial wrapper functions work correctly
 - Use external tools for verification
-- Test different input types (str, Path, _AudioFile)
+- Test different input types (str, Path, \_AudioFile)
 - Don't duplicate unit test coverage
 
 ### When Integration Tests ARE Needed

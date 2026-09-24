@@ -58,7 +58,7 @@ def verify_changelog(path: Path) -> list[str]:
             errors.append(
                 f"First version section (line {first_v_line}) appears before '## [Unreleased]' (line {u}). "
                 "Put '## [Unreleased]' first, then the newest '## [X.Y.Z] - date', then older versions "
-                "(see .cursor/rules/changelog.mdc and scripts/prepare_release.py)."
+                "(see .claude/rules/changelog.md and scripts/prepare_release.py)."
             )
 
         # Verify the first ## heading after [Unreleased] (outside fences) is a version header.

@@ -1,3 +1,8 @@
+---
+paths:
+  - "**/*.py"
+---
+
 # Ruff Ignored Rules
 
 This document explains why certain Ruff rules are ignored in this codebase.
@@ -5,6 +10,7 @@ This document explains why certain Ruff rules are ignored in this codebase.
 ## Complexity Warnings (PLR0911-PLR0915)
 
 **Rules**:
+
 - PLR0911 - Too many branches
 - PLR0912 - Too many branches in function
 - PLR0913 - Too many arguments
@@ -12,12 +18,14 @@ This document explains why certain Ruff rules are ignored in this codebase.
 - PLR0915 - Too many statements
 
 **Why Ignored**:
+
 - Many functions in this codebase handle complex audio metadata operations that naturally require multiple branches
 - Breaking down these functions further would reduce readability and make the code harder to understand
 - The complexity is inherent to the domain (handling multiple metadata formats, edge cases, etc.)
 - These warnings are informational and don't indicate actual bugs
 
 **Example**:
+
 ```python
 def get_unified_metadata(self) -> UnifiedMetadata:
     # This function needs to handle multiple metadata formats,
@@ -34,12 +42,14 @@ def get_unified_metadata(self) -> UnifiedMetadata:
 **Rule**: TRY301 - Abstract `raise` to an inner function
 
 **Why Ignored**:
+
 - This rule suggests extracting raise statements to inner functions, which can reduce readability
 - Many raise statements are context-specific and extracting them would make error messages less clear
 - The current error handling is clear and maintainable
 - This refactoring would be invasive and provide minimal benefit
 
 **Example**:
+
 ```python
 try:
     result = some_operation()
@@ -51,10 +61,12 @@ except Exception as e:
 ## Logging Issues (G001, G005)
 
 **Rules**:
+
 - G001 - Use lazy formatting in logging
 - G005 - Logging statement uses `+` instead of formatting
 
 **Why Considered**:
+
 - These rules suggest using lazy formatting (e.g., `logger.debug("Message %s", value)`) instead of f-strings
 - However, f-strings are more readable and Pythonic
 - Performance difference is negligible for most use cases
@@ -65,10 +77,12 @@ except Exception as e:
 ## Yield Issues (Y301, Y002)
 
 **Rules**:
+
 - Y301 - Consider using `yield from` instead of `yield` in a loop
 - Y002 - Consider using `yield from` instead of `yield` in a comprehension
 
 **Why Considered**:
+
 - These rules suggest using `yield from` for better performance and readability
 - However, explicit `yield` loops can be clearer in some contexts
 - If these become problematic, we can address them case-by-case
@@ -78,6 +92,7 @@ except Exception as e:
 ## Summary
 
 The following rules are **explicitly ignored** in `pyproject.toml`:
+
 - **N999**: Invalid module name (false positive for private modules)
 - **PLR0911-PLR0915**: Complexity warnings (acceptable complexity for domain logic)
 - **TRY301**: Abstract raise to inner function (reduces readability)

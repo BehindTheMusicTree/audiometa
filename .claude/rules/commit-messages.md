@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Commit Messages
 
 We follow a structured commit format inspired by [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).

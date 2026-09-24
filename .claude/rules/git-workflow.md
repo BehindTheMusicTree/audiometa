@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Git Workflow and Branch Naming
 
 We follow a light GitFlow model adapted for small teams and open-source projects.
@@ -12,11 +8,11 @@ All branches must follow these naming patterns:
 
 ### Available Branch Prefixes
 
-| Prefix    | Usage                                          | Example                                    |
-| --------- | ---------------------------------------------- | ------------------------------------------ |
-| `feature/` | New features or bug fixes (contributors)      | `feature/improve-genre-classification`    |
-| `hotfix/` | Urgent bug fixes on production (maintainers)   | `hotfix/critical-metadata-bug`             |
-| `chore/`  | Maintenance, infrastructure, configuration     | `chore/update-dependencies`               |
+| Prefix     | Usage                                        | Example                                |
+| ---------- | -------------------------------------------- | -------------------------------------- |
+| `feature/` | New features or bug fixes (contributors)     | `feature/improve-genre-classification` |
+| `hotfix/`  | Urgent bug fixes on production (maintainers) | `hotfix/critical-metadata-bug`         |
+| `chore/`   | Maintenance, infrastructure, configuration   | `chore/update-dependencies`            |
 
 ### Branch Naming Rules
 
@@ -29,12 +25,14 @@ All branches must follow these naming patterns:
 ### When to Use Each Prefix
 
 **Use `feature/` for:**
+
 - New user-facing features or enhancements
 - Bug fixes in library code (the `audiometa/` package)
 - Changes that affect the public API or user experience
 - Examples: `feature/add-flac-support`, `feature/fix-id3v1-encoding`
 
 **Use `chore/` for:**
+
 - Infrastructure and tooling fixes (pre-commit hooks, CI/CD workflows, build scripts)
 - Dependency updates
 - Documentation infrastructure changes
@@ -42,6 +40,7 @@ All branches must follow these naming patterns:
 - Examples: `chore/update-dependencies`, `chore/fix-pre-commit-hook`, `chore/ci-workflow-improvements`
 
 **Use `hotfix/` for:**
+
 - Urgent bug fixes that need to be deployed immediately to production
 - Critical security patches
 - Typically used by maintainers for time-sensitive fixes

@@ -1,7 +1,8 @@
 ---
 description: Best practices for authoring .tape files (VHS) for quick social media demos
-globs: "**/*.tape,docs/demos/**"
-alwaysApply: false
+paths:
+  - "**/*.tape"
+  - "docs/demos/**"
 ---
 
 # VHS Tape Authoring for Social Media Demos
@@ -57,4 +58,4 @@ If a command’s output is taller than the terminal height, it will scroll off-s
 - [ ] For read/unified demos: commands include `--color` so output is colorized in the video
 - [ ] Run with `vhs <file>.tape` (and `--preview` when editing); activate venv first
 
-For workflow (install, run, preview) and where to put tapes, see `.cursor/rules/demo-videos.mdc`. For the text of the social post (e.g. 494 char max), see `.cursor/rules/mastodon-posts.mdc`.
+For workflow (install, run, preview) and where to put tapes, see `.claude/rules/demo-videos.md`. For the text of the social post (e.g. 494 char max), see `.claude/rules/mastodon-posts.md`.

@@ -1,12 +1,9 @@
----
-alwaysApply: true
----
-
 # Using pytest.mark.parametrize in Tests
 
 ## When to Use parametrize
 
 Use `@pytest.mark.parametrize` to test the **same validation or behavior with multiple input values**. This makes tests:
+
 - More readable and maintainable
 - Easier to identify which specific value causes a failure
 - Reduces code duplication from multiple function calls or for loops

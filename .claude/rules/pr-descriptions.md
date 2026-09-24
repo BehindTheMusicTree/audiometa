@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Pull Request Description Generation
 
 ## User asks for a PR description
@@ -18,7 +14,7 @@ If the user only wants a **title** (no body), a one-line answer in chat is fine;
 
 When generating PR descriptions, create them as **standalone markdown documents** that provide comprehensive context for code reviewers and maintainers.
 
-**When providing a PR description, always generate a PR title as well.** Use the format defined in the [PR Naming Convention](pr-naming.mdc): `<type>(<optional-scope>): <short imperative description>`.
+**When providing a PR description, always generate a PR title as well.** Use the format defined in the [PR Naming Convention](pr-naming.md): `<type>(<optional-scope>): <short imperative description>`.
 
 ### Document Structure
 
@@ -43,6 +39,7 @@ When generating PR descriptions, create them as **standalone markdown documents*
 <Clear summary of what changed and why>
 
 **Key Changes/Improvements:**
+
 - <Major change 1>
 - <Major change 2>
 - <etc.>
@@ -117,6 +114,7 @@ When generating PR descriptions, create them as **standalone markdown documents*
 <Any additional information that helps reviewers understand the changes>
 
 **Benefits:**
+
 - <Benefit 1>
 - <Benefit 2>
 
@@ -204,10 +202,12 @@ When generating PR descriptions, create them as **standalone markdown documents*
 
 ```markdown
 **Prerequisites:**
+
 - List required tools
 - List required environment setup
 
 **Test Steps:**
+
 1. Step-by-step instructions
 2. Include actual commands
 3. Show expected output
@@ -215,21 +215,26 @@ When generating PR descriptions, create them as **standalone markdown documents*
 
 ### For API Changes
 
-```markdown
+````markdown
 **Previous API:**
+
 ```python
 # Old code example
 ```
+````
 
 **New API:**
+
 ```python
 # New code example
 ```
 
 **Migration Path:**
+
 - Step 1
 - Step 2
-```
+
+````
 
 ### For Breaking Changes
 
@@ -257,7 +262,8 @@ old_code()
 
 # After
 new_code()
-```
+````
+
 ```
 
 ## Checklist Item Notes
@@ -291,3 +297,4 @@ PR description files should be created in `.github/pr_descriptions/` directory:
 - **Better tracking**: Checklists ensure nothing is forgotten
 - **Documentation**: PR descriptions serve as historical record
 - **Consistency**: Standard format across all PRs
+```

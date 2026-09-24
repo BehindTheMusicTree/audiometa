@@ -319,7 +319,7 @@ Before submitting a Pull Request, ensure the following checks are completed:
 - ✅ Update docstrings for new functions/classes (only when needed - see [Docstrings](DEVELOPMENT.md#docstrings) section in DEVELOPMENT.md)
 - ✅ Update README or other more focused documentation if adding new features or changing behavior
 - ✅ Add/update type hints where appropriate
-- ✅ Update `CHANGELOG.md` with your changes in the `[Unreleased]` section in the same PR as the code (see [Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased), [Changelog Best Practices](CHANGELOG.md#changelog-best-practices), and `.cursor/rules/changelog.mdc`)
+- ✅ Update `CHANGELOG.md` with your changes in the `[Unreleased]` section in the same PR as the code (see [Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased), [Changelog Best Practices](CHANGELOG.md#changelog-best-practices), and `.claude/rules/changelog.md`)
 - ⚠️ Update CONTRIBUTING.md only in exceptional cases (e.g., when adding hooks for new features in other languages)
 
 **4. Git Hygiene**
@@ -458,7 +458,7 @@ When opening a Pull Request, a template will be automatically provided. Ensure y
 - ✅ Note any breaking changes
 - ✅ Include testing instructions if applicable
 
-**Note:** The PR template is at **`.github/pr_descriptions/pull_request_template.md`**. When using Cursor to draft a description, save the full text to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored) per `.cursor/rules/pr-descriptions.mdc`, then paste into GitHub.
+**Note:** The PR template is at **`.github/pr_descriptions/pull_request_template.md`**. When using an agent to draft a description, save the full text to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored) per `.claude/rules/pr-descriptions.md`, then paste into GitHub.
 
 ##### Breaking Changes
 
@@ -510,7 +510,7 @@ Quick release process:
    python scripts/verify_changelog.py
    ```
 
-   See `.cursor/rules/changelog.mdc` (**CHANGELOG.md structure and integrity**). Fix any reported errors before the release script.
+   See `.claude/rules/changelog.md` (**CHANGELOG.md structure and integrity**). Fix any reported errors before the release script.
 
 5. Run the release script (updates CHANGELOG, bumps version, commits, and tags):
 

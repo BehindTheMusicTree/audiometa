@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Changelog Best Practices
 
 ## General Principles

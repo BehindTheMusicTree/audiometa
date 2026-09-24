@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Pull Request Naming Convention
 
 Pull Request titles must follow the same format as commit messages for consistency across the repository.
@@ -14,17 +10,17 @@ Pull Request titles must follow the same format as commit messages for consisten
 
 ## Allowed Types
 
-| Type     | Description                                          |
-| -------- | ---------------------------------------------------- |
-| feat     | New feature or enhancement                          |
-| fix      | Bug fix                                              |
-| refactor | Code refactoring that doesn't change behavior        |
-| docs     | Documentation-only changes                           |
+| Type     | Description                                                                               |
+| -------- | ----------------------------------------------------------------------------------------- |
+| feat     | New feature or enhancement                                                                |
+| fix      | Bug fix                                                                                   |
+| refactor | Code refactoring that doesn't change behavior                                             |
+| docs     | Documentation-only changes                                                                |
 | chore    | Maintenance tasks (e.g. packaging, dependencies, tooling setup, repository configuration) |
-| perf     | Performance improvements                             |
-| style    | Code style or formatting changes (no logic impact)   |
-| test     | Test-related changes                                 |
-| ci       | CI/CD pipeline changes (GitHub Actions workflows, CI configuration) |
+| perf     | Performance improvements                                                                  |
+| style    | Code style or formatting changes (no logic impact)                                        |
+| test     | Test-related changes                                                                      |
+| ci       | CI/CD pipeline changes (GitHub Actions workflows, CI configuration)                       |
 
 ## Rules
 
@@ -95,21 +91,21 @@ Chore/auto approve maintainer prs
 
 ## Common Scopes
 
-| Scope  | Example                                     | Description                  |
-| ------ | ------------------------------------------- | ---------------------------- |
-| core   | `feat(core): simplify metadata interface`  | Core metadata handling logic |
-| id3v1  | `fix(id3v1): handle encoding issues`       | ID3v1 tag format             |
-| id3v2  | `feat(id3v2): add custom text frame support`| ID3v2 tag format             |
-| vorbis | `fix(vorbis): improve comment parsing`      | Vorbis comment format        |
-| riff   | `feat(riff): detect and write INFO chunks`  | RIFF metadata format         |
-| test   | `refactor(test): reorganize test fixtures`  | Testing infrastructure       |
-| deps   | `chore(deps): update mutagen dependency`    | Dependency management        |
-| docs   | `docs: improve README example`              | Documentation updates        |
-| ci     | `ci: update GitHub Actions workflow`        | CI/CD pipeline changes       |
+| Scope  | Example                                      | Description                  |
+| ------ | -------------------------------------------- | ---------------------------- |
+| core   | `feat(core): simplify metadata interface`    | Core metadata handling logic |
+| id3v1  | `fix(id3v1): handle encoding issues`         | ID3v1 tag format             |
+| id3v2  | `feat(id3v2): add custom text frame support` | ID3v2 tag format             |
+| vorbis | `fix(vorbis): improve comment parsing`       | Vorbis comment format        |
+| riff   | `feat(riff): detect and write INFO chunks`   | RIFF metadata format         |
+| test   | `refactor(test): reorganize test fixtures`   | Testing infrastructure       |
+| deps   | `chore(deps): update mutagen dependency`     | Dependency management        |
+| docs   | `docs: improve README example`               | Documentation updates        |
+| ci     | `ci: update GitHub Actions workflow`         | CI/CD pipeline changes       |
 
 ## PR Description Guidelines
 
-When the user asks for a PR description, follow **[pr-descriptions.mdc](pr-descriptions.mdc)**: write the full body to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored working copy); align sections with the repo template **`.github/pr_descriptions/pull_request_template.md`**.
+When the user asks for a PR description, follow **[pr-descriptions.md](pr-descriptions.md)**: write the full body to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored working copy); align sections with the repo template **`.github/pr_descriptions/pull_request_template.md`**.
 
 Also ensure:
 
@@ -126,7 +122,7 @@ Also ensure:
 - **Be descriptive**: The title should clearly describe what the PR does
 - **Match commit messages**: PR titles should follow the same format as commit messages for consistency
 - **Review before submitting**: Always review and edit the auto-suggested title if needed
-- **Follow PR template**: Use `.github/pr_descriptions/pull_request_template.md` as the section guide; store drafts in `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` per [pr-descriptions.mdc](pr-descriptions.mdc)
+- **Follow PR template**: Use `.github/pr_descriptions/pull_request_template.md` as the section guide; store drafts in `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` per [pr-descriptions.md](pr-descriptions.md)
 
 ## Bad Examples
 
