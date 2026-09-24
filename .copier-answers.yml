@@ -1,0 +1,6 @@
+# Changes here will be overwritten by Copier; do not edit manually.
+_commit: v5.1.0
+_src_path: gh:BehindTheMusicTree/python-project-standards
+package_name: audiometa
+reusable_lint: false
+test_workflow: false

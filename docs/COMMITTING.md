@@ -49,7 +49,6 @@ All code must pass pre-commit hooks before committing. These hooks automatically
 - **Assert statement check**: Custom hook that fails if assert statements are found in production code
 - **Debug statement detection**: Checks for debug statements in production code
 - **System dependency version verification**: Ensures installed system dependencies match pinned versions
-- **python-project-standards baseline**: `verify-python-project-standards` runs [`scripts/verify-standards.sh`](../scripts/verify-standards.sh) (required layout, CI/org reusables, [`STANDARDS_VERSION`](../STANDARDS_VERSION) vs **`@v…`** pins)
 
 **Run pre-commit hooks manually before committing:**
 

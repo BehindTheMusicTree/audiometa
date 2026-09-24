@@ -70,6 +70,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Changed
 
 - **Agent rules**: Migrated `.cursor/rules/*.mdc` to `.claude/rules/*.md` (Claude Code native rules); `globs` became `paths` frontmatter, `alwaysApply` rules load unconditionally. Docs and `scripts/verify_changelog.py` now point to the new paths.
+- **Standards**: Adopted python-project-standards v5.1.0 via Copier (`.copier-answers.yml`); `copier update` now merges shared pre-commit/ruff baselines. Removed `STANDARDS_VERSION`, `scripts/verify-standards.sh`, `scripts/check_lint_baseline.py`, `baselines/DIGESTS`, `baselines/expected-mypy.json` and the `verify-python-project-standards` hook; lint pin bumped to `@v5.1.0`.
 - **Knowledge graph**: Local `graphify` tooling wired up (CLAUDE.md section, `.claude/settings.json` PreToolUse hooks, post-commit/post-checkout git hooks). Output in `graphify-out/` is gitignored, dev-only.
 
 ## [1.4.3] - 2026-04-11
