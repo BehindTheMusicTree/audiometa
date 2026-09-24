@@ -1,3 +1,0 @@
-# SHA-256 of vendored baseline files (paths relative to repository root).
-f7a5fcf1706d0b41dfe38715e76178ad06e293428be6cfd1d0679719751e90e6  baselines/ruff.toml
-7675a81ec7df006a4ccaa8cc85d6089aaadad74cfbd9226d3d842127a4e95bf4  baselines/expected-mypy.json
