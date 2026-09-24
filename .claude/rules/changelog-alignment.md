@@ -1,6 +1,5 @@
 ---
 description: Substantive changes must update CHANGELOG.md [Unreleased] in the same work
-alwaysApply: true
 ---
 
 # Changelog alignment

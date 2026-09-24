@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Python Style
 
 ## Type Hints

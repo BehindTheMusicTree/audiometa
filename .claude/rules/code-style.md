@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Code Style and Comments
 
 ## No Assert Statements in Production Code
@@ -14,6 +10,7 @@ alwaysApply: true
   - Use custom exceptions from `audiometa.exceptions` when appropriate
 - The pre-commit hook will fail if assert statements are found
 - Example:
+
   ```python
   # ❌ Bad
   assert value is not None
@@ -37,6 +34,7 @@ alwaysApply: true
 - The ruff linter (T201 rule) will flag print statements in production code (see `pyproject.toml` per-file-ignores for demo scripts)
 - Print statements in docstring examples are allowed (they're string literals, not executable code)
 - Example:
+
   ```python
   # ❌ Bad
   print("Processing file...")

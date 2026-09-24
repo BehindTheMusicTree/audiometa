@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Dependency Pinning
 
 ## Always Pin Dependencies
@@ -18,6 +14,7 @@ alwaysApply: true
 ### Where to Pin Versions
 
 1. **Python Dependencies** (`pyproject.toml`):
+
    ```toml
    # ✅ Good - Pinned version
    dependencies = [
@@ -33,6 +30,7 @@ alwaysApply: true
    ```
 
 2. **System Dependencies** (`system-dependencies.toml`):
+
    ```toml
    # ✅ Good - Pinned version
    [ubuntu]
@@ -46,6 +44,7 @@ alwaysApply: true
    ```
 
 3. **Development Dependencies** (`pyproject.toml`):
+
    ```toml
    # ✅ Good - Pinned version
    [project.optional-dependencies]

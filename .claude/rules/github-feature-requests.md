@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # GitHub Feature Request Generation
 
 ## Feature Request Template Format
@@ -58,19 +54,23 @@ Copy the content below to create a new GitHub issue using the Feature Request te
 
 ## Title:
 ```
+
 [Feature]: <Feature Title>
+
 ```
 
 ---
 
 ## Feature Description:
 ```
+
 <Clear description of the feature>
 ```
 
 ---
 
 ## Problem Statement:
+
 ```
 <Problems this addresses>
 ```
@@ -78,6 +78,7 @@ Copy the content below to create a new GitHub issue using the Feature Request te
 ---
 
 ## Proposed Solution:
+
 ```
 <How it should work>
 ```
@@ -85,6 +86,7 @@ Copy the content below to create a new GitHub issue using the Feature Request te
 ---
 
 ## Alternatives Considered:
+
 ```
 <Other options evaluated>
 ```
@@ -92,6 +94,7 @@ Copy the content below to create a new GitHub issue using the Feature Request te
 ---
 
 ## Feature Scope:
+
 ```
 <Select one option>
 ```
@@ -99,6 +102,7 @@ Copy the content below to create a new GitHub issue using the Feature Request te
 ---
 
 ## Use Case:
+
 ```python
 # Example code showing usage
 ```
@@ -106,6 +110,7 @@ Copy the content below to create a new GitHub issue using the Feature Request te
 ---
 
 ## Compatibility Considerations:
+
 ```
 ☑ <Checked items>
 ☐ <Unchecked items>
@@ -114,6 +119,7 @@ Copy the content below to create a new GitHub issue using the Feature Request te
 ---
 
 ## Additional Context:
+
 ```
 <References, links, etc.>
 ```
@@ -127,6 +133,7 @@ Copy the content below to create a new GitHub issue using the Feature Request te
 3. Select "Feature Request" template
 4. Copy each section above into the corresponding field in the form
 5. For "Compatibility Considerations", check the indicated checkboxes
+
 ```
 
 ## Benefits
@@ -135,3 +142,4 @@ Copy the content below to create a new GitHub issue using the Feature Request te
 - **Clear structure**: Matches GitHub form template exactly
 - **Complete documentation**: All context preserved in one file
 - **Reusable**: Can be saved and referenced later
+```

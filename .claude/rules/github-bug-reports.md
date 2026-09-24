@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # GitHub Bug Report Generation
 
 ## Bug Report Template Format
@@ -60,19 +56,23 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 
 ## Title:
 ```
+
 [Bug]: <Bug Title>
+
 ```
 
 ---
 
 ## Description:
 ```
+
 <Clear description of the bug>
 ```
 
 ---
 
 ## Steps to Reproduce:
+
 ```
 1. <First step>
 2. <Second step>
@@ -82,6 +82,7 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 ---
 
 ## Expected Behavior:
+
 ```
 <What should happen>
 ```
@@ -89,6 +90,7 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 ---
 
 ## Actual Behavior:
+
 ```
 <What actually happens>
 ```
@@ -96,6 +98,7 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 ---
 
 ## Code Example:
+
 ```python
 # Minimal code to reproduce
 ```
@@ -103,6 +106,7 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 ---
 
 ## Audio Format:
+
 ```
 <Select one option>
 ```
@@ -110,6 +114,7 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 ---
 
 ## Metadata Format:
+
 ```
 <Select one option>
 ```
@@ -117,6 +122,7 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 ---
 
 ## AudioMeta Version:
+
 ```
 <version>
 ```
@@ -124,6 +130,7 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 ---
 
 ## Python Version:
+
 ```
 <version>
 ```
@@ -131,6 +138,7 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 ---
 
 ## Error Message / Traceback:
+
 ```
 <Full error output>
 ```
@@ -138,6 +146,7 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 ---
 
 ## Environment:
+
 ```
 - OS: <operating system>
 - External tools: <tool versions>
@@ -147,6 +156,7 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 ---
 
 ## Additional Context:
+
 ```
 <Any other relevant information>
 ```
@@ -159,6 +169,7 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 2. Click "New Issue"
 3. Select "Bug Report" template
 4. Copy each section above into the corresponding field in the form
+
 ```
 
 ## Benefits
@@ -167,3 +178,4 @@ Copy the content below to create a new GitHub issue using the Bug Report templat
 - **Clear structure**: Matches GitHub form template exactly
 - **Complete documentation**: All context preserved in one file
 - **Reusable**: Can be saved and referenced later
+```

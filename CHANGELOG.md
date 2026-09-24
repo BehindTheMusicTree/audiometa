@@ -23,8 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 All contributors (including maintainers) should update `CHANGELOG.md` when creating PRs:
 
 1. **Add entries to the `[Unreleased]` section** - Add your changes under the appropriate category (Added, Changed, Improved, Deprecated, Removed, Fixed, Documentation, Performance, CI) in the **same PR** as the code so `[Unreleased]` never lags the codebase
-2. **Keep section order** - `## [Unreleased]` comes first, then released versions newest-first (`## [X.Y.Z] - YYYY-MM-DD`); run `python scripts/verify_changelog.py` after edits (see `.cursor/rules/changelog.mdc`)
-3. **Follow the changelog format** - See examples below and `.cursor/rules/changelog.mdc` for detailed guidelines
+2. **Keep section order** - `## [Unreleased]` comes first, then released versions newest-first (`## [X.Y.Z] - YYYY-MM-DD`); run `python scripts/verify_changelog.py` after edits (see `.claude/rules/changelog.md`)
+3. **Follow the changelog format** - See examples below and `.claude/rules/changelog.md` for detailed guidelines
 4. **Group related changes** - Similar changes should be grouped together
 5. **Be descriptive** - Write clear, user-focused descriptions of what changed
 6. **Mention tests when relevant** - Tests should be mentioned within the related feature or fix entry, not as standalone entries
@@ -65,9 +65,12 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **python-project-standards v4.3.2** ([org **`v4.3.2`**](https://github.com/BehindTheMusicTree/python-project-standards/releases/tag/v4.3.2)): Lint delegates to **`reusable-pre-commit.yml@v4.3.2`**; root **`STANDARDS_VERSION`** **`4.3.2`**. [**`scripts/check_lint_baseline.py`**](scripts/check_lint_baseline.py) requires **`baselines/ruff.toml`** and **`baselines/expected-mypy.json`** in **`baselines/DIGESTS`**. [**`scripts/verify-standards.sh`**](scripts/verify-standards.sh) matches org on this bump.
 
-
 ## [Unreleased]
 
+### Changed
+
+- **Agent rules**: Migrated `.cursor/rules/*.mdc` to `.claude/rules/*.md` (Claude Code native rules); `globs` became `paths` frontmatter, `alwaysApply` rules load unconditionally. Docs and `scripts/verify_changelog.py` now point to the new paths.
+- **Knowledge graph**: Local `graphify` tooling wired up (CLAUDE.md section, `.claude/settings.json` PreToolUse hooks, post-commit/post-checkout git hooks). Output in `graphify-out/` is gitignored, dev-only.
 
 ## [1.4.3] - 2026-04-11
 

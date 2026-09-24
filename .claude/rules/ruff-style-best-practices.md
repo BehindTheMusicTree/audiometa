@@ -1,3 +1,8 @@
+---
+paths:
+  - "**/*.py"
+---
+
 # Ruff Style Best Practices
 
 This document outlines best practices to avoid common Ruff linting errors and maintain code quality.
@@ -9,12 +14,14 @@ This document outlines best practices to avoid common Ruff linting errors and ma
 **Rule**: PTH123 - `open()` should be replaced by `Path.open()`
 
 **❌ Bad:**
+
 ```python
 with open(file_path, "rb") as f:
     data = f.read()
 ```
 
 **✅ Good:**
+
 ```python
 from pathlib import Path
 
@@ -33,6 +40,7 @@ with file_path.open("rb") as f:
 **Rule**: B904 - Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None`
 
 **❌ Bad:**
+
 ```python
 try:
     result = some_operation()
@@ -41,6 +49,7 @@ except Exception as e:
 ```
 
 **✅ Good:**
+
 ```python
 try:
     result = some_operation()
@@ -57,6 +66,7 @@ except Exception as e:
 **Rule**: SIM105 - Use `contextlib.suppress()` instead of `try`-`except`-`pass`
 
 **❌ Bad:**
+
 ```python
 try:
     os.unlink(temp_path)
@@ -65,6 +75,7 @@ except OSError:
 ```
 
 **✅ Good:**
+
 ```python
 import contextlib
 
@@ -79,6 +90,7 @@ with contextlib.suppress(OSError):
 **Rule**: SIM117 - Use a single `with` statement with multiple contexts instead of nested `with` statements
 
 **❌ Bad:**
+
 ```python
 with temp_file_with_metadata({}, "mp3") as test_file:
     with pytest.raises(FileNotFoundError):
@@ -86,6 +98,7 @@ with temp_file_with_metadata({}, "mp3") as test_file:
 ```
 
 **✅ Good:**
+
 ```python
 with temp_file_with_metadata({}, "mp3") as test_file, pytest.raises(FileNotFoundError):
     get_unified_metadata(test_file)
@@ -96,6 +109,7 @@ with temp_file_with_metadata({}, "mp3") as test_file, pytest.raises(FileNotFound
 **Rule**: SIM102 - Use a single `if` statement instead of nested `if` statements
 
 **❌ Bad:**
+
 ```python
 if key == UnifiedMetadataKey.RELEASE_DATE:
     if isinstance(value, str):
@@ -104,6 +118,7 @@ if key == UnifiedMetadataKey.RELEASE_DATE:
 ```
 
 **✅ Good:**
+
 ```python
 if (
     key == UnifiedMetadataKey.RELEASE_DATE
@@ -121,6 +136,7 @@ if (
 **Rule**: ARG002 - Unused method argument
 
 **❌ Bad:**
+
 ```python
 def test_something(self, sample_mp3_file: Path):
     # sample_mp3_file is not used in the test
@@ -129,6 +145,7 @@ def test_something(self, sample_mp3_file: Path):
 ```
 
 **✅ Good:**
+
 ```python
 def test_something(self, _sample_mp3_file: Path):
     # Prefix with _ to indicate intentionally unused
@@ -143,6 +160,7 @@ def test_something(self, _sample_mp3_file: Path):
 **Rule**: E501 - Line too long
 
 **❌ Bad:**
+
 ```python
 def set_titles(file_path: Path, titles: list[str], in_separate_frames: bool = False):
     """Set ID3v2 multiple titles using external mid3v2 tool or manual frame creation.
@@ -153,6 +171,7 @@ def set_titles(file_path: Path, titles: list[str], in_separate_frames: bool = Fa
 ```
 
 **✅ Good:**
+
 ```python
 def set_titles(file_path: Path, titles: list[str], in_separate_frames: bool = False):
     """Set ID3v2 multiple titles using external mid3v2 tool or manual frame creation.
@@ -173,12 +192,14 @@ def set_titles(file_path: Path, titles: list[str], in_separate_frames: bool = Fa
 **Note**: Many magic numbers in tests are acceptable (e.g., `assert len(artists) == 3`). However, for production code, consider using constants for meaningful values.
 
 **❌ Bad (production code):**
+
 ```python
 if len(data) == 128:  # ID3v1 tag size
     return True
 ```
 
 **✅ Good (production code):**
+
 ```python
 ID3V1_TAG_SIZE = 128
 
@@ -187,6 +208,7 @@ if len(data) == ID3V1_TAG_SIZE:
 ```
 
 **✅ Acceptable (test code):**
+
 ```python
 def test_artists_count(self):
     artists = get_unified_metadata_field(file_path, UnifiedMetadataKey.ARTISTS)
@@ -202,6 +224,7 @@ def test_artists_count(self):
 **Note**: This is a false positive for private modules. Ruff may flag modules starting with `_`, but these are valid Python conventions for private/internal modules.
 
 **✅ Acceptable:**
+
 ```python
 # File: audiometa/manager/_MetadataManager.py
 # This is a private module, the underscore prefix is intentional

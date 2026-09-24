@@ -36,15 +36,15 @@ See `CONTRIBUTING.md` for full details. Quick reference:
 
 ### Changelog
 
-When you change production code under `audiometa/`, the CLI, or user-visible behavior, update `CHANGELOG.md` in the `## [Unreleased]` section in the same work. Before finishing, confirm `[Unreleased]` matches what you changed. After any substantive edit to `CHANGELOG.md`, run `python scripts/verify_changelog.py` (layout must match `prepare_release.py`; see `.cursor/rules/changelog.mdc`). See [DEVELOPMENT.md — Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased).
+When you change production code under `audiometa/`, the CLI, or user-visible behavior, update `CHANGELOG.md` in the `## [Unreleased]` section in the same work. Before finishing, confirm `[Unreleased]` matches what you changed. After any substantive edit to `CHANGELOG.md`, run `python scripts/verify_changelog.py` (layout must match `prepare_release.py`; see `.claude/rules/changelog.md`). See [DEVELOPMENT.md — Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased).
 
 ### Pull request descriptions
 
-When asked for a PR description, write it to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored); do not rely on chat-only text. See `.cursor/rules/pr-descriptions.mdc` and use `.github/pr_descriptions/pull_request_template.md` for sections.
+When asked for a PR description, write it to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored); do not rely on chat-only text. See `.claude/rules/pr-descriptions.md` and use `.github/pr_descriptions/pull_request_template.md` for sections.
 
 ### Demo videos
 
-Demos are generated with [VHS](https://github.com/charmbracelet/vhs) from `.tape` files. See `VHS_DEMO_README.md` and `DEMO_INSTALLATION.md` for full instructions. Quick path: install deps (macOS) with `bash scripts/install-demo-dependencies-macos.sh`, activate venv, then run `vhs <path/to/tape>.tape` (e.g. `vhs audiometa_demo.tape` or `vhs docs/demos/tapes/get_full_metadata.tape`). When editing tapes or demo workflow, follow `.cursor/rules/demo-videos.mdc`; for authoring .tape content for social media demos, follow `.cursor/rules/demo-tape-authoring.mdc`.
+Demos are generated with [VHS](https://github.com/charmbracelet/vhs) from `.tape` files. See `VHS_DEMO_README.md` and `DEMO_INSTALLATION.md` for full instructions. Quick path: install deps (macOS) with `bash scripts/install-demo-dependencies-macos.sh`, activate venv, then run `vhs <path/to/tape>.tape` (e.g. `vhs audiometa_demo.tape` or `vhs docs/demos/tapes/get_full_metadata.tape`). When editing tapes or demo workflow, follow `.claude/rules/demo-videos.md`; for authoring .tape content for social media demos, follow `.claude/rules/demo-tape-authoring.md`.
 
 ### Gotchas
 

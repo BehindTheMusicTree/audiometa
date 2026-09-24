@@ -1,10 +1,6 @@
----
-alwaysApply: true
----
-
 # Pre-commit Hooks
 
-**IMPORTANT**: Always activate the project's virtual environment (`.venv`) before running git commits. Pre-commit hooks use `language: system` and require the correct Python environment. See [Virtual Environment](virtual-environment.mdc) rules for details.
+**IMPORTANT**: Always activate the project's virtual environment (`.venv`) before running git commits. Pre-commit hooks use `language: system` and require the correct Python environment. See [Virtual Environment](virtual-environment.md) rules for details.
 
 All code must pass pre-commit hooks before committing:
 
@@ -24,6 +20,7 @@ Run `pre-commit run --all-files` before committing to ensure all checks pass.
 ### Best Practice: Single Source of Truth
 
 1. **Pin tool versions in `pyproject.toml`** (not `>=`):
+
    ```toml
    [project.optional-dependencies]
    dev = [
@@ -34,6 +31,7 @@ Run `pre-commit run --all-files` before committing to ensure all checks pass.
    ```
 
 2. **Use local hooks in `.pre-commit-config.yaml`** that reference environment tools:
+
    ```yaml
    - repo: local
      hooks:
@@ -67,7 +65,7 @@ Run `pre-commit run --all-files` before committing to ensure all checks pass.
 ```yaml
 # ❌ BAD: External hook with pinned version (can drift from pyproject.toml)
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.15.9  # Must manually sync with pyproject.toml
+  rev: v0.15.9 # Must manually sync with pyproject.toml
 ```
 
 ```toml
@@ -80,6 +78,7 @@ dev = [
 ### When to Use External Hooks
 
 Only use external pre-commit hooks for:
+
 - Non-Python tools (e.g., prettier for markdown)
 - Tools not in your Python dependencies
 - Tools that require special pre-commit integration

@@ -31,7 +31,7 @@ Follow these code quality standards when developing:
 - **No hardcoded credentials, API keys, or secrets** - Never commit credentials, API keys, passwords, or other sensitive information to the repository. Use environment variables or secure configuration management instead.
 - **Run pre-commit hooks** - Always run `pre-commit run --all-files` before committing. This includes **`verify-python-project-standards`** ([`scripts/verify-standards.sh`](scripts/verify-standards.sh): layout, ruff/mypy in config, CI references org reusables, **`STANDARDS_VERSION`** vs **`@v…`** pins, **`baselines/`** digest and overlay rules via **`check_lint_baseline.py`**), linting, formatting, type checking, assert statement checks, debug statement detection, and other quality checks. Pre-commit hooks are automatically enforced, but running them manually helps catch issues early.
 
-**Note:** Pre-commit hooks are configured to use tools from your active Python environment. Always activate the project's virtual environment (`.venv`) before running git commits. See the [Virtual Environment](.cursor/rules/virtual-environment.mdc) rules for details.
+**Note:** Pre-commit hooks are configured to use tools from your active Python environment. Always activate the project's virtual environment (`.venv`) before running git commits. See the [Virtual Environment](.claude/rules/virtual-environment.md) rules for details.
 
 ### Code Style Conventions
 
@@ -161,7 +161,7 @@ def some_function():
 When making changes to the codebase, ensure relevant documentation is updated:
 
 - **README.md**: Update when adding new features, changing behavior, or modifying installation/usage instructions
-- **CHANGELOG.md**: Always update `## [Unreleased]` in the **same PR** as the code ([Changelog and `[Unreleased]`](#changelog-and-unreleased); [Changelog Best Practices](CHANGELOG.md#changelog-best-practices); `.cursor/rules/changelog.mdc`)
+- **CHANGELOG.md**: Always update `## [Unreleased]` in the **same PR** as the code ([Changelog and `[Unreleased]`](#changelog-and-unreleased); [Changelog Best Practices](CHANGELOG.md#changelog-best-practices); `.claude/rules/changelog.md`)
 - **DEVELOPMENT.md**: Update when changing development standards or adding new guidelines
 - **CONTRIBUTING.md**: Update when changing development workflow (primarily for maintainers; contributors may update in exceptional cases, e.g., when adding hooks for new features in other languages)
 - **docs/**: Update relevant documentation files in the `docs/` directory when adding features or changing behavior that affects user-facing functionality
@@ -176,6 +176,6 @@ Edit `CHANGELOG.md` under `## [Unreleased]` whenever your change affects **users
 - **What usually needs an entry** — New or changed public symbols, CLI changes, user-visible bug fixes, breaking changes (document clearly).
 - **What often does not** — Internal refactors with identical external behavior; test-only work that does not fix a user-visible bug (mention tests under the related feature or fix if there is one).
 - **Before you open or finalize a PR** — Re-read `## [Unreleased]` and confirm it matches the diff.
-- **After editing `CHANGELOG.md`** — Run `python scripts/verify_changelog.py` so section order matches `scripts/prepare_release.py` (see `.cursor/rules/changelog.mdc`, **CHANGELOG.md structure and integrity**).
+- **After editing `CHANGELOG.md`** — Run `python scripts/verify_changelog.py` so section order matches `scripts/prepare_release.py` (see `.claude/rules/changelog.md`, **CHANGELOG.md structure and integrity**).
 
-Cursor/agents also follow `.cursor/rules/changelog.mdc` and [AGENTS.md](AGENTS.md#changelog).
+Agents also follow `.claude/rules/changelog.md` and [AGENTS.md](AGENTS.md#changelog).

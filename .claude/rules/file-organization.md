@@ -1,14 +1,8 @@
----
-alwaysApply: true
----
-
 # File Organization
 
-## Cursor Rules File Location
+## Agent Rules File Location
 
-**All Cursor rules must be written in `.cursor/rules/` directory, not `.cursorrules` file.**
-
-The `.cursorrules` file is deprecated. Use `.cursor/rules/` directory with `.mdc` files instead.
+**All agent rules live in `.claude/rules/` as one `.md` file per concern.** Scope a rule to files with a `paths:` frontmatter list; omit it for rules that always apply.
 
 ## Module Structure
 
