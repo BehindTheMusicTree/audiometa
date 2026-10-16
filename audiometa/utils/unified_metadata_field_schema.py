@@ -49,7 +49,7 @@ for _k in UnifiedMetadataKey:
         _VALUE_SHAPE[_k] = ("strings", True, False)
     elif _k == UnifiedMetadataKey.TRACK_NUMBER:
         _VALUE_SHAPE[_k] = ("string_or_integer", False, False)
-    elif _k == UnifiedMetadataKey.DISC_TOTAL:
+    elif _k in (UnifiedMetadataKey.DISC_NUMBER, UnifiedMetadataKey.DISC_TOTAL):
         _VALUE_SHAPE[_k] = ("integer", False, True)
     elif _k == UnifiedMetadataKey.RATING:
         _VALUE_SHAPE[_k] = ("number", False, False)

@@ -451,7 +451,7 @@ def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
                 type_names = ", ".join(getattr(t, "__name__", str(t)) if t is not None else "None" for t in arg_types)
                 raise InvalidMetadataFieldTypeError(key.value, f"Union[{type_names}]", value)
         # expected_type is a plain type like str or int
-        elif not isinstance(value, expected_type):
+        elif not isinstance(value, cast(type, expected_type)):
             # Special case for TRACK_NUMBER: allow int for writing convenience (returns string when reading)
             if key == UnifiedMetadataKey.TRACK_NUMBER and isinstance(value, int | str):
                 continue
