@@ -51,12 +51,14 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Changed
 
+- **Release flow**: `scripts/prepare_release.py` now commits the release on a `chore/release-X.Y.Z` branch (`--push` also opens the PR) instead of committing, tagging and pushing `main` directly. Merging the PR tags `vX.Y.Z` and publishes to PyPI automatically; `CONTRIBUTING.md` and `.claude/rules/changelog.md` describe the new flow.
 - **Agent rules**: Migrated `.cursor/rules/*.mdc` to `.claude/rules/*.md` (Claude Code native rules); `globs` became `paths` frontmatter, `alwaysApply` rules load unconditionally. Docs and `scripts/verify_changelog.py` now point to the new paths.
 - **Standards**: Adopted python-project-standards v5.1.0 via Copier (`.copier-answers.yml`); `copier update` now merges shared pre-commit/ruff baselines. Removed `STANDARDS_VERSION`, `scripts/verify-standards.sh`, `scripts/check_lint_baseline.py`, `baselines/DIGESTS`, `baselines/expected-mypy.json` and the `verify-python-project-standards` hook; lint pin bumped to `@v5.1.0`.
 - **Knowledge graph**: Local `graphify` tooling wired up (CLAUDE.md section, `.claude/settings.json` PreToolUse hooks, post-commit/post-checkout git hooks). Output in `graphify-out/` is gitignored, dev-only.
 
 ### Fixed
 
+- **Release script validation**: `scripts/prepare_release.py` validates the version (`X.Y.Z`, greater than the current one) and refuses an empty `[Unreleased]` or an invalid `CHANGELOG.md` before writing any file. `scripts/changelog.py` is now the single parser shared with `scripts/verify_changelog.py`; `scripts/tests` covers both and runs in CI.
 - **MP3 duration**: `get_duration_in_sec()` and `technical_info.duration_seconds` now return the gapless duration for ffmpeg-encoded MP3s (`Lavc`/`Lavf` Info tag), excluding encoder delay and padding as ffprobe and MediaInfo ≥ 26.10 do. Affected files report up to ~50 ms less. mutagen only does this for `LAME` tags, so the Info/LAME header is now read directly (`audiometa/utils/mp3_gapless_duration.py`), falling back to mutagen's estimate when no frame count is present.
   - Includes unit tests (synthetic frames and fixtures) and an integration test comparing against the external tool within a loose tolerance.
 - **Release script**: `scripts/prepare_release.py` now places the new version section below `## [Unreleased]` (it previously wrote it above) and re-runs `scripts/verify_changelog.py` after rewriting `CHANGELOG.md`. The misplaced `[1.4.4]` section was moved below `[Unreleased]`.
@@ -67,6 +69,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### CI
 
+- **Automatic release tagging**: `publish.yml` has a `tag` job that, when `pyproject.toml` changes on `main` to a new `X.Y.Z` version, creates the annotated `vX.Y.Z` tag and runs validation and publishing in the same run. Pushing a `v*` tag manually still re-runs them.
 - **macOS runner**: Test matrix moved from `macos-14` to `macos-15` ahead of GitHub retiring the `macos-14` image on 2026-11-02.
 - **macOS mediainfo pin**: Bumped from `26.05` to `26.10` to match the current Homebrew `media-info` formula.
 - **Changelog check**: New `verify-changelog` pre-commit hook runs `scripts/verify_changelog.py` whenever `CHANGELOG.md` changes.

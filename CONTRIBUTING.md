@@ -482,11 +482,11 @@ These automations help streamline the review process and ensure consistency acro
 
 ### 7. Releasing _(For Maintainers)_
 
-Releases are created from the `main` branch.
+Releases go through a pull request like any other change. Merging the release PR tags `vX.Y.Z` and publishes to PyPI automatically; there is no manual tag and no direct push to `main`.
 
 Quick release process:
 
-1. **Ensure you're on the `main` branch** - Releases must be prepared from `main`, not from feature branches
+1. **Ensure you're on an up-to-date `main`** - the script refuses to run from any other branch or from a dirty tree
 
    ```bash
    git checkout main
@@ -504,7 +504,7 @@ Quick release process:
    - Consolidate entries if needed (group similar changes, ensure clarity)
    - Do not manually move or add the version header—the release script does that with today's date
 
-4. Verify changelog layout (ordering and `prepare_release.py` compatibility):
+4. Verify changelog layout:
 
    ```bash
    python scripts/verify_changelog.py
@@ -512,43 +512,39 @@ Quick release process:
 
    See `.claude/rules/changelog.md` (**CHANGELOG.md structure and integrity**). Fix any reported errors before the release script.
 
-5. Run the release script (updates CHANGELOG, bumps version, commits, and tags):
+5. Run the release script (cuts the CHANGELOG, bumps the version, commits on a release branch):
 
-   **Use the release script, not `bump-my-version` directly.** Running `bump-my-version bump patch` alone does not update `CHANGELOG.md` and is easy to forget; the script does changelog + version + commit + tag in one go.
+   **Use the release script, not `bump-my-version` directly.** Running `bump-my-version bump patch` alone does not update `CHANGELOG.md`; the script does changelog + version + commit in one go.
 
    ```bash
    source .venv/bin/activate
 
-   # From repo root: updates CHANGELOG with new version and today's date, bumps pyproject.toml, commits, and tags
    python scripts/prepare_release.py patch
    # Or: python scripts/prepare_release.py minor
    # Or: python scripts/prepare_release.py major
    # Or: python scripts/prepare_release.py --new-version 1.3.1
-   # Add --push to also push main and the new tag: python scripts/prepare_release.py patch --push
+   # Add --push to also push the branch and open the PR: python scripts/prepare_release.py patch --push
    ```
 
    **What the script does:**
 
-   - Replaces `## [Unreleased]` in `CHANGELOG.md` with `## [X.Y.Z] - YYYY-MM-DD` (today) and adds a new `## [Unreleased]` section
+   - Validates everything before writing any file: the version must be `X.Y.Z` and greater than the current one, `CHANGELOG.md` must be valid, and `[Unreleased]` must not be empty
+   - Replaces `## [Unreleased]` in `CHANGELOG.md` with `## [X.Y.Z] - YYYY-MM-DD` (today) and adds a new empty `## [Unreleased]` section
    - Runs `bump-my-version bump` to update `project.version` and `[tool.bumpversion].current_version` in `pyproject.toml`
-   - Commits `CHANGELOG.md` and `pyproject.toml` with message `chore: prepare release X.Y.Z`
-   - Creates tag `vX.Y.Z`
-   - Without `--push`: stops here (verify with `git log -1` and `git tag -l`, then push manually)
-   - With `--push`: pushes `main` and the new tag to `origin`
+   - Commits `CHANGELOG.md` and `pyproject.toml` as `chore: prepare release X.Y.Z` on a new `chore/release-X.Y.Z` branch
+   - Does not tag and does not touch `main`
+   - With `--push`: pushes the branch and opens the PR against `main`
 
-6. If you did not use `--push`, verify and push:
+6. If you did not use `--push`, push the branch and open the PR:
 
    ```bash
-   git log -1
-   git tag -l
-
-   git push origin main
-   git push origin v0.2.3
-   # Or: git push origin main --follow-tags
+   git push -u origin chore/release-X.Y.Z
+   gh pr create --base main
    ```
 
-7. CI/CD will automatically:
+7. Get the PR approved and merged (`main` requires one approval and the "Lint and tests success" check). On merge, the `Publish to PyPI` workflow automatically:
 
+   - Creates the annotated tag `vX.Y.Z` on the merge commit when `pyproject.toml` holds a new `X.Y.Z` version
    - Verify tag version matches `pyproject.toml` version
    - Verify tag is on main branch
    - Build the package (source distribution and wheel)
@@ -557,11 +553,9 @@ Quick release process:
    - Publish to PyPI using the `PYPI_API_TOKEN` secret
    - Verify PyPI publication success
 
-   **Note:** Publish does not wait for CI. Ensure branch protection requires the "Lint and Test" check before merging so that only CI-passed code reaches main; then any tagged release from main is already validated.
+   **Recovery:** if a publish run fails after the tag was created, fix the cause and re-run it from the Actions tab. Pushing a `vX.Y.Z` tag manually also starts the validate and publish jobs.
 
-**Note:** Ensure `PYPI_API_TOKEN` is configured in GitHub repository secrets before tagging. See [PyPI Publishing Guide](docs/PYPI_PUBLISHING.md) for setup instructions.
-
-**Alternative (manual):** Edit `CHANGELOG.md` (move `[Unreleased]` to a versioned section with date), then run `bump-my-version bump patch` (or `minor` / `major` / `--new-version X.Y.Z`) and commit + tag yourself.
+   **Note:** Publish does not wait for CI. Branch protection requires the "Lint and tests success" check before merging, so every release commit on `main` is already validated.
 
 ## 🪪 License & Attribution
 
