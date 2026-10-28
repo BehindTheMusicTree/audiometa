@@ -51,7 +51,7 @@ class TechnicalInfoInspector:
             data = TechnicalInfoInspector._run_mediainfo(file_path, "JSON")
             tracks = data.get("media", {}).get("track", [])
             for track in tracks:
-                if track.get("@type") == "General":
+                if track.get("@type") == "Audio":
                     duration_str = track.get("Duration")
                     if duration_str:
                         # Handle formats like "1.025 s" or just numbers
