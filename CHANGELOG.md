@@ -76,7 +76,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Fixed
 
 - **MP3 duration**: `get_duration_in_sec()` and `technical_info.duration_seconds` now return the gapless duration for ffmpeg-encoded MP3s (`Lavc`/`Lavf` Info tag), excluding encoder delay and padding as ffprobe and MediaInfo ≥ 26.10 do. Affected files report up to ~50 ms less. mutagen only does this for `LAME` tags, so the Info/LAME header is now read directly (`audiometa/utils/mp3_gapless_duration.py`), falling back to mutagen's estimate when no frame count is present.
-  - Includes unit tests (synthetic frames and fixtures) and an integration test comparing against ffprobe.
+  - Includes unit tests (synthetic frames and fixtures) and an integration test comparing against the external tool within a loose tolerance.
 
 ## [1.4.3] - 2026-04-11
 
