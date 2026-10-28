@@ -47,6 +47,30 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-29`).
 
+## [Unreleased]
+
+### Changed
+
+- **Agent rules**: Migrated `.cursor/rules/*.mdc` to `.claude/rules/*.md` (Claude Code native rules); `globs` became `paths` frontmatter, `alwaysApply` rules load unconditionally. Docs and `scripts/verify_changelog.py` now point to the new paths.
+- **Standards**: Adopted python-project-standards v5.1.0 via Copier (`.copier-answers.yml`); `copier update` now merges shared pre-commit/ruff baselines. Removed `STANDARDS_VERSION`, `scripts/verify-standards.sh`, `scripts/check_lint_baseline.py`, `baselines/DIGESTS`, `baselines/expected-mypy.json` and the `verify-python-project-standards` hook; lint pin bumped to `@v5.1.0`.
+- **Knowledge graph**: Local `graphify` tooling wired up (CLAUDE.md section, `.claude/settings.json` PreToolUse hooks, post-commit/post-checkout git hooks). Output in `graphify-out/` is gitignored, dev-only.
+
+### Fixed
+
+- **MP3 duration**: `get_duration_in_sec()` and `technical_info.duration_seconds` now return the gapless duration for ffmpeg-encoded MP3s (`Lavc`/`Lavf` Info tag), excluding encoder delay and padding as ffprobe and MediaInfo ≥ 26.10 do. Affected files report up to ~50 ms less. mutagen only does this for `LAME` tags, so the Info/LAME header is now read directly (`audiometa/utils/mp3_gapless_duration.py`), falling back to mutagen's estimate when no frame count is present.
+  - Includes unit tests (synthetic frames and fixtures) and an integration test comparing against the external tool within a loose tolerance.
+- **Release script**: `scripts/prepare_release.py` now places the new version section below `## [Unreleased]` (it previously wrote it above) and re-runs `scripts/verify_changelog.py` after rewriting `CHANGELOG.md`. The misplaced `[1.4.4]` section was moved below `[Unreleased]`.
+
+### Documentation
+
+- **Branching model**: `CONTRIBUTING.md` and `.claude/rules/git-workflow.md` describe GitHub flow (all branches merge into `main` via PR) instead of a light GitFlow model, and refer to `hotfix/` branches by their prefix.
+
+### CI
+
+- **macOS runner**: Test matrix moved from `macos-14` to `macos-15` ahead of GitHub retiring the `macos-14` image on 2026-11-02.
+- **macOS mediainfo pin**: Bumped from `26.05` to `26.10` to match the current Homebrew `media-info` formula.
+- **Changelog check**: New `verify-changelog` pre-commit hook runs `scripts/verify_changelog.py` whenever `CHANGELOG.md` changes.
+
 ## [1.4.4] - 2026-09-11
 
 ### Changed
@@ -64,24 +88,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **python-project-standards v4.3.1** ([org **`v4.3.1`**](https://github.com/BehindTheMusicTree/python-project-standards/releases/tag/v4.3.1)): Lint delegates to **`reusable-pre-commit.yml@v4.3.1`**; root **`STANDARDS_VERSION`** **`4.3.1`**. [**`scripts/verify-standards.sh`**](scripts/verify-standards.sh) and [**`scripts/check_lint_baseline.py`**](scripts/check_lint_baseline.py) match org **`templates/scripts/`** on that tag (verification rejects an **isort** pre-commit hook). Removed the **isort** hook from [**.pre-commit-config.yaml**](.pre-commit-config.yaml); **isort** remains in **[`pyproject.toml`](pyproject.toml)** dev extras for optional local or IDE use. Org **[`docs/versioning.md`](https://github.com/BehindTheMusicTree/python-project-standards/blob/main/docs/versioning.md)** documents **`BUMP_MY_VERSION_PYTHON`** for macOS **`bump-my-version`** crashes.
 
 - **python-project-standards v4.3.2** ([org **`v4.3.2`**](https://github.com/BehindTheMusicTree/python-project-standards/releases/tag/v4.3.2)): Lint delegates to **`reusable-pre-commit.yml@v4.3.2`**; root **`STANDARDS_VERSION`** **`4.3.2`**. [**`scripts/check_lint_baseline.py`**](scripts/check_lint_baseline.py) requires **`baselines/ruff.toml`** and **`baselines/expected-mypy.json`** in **`baselines/DIGESTS`**. [**`scripts/verify-standards.sh`**](scripts/verify-standards.sh) matches org on this bump.
-
-## [Unreleased]
-
-### Changed
-
-- **Agent rules**: Migrated `.cursor/rules/*.mdc` to `.claude/rules/*.md` (Claude Code native rules); `globs` became `paths` frontmatter, `alwaysApply` rules load unconditionally. Docs and `scripts/verify_changelog.py` now point to the new paths.
-- **Standards**: Adopted python-project-standards v5.1.0 via Copier (`.copier-answers.yml`); `copier update` now merges shared pre-commit/ruff baselines. Removed `STANDARDS_VERSION`, `scripts/verify-standards.sh`, `scripts/check_lint_baseline.py`, `baselines/DIGESTS`, `baselines/expected-mypy.json` and the `verify-python-project-standards` hook; lint pin bumped to `@v5.1.0`.
-- **Knowledge graph**: Local `graphify` tooling wired up (CLAUDE.md section, `.claude/settings.json` PreToolUse hooks, post-commit/post-checkout git hooks). Output in `graphify-out/` is gitignored, dev-only.
-
-### Fixed
-
-- **MP3 duration**: `get_duration_in_sec()` and `technical_info.duration_seconds` now return the gapless duration for ffmpeg-encoded MP3s (`Lavc`/`Lavf` Info tag), excluding encoder delay and padding as ffprobe and MediaInfo ≥ 26.10 do. Affected files report up to ~50 ms less. mutagen only does this for `LAME` tags, so the Info/LAME header is now read directly (`audiometa/utils/mp3_gapless_duration.py`), falling back to mutagen's estimate when no frame count is present.
-  - Includes unit tests (synthetic frames and fixtures) and an integration test comparing against the external tool within a loose tolerance.
-
-### CI
-
-- **macOS runner**: Test matrix moved from `macos-14` to `macos-15` ahead of GitHub retiring the `macos-14` image on 2026-11-02.
-- **macOS mediainfo pin**: Bumped from `26.05` to `26.10` to match the current Homebrew `media-info` formula.
 
 ## [1.4.3] - 2026-04-11
 

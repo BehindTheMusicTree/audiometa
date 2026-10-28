@@ -46,7 +46,7 @@ def update_changelog(repo_root: Path, new_version: str, release_date: str) -> No
     path = repo_root / "CHANGELOG.md"
     content = path.read_text()
     pattern = r"(## \[Unreleased\])\n\n" r"(.*?)" r"(\n## \[\d+\.\d+\.\d+\] - \d{4}-\d{2}-\d{2})"
-    replacement = f"## [{new_version}] - {release_date}\n\n" r"\2\n\n## [Unreleased]\n\n" r"\3"
+    replacement = r"\1\n\n" f"## [{new_version}] - {release_date}\n\n" r"\2\3"
     new_content, n = re.subn(pattern, replacement, content, count=1, flags=re.DOTALL)
     if n != 1:
         raise SystemExit(
@@ -98,6 +98,7 @@ def main() -> None:
 
     release_date = date.today().isoformat()
     update_changelog(repo_root, new_version, release_date)
+    subprocess.run([sys.executable, str(verify_script)], cwd=repo_root, check=True)
 
     cmd = [
         "bump-my-version",

@@ -1,6 +1,6 @@
 # Git Workflow and Branch Naming
 
-We follow a light GitFlow model adapted for small teams and open-source projects.
+We follow GitHub flow (all branches merge into `main` via PR), adapted for small teams and open-source projects.
 
 ## Branch Naming Conventions
 
