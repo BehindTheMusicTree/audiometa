@@ -4,10 +4,16 @@
 
 All code must pass pre-commit hooks before committing:
 
-- Code formatting (trailing-whitespace, isort, ruff-format, pydocstringformatter, ruff)
+- Tool and system dependency versions match their pins (check-tool-versions, verify-system-dependency-versions)
+- CHANGELOG.md section order and format (verify-changelog)
+- Basic file checks (pre-commit-hooks: yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
+- Shell scripts (shellcheck, fix-shell-trailing-blank-lines)
+- Assert statement check (no-assert - will fail if asserts are found in production code)
+- Python formatting and linting (ruff-format, ruff - replaces isort, autoflake and flake8)
 - Type checking (mypy)
-- Linting (ruff - replaces autoflake and flake8)
-- Assert statement check (custom hook - will fail if asserts are found)
+- Docstring and comment formatting (pydocstringformatter, fix-long-comments)
+- Markdown, JSON and YAML formatting (prettier)
+- PowerShell scripts (py-psscriptanalyzer, py-psscriptanalyzer-format)
 
 **Note:** Ruff handles unused imports/variables (replaces autoflake) and most linting rules (replaces flake8). The trailing-whitespace hook automatically removes trailing whitespace without failing. Ruff-format handles code formatting and EOF newlines automatically.
 
