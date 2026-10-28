@@ -10,28 +10,33 @@ on:
     paths:
       - pyproject.toml
     tags:
-      - "v*" # Manual tag push (v0.3.0, v1.0.0, etc.) re-runs validation and publish
+      - "v*" # Pushed by the tag job (v0.3.0, v1.0.0, etc.); re-running that run retries a failed publish
 
 jobs:
   tag:
     name: Tag release version
     runs-on: ubuntu-latest
     if: github.ref_type == 'branch'
-    permissions:
-      contents: write
-    outputs:
-      version: ${{ steps.tag_release.outputs.version }}
-      release: ${{ steps.tag_release.outputs.release }}
+    # Serialize so two quick pushes to main cannot race to create the same tag
+    concurrency:
+      group: publish-tag
+      cancel-in-progress: false
 
     steps:
+      - name: Create release app token
+        id: app_token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
       - name: Checkout code
         uses: actions/checkout@v6
 
-      # Tags pushed with GITHUB_TOKEN do not trigger new workflow runs, so validate and publish run in this same run.
+      # The app token (unlike GITHUB_TOKEN) is a tag-ruleset bypass actor and its tag push starts the validate and publish jobs in a new run
       - name: Tag the version in pyproject.toml if it is a new release
-        id: tag_release
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
         run: |
           set -e
           VERSION=$(grep -E '^version\s*=' pyproject.toml | sed -E 's/version\s*=\s*"([^"]+)"/\1/')
@@ -39,13 +44,11 @@ jobs:
 
           if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "Version $VERSION is not x.x.x (pre-release, dev, or other). Not tagging."
-            echo "release=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           if git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" > /dev/null; then
             echo "Tag v$VERSION already exists. pyproject.toml changed without a version bump; nothing to release."
-            echo "release=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -53,14 +56,11 @@ jobs:
             -f tag="v$VERSION" -f message="Release $VERSION" -f object="$GITHUB_SHA" -f type=commit --jq .sha)
           gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/v$VERSION" -f sha="$TAG_OBJECT" > /dev/null
           echo "Created tag v$VERSION on $GITHUB_SHA"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "release=true" >> "$GITHUB_OUTPUT"
 
   validate:
     name: Validate tag and version
     runs-on: ubuntu-latest
-    needs: tag
-    if: ${{ !cancelled() && (github.ref_type == 'tag' || needs.tag.outputs.release == 'true') }}
+    if: github.ref_type == 'tag'
     outputs:
       is_release_version: ${{ steps.check_release_version.outputs.is_release_version }}
 
@@ -92,13 +92,8 @@ jobs:
         run: |
           set -e
           PROJECT_VERSION="${{ steps.extract_version.outputs.version }}"
-          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
-            TAG_VERSION="${GITHUB_REF#refs/tags/v}"
-            TAG_COMMIT=$(git rev-parse "$GITHUB_REF")
-          else
-            TAG_VERSION="${{ needs.tag.outputs.version }}"
-            TAG_COMMIT="$GITHUB_SHA"
-          fi
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          TAG_COMMIT=$(git rev-parse "$GITHUB_REF")
 
           if [ "$TAG_VERSION" != "$PROJECT_VERSION" ]; then
             echo "Error: Tag version ($TAG_VERSION) does not match pyproject.toml ($PROJECT_VERSION). Use tag v$PROJECT_VERSION"

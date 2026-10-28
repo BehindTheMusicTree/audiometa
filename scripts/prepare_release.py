@@ -47,7 +47,7 @@ def _git(repo_root: Path, *args: str) -> str:
     return result.stdout.strip()
 
 
-def _require_branchable_main(repo_root: Path, branch: str) -> None:
+def _require_branchable_main(repo_root: Path, branch: str, tag: str) -> None:
     current = _git(repo_root, "rev-parse", "--abbrev-ref", "HEAD")
     if current != "main":
         raise SystemExit(f"Releases are prepared from main; current branch is {current}.")
@@ -56,8 +56,10 @@ def _require_branchable_main(repo_root: Path, branch: str) -> None:
     _git(repo_root, "fetch", "origin", "main")
     if _git(repo_root, "rev-parse", "HEAD") != _git(repo_root, "rev-parse", "origin/main"):
         raise SystemExit("Local main differs from origin/main; sync it first.")
-    if _git(repo_root, "branch", "--list", branch):
+    if _git(repo_root, "branch", "--list", branch) or _git(repo_root, "ls-remote", "--heads", "origin", branch):
         raise SystemExit(f"Branch {branch} already exists.")
+    if _git(repo_root, "tag", "--list", tag) or _git(repo_root, "ls-remote", "--tags", "origin", f"refs/tags/{tag}"):
+        raise SystemExit(f"Tag {tag} already exists.")
 
 
 def run(repo_root: Path, part: str | None, new_version: str | None, push: bool) -> str:
@@ -90,7 +92,7 @@ def run(repo_root: Path, part: str | None, new_version: str | None, push: bool) 
         raise SystemExit(str(err)) from err
 
     branch = f"chore/release-{new_version}"
-    _require_branchable_main(repo_root, branch)
+    _require_branchable_main(repo_root, branch, f"v{new_version}")
 
     subprocess.run(
         [sys.executable, "-m", "bumpversion", "bump", "--no-commit", "--no-tag", "--allow-dirty"]

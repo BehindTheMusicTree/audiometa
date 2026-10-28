@@ -65,7 +65,7 @@ Before preparing a release, refer to the "Releasing _(For Maintainers)_" section
 4. Running `python scripts/verify_changelog.py` (see **CHANGELOG.md structure and integrity** above)
 5. Running `scripts/prepare_release.py` (updates CHANGELOG with version and date, bumps version, and commits on `chore/release-X.Y.Z`; no tag, no push to `main`)
 6. Pushing the release branch and opening the PR (`--push` does both)
-7. Merging the PR: CI/CD then tags `vX.Y.Z` and handles PyPI publishing automatically
+7. Merging the PR: CI/CD then tags `vX.Y.Z` (GitHub App token) and the tag push starts the PyPI publishing run automatically
 
 **Do not skip any steps in the release process.** See `CONTRIBUTING.md` for detailed instructions.
 

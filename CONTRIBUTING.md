@@ -544,7 +544,7 @@ Quick release process:
 
 7. Get the PR approved and merged (`main` requires one approval and the "Lint and tests success" check). On merge, the `Publish to PyPI` workflow automatically:
 
-   - Creates the annotated tag `vX.Y.Z` on the merge commit when `pyproject.toml` holds a new `X.Y.Z` version
+   - Creates the annotated tag `vX.Y.Z` on the merge commit when `pyproject.toml` holds a new `X.Y.Z` version (the `tag` job, using the release GitHub App token), which starts a second run for the tag with the steps below
    - Verify tag version matches `pyproject.toml` version
    - Verify tag is on main branch
    - Build the package (source distribution and wheel)
@@ -553,7 +553,9 @@ Quick release process:
    - Publish to PyPI using the `PYPI_API_TOKEN` secret
    - Verify PyPI publication success
 
-   **Recovery:** if a publish run fails after the tag was created, fix the cause and re-run it from the Actions tab. Pushing a `vX.Y.Z` tag manually also starts the validate and publish jobs.
+   **Recovery:** if validation or publishing fails after the tag was created, fix the cause and re-run the failed run for the `vX.Y.Z` tag from the Actions tab. If the `tag` job itself fails, re-run it from the merge-commit run.
+
+   **Setup:** the `tag` job needs the `RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY` repository secrets of a GitHub App with `Contents: Read & write`, installed on this repository and listed as a bypass actor of the `vX.Y.Z` tag ruleset. `GITHUB_TOKEN` cannot be used: it is not a bypass actor and tags it pushes do not start workflows.
 
    **Note:** Publish does not wait for CI. Branch protection requires the "Lint and tests success" check before merging, so every release commit on `main` is already validated.
 

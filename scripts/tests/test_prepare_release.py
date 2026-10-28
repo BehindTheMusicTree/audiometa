@@ -146,3 +146,33 @@ class TestPrepareRelease:
 
         with pytest.raises(SystemExit, match="differs from origin/main"):
             run(repo, "patch", None, push=False)
+
+    @pytest.mark.parametrize(
+        ("setup", "message"),
+        [
+            (["tag", "v1.4.5"], "Tag v1.4.5 already exists"),
+            (["branch", "chore/release-1.4.5"], "Branch chore/release-1.4.5 already exists"),
+        ],
+    )
+    def test_release_refuses_when_local_tag_or_branch_exists(self, repo: Path, setup: list[str], message: str):
+        _git(repo, *setup)
+
+        with pytest.raises(SystemExit, match=message):
+            run(repo, "patch", None, push=False)
+
+        assert (repo / "pyproject.toml").read_text(encoding="utf-8") == PYPROJECT
+
+    @pytest.mark.parametrize(
+        ("ref", "message"),
+        [
+            ("refs/tags/v1.4.5", "Tag v1.4.5 already exists"),
+            ("refs/heads/chore/release-1.4.5", "Branch chore/release-1.4.5 already exists"),
+        ],
+    )
+    def test_release_refuses_when_remote_tag_or_branch_exists(self, repo: Path, ref: str, message: str):
+        _git(repo, "push", "origin", f"HEAD:{ref}")
+
+        with pytest.raises(SystemExit, match=message):
+            run(repo, "patch", None, push=False)
+
+        assert (repo / "pyproject.toml").read_text(encoding="utf-8") == PYPROJECT
