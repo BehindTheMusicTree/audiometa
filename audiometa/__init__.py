@@ -1216,6 +1216,8 @@ def is_audio_file(file: PublicFileType) -> bool:
 def get_duration_in_sec(file: PublicFileType) -> float:
     """Get the duration of an audio file in seconds.
 
+    MP3 durations exclude encoder delay and padding when the Xing/Info frame's LAME extension provides them.
+
     Args:
         file: Audio file path (str or Path)
 
