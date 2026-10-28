@@ -1,6 +1,8 @@
 import subprocess
 from pathlib import Path
 
+from audiometa.utils.tool_path_resolver import get_tool_path
+
 
 class TechnicalInfoInspector:
     """Helper class for inspecting technical audio file information using mediainfo."""
@@ -46,21 +48,29 @@ class TechnicalInfoInspector:
 
     @staticmethod
     def get_duration(file_path: str | Path) -> float | None:
-        """Get the duration of an audio file in seconds using mediainfo."""
+        """Get the duration of an audio file in seconds using ffprobe.
+
+        ffprobe is used instead of mediainfo because mediainfo's MP3 duration depends on its version
+        (gapless handling was added in 26.10), so the pinned Ubuntu and macOS versions disagree.
+        """
         try:
-            data = TechnicalInfoInspector._run_mediainfo(file_path, "JSON")
-            tracks = data.get("media", {}).get("track", [])
-            for track in tracks:
-                if track.get("@type") == "Audio":
-                    duration_str = track.get("Duration")
-                    if duration_str:
-                        # Handle formats like "1.025 s" or just numbers
-                        if "s" in duration_str:
-                            return float(duration_str.split()[0])
-                        return float(duration_str)
+            result = subprocess.run(
+                [
+                    get_tool_path("ffprobe"),
+                    "-v",
+                    "error",
+                    "-show_entries",
+                    "format=duration",
+                    "-of",
+                    "default=noprint_wrappers=1:nokey=1",
+                    str(file_path),
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            return float(result.stdout.strip())
         except Exception:
-            return None
-        else:
             return None
 
     @staticmethod
