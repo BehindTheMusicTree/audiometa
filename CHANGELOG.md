@@ -73,6 +73,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **Standards**: Adopted python-project-standards v5.1.0 via Copier (`.copier-answers.yml`); `copier update` now merges shared pre-commit/ruff baselines. Removed `STANDARDS_VERSION`, `scripts/verify-standards.sh`, `scripts/check_lint_baseline.py`, `baselines/DIGESTS`, `baselines/expected-mypy.json` and the `verify-python-project-standards` hook; lint pin bumped to `@v5.1.0`.
 - **Knowledge graph**: Local `graphify` tooling wired up (CLAUDE.md section, `.claude/settings.json` PreToolUse hooks, post-commit/post-checkout git hooks). Output in `graphify-out/` is gitignored, dev-only.
 
+### CI
+
+- **macOS runner**: Test matrix moved from `macos-14` to `macos-15` ahead of GitHub retiring the `macos-14` image on 2026-11-02.
+
 ## [1.4.3] - 2026-04-11
 
 ### Fixed
