@@ -51,14 +51,14 @@ The maintainer(s) are responsible for:
 - Ensuring code quality and project direction
 - Responding to critical issues
 - Maintaining the project's infrastructure
-- Creating and managing hotfix branches for urgent production fixes
+- Creating and managing `hotfix/` branches for urgent production fixes
 - Moving "Unreleased" changelog entries to versioned sections during releases
 - Managing the TODO list (contributors should open issues for new tasks; maintainers update `TODO.md`)
 - Managing repository automation (stale issues/PRs, auto-labeling, auto-assignment, etc.)
 
 **Important:** Even maintainers must go through Pull Requests. No direct commits to `main` are allowed - all changes, including those from maintainers, must be submitted via Pull Requests and go through the standard review process.
 
-_Note: Contributors can submit fixes for critical issues via feature branches. Maintainers may promote these to hotfix branches when urgent production fixes are needed._
+_Note: Contributors can submit fixes for critical issues via feature branches. Maintainers may promote these to `hotfix/` branches when urgent production fixes are needed._
 
 ### Infrastructure & Automation Permissions
 
@@ -98,7 +98,7 @@ Currently, this project has a solo maintainer, but the role may expand as the pr
 
 ## 🧱 Development Workflow
 
-We follow a light GitFlow model adapted for small teams and open-source projects:
+We follow GitHub flow (all branches merge into `main` via PR), adapted for small teams and open-source projects:
 
 **Workflow steps:** Fork & Clone → Environment Setup → Branching → Developing → Testing → Committing → Pull Request Process (including Pre-PR Checklist) → Releasing _(For Maintainers)_
 
@@ -208,7 +208,7 @@ Ensure you're using:
   ```
 - Merge into `main` via Pull Request when complete and tested
 
-#### Hotfix Branches (`hotfix/<name>`) _(For Maintainers)_
+#### Urgent Fix Branches (`hotfix/<name>`) _(For Maintainers)_
 
 - For urgent bug fixes on production versions
 - Include issue numbers when applicable: `hotfix/789-critical-bug`
@@ -224,7 +224,7 @@ Ensure you're using:
 - For maintenance, infrastructure, and configuration work
 - Include issue numbers when applicable: `chore/234-update-dependencies`
 - Examples: repository setup, CI/CD changes, dependency updates, documentation infrastructure
-- Valid in lightweight GitFlow/GitHub Flow workflows
+- Valid in GitHub flow
 - Examples:
   ```bash
   git checkout -b chore/github-setup
