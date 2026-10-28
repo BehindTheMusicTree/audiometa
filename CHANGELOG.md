@@ -76,6 +76,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### CI
 
 - **macOS runner**: Test matrix moved from `macos-14` to `macos-15` ahead of GitHub retiring the `macos-14` image on 2026-11-02.
+- **macOS mediainfo pin**: Bumped from `26.05` to `26.10` to match the current Homebrew `media-info` formula.
 
 ## [1.4.3] - 2026-04-11
 
