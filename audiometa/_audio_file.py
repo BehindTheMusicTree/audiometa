@@ -26,6 +26,7 @@ from .manager._rating_supporting.id3v2._id3v2_constants import ID3V2_HEADER_SIZE
 from .manager._rating_supporting.riff._riff_constants import RIFF_HEADER_SIZE
 from .utils.flac_md5_state import FlacMd5State
 from .utils.metadata_format import MetadataFormat
+from .utils.mp3_gapless_duration import read_mp3_gapless_duration
 from .utils.mutagen_exception_handler import handle_mutagen_exception
 from .utils.tool_path_resolver import get_tool_path
 
@@ -92,6 +93,9 @@ class _AudioFile:
 
         if self.file_extension == ".mp3":
             try:
+                gapless_duration = read_mp3_gapless_duration(path)
+                if gapless_duration is not None:
+                    return gapless_duration
                 audio = MP3(path)
                 return float(audio.info.length)
             except Exception as exc:
