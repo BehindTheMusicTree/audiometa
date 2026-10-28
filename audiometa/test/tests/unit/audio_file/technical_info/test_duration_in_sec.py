@@ -14,6 +14,10 @@ class TestAudioFileDurationInSec:
         assert duration > 0
         assert duration < 1000  # Reasonable bounds check
 
+    def test_get_duration_in_sec_mp3_excludes_encoder_delay_and_padding(self, sample_mp3_file: Path):
+        audio_file = _AudioFile(sample_mp3_file)
+        assert audio_file.get_duration_in_sec() == pytest.approx(1.0, abs=1e-6)
+
     def test_get_duration_in_sec_flac(self, sample_flac_file: Path):
         audio_file = _AudioFile(sample_flac_file)
         duration = audio_file.get_duration_in_sec()
