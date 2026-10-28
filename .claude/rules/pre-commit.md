@@ -4,10 +4,16 @@
 
 All code must pass pre-commit hooks before committing:
 
-- Code formatting (trailing-whitespace, isort, ruff-format, pydocstringformatter, ruff)
+- Tool and system dependency versions match their pins (check-tool-versions, verify-system-dependency-versions)
+- CHANGELOG.md section order and format (verify-changelog)
+- Basic file checks (pre-commit-hooks: yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
+- Shell scripts (shellcheck, fix-shell-trailing-blank-lines)
+- Assert statement check (no-assert - will fail if asserts are found in production code)
+- Python formatting and linting (ruff-format, ruff - replaces isort, autoflake and flake8)
 - Type checking (mypy)
-- Linting (ruff - replaces autoflake and flake8)
-- Assert statement check (custom hook - will fail if asserts are found)
+- Docstring and comment formatting of `audiometa/` sources (pydocstringformatter, fix-long-comments)
+- Markdown formatting (prettier)
+- PowerShell scripts (py-psscriptanalyzer, py-psscriptanalyzer-format)
 
 **Note:** Ruff handles unused imports/variables (replaces autoflake) and most linting rules (replaces flake8). The trailing-whitespace hook automatically removes trailing whitespace without failing. Ruff-format handles code formatting and EOF newlines automatically.
 
@@ -25,7 +31,6 @@ Run `pre-commit run --all-files` before committing to ensure all checks pass.
    [project.optional-dependencies]
    dev = [
        "ruff==0.15.9",     # ✅ Pinned version
-       "isort==5.13.2",    # ✅ Pinned version
        "mypy==1.8.0",      # ✅ Pinned version
    ]
    ```
@@ -38,11 +43,6 @@ Run `pre-commit run --all-files` before committing to ensure all checks pass.
        - id: ruff-format
          name: ruff-format
          entry: ruff format --line-length=120
-         language: system
-         files: ^audiometa/.*\.py$
-       - id: isort
-         name: isort
-         entry: isort --profile black --line-length=120
          language: system
          files: ^audiometa/.*\.py$
    ```
