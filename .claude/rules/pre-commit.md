@@ -11,8 +11,8 @@ All code must pass pre-commit hooks before committing:
 - Assert statement check (no-assert - will fail if asserts are found in production code)
 - Python formatting and linting (ruff-format, ruff - replaces isort, autoflake and flake8)
 - Type checking (mypy)
-- Docstring and comment formatting (pydocstringformatter, fix-long-comments)
-- Markdown, JSON and YAML formatting (prettier)
+- Docstring and comment formatting of `audiometa/` sources (pydocstringformatter, fix-long-comments)
+- Markdown formatting (prettier)
 - PowerShell scripts (py-psscriptanalyzer, py-psscriptanalyzer-format)
 
 **Note:** Ruff handles unused imports/variables (replaces autoflake) and most linting rules (replaces flake8). The trailing-whitespace hook automatically removes trailing whitespace without failing. Ruff-format handles code formatting and EOF newlines automatically.
@@ -31,7 +31,6 @@ Run `pre-commit run --all-files` before committing to ensure all checks pass.
    [project.optional-dependencies]
    dev = [
        "ruff==0.15.9",     # ✅ Pinned version
-       "isort==5.13.2",    # ✅ Pinned version
        "mypy==1.8.0",      # ✅ Pinned version
    ]
    ```
@@ -44,11 +43,6 @@ Run `pre-commit run --all-files` before committing to ensure all checks pass.
        - id: ruff-format
          name: ruff-format
          entry: ruff format --line-length=120
-         language: system
-         files: ^audiometa/.*\.py$
-       - id: isort
-         name: isort
-         entry: isort --profile black --line-length=120
          language: system
          files: ^audiometa/.*\.py$
    ```
