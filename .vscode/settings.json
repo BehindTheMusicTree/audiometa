@@ -5,7 +5,5 @@
   "python.testing.autoTestDiscoverOnSaveEnabled": true,
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.diagnosticMode": "workspace",
-  "python.testing.cwd": "${workspaceFolder}",
-  "cursorpyright.analysis.diagnosticMode": "workspace",
-  "cursorpyright.analysis.typeCheckingMode": "basic"
+  "python.testing.cwd": "${workspaceFolder}"
 }

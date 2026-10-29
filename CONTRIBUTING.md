@@ -235,7 +235,7 @@ Ensure you're using:
 
 #### Working with Multiple Local Branches (Git Worktrees)
 
-When working on multiple branches simultaneously or when you need separate Cursor windows for different branches, use **git worktrees**. This allows you to have multiple working directories for the same repository, each on a different branch.
+When working on multiple branches simultaneously or when you need separate editor windows for different branches, use **git worktrees**. This allows you to have multiple working directories for the same repository, each on a different branch.
 
 This repository uses the [`git-worktree-scripts`](https://www.npmjs.com/package/git-worktree-scripts) npm package for managing worktrees:
 

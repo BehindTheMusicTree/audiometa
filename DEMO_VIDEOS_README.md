@@ -50,7 +50,6 @@ See `TWITTER_POST.md` for tweet suggestions (4 options, 233-399 characters).
 
 ## Video Location
 
-- In artifacts: `/opt/cursor/artifacts/audiometa_demo_twitter_final.mp4`
 - In workspace: `/workspace/audiometa_demo_twitter_final.mp4`
 
 ## Links to Include
