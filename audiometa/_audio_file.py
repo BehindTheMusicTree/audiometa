@@ -93,11 +93,11 @@ class _AudioFile:
 
         if self.file_extension == ".mp3":
             try:
-                gapless_duration = read_mp3_gapless_duration(path)
+                info = MP3(path).info
+                gapless_duration = read_mp3_gapless_duration(path, info)
                 if gapless_duration is not None:
                     return gapless_duration
-                audio = MP3(path)
-                return float(audio.info.length)
+                return float(info.length)
             except Exception as exc:
                 # If MP3 fails, try other formats as fallback
                 try:
