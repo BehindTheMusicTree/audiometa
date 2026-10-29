@@ -49,6 +49,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### CI
+
+- **Test matrix**: set `fail-fast: false` in `.github/workflows/lint-and-test.yml` so every OS and Python version reports its result instead of being cancelled by the first failure
+
 ### Fixed
 
 - **macOS dependency install script**: `scripts/install-system-dependencies-macos.sh` is now idempotent and non-destructive on developer machines
