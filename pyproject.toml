@@ -35,7 +35,7 @@ audiometa = "audiometa.cli:main"
 
 [project.optional-dependencies]
 dev = [
-    "pytest==9.0.1",
+    "pytest==9.0.3",
     "pytest-cov==4.0.0",
     "pytest-mock==3.15.1",
     "ruff==0.15.9",
