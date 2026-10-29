@@ -49,6 +49,14 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Fixed
+
+- **macOS dependency install script**: `scripts/install-system-dependencies-macos.sh` is now idempotent and non-destructive on developer machines
+  - Detects the keg-only `ffmpeg@N` directly instead of the `ffmpeg` on `PATH`, and no longer uninstalls an unrelated `ffmpeg` formula (removal is kept in CI only)
+  - Skips `brew upgrade` for packages already matching their pin
+  - Only falls back to building `tesseract` from source in CI
+- **System dependency verification**: on macOS, `verify-system-dependency-versions` reads the `ffmpeg` version from the pinned keg-only `ffmpeg@N` before `PATH`, so an unrelated `ffmpeg` no longer causes a false version mismatch
+
 ## [1.4.5] - 2026-10-29
 
 ### Changed
