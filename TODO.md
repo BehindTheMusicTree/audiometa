@@ -203,9 +203,16 @@ _No high priority infrastructure tasks at this time._
   - Update project dependencies and requirements
 
 - [ ] **Review and update maintainer pre-merge checklist**
+
   - Ensure all maintainer checks are comprehensive and up-to-date
   - Align with current project practices and CI/CD setup
   - Document any additional checks needed before merging PRs
+
+- [ ] **Drop `mp3_gapless_duration.py` once mutagen ships the Lavc/Lavf fix**
+  - Upstream PR: https://github.com/quodlibet/mutagen/pull/746
+  - Bump the `mutagen==` pin to the release containing it (check the 1.46+ release notes first)
+  - Delete `audiometa/utils/mp3_gapless_duration.py` and its call site, use `MPEGInfo.length`
+  - Keep the existing duration tests as the regression proof
 
 ### Low Priority
 

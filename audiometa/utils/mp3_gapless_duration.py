@@ -3,6 +3,7 @@
 mutagen only subtracts encoder delay and padding when the LAME extension's encoder string starts with
 "LAME"; ffmpeg writes the same extension with "Lavc"/"Lavf", so mutagen over-reports those files.
 Frame sync is taken from mutagen's MPEGInfo.
+Remove once mutagen ships https://github.com/quodlibet/mutagen/pull/746.
 """
 
 from pathlib import Path
