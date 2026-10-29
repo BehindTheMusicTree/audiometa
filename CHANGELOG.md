@@ -49,6 +49,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [1.4.5] - 2026-10-29
+
 ### Changed
 
 - **Release flow**: `scripts/prepare_release.py` now commits the release on a `chore/release-X.Y.Z` branch (`--push` also opens the PR) instead of committing, tagging and pushing `main` directly. Merging the PR tags `vX.Y.Z` and publishes to PyPI automatically; `CONTRIBUTING.md` and `.claude/rules/changelog.md` describe the new flow.
