@@ -192,7 +192,7 @@ install_ffmpeg() {
   FFMPEG_BIN_PATH="${HOMEBREW_PREFIX}/opt/ffmpeg@${pinned_version}/bin"
   local installed_version=""
   if [ -x "${FFMPEG_BIN_PATH}/ffprobe" ]; then
-    installed_version=$("${FFMPEG_BIN_PATH}/ffprobe" -version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+    installed_version=$("${FFMPEG_BIN_PATH}/ffprobe" -version 2>/dev/null | head -n1 | grep -oE 'version [0-9]+(\.[0-9]+)*' | grep -oE '[0-9]+(\.[0-9]+)*' || echo "")
   fi
 
   local need_install=1
