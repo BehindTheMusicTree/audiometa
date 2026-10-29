@@ -111,6 +111,8 @@ extend = "baselines/ruff.toml"
 "scripts/demo_repl.py" = ["T201"]
 # Release script: CLI tool; relax exception/literal and magic-number rules for clarity
 "scripts/prepare_release.py" = ["TRY003", "EM101", "EM102", "PLR2004", "DTZ011", "RUF005", "T201"]
+"scripts/changelog.py" = ["TRY003", "EM101", "EM102", "INP001"]
+"scripts/tests/**" = ["INP001", "PLR2004", "DTZ011"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -157,7 +159,7 @@ module = "mutagen.*"
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-testpaths = ["audiometa/test/tests"]
+testpaths = ["audiometa/test/tests", "scripts/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]

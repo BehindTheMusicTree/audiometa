@@ -19,7 +19,7 @@
 2. **Immediately after** the `[Unreleased]` notes, the next section must be the newest release: `## [X.Y.Z] - YYYY-MM-DD`.
 3. **Older releases** follow in **strictly decreasing** semantic order (e.g. `1.4.1`, then `1.4.0`, then `1.3.3`).
 
-This matches `scripts/prepare_release.py`, which replaces the `[Unreleased]` block and inserts the new version **between** `[Unreleased]` and the first `## [X.Y.Z] - date` below it. If older versions sit above `[Unreleased]` or order is wrong, the file reads incorrectly and releases can produce the wrong section order.
+`scripts/changelog.py` parses and validates this layout; `scripts/verify_changelog.py` and `scripts/prepare_release.py` both use it. `prepare_release.py` moves the `[Unreleased]` notes under the new version header and refuses to release when `[Unreleased]` is empty or the layout is invalid.
 
 **Whenever you edit `CHANGELOG.md`** (including moving release notes or cutting a release by hand), verify before committing or running `prepare_release.py`:
 
@@ -50,7 +50,7 @@ Fix reported issues until the script prints `CHANGELOG.md OK`. Agents should run
 
 **IMPORTANT: All releases must follow the steps documented in `CONTRIBUTING.md`.**
 
-**CRITICAL: Releases must be prepared on the `main` branch.** Before starting the release process, ensure you are on the `main` branch and that it is up to date with the remote:
+**CRITICAL: Releases are prepared from an up-to-date `main`** and land on `main` through a `chore/release-X.Y.Z` pull request. Before starting the release process, ensure you are on the `main` branch and that it is up to date with the remote:
 
 ```bash
 git checkout main
@@ -62,10 +62,10 @@ Before preparing a release, refer to the "Releasing _(For Maintainers)_" section
 1. **Ensuring you're on the `main` branch** - Releases must be prepared from `main`, not from feature branches
 2. Checking `TODO.md` for critical items
 3. Reviewing the `[Unreleased]` section in `CHANGELOG.md`
-4. Running `python scripts/verify_changelog.py` (layout must match `prepare_release.py`; see **CHANGELOG.md structure and integrity** above)
-5. Running `scripts/prepare_release.py` (updates CHANGELOG with version and date, bumps version, commits, and tags)
-6. Pushing main and the new tag
-7. CI/CD will automatically handle PyPI publishing
+4. Running `python scripts/verify_changelog.py` (see **CHANGELOG.md structure and integrity** above)
+5. Running `scripts/prepare_release.py` (updates CHANGELOG with version and date, bumps version, and commits on `chore/release-X.Y.Z`; no tag, no push to `main`)
+6. Pushing the release branch and opening the PR (`--push` does both)
+7. Merging the PR: CI/CD then tags `vX.Y.Z` (GitHub App token) and the tag push starts the PyPI publishing run automatically
 
 **Do not skip any steps in the release process.** See `CONTRIBUTING.md` for detailed instructions.
 

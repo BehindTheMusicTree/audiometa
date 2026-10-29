@@ -5,14 +5,62 @@ name: Publish to PyPI
 
 on:
   push:
+    branches:
+      - main # A merged release PR bumps the version in pyproject.toml; the tag job tags it
+    paths:
+      - pyproject.toml
     tags:
-      - "v*" # Triggers on tags like v0.3.0, v1.0.0, etc.
+      - "v*" # Pushed by the tag job (v0.3.0, v1.0.0, etc.); re-running that run retries a failed publish
 
 jobs:
+  tag:
+    name: Tag release version
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'branch'
+    # Serialize so two quick pushes to main cannot race to create the same tag
+    concurrency:
+      group: publish-tag
+      cancel-in-progress: false
+
+    steps:
+      - name: Create release app token
+        id: app_token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # The app token (unlike GITHUB_TOKEN) is a tag-ruleset bypass actor and its tag push starts the validate and publish jobs in a new run
+      - name: Tag the version in pyproject.toml if it is a new release
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+        run: |
+          set -e
+          VERSION=$(grep -E '^version\s*=' pyproject.toml | sed -E 's/version\s*=\s*"([^"]+)"/\1/')
+          echo "Extracted version: $VERSION"
+
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Version $VERSION is not x.x.x (pre-release, dev, or other). Not tagging."
+            exit 0
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" > /dev/null; then
+            echo "Tag v$VERSION already exists. pyproject.toml changed without a version bump; nothing to release."
+            exit 0
+          fi
+
+          TAG_OBJECT=$(gh api "repos/$GITHUB_REPOSITORY/git/tags" \
+            -f tag="v$VERSION" -f message="Release $VERSION" -f object="$GITHUB_SHA" -f type=commit --jq .sha)
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/v$VERSION" -f sha="$TAG_OBJECT" > /dev/null
+          echo "Created tag v$VERSION on $GITHUB_SHA"
+
   validate:
     name: Validate tag and version
     runs-on: ubuntu-latest
-    if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/v')
+    if: github.ref_type == 'tag'
     outputs:
       is_release_version: ${{ steps.check_release_version.outputs.is_release_version }}
 
@@ -43,15 +91,15 @@ jobs:
       - name: Verify tag and branch (version match + tag on main)
         run: |
           set -e
-          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
           PROJECT_VERSION="${{ steps.extract_version.outputs.version }}"
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          TAG_COMMIT=$(git rev-parse "$GITHUB_REF")
 
           if [ "$TAG_VERSION" != "$PROJECT_VERSION" ]; then
             echo "Error: Tag version ($TAG_VERSION) does not match pyproject.toml ($PROJECT_VERSION). Use tag v$PROJECT_VERSION"
             exit 1
           fi
 
-          TAG_COMMIT=$(git rev-parse ${{ github.ref }})
           git fetch origin main:main 2>/dev/null || true
           if ! git branch --contains "$TAG_COMMIT" | grep -q "main"; then
             echo "Error: Tag is not on main. Publishing only allowed from main."
