@@ -1,6 +1,6 @@
 # AGENTS.md
 
-## Cursor Cloud specific instructions
+## Agent instructions
 
 ### Project overview
 
@@ -24,7 +24,7 @@ pre-commit run --all-files
 
 The `flac` apt package (CLI tools) is separate from `libflac12t64` (library). The install script (`scripts/install-system-dependencies-ubuntu.sh`) may install only the library; verify `flac` and `metaflac` are on PATH after running it. If missing, install explicitly: `sudo apt-get install -y flac`.
 
-Pre-commit hooks require `shellcheck` and `pwsh` (PowerShell). These are installed via the `lint` category: `bash scripts/install-system-dependencies-ubuntu.sh lint`. Cursor Cloud agents on Ubuntu 24.04 install these automatically via `.cursor/environment.json` (`scripts/install-cursor-cloud-dependencies.sh`). If you only need Python linting, run `ruff`, `mypy`, and `isort` directly instead of `pre-commit run --all-files`.
+Pre-commit hooks require `shellcheck` and `pwsh` (PowerShell). These are installed via the `lint` category: `bash scripts/install-system-dependencies-ubuntu.sh lint`. If you only need Python linting, run `ruff`, `mypy`, and `isort` directly instead of `pre-commit run --all-files`.
 
 ### Key commands
 
