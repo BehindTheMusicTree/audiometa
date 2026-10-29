@@ -114,14 +114,7 @@ install_homebrew_package() {
     fi
 
     if [ -n "$INSTALLED_VERSION" ] && check_version_match "$tool_name" "$INSTALLED_VERSION" "$pinned_version"; then
-      # Version matches, but we still need to upgrade to ensure we have the latest from updated formulas
-      # brew upgrade will be a no-op if already at latest, but ensures consistency
       echo "  ${tool_name} ${INSTALLED_VERSION} already installed (matches pinned version ${pinned_version})"
-      echo "  Upgrading to ensure latest version from updated Homebrew formulas..."
-      set +e
-      brew upgrade "$brew_package" 2>&1 | grep -v "Already up-to-date" || true
-      set -e
-      # Continue to version verification below (don't return early)
     elif [ -n "$INSTALLED_VERSION" ]; then
       echo "  Removing existing ${tool_name} version ${INSTALLED_VERSION} (installing pinned version ${pinned_version})..."
       remove_homebrew_package "$brew_package" "$binary_paths"
@@ -191,48 +184,37 @@ install_homebrew_package() {
 # Function to install ffmpeg (special case: uses @version syntax)
 install_ffmpeg() {
   local pinned_version="$1"
+  local pinned_major="${pinned_version%%.*}"
 
   echo "Installing ffmpeg..."
 
-  # Check if ffmpeg is already installed
-  NEED_INSTALL=1
-  if command -v ffmpeg &>/dev/null; then
-    INSTALLED_VERSION=$(ffmpeg -version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+  # ffmpeg@N is keg-only: check its own keg, never the ffmpeg on PATH (a user's unrelated ffmpeg formula)
+  FFMPEG_BIN_PATH="${HOMEBREW_PREFIX}/opt/ffmpeg@${pinned_version}/bin"
+  local installed_version=""
+  if [ -x "${FFMPEG_BIN_PATH}/ffprobe" ]; then
+    installed_version=$("${FFMPEG_BIN_PATH}/ffprobe" -version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+  fi
 
-    if [ -n "$INSTALLED_VERSION" ]; then
-      INSTALLED_MAJOR=$(echo "$INSTALLED_VERSION" | cut -d. -f1)
-      PINNED_MAJOR=$(echo "$pinned_version" | cut -d. -f1)
-
-      if [ "$INSTALLED_MAJOR" = "$PINNED_MAJOR" ]; then
-        echo "  ffmpeg ${INSTALLED_VERSION} already installed (matches pinned version ${pinned_version})"
-        NEED_INSTALL=0
-        # ffmpeg@7 is keg-only, ensure it's in PATH
-        FFMPEG_BIN_PATH="${HOMEBREW_PREFIX}/opt/ffmpeg@${pinned_version}/bin"
-        if [ -d "$FFMPEG_BIN_PATH" ]; then
-          export PATH="$FFMPEG_BIN_PATH:$PATH"
-          if [ -n "$GITHUB_PATH" ]; then
-            echo "$FFMPEG_BIN_PATH" >> "$GITHUB_PATH"
-          fi
-        fi
-      else
-        echo "  Removing existing ffmpeg version ${INSTALLED_VERSION} (installing pinned version ${pinned_version})..."
-        brew uninstall ffmpeg 2>/dev/null || brew uninstall ffmpeg@${INSTALLED_MAJOR} 2>/dev/null || true
-      fi
-    else
-      echo "  ffmpeg installed but version could not be determined, removing..."
-      brew uninstall ffmpeg 2>/dev/null || true
+  local need_install=1
+  if [ -n "$installed_version" ] && [ "${installed_version%%.*}" = "$pinned_major" ]; then
+    echo "  ffmpeg ${installed_version} already installed (matches pinned version ${pinned_version})"
+    need_install=0
+  elif [ -n "$CI" ] || [ -n "$GITHUB_ACTIONS" ]; then
+    # CI runners are disposable: drop any other ffmpeg so the pinned one is the only candidate
+    if command -v ffmpeg &>/dev/null; then
+      local path_version path_major
+      path_version=$(ffmpeg -version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+      path_major="${path_version%%.*}"
+      echo "  Removing existing ffmpeg version ${path_version:-unknown} (installing pinned version ${pinned_version})..."
+      brew uninstall ffmpeg 2>/dev/null || brew uninstall "ffmpeg@${path_major}" 2>/dev/null || true
     fi
   fi
 
-  # Install ffmpeg with version pinning if needed
-  if [ "$NEED_INSTALL" -eq 1 ]; then
+  if [ "$need_install" -eq 1 ]; then
     echo "  Installing ffmpeg@${pinned_version}..."
     echo "  Note: This may take 5-10 minutes. Using --force-bottle to prefer pre-built packages..."
     echo "  You should see '✔︎ Bottle' messages indicating progress. If no output for 10+ minutes, check: ps aux | grep brew"
-    # Use --force-bottle to prefer pre-built bottles over building from source
-    # This significantly speeds up installation and avoids hanging during build
-    # Use --verbose to show progress during installation (shows bottle downloads/verification)
-    # Force unbuffered output by using stdbuf if available, otherwise rely on brew's --verbose
+    # --force-bottle avoids slow/hanging source builds; --verbose shows bottle download progress
     INSTALL_FAILED=0
     if command -v stdbuf >/dev/null 2>&1; then
       stdbuf -oL -eL brew install --verbose --force-bottle ffmpeg@${pinned_version} || INSTALL_FAILED=1
@@ -240,7 +222,7 @@ install_ffmpeg() {
       brew install --verbose --force-bottle ffmpeg@${pinned_version} || INSTALL_FAILED=1
     fi
 
-    if [ $INSTALL_FAILED -eq 1 ]; then
+    if [ $INSTALL_FAILED -eq 1 ] && { [ -n "$CI" ] || [ -n "$GITHUB_ACTIONS" ]; }; then
       echo "  --force-bottle install failed (likely a transitive dependency has no bottle for this runner)."
       echo "  --build-from-source on ffmpeg itself does not propagate to a dependency that also lacks a"
       echo "  bottle (e.g. tesseract, a Tier 3 formula on this runner) - Homebrew still hard-errors on it"
@@ -259,20 +241,21 @@ install_ffmpeg() {
       echo "This may indicate:"
       echo "  - Network connectivity issues"
       echo "  - Homebrew service problems"
-      echo "  - Bottle not available for this macOS version, and building from source also failed"
+      echo "  - Bottle not available for this macOS version (a dependency such as tesseract may need a source build:"
+      echo "    brew install --build-from-source tesseract, which is slow and therefore only automatic in CI)"
       echo "  - Installation was interrupted"
       echo ""
       echo "To check if brew is still running: ps aux | grep brew"
       echo "To check available versions: brew search ffmpeg"
       exit 1
     fi
-    # ffmpeg@7 is keg-only, so we need to add it to PATH
-    FFMPEG_BIN_PATH="${HOMEBREW_PREFIX}/opt/ffmpeg@${pinned_version}/bin"
-    if [ -d "$FFMPEG_BIN_PATH" ]; then
-      export PATH="$FFMPEG_BIN_PATH:$PATH"
-      if [ -n "$GITHUB_PATH" ]; then
-        echo "$FFMPEG_BIN_PATH" >> "$GITHUB_PATH"
-      fi
+  fi
+
+  # ffmpeg@N is keg-only, so we need to add it to PATH
+  if [ -d "$FFMPEG_BIN_PATH" ]; then
+    export PATH="$FFMPEG_BIN_PATH:$PATH"
+    if [ -n "$GITHUB_PATH" ]; then
+      echo "$FFMPEG_BIN_PATH" >> "$GITHUB_PATH"
     fi
   fi
 

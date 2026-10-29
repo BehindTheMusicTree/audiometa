@@ -103,10 +103,10 @@ class MacOSDependenciesChecker(OsDependenciesChecker):
         brew_prefix = self._get_brew_prefix()
         paths_to_try: list[str] = []
         for cmd in candidates:
-            paths_to_try.append(cmd)
             if brew_prefix:
                 for version in ["7", "6", "5"]:
                     paths_to_try.append(f"{brew_prefix}/opt/ffmpeg@{version}/bin/{cmd}")
+            paths_to_try.append(cmd)
 
         for tool_path in paths_to_try:
             try:
