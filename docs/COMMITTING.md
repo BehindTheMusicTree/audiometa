@@ -43,9 +43,13 @@ which python3  # Should point to .venv/bin/python3
 
 All code must pass pre-commit hooks before committing. These hooks automatically run when you commit and include:
 
-- **Code formatting**: trailing-whitespace, isort, ruff-format, pydocstringformatter, ruff
+- **Code formatting**: trailing-whitespace, ruff-format, pydocstringformatter, fix-long-comments
 - **Type checking**: mypy
-- **Linting**: ruff (replaces autoflake and flake8)
+- **Linting**: ruff (replaces isort, autoflake and flake8)
+- **Shell scripts**: shellcheck, fix-shell-trailing-blank-lines
+- **Markdown formatting**: prettier
+- **PowerShell scripts**: py-psscriptanalyzer, py-psscriptanalyzer-format
+- **CHANGELOG.md integrity**: verify-changelog
 - **Assert statement check**: Custom hook that fails if assert statements are found in production code
 - **Debug statement detection**: Checks for debug statements in production code
 - **System dependency version verification**: Ensures installed system dependencies match pinned versions

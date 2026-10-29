@@ -51,14 +51,14 @@ The maintainer(s) are responsible for:
 - Ensuring code quality and project direction
 - Responding to critical issues
 - Maintaining the project's infrastructure
-- Creating and managing `hotfix/` branches for urgent production fixes
+- Creating and managing `hotfix/` branches for urgent fixes to `main`
 - Moving "Unreleased" changelog entries to versioned sections during releases
 - Managing the TODO list (contributors should open issues for new tasks; maintainers update `TODO.md`)
 - Managing repository automation (stale issues/PRs, auto-labeling, auto-assignment, etc.)
 
 **Important:** Even maintainers must go through Pull Requests. No direct commits to `main` are allowed - all changes, including those from maintainers, must be submitted via Pull Requests and go through the standard review process.
 
-_Note: Contributors can submit fixes for critical issues via feature branches. Maintainers may promote these to `hotfix/` branches when urgent production fixes are needed._
+_Note: Contributors can submit fixes for critical issues via feature branches. Maintainers may move these to `hotfix/` branches when urgent fixes are needed._
 
 ### Infrastructure & Automation Permissions
 
@@ -210,14 +210,14 @@ Ensure you're using:
 
 #### Urgent Fix Branches (`hotfix/<name>`) _(For Maintainers)_
 
-- For urgent bug fixes on production versions
+- For urgent bug fixes to `main`
 - Include issue numbers when applicable: `hotfix/789-critical-bug`
 - Examples:
   ```bash
   git checkout -b hotfix/critical-metadata-bug
   git checkout -b hotfix/789-critical-security-patch   # With issue number
   ```
-- Contributors can submit fixes via feature branches that maintainers may promote to hotfixes if needed
+- Contributors can submit fixes via feature branches that maintainers may move to a `hotfix/` branch if needed
 
 #### Chore Branches (`chore/<name>`)
 

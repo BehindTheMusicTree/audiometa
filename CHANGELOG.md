@@ -66,6 +66,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Documentation
 
 - **Branching model**: `CONTRIBUTING.md` and `.claude/rules/git-workflow.md` describe GitHub flow (all branches merge into `main` via PR) instead of a light GitFlow model, and refer to `hotfix/` branches by their prefix.
+- **Hotfix wording**: Dropped the remaining "production versions" and "promote to hotfixes" phrasing; `hotfix/` branches are urgent fixes to `main`.
+- **Pre-commit hook lists**: `.claude/rules/pre-commit.md` and `docs/COMMITTING.md` list the hooks actually configured in `.pre-commit-config.yaml`, including `verify-changelog`, and no longer mention the removed `isort` hook.
 
 ### CI
 

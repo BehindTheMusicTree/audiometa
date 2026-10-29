@@ -8,18 +8,18 @@ All branches must follow these naming patterns:
 
 ### Available Branch Prefixes
 
-| Prefix     | Usage                                        | Example                                |
-| ---------- | -------------------------------------------- | -------------------------------------- |
-| `feature/` | New features or bug fixes (contributors)     | `feature/improve-genre-classification` |
-| `hotfix/`  | Urgent bug fixes on production (maintainers) | `hotfix/critical-metadata-bug`         |
-| `chore/`   | Maintenance, infrastructure, configuration   | `chore/update-dependencies`            |
+| Prefix     | Usage                                      | Example                                |
+| ---------- | ------------------------------------------ | -------------------------------------- |
+| `feature/` | New features or bug fixes (contributors)   | `feature/improve-genre-classification` |
+| `hotfix/`  | Urgent bug fixes to `main` (maintainers)   | `hotfix/critical-metadata-bug`         |
+| `chore/`   | Maintenance, infrastructure, configuration | `chore/update-dependencies`            |
 
 ### Branch Naming Rules
 
 - **Use lowercase** for branch names
 - **Use hyphens** to separate words (not underscores or camelCase)
 - **Be descriptive** - the branch name should indicate what it does
-- **No `fix/` prefix** - use `feature/` for bug fixes or `hotfix/` for urgent production fixes
+- **No `fix/` prefix** - use `feature/` for bug fixes or `hotfix/` for urgent fixes to `main`
 - **Include issue numbers when applicable** - If the branch addresses a specific GitHub issue, include the issue number in the branch name (e.g., `feature/123-add-flac-support`)
 
 ### When to Use Each Prefix
@@ -41,7 +41,7 @@ All branches must follow these naming patterns:
 
 **Use `hotfix/` for:**
 
-- Urgent bug fixes that need to be deployed immediately to production
+- Urgent bug fixes that need to be merged and released immediately
 - Critical security patches
 - Typically used by maintainers for time-sensitive fixes
 - Examples: `hotfix/critical-security-patch`, `hotfix/critical-metadata-bug`
@@ -92,11 +92,11 @@ When your branch addresses a specific GitHub issue, include the issue number in 
 - Merge into `main` via Pull Request when complete and tested
 - Use `feature/` prefix for both new features and regular bug fixes
 
-## Hotfix Branches
+## Urgent Fix Branches (`hotfix/<name>`)
 
-- For urgent bug fixes on production versions
+- For urgent bug fixes to `main`
 - Typically used by maintainers
-- Contributors can submit fixes via feature branches that maintainers may promote to hotfixes if needed
+- Contributors can submit fixes via feature branches that maintainers may move to a `hotfix/` branch if needed
 
 ## Chore Branches
 
