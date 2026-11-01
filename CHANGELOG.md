@@ -49,6 +49,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [1.4.6] - 2026-11-01
+
 ### Changed
 
 - Share scoped agent guidance across Claude and Codex while keeping demo instructions available on demand.
