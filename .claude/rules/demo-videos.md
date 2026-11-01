@@ -1,5 +1,4 @@
 ---
-description: How to produce and update demo videos with VHS
 paths:
   - "**/*.tape"
   - "**/demo*.py"
@@ -27,7 +26,7 @@ Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from d
 
 ## When editing demos
 
-- **Authoring .tape files**: For best practices (length, readability, timing, one feature per tape), see `.claude/rules/demo-tape-authoring.md`.
+- **Authoring .tape files**: For best practices (length, readability, timing, one feature per tape), see `.agents/rules/demo-tape-authoring.md`.
 - **New or changed tapes**: Prefer `.tape` in repo root for main demos; use `docs/demos/tapes/` for doc-specific demos. Set `Output docs/demos/output/<name>.gif` (or `.mp4`) so generated files go in the dedicated output dir. For read/unified demos, include `--color` in CLI commands so output is colorized in the video.
 - **Demo scripts** (e.g. `scripts/demo_repl.py`): Keep them minimal and stable; tapes depend on their output.
 - **Docs**: If you change how demos are installed or run, update `VHS_DEMO_README.md` and/or `DEMO_INSTALLATION.md` so agents and contributors stay aligned.

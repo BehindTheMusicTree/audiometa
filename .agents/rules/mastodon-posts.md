@@ -1,7 +1,3 @@
----
-description: Mastodon and social announcement post length (494 char max)
----
-
 # Mastodon / Social Announcement Posts
 
 When drafting **Mastodon posts** or **release/social announcement text** for this project:

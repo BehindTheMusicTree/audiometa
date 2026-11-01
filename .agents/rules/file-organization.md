@@ -2,7 +2,7 @@
 
 ## Agent Rules File Location
 
-**All agent rules live in `.claude/rules/` as one `.md` file per concern.** Scope a rule to files with a `paths:` frontmatter list; omit it for rules that always apply.
+**Maintain shared agent rules in `.agents/rules/`.** Declare Claude adapter scopes in `.agents/scopes.json`, generate adapters, and route the same rules from `AGENTS.md`.
 
 ## Module Structure
 

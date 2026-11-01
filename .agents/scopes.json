@@ -1,0 +1,19 @@
+{
+  "demo-tape-authoring": {
+    "source": ".agents/rules/demo-tape-authoring.md",
+    "paths": [
+      "**/*.tape",
+      "docs/demos/**"
+    ]
+  },
+  "demo-videos": {
+    "source": ".agents/rules/demo-videos.md",
+    "paths": [
+      "**/*.tape",
+      "**/demo*.py",
+      "**/VHS*.md",
+      "**/DEMO*.md",
+      "docs/demos/**"
+    ]
+  }
+}

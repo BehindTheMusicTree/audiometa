@@ -1,8 +1,3 @@
----
-paths:
-  - "**/*.py"
----
-
 # Ruff Ignored Rules
 
 This document explains why certain Ruff rules are ignored in this codebase.

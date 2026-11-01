@@ -132,7 +132,7 @@ def validate(changelog: Changelog) -> list[str]:
             errors.append(
                 f"First version section (line {first_version_line}) appears before '## [Unreleased]' "
                 f"(line {unreleased_line}). Put '## [Unreleased]' first, then the newest '## [X.Y.Z] - date', "
-                "then older versions (see .claude/rules/changelog.md and scripts/prepare_release.py)."
+                "then older versions (see .agents/rules/changelog.md and scripts/prepare_release.py)."
             )
         for line_number, text in _stray_headings(unreleased_section, unreleased_line)[:1]:
             errors.append(
