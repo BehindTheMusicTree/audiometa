@@ -1,7 +1,3 @@
----
-description: Substantive changes must update CHANGELOG.md [Unreleased] in the same work
----
-
 # Changelog alignment
 
 When you **modify this repository** in a way that is **not purely trivial** (anything a maintainer or consumer would care about: behavior, public API of scripts, templates, CI, pins, baselines, docs that describe shipped behavior, or release/version flow):

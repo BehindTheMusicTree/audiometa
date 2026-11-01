@@ -49,6 +49,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Changed
+
+- Share scoped agent guidance across Claude and Codex while keeping demo instructions available on demand.
+
 ### CI
 
 - **Test matrix**: set `fail-fast: false` in `.github/workflows/lint-and-test.yml` so every OS and Python version reports its result instead of being cancelled by the first failure

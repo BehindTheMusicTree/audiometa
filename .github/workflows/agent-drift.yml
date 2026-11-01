@@ -1,0 +1,9 @@
+name: Agent drift
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  agent-drift:
+    uses: BehindTheMusicTree/github-workflows/.github/workflows/agent-drift.yml@v4.8.0
+    permissions:
+      contents: read

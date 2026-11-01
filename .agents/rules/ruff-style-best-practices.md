@@ -1,8 +1,3 @@
----
-paths:
-  - "**/*.py"
----
-
 # Ruff Style Best Practices
 
 This document outlines best practices to avoid common Ruff linting errors and maintain code quality.
