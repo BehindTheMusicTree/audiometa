@@ -49,6 +49,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### CI
+
+- Use the shared release policy to create stable tags before the existing PyPI publication workflow.
+
 ## [1.4.6] - 2026-11-01
 
 ### Changed

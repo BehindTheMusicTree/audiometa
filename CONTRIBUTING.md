@@ -542,9 +542,8 @@ Quick release process:
    gh pr create --base main
    ```
 
-7. Get the PR approved and merged (`main` requires one approval and the "Lint and tests success" check). On merge, the `Publish to PyPI` workflow automatically:
+7. Get the PR approved and merged (`main` requires one approval and the "Lint and tests success" check). On merge, the shared `Release tag` workflow validates the version and changelog and creates an annotated `vX.Y.Z` tag using the release App. The tag starts the existing `Publish to PyPI` workflow, which:
 
-   - Creates the annotated tag `vX.Y.Z` on the merge commit when `pyproject.toml` holds a new `X.Y.Z` version (the `tag` job, using the release GitHub App token), which starts a second run for the tag with the steps below
    - Verify tag version matches `pyproject.toml` version
    - Verify tag is on main branch
    - Build the package (source distribution and wheel)
@@ -553,9 +552,11 @@ Quick release process:
    - Publish to PyPI using the `PYPI_API_TOKEN` secret
    - Verify PyPI publication success
 
-   **Recovery:** if validation or publishing fails after the tag was created, fix the cause and re-run the failed run for the `vX.Y.Z` tag from the Actions tab. If the `tag` job itself fails, re-run it from the merge-commit run.
+   **Recovery:** if validation or publishing fails after the tag was created, fix the cause and re-run the failed run for the `vX.Y.Z` tag from the Actions tab. If tag creation fails, re-run the `Release tag` workflow for the merge commit.
 
-   **Setup:** the `tag` job needs the `RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY` repository secrets of a GitHub App with `Contents: Read & write`, installed on this repository and listed as a bypass actor of the `vX.Y.Z` tag ruleset. `GITHUB_TOKEN` cannot be used: it is not a bypass actor and tags it pushes do not start workflows.
+   **Setup:** the `Release tag` workflow needs the `RELEASE_APP_PRIVATE_KEY` repository secret of GitHub App 5524079 with `Contents: Read & write`, installed on this repository and listed as a bypass actor of the `vX.Y.Z` tag ruleset. `GITHUB_TOKEN` cannot be used: it is not a bypass actor and tags it pushes do not start workflows.
+
+   **Activation:** merge the release policy without a version bump before the first release; the first push introducing the policy cannot create a tag.
 
    **Note:** Publish does not wait for CI. Branch protection requires the "Lint and tests success" check before merging, so every release commit on `main` is already validated.
 
