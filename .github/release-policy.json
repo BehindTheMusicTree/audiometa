@@ -1,0 +1,17 @@
+{
+  "release_branch": "main",
+  "version": {
+    "path": "pyproject.toml",
+    "format": "toml",
+    "key": "project.version"
+  },
+  "mirrors": [],
+  "tag_prefix": "v",
+  "changelog": "CHANGELOG.md",
+  "outputs": {
+    "github_release": false,
+    "packages": [
+      "audiometa-python"
+    ]
+  }
+}
