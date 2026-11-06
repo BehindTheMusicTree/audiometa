@@ -17,6 +17,14 @@ A powerful, unified Python library for reading and writing audio metadata across
 
 **Author**: [Andreas Garcia](https://github.com/BehindTheMusicTree)
 
+## Ecosystem
+
+Built inside the **[BehindTheMusicTree](https://github.com/BehindTheMusicTree)** ecosystem.
+
+Want the big picture? Explore the full project universe on **[themusictree.org](https://themusictree.org)**, and see where this library fits on **[AudioMeta Python](https://themusictree.org/projects/audiometa)**.
+
+The portfolio website content lives in **[the-music-tree-frontend](https://github.com/BehindTheMusicTree/the-music-tree-frontend)**; this README focuses on building, testing, packaging, and contributing to this library.
+
 ## ⭐ Show Your Support
 
 If you find AudioMeta Python useful, please consider:
@@ -31,8 +39,10 @@ Your support helps make this project better for everyone! 🎵
 
 ## Table of Contents
 
+- [Ecosystem](#ecosystem)
 - [⭐ Show Your Support](#-show-your-support)
 - [✨ Features](#-features)
+- [Comparison with other tools](#comparison-with-other-tools)
 - [📁 Supported Formats](#-supported-formats)
   - [Supported Audio Formats Per Metadata Format](#supported-audio-formats-per-metadata-format)
   - [Supported Metadata Formats per Audio Format](#supported-metadata-formats-per-audio-format)
@@ -91,6 +101,19 @@ Your support helps make this project better for everyone! 🎵
 - **Rating Support**: Normalized rating handling across different formats
 
 - **Complete File Analysis**: Get full metadata including headers and technical details even when no metadata is present
+
+## Comparison with other tools
+
+AudioMeta provides one API and one CLI for MP3, FLAC, and WAV across ID3v1, ID3v2, Vorbis, and RIFF. When a file has multiple tag types (e.g. ID3v1 + ID3v2), metadata is merged and normalized instead of requiring separate tool calls.
+
+| Aspect                   | mutagen             | eyed3    | mid3v2 / vorbiscomment | AudioMeta     |
+| ------------------------ | ------------------- | -------- | ---------------------- | ------------- |
+| MP3 (ID3v1/2)            | Yes (separate APIs) | ID3 only | mid3v2: ID3 only       | Yes (unified) |
+| FLAC (Vorbis)            | Yes (separate API)  | No       | vorbiscomment only     | Yes (unified) |
+| WAV (RIFF)               | Yes (separate API)  | No       | No                     | Yes (unified) |
+| Single API for all       | No                  | No       | No (different CLIs)    | Yes           |
+| Merged multi-format read | No                  | No       | No                     | Yes           |
+| CLI + library together   | No                  | No       | Separate tools         | Yes           |
 
 ## 📁 Supported Formats
 

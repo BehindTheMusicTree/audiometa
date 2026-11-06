@@ -118,6 +118,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **python-project-standards v4.3.2** ([org **`v4.3.2`**](https://github.com/BehindTheMusicTree/python-project-standards/releases/tag/v4.3.2)): Lint delegates to **`reusable-pre-commit.yml@v4.3.2`**; root **`STANDARDS_VERSION`** **`4.3.2`**. [**`scripts/check_lint_baseline.py`**](scripts/check_lint_baseline.py) requires **`baselines/ruff.toml`** and **`baselines/expected-mypy.json`** in **`baselines/DIGESTS`**. [**`scripts/verify-standards.sh`**](scripts/verify-standards.sh) matches org on this bump.
 
+### Documentation
+
+- **README**: Added ecosystem section with portfolio links (`themusictree.org`, AudioMeta Python project page, `the-music-tree-frontend`) and a comparison table against mutagen, eyed3, and mid3v2/vorbiscomment.
+
 ## [1.4.3] - 2026-04-11
 
 ### Fixed
