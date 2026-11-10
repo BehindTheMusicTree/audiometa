@@ -40,7 +40,7 @@ When you change production code under `audiometa/`, the CLI, or user-visible beh
 
 ### Pull request descriptions
 
-When asked for a PR description, write it to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored); do not rely on chat-only text. See `.agents/rules/pr-descriptions.md` and use `.github/pr_descriptions/pull_request_template.md` for sections.
+When asked for a PR description, write it to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored); do not rely on chat-only text. See `.agents/rules/pr-descriptions.md` and use the organization-wide PR template (`BehindTheMusicTree/.github`) for sections.
 
 ### Demo videos
 

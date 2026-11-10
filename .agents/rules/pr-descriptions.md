@@ -25,7 +25,7 @@ When generating PR descriptions, create them as **standalone markdown documents*
 4. **Be thorough and specific** - reviewers need complete context
 5. **Include all checklist items** - track what's been completed
 
-**Note:** The `.github/pr_descriptions/` directory is gitignored (except for `pull_request_template.md`), so PR description files are local reference documents only and won't be committed to the repository. They serve as working documents for creating PR descriptions on GitHub. The `pull_request_template.md` file in this directory is the actual GitHub PR template and is tracked in git.
+**Note:** The `.github/pr_descriptions/` directory is gitignored, so PR description files are local reference documents only and won't be committed to the repository. They serve as working documents for creating PR descriptions on GitHub. The PR template is the organization-wide one from `BehindTheMusicTree/.github`; there is no local template.
 
 ### Standard PR Template Structure
 
