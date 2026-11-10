@@ -56,6 +56,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Changed
 
+- Removed the graphify `merge=graphify` git attribute, which pointed at a machine-specific merge driver; the global agent-config freshness hook keeps the graph fresh.
 - Removed the local pull request template; the organization-wide template from `BehindTheMusicTree/.github` applies.
 
 ## [1.4.6] - 2026-11-01
