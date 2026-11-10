@@ -458,7 +458,7 @@ When opening a Pull Request, a template will be automatically provided. Ensure y
 - ✅ Note any breaking changes
 - ✅ Include testing instructions if applicable
 
-**Note:** The PR template is at **`.github/pr_descriptions/pull_request_template.md`**. When using an agent to draft a description, save the full text to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored) per `.agents/rules/pr-descriptions.md`, then paste into GitHub.
+**Note:** The PR template is the organization-wide one from `BehindTheMusicTree/.github`. When using an agent to draft a description, save the full text to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored) per `.agents/rules/pr-descriptions.md`, then paste into GitHub.
 
 ##### Breaking Changes
 

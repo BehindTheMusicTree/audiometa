@@ -36,7 +36,6 @@ Thumbs.db
 
 # PR descriptions (temporary reference documents)
 .github/pr_descriptions/*
-!.github/pr_descriptions/pull_request_template.md
 
 # Demo tapes and generated outputs (VHS); README, tapes, demo asset tracked; output/ for GIFs/MP4s
 docs/demos/*

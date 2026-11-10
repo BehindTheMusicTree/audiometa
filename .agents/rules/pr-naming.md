@@ -105,7 +105,7 @@ Chore/auto approve maintainer prs
 
 ## PR Description Guidelines
 
-When the user asks for a PR description, follow **[pr-descriptions.md](pr-descriptions.md)**: write the full body to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored working copy); align sections with the repo template **`.github/pr_descriptions/pull_request_template.md`**.
+When the user asks for a PR description, follow **[pr-descriptions.md](pr-descriptions.md)**: write the full body to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored working copy); align sections with the organization-wide PR template (`BehindTheMusicTree/.github`, `.github/pull_request_template.md`).
 
 Also ensure:
 
@@ -114,7 +114,7 @@ Also ensure:
 - **Be thorough**: Include clear descriptions, testing instructions, and any breaking changes
 - **Check Pre-PR Checklist**: Ensure all items in the Pre-PR Checklist are completed before requesting review
 
-**Note:** GitHub may inject `.github/pull_request_template.md` when opening a PR (if configured); the local template path is **`.github/pr_descriptions/pull_request_template.md`**. Use it as the section guide when authoring `PR_DESCRIPTION_*.md` files.
+**Note:** GitHub injects the organization-wide template from `BehindTheMusicTree/.github` when opening a PR. Use it as the section guide when authoring `PR_DESCRIPTION_*.md` files.
 
 ## Guidelines
 
@@ -122,7 +122,7 @@ Also ensure:
 - **Be descriptive**: The title should clearly describe what the PR does
 - **Match commit messages**: PR titles should follow the same format as commit messages for consistency
 - **Review before submitting**: Always review and edit the auto-suggested title if needed
-- **Follow PR template**: Use `.github/pr_descriptions/pull_request_template.md` as the section guide; store drafts in `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` per [pr-descriptions.md](pr-descriptions.md)
+- **Follow PR template**: Use the organization-wide PR template as the section guide; store drafts in `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` per [pr-descriptions.md](pr-descriptions.md)
 
 ## Bad Examples
 

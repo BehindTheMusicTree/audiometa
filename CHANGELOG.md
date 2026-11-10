@@ -54,6 +54,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - Use the shared release policy to create stable tags before the existing PyPI publication workflow.
 - Removed the per-repo graphify `hook-guard` in `.claude/settings.json`; the global agent-config freshness hook replaces it.
 
+### Changed
+
+- Removed the local pull request template; the organization-wide template from `BehindTheMusicTree/.github` applies.
+
 ## [1.4.6] - 2026-11-01
 
 ### Changed
