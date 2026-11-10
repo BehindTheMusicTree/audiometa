@@ -52,6 +52,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### CI
 
 - Use the shared release policy to create stable tags before the existing PyPI publication workflow.
+- Removed the per-repo graphify `hook-guard` in `.claude/settings.json`; the global agent-config freshness hook replaces it.
 
 ## [1.4.6] - 2026-11-01
 
