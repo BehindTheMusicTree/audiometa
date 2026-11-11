@@ -102,14 +102,3 @@ jobs:
         env:
           NEEDS: ${{ toJSON(needs) }}
         run: jq -e 'all(.[]; .result == "success")' <<<"$NEEDS"
-
-  lint-and-tests-success:
-    name: Lint and tests success
-    if: always()
-    needs: [lint, test]
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Require every needed job to succeed
-        env:
-          NEEDS: ${{ toJSON(needs) }}
-        run: jq -e 'all(.[]; .result == "success")' <<<"$NEEDS"
