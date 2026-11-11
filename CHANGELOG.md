@@ -53,6 +53,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - Use the shared release policy to create stable tags before the existing PyPI publication workflow.
 - Removed the per-repo graphify `hook-guard` in `.claude/settings.json`; the global agent-config freshness hook replaces it.
+- Pin the shared release workflows to the lag-tolerant github-workflows commit 79c1362, so tag creation tolerates GitHub read-after-write delays.
 
 ### Changed
 
