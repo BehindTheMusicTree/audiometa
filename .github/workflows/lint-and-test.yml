@@ -90,9 +90,26 @@ jobs:
         if: runner.os != 'Windows'
         run: coverage report --fail-under=${{ env.COVERAGE_FAIL_UNDER }}
 
+  tests-success:
+    name: Tests success
+    # always() so a failed matrix job fails this gate instead of skipping it:
+    # a skipped required check counts as passed and would let the PR merge.
+    if: always()
+    needs: [test]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every matrix job to succeed
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: jq -e 'all(.[]; .result == "success")' <<<"$NEEDS"
+
   lint-and-tests-success:
     name: Lint and tests success
-    runs-on: ubuntu-24.04
+    if: always()
     needs: [lint, test]
+    runs-on: ubuntu-24.04
     steps:
-      - run: echo "All checks passed"
+      - name: Require every needed job to succeed
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: jq -e 'all(.[]; .result == "success")' <<<"$NEEDS"
