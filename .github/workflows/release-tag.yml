@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   release-tag:
-    uses: BehindTheMusicTree/github-workflows/.github/workflows/release-tag.yml@7857565a0fbbf7a4569147044d14eb7350df82c3
+    uses: BehindTheMusicTree/github-workflows/.github/workflows/release-tag.yml@79c136234b5d487bb99e0cd2050f38f6b3e06747
     with:
       app-id: "5524079"
     secrets:
