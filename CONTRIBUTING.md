@@ -542,7 +542,7 @@ Quick release process:
    gh pr create --base main
    ```
 
-7. Get the PR approved and merged (`main` requires one approval and the "Lint and tests success" check). On merge, the shared `Release tag` workflow validates the version and changelog and creates an annotated `vX.Y.Z` tag using the release App. The tag starts the existing `Publish to PyPI` workflow, which:
+7. Get the PR approved and merged (`main` requires one approval and the "Lint / Pre-commit" and "Tests success" checks). On merge, the shared `Release tag` workflow validates the version and changelog and creates an annotated `vX.Y.Z` tag using the release App. The tag starts the existing `Publish to PyPI` workflow, which:
 
    - Verify tag version matches `pyproject.toml` version
    - Verify tag is on main branch
@@ -558,7 +558,7 @@ Quick release process:
 
    **Activation:** merge the release policy without a version bump before the first release; the first push introducing the policy cannot create a tag.
 
-   **Note:** Publish does not wait for CI. Branch protection requires the "Lint and tests success" check before merging, so every release commit on `main` is already validated.
+   **Note:** Publish does not wait for CI. Branch protection requires the "Lint / Pre-commit" and "Tests success" checks before merging, so every release commit on `main` is already validated.
 
 ## 🪪 License & Attribution
 

@@ -54,7 +54,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - Use the shared release policy to create stable tags before the existing PyPI publication workflow.
 - Removed the per-repo graphify `hook-guard` in `.claude/settings.json`; the global agent-config freshness hook replaces it.
 - Pin the shared release workflows to the lag-tolerant github-workflows commit 79c1362, so tag creation tolerates GitHub read-after-write delays.
-- Make the test gates non-skippable: add a `Tests success` job and make `Lint and tests success` use `if: always()` and check `needs` results, so a failed matrix job can no longer let a skipped required check pass.
+- Make the test gates non-skippable: add a `Tests success` job that fails unless every matrix job succeeds (`if: always()` and a check on `needs` results), so a failed matrix job can no longer let a skipped required check pass.
+- Removed the redundant `Lint and tests success` job: branch protection requires `Lint / Pre-commit` and `Tests success`, and `CONTRIBUTING.md` now names those checks.
 
 ### Changed
 
