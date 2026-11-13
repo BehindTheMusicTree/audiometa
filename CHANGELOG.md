@@ -5,48 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Changelog Best Practices
-
-### General Principles
-
-- Changelogs are for humans, not machines.
-- Include an entry for every version, with the latest first.
-- Group similar changes under: Added, Changed, Improved, Deprecated, Removed, Fixed, Documentation, Performance, CI.
-- **"Test" is NOT a valid changelog category** - tests should be mentioned within the related feature or fix entry, not as standalone entries.
-- Use an "Unreleased" section for upcoming changes.
-- Follow Semantic Versioning where possible.
-- Use ISO 8601 date format: YYYY-MM-DD.
-- Avoid dumping raw git logs; summarize notable changes clearly.
-
-### Guidelines for Contributors
-
-All contributors (including maintainers) should update `CHANGELOG.md` when creating PRs:
-
-1. **Add entries to the `[Unreleased]` section** - Add your changes under the appropriate category (Added, Changed, Improved, Deprecated, Removed, Fixed, Documentation, Performance, CI) in the **same PR** as the code so `[Unreleased]` never lags the codebase
-2. **Keep section order** - `## [Unreleased]` comes first, then released versions newest-first (`## [X.Y.Z] - YYYY-MM-DD`); run `python scripts/verify_changelog.py` after edits (see `.claude/rules/changelog.md`)
-3. **Follow the changelog format** - See examples below and `.claude/rules/changelog.md` for detailed guidelines
-4. **Group related changes** - Similar changes should be grouped together
-5. **Be descriptive** - Write clear, user-focused descriptions of what changed
-6. **Mention tests when relevant** - Tests should be mentioned within the related feature or fix entry, not as standalone entries
-
-**Example:**
-
-```markdown
-## [1.4.0] - 2026-06-01
-
-### Added
-
-- **New Feature**: Added support for FLAC metadata reading
-  - Includes comprehensive unit tests covering various metadata formats
-
-### Fixed
-
-- **Metadata Parsing**: Fixed issue with parsing ID3v2 tags containing special characters
-  - Includes regression tests to prevent future occurrences
-```
-
-**Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-29`).
-
 ## [Unreleased]
 
 ### CI
@@ -61,6 +19,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - Removed the graphify `merge=graphify` git attribute, which pointed at a machine-specific merge driver; the global agent-config freshness hook keeps the graph fresh.
 - Removed the local pull request template; the organization-wide template from `BehindTheMusicTree/.github` applies.
+
+### Documentation
+
+- Removed the "Changelog Best Practices" section from `CHANGELOG.md`; the conventions now live in the `create-pr` skill, and agents no longer write entries into its example block.
 
 ## [1.4.6] - 2026-11-01
 
