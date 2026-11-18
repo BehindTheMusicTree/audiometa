@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Removed
-
-- Removed the `content/` directory (social and article drafts) and its `.gitignore`, contributing and demo-doc references.
-
 ### CI
 
 - Pin the pre-commit Node version to 26.13.0 (`default_language_version`): the prettier hook no longer installs the latest Node release, whose prerelease version `nodeenv` cannot parse.
@@ -29,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Removed the `content/` directory (social and article drafts) and its `.gitignore`, contributing and demo-doc references.
 - Removed `.agent-plans/.gitignore`; agent plans are now ignored through the global Git exclusion.
 
 ### Documentation

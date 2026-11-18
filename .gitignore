@@ -43,7 +43,6 @@ docs/demos/*
 !docs/demos/tapes/
 !docs/demos/sample.mp3
 
-
 # Node.js (for git-worktree-scripts dev dependency)
 node_modules/
 package-lock.json

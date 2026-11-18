@@ -22,7 +22,6 @@ This project is currently maintained by a solo developer, but contributions, sug
 - [🪪 License & Attribution](#-license--attribution)
 - [📜 Code of Conduct](#-code-of-conduct)
 - [🌍 Contact & Discussions](#-contact--discussions)
-- [Content drafts](#content-drafts)
 
 ## Contributors vs Maintainers
 
