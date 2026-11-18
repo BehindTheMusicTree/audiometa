@@ -248,29 +248,29 @@ def bitrate_1152_wav(assets_dir: Path) -> Path:
 
 @pytest.fixture
 def size_small_mp3(assets_dir: Path) -> Path:
-    return assets_dir / "size_small=0.01mo.mp3"
+    return assets_dir / "shared" / "size_small=0.01mo.mp3"
 
 
 @pytest.fixture
 def size_big_mp3(assets_dir: Path) -> Path:
-    return assets_dir / "size_big=9.98mo.mp3"
+    return assets_dir / "shared" / "size_big=9.98mo.mp3"
 
 
 @pytest.fixture
 def size_small_flac(assets_dir: Path) -> Path:
-    return assets_dir / "size_small=0.05mo.flac"
+    return assets_dir / "shared" / "size_small=0.05mo.flac"
 
 
 @pytest.fixture
 def size_big_flac(assets_dir: Path) -> Path:
-    return assets_dir / "size_big=26.6mo.flac"
+    return assets_dir / "shared" / "size_big=26.6mo.flac"
 
 
 @pytest.fixture
 def size_small_wav(assets_dir: Path) -> Path:
-    return assets_dir / "size_small=0.08mo.wav"
+    return assets_dir / "shared" / "size_small=0.08mo.wav"
 
 
 @pytest.fixture
 def size_big_wav(assets_dir: Path) -> Path:
-    return assets_dir / "size_big=79.55mo.wav"
+    return assets_dir / "shared" / "size_big=79.55mo.wav"
