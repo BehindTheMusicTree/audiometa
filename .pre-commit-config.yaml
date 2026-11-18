@@ -34,6 +34,9 @@
 # 14. psscriptanalyzer: Lint PowerShell scripts (.ps1 files)
 # Note: isort is not a pre-commit hook (it conflicts with ruff format); isort stays in pyproject dev extras for optional IDE/local use.
 
+default_language_version:
+  node: 26.13.0
+
 fail_fast: true
 
 repos:

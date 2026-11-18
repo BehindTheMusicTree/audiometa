@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### CI
 
+- Pin the pre-commit Node version to 26.13.0 (`default_language_version`): the prettier hook no longer installs the latest Node release, whose prerelease version `nodeenv` cannot parse.
 - Use the shared release policy to create stable tags before the existing PyPI publication workflow.
 - Removed the per-repo graphify `hook-guard` in `.claude/settings.json`; the global agent-config freshness hook replaces it.
 - Pin the shared release workflows to the lag-tolerant github-workflows commit 79c1362, so tag creation tolerates GitHub read-after-write delays.
