@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed the graphify `merge=graphify` git attribute, which pointed at a machine-specific merge driver; the global agent-config freshness hook keeps the graph fresh.
 - Removed the local pull request template; the organization-wide template from `BehindTheMusicTree/.github` applies.
 
+### Removed
+
+- Removed `.agent-plans/.gitignore`; agent plans are now ignored through the global Git exclusion.
+
 ### Documentation
 
 - Removed the "Changelog Best Practices" section from `CHANGELOG.md`; the conventions now live in the `create-pr` skill, and agents no longer write entries into its example block.
