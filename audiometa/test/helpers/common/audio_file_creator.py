@@ -39,7 +39,7 @@ class AudioFileCreator:
             except (subprocess.CalledProcessError, FileNotFoundError):
                 # Last resort: copy from any available sample file
                 search_format = "mp3" if format_type.lower() in ["id3v1", "id3v2.3", "id3v2.4"] else format_type.lower()
-                sample_files = list(assets_dir.glob(f"*.{search_format}"))
+                sample_files = sorted(assets_dir.glob(f"*.{search_format}"))
                 if sample_files:
                     shutil.copy2(sample_files[0], file_path)
                 else:
