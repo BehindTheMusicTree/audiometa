@@ -15,5 +15,19 @@
       "**/DEMO*.md",
       "docs/demos/**"
     ]
+  },
+  "ruff-ignored-rules": {
+    "source": ".agents/rules/ruff-ignored-rules.md",
+    "paths": [
+      "**/*.py",
+      "pyproject.toml"
+    ]
+  },
+  "ruff-style-best-practices": {
+    "source": ".agents/rules/ruff-style-best-practices.md",
+    "paths": [
+      "**/*.py",
+      "pyproject.toml"
+    ]
   }
 }
