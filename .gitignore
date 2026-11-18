@@ -43,21 +43,6 @@ docs/demos/*
 !docs/demos/tapes/
 !docs/demos/sample.mp3
 
-# Article demos (per folder under content/articles/<name>/): ignore loose/generated files;
-# track README/scenario .md, tapes/, shell/Python helpers; whitelisted demo audio only under samples/ (below).
-content/articles/*/*
-!content/articles/*/*.md
-!content/articles/*/*.sh
-!content/articles/*/*.py
-!content/articles/*/tapes/
-!content/articles/*/samples/
-content/articles/*/samples/*
-!content/articles/*/samples/README.md
-!content/articles/*/samples/sample.mp3
-!content/articles/*/samples/sample.flac
-!content/articles/*/samples/sample.wav
-content/articles/*/output/
-
 # Node.js (for git-worktree-scripts dev dependency)
 node_modules/
 package-lock.json

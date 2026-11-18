@@ -22,11 +22,6 @@ This project is currently maintained by a solo developer, but contributions, sug
 - [🪪 License & Attribution](#-license--attribution)
 - [📜 Code of Conduct](#-code-of-conduct)
 - [🌍 Contact & Discussions](#-contact--discussions)
-- [Content drafts](#content-drafts)
-
-## Content drafts
-
-Social and blog drafts (e.g. LinkedIn) live in `content/`. See [content/README.md](content/README.md) for layout and naming.
 
 ## Contributors vs Maintainers
 

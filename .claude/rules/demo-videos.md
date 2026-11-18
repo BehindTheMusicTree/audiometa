@@ -33,4 +33,4 @@ Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from d
 
 ## Generated outputs
 
-GIFs/MP4s go in `docs/demos/output/` (gitignored). Source tapes and `docs/demos/sample.mp3` are tracked. Article demos under `content/articles/<name>/` use per-article `output/` for GIFs, MP4s, and ffmpeg intermediates (gitignored). **Tracked audio for that article’s demos** can live in **`content/articles/<article>/samples/`** (whitelisted names: `sample.mp3`, `sample.flac`, `sample.wav` — each article is independent, not a single global “canonical” set). Do not leave those loose at the article root. Also track tapes, top-level `.md`, `.sh`, `.py`; **do not commit** ad hoc `demo_*` copies or other loose binaries. See `.gitignore` for patterns.
+GIFs/MP4s go in `docs/demos/output/` (gitignored). Source tapes and `docs/demos/sample.mp3` are tracked. **Do not commit** ad hoc `demo_*` copies or other loose binaries. See `.gitignore` for patterns.
