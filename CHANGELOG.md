@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- Load Ruff guidance automatically when editing Python files.
-
 ### CI
 
 - Pin the pre-commit Node version to 26.13.0 (`default_language_version`): the prettier hook no longer installs the latest Node release, whose prerelease version `nodeenv` cannot parse.
@@ -22,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Load Ruff guidance automatically when editing Python files.
 - Ignore local agent plans and temporary files while keeping their directory rules tracked.
 - Removed the graphify `merge=graphify` git attribute, which pointed at a machine-specific merge driver; the global agent-config freshness hook keeps the graph fresh.
 - Removed the local pull request template; the organization-wide template from `BehindTheMusicTree/.github` applies.
