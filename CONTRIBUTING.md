@@ -24,10 +24,6 @@ This project is currently maintained by a solo developer, but contributions, sug
 - [🌍 Contact & Discussions](#-contact--discussions)
 - [Content drafts](#content-drafts)
 
-## Content drafts
-
-Social and blog drafts (e.g. LinkedIn) live in `content/`. See [content/README.md](content/README.md) for layout and naming.
-
 ## Contributors vs Maintainers
 
 ### Roles Overview
