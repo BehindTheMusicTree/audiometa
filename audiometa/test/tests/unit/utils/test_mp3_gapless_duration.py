@@ -64,7 +64,7 @@ class TestReadMp3GaplessDuration:
         assert _gapless(assets_dir / relative_path) == pytest.approx(expected, abs=1e-6)
 
     def test_file_without_xing_frame_returns_none(self, assets_dir: Path):
-        assert _gapless(assets_dir / "size_small=0.01mo.mp3") is None
+        assert _gapless(assets_dir / "shared/size_small=0.01mo.mp3") is None
 
     @pytest.mark.parametrize("encoder", [b"LAME3.100", b"Lavc59.37", b"Lavf60.16", b"L3.99r1"])
     def test_known_encoder_subtracts_delay_and_padding(self, tmp_path: Path, encoder: bytes):

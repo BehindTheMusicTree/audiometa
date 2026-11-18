@@ -25,7 +25,7 @@ class TestGetDurationInSec:
             "shared/duration=277s.mp3",
             "shared/recording=Y do i - Carmina Burana Remix - 7m52.mp3",
             "shared/duration=182.mp3",
-            "size_small=0.01mo.mp3",
+            "shared/size_small=0.01mo.mp3",
             "sample.flac",
         ],
     )
