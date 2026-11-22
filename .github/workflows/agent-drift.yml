@@ -2,6 +2,10 @@ name: Agent drift
 on: [push, pull_request]
 permissions:
   contents: read
+concurrency:
+  group: agent-drift-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   agent-drift:
     uses: BehindTheMusicTree/github-workflows/.github/workflows/agent-drift.yml@v4.8.0

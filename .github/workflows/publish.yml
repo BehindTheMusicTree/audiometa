@@ -8,6 +8,10 @@ on:
     tags:
       - "v*" # Re-running the tag run retries a failed publish
 
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   validate:
     name: Validate tag and version
