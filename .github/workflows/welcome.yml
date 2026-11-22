@@ -8,6 +8,10 @@ on:
   pull_request:
     types: [opened]
 
+concurrency:
+  group: welcome-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   welcome:
     runs-on: ubuntu-latest

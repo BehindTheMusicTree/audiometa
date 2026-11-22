@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pin the shared release workflows to the lag-tolerant github-workflows commit 79c1362, so tag creation tolerates GitHub read-after-write delays.
 - Make the test gates non-skippable: add a `Tests success` job that fails unless every matrix job succeeds (`if: always()` and a check on `needs` results), so a failed matrix job can no longer let a skipped required check pass.
 - Removed the redundant `Lint and tests success` job: branch protection requires `Lint / Pre-commit` and `Tests success`, and `CONTRIBUTING.md` now names those checks.
+- Give every push or pull request workflow the canonical `concurrency` block: CI workflows share a group per branch and cancel superseded pull request runs, `release-tag` runs once per pushed commit, and the publish workflows queue per ref without cancelling.
 
 ### Changed
 

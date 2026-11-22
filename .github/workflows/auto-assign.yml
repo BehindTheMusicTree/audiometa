@@ -6,6 +6,10 @@ on:
   pull_request:
     types: [opened, ready_for_review]
 
+concurrency:
+  group: auto-assign-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   auto-assign:
     runs-on: ubuntu-latest
