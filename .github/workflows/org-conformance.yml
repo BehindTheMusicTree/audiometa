@@ -1,0 +1,16 @@
+name: Org conformance
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: org-conformance-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  org-conformance:
+    uses: BehindTheMusicTree/github-workflows/.github/workflows/org-conformance.yml@8b14220516dc4476ff5ac4f83fefcb7a6e623b0b # v6.4.1
+    permissions:
+      contents: read
