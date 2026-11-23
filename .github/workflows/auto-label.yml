@@ -7,7 +7,7 @@ on:
     types: [opened, synchronize]
 
 concurrency:
-  group: auto-label-${{ github.head_ref || github.ref }}
+  group: auto-label-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
