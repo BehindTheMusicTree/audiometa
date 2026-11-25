@@ -1,8 +1,0 @@
-{
-  "concurrency": {
-    "exemptions": [
-      {"workflow": "publish.yml", "form": "queue", "reason": "Tag-triggered publish; runs queue per ref and are never cancelled."},
-      {"workflow": "publish-docs-bundle.yml", "form": "queue", "reason": "Tag/docs publish; runs queue per ref and are never cancelled."}
-    ]
-  }
-}

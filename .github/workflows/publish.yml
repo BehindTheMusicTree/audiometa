@@ -4,93 +4,76 @@
 name: Publish to PyPI
 
 on:
-  push:
-    tags:
-      - "v*" # Re-running the tag run retries a failed publish
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+    secrets:
+      TEST_PYPI_API_TOKEN:
+        required: true
+      PYPI_API_TOKEN:
+        required: true
 
-concurrency:
-  group: publish-${{ github.ref }}
-  cancel-in-progress: false
+permissions:
+  contents: read
 
 jobs:
   validate:
     name: Validate tag and version
     runs-on: ubuntu-latest
-    if: github.ref_type == 'tag'
     outputs:
-      is_release_version: ${{ steps.check_release_version.outputs.is_release_version }}
       commit: ${{ steps.verify_tag.outputs.commit }}
+      version: ${{ steps.verify_tag.outputs.version }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout release commit
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0 # Fetch full history for tag verification
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.13"
-          cache: "pip"
 
-      - name: Install build dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install build twine
-
-      - name: Extract version from pyproject.toml
-        id: extract_version
-        run: |
-          VERSION=$(grep -E '^version\s*=' pyproject.toml | sed -E 's/version\s*=\s*"([^"]+)"/\1/')
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Extracted version: $VERSION"
-
-      - name: Verify tag and branch (version match + tag on main)
+      - name: Verify tag, commit and project version
         id: verify_tag
         env:
-          PROJECT_VERSION: ${{ steps.extract_version.outputs.version }}
+          RELEASE_TAG: ${{ inputs.tag }}
         run: |
-          set -e
-          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
-          TAG_COMMIT=$(git rev-parse "${GITHUB_REF}^{commit}")
-
-          if [ "$TAG_VERSION" != "$PROJECT_VERSION" ]; then
-            echo "Error: Tag version ($TAG_VERSION) does not match pyproject.toml ($PROJECT_VERSION). Use tag v$PROJECT_VERSION"
+          VERSION=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ || "$RELEASE_TAG" != "v$VERSION" ]]; then
+            echo "Expected a stable project version and its tag, got $VERSION and $RELEASE_TAG" >&2
             exit 1
           fi
 
-          if [ "$TAG_COMMIT" != "$(git rev-parse HEAD)" ]; then
-            echo "Error: The release tag must match the checked-out commit."
+          TAG_REF="refs/tags/$RELEASE_TAG"
+          # A tag written through the API can take time to reach the Git remote.
+          for attempt in {1..6}; do
+            if git rev-parse --verify --quiet "$TAG_REF^{commit}" >/dev/null; then
+              break
+            fi
+            if git fetch --no-tags origin "$TAG_REF:$TAG_REF"; then
+              break
+            fi
+            if [ "$attempt" -lt 6 ]; then sleep 5; fi
+          done
+
+          TAG_COMMIT=$(git rev-parse --verify "$TAG_REF^{commit}")
+          if [ "$TAG_COMMIT" != "$GITHUB_SHA" ] || [ "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]; then
+            echo "The release tag must resolve to the exact push commit" >&2
             exit 1
           fi
-
-          if ! git merge-base --is-ancestor "$TAG_COMMIT" refs/remotes/origin/main; then
-            echo "Error: Tag is not on main. Publishing only allowed from main."
-            echo "Push to main first, then tag: git tag v$PROJECT_VERSION && git push origin v$PROJECT_VERSION"
-            exit 1
-          fi
-
+          git merge-base --is-ancestor "$TAG_COMMIT" refs/remotes/origin/main
           echo "commit=$TAG_COMMIT" >> "$GITHUB_OUTPUT"
-          echo "✓ Tag matches version and is on main"
-
-      - name: Check if release version (x.x.x)
-        id: check_release_version
-        env:
-          VERSION: ${{ steps.extract_version.outputs.version }}
-        run: |
-          # Only publish when version is exactly x.x.x (e.g. 1.0.0). Skip for pre-release, dev, or other.
-          if echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "is_release_version=true" >> "$GITHUB_OUTPUT"
-            echo "Version $VERSION is x.x.x. Proceeding with publish."
-          else
-            echo "is_release_version=false" >> "$GITHUB_OUTPUT"
-            echo "Version $VERSION is not x.x.x (pre-release, dev, or other). Skipping PyPI publish."
-          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
   test:
     name: Release tests
     needs: validate
-    if: needs.validate.outputs.is_release_version == 'true' && needs.validate.outputs.commit != ''
     uses: ./.github/workflows/test-audio.yml
     permissions:
       contents: read
@@ -102,7 +85,9 @@ jobs:
     name: Build and Publish to PyPI
     runs-on: ubuntu-latest
     needs: [validate, test]
-    if: needs.validate.outputs.is_release_version == 'true' && needs.test.result == 'success'
+    if: needs.test.result == 'success'
+    env:
+      VERSION: ${{ needs.validate.outputs.version }}
 
     steps:
       - name: Checkout code
@@ -121,13 +106,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install build twine
 
-      - name: Extract version from pyproject.toml
-        id: extract_version
-        run: |
-          VERSION=$(grep -E '^version\s*=' pyproject.toml | sed -E 's/version\s*=\s*"([^"]+)"/\1/')
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Extracted version: $VERSION"
-
       - name: Build package
         run: |
           python -m build
@@ -145,35 +123,23 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
         run: |
-          # TestPyPI doesn't allow re-uploading the same version (returns 400 Bad Request)
-          # A version may already exist on TestPyPI in these scenarios:
-          # 1. Previous workflow run succeeded in uploading to TestPyPI but failed later (e.g., PyPI upload or verification)
-          # 2. Manual testing uploads to TestPyPI before the automated workflow runs
-          # 3. Republishing the same version after fixing CI/CD issues (like retry logic)
-          # 4. Workflow was re-run after a partial failure
-          # Check if version already exists, skip upload if it does to avoid 400 errors
-          VERSION="${{ steps.extract_version.outputs.version }}"
-          if curl -s "https://test.pypi.org/pypi/audiometa-python/${VERSION}/json" | grep -q '"version"'; then
-            echo "Version ${VERSION} already exists on TestPyPI, skipping upload"
-            echo "This is expected when republishing or when a previous workflow run partially succeeded"
-          else
-            echo "Uploading version ${VERSION} to TestPyPI..."
-            twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-          fi
+          twine upload --skip-existing --repository testpypi dist/*
 
       - name: Verify TestPyPI publication by installing
         run: |
-          VERSION="${{ steps.extract_version.outputs.version }}"
           echo "Waiting for TestPyPI to propagate package version ${VERSION}..."
           sleep 10
 
           # Retry logic: TestPyPI might need a moment to update
           MAX_RETRIES=5
           RETRY_COUNT=0
+          download_dir=$(mktemp -d)
+          trap 'rm -rf "$download_dir"' EXIT
 
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-            python -m pip install --upgrade pip
-            if pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ audiometa-python==${VERSION} 2>&1; then
+            if python -m pip download --no-deps --only-binary=:all: --index-url https://test.pypi.org/simple/ \
+                --dest "$download_dir" "audiometa-python==${VERSION}"; then
+              python -m pip install "$download_dir"/*.whl
               echo "✓ Successfully installed audiometa-python==${VERSION} from TestPyPI"
               python -c "import audiometa; print('Successfully installed from TestPyPI')"
               python -c "from audiometa import get_unified_metadata; print('Package imports and functions work correctly')"
@@ -195,11 +161,10 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          twine upload dist/*
+          twine upload --skip-existing dist/*
 
       - name: Verify PyPI publication by installing
         run: |
-          VERSION="${{ steps.extract_version.outputs.version }}"
           echo "Waiting for PyPI to propagate package version ${VERSION}..."
           sleep 10
 
@@ -208,8 +173,7 @@ jobs:
           RETRY_COUNT=0
 
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-            python -m pip install --upgrade pip
-            if pip install audiometa-python==${VERSION} 2>&1; then
+            if python -m pip install --force-reinstall "audiometa-python==${VERSION}"; then
               echo "✓ Successfully installed audiometa-python==${VERSION} from PyPI"
               python -c "import audiometa; print('Successfully installed from PyPI')"
               python -c "from audiometa import get_unified_metadata; print('Package imports and functions work correctly')"
@@ -228,7 +192,6 @@ jobs:
 
       - name: Post-publish verification check
         run: |
-          VERSION="${{ steps.extract_version.outputs.version }}"
           PACKAGE_NAME="audiometa-python"
 
           echo "Verifying package availability on PyPI..."

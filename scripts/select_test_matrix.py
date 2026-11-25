@@ -2,8 +2,6 @@ import re  # noqa: INP001 - This script is run directly from scripts/.
 import subprocess
 import sys
 
-from changelog import Section, parse, render, validate
-
 DOC_PATH = re.compile(r"(?:docs/[^/]+|CONTRIBUTING|DEVELOPMENT|SUPPORT)\.md")
 UNIT_TEST_PATH = re.compile(r"audiometa/test/tests/unit/(?:[^/]+/)*test_[^/]+\.py")
 PORTABLE_HELPERS = frozenset(
@@ -32,35 +30,14 @@ def changed_regular_files(raw_diff: bytes) -> list[str]:
     return paths
 
 
-def published_changelog(text: str) -> tuple[str, tuple[Section, ...]] | None:
-    changelog = parse(text)
-    if render(changelog) != text or validate(changelog):
-        return None
-    unreleased, *releases = changelog.sections
-    if not unreleased.is_unreleased:
-        return None
-    return changelog.preamble, tuple(releases)
-
-
-def changes_only_unreleased(before: str, after: str) -> bool:
-    published = published_changelog(before)
-    return published is not None and published == published_changelog(after)
-
-
 def select_mode(paths: list[str]) -> str:
     if not paths:
         return "full"
     non_docs = [path for path in paths if not DOC_PATH.fullmatch(path)]
     if not non_docs:
         return "docs"
-    code_paths = [path for path in non_docs if path != "CHANGELOG.md"]
-    if not code_paths or not all(path in PORTABLE_HELPERS or UNIT_TEST_PATH.fullmatch(path) for path in code_paths):
+    if not all(path in PORTABLE_HELPERS or UNIT_TEST_PATH.fullmatch(path) for path in non_docs):
         return "full"
-    if "CHANGELOG.md" in non_docs:
-        before = git("show", "HEAD^1:CHANGELOG.md").decode("utf-8")
-        after = git("show", "HEAD:CHANGELOG.md").decode("utf-8")
-        if not changes_only_unreleased(before, after):
-            return "full"
     return "reduced"
 
 

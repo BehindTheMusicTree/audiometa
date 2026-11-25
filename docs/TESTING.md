@@ -192,7 +192,7 @@ Coverage is enforced in CI via **`coverage report --fail-under=80`** after marke
 **PR test matrix:** The [Lint and Test workflow](../.github/workflows/lint-and-test.yml) always runs lint and reports the required `Tests success` check.
 
 - **Zero audio jobs** for edits confined to existing Markdown files directly in `docs/` or to `CONTRIBUTING.md`, `DEVELOPMENT.md`, or `SUPPORT.md`.
-- **Five audio jobs** for edits to existing `test_*.py` files in the unit suite or to `disc_number_read.py`, `id3v1_genre_code_map.py`, or `raw_metadata_sanitizer.py` in `audiometa/utils/`. These edits can include the docs above and changelog notes under `[Unreleased]`. CI runs Python 3.12–3.14 on Ubuntu, 3.13 on macOS, and 3.14 on Windows.
+- **Five audio jobs** for edits to existing `test_*.py` files in the unit suite or to `disc_number_read.py`, `id3v1_genre_code_map.py`, or `raw_metadata_sanitizer.py` in `audiometa/utils/`. These edits can include the docs above. Changes to `CHANGELOG.md` use the full matrix. CI runs Python 3.12–3.14 on Ubuntu, 3.13 on macOS, and 3.14 on Windows.
 - **Nine audio jobs** for other changes or when CI cannot classify the PR. The full matrix runs Python 3.12–3.14 on Ubuntu 24.04, macOS 15, and Windows Server 2022.
 
 The [publish workflow](../.github/workflows/publish.yml) also requires all nine jobs to pass on the tagged release commit before uploading to TestPyPI or PyPI.
