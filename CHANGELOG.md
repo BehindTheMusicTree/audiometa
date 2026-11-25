@@ -5,34 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### CI
-
-- Skip audio tests for verified docs-only PRs, use five jobs for allowlisted code edits, and require all nine jobs before publishing a release.
-- Pin the pre-commit Node version to 26.13.0 (`default_language_version`): the prettier hook no longer installs the latest Node release, whose prerelease version `nodeenv` cannot parse.
-- Use the shared release policy to create stable tags before the existing PyPI publication workflow.
-- Removed the per-repo graphify `hook-guard` in `.claude/settings.json`; the global agent-config freshness hook replaces it.
-- Pin the shared release workflows to the lag-tolerant github-workflows commit 79c1362, so tag creation tolerates GitHub read-after-write delays.
-- Make the test gates non-skippable: add a `Tests success` job that fails unless every matrix job succeeds (`if: always()` and a check on `needs` results), so a failed matrix job can no longer let a skipped required check pass.
-- Removed the redundant `Lint and tests success` job: branch protection requires `Lint / Pre-commit` and `Tests success`, and `CONTRIBUTING.md` now names those checks.
-- Give every push or pull request workflow the canonical `concurrency` block: CI workflows share a group per branch and cancel superseded pull request runs, `release-tag` runs once per pushed commit, and the publish workflows queue per ref without cancelling.
-
-### Changed
-
-- Load Ruff guidance automatically when editing Python files.
-- Ignore local agent plans and temporary files while keeping their directory rules tracked.
-- Removed the graphify `merge=graphify` git attribute, which pointed at a machine-specific merge driver; the global agent-config freshness hook keeps the graph fresh.
-- Removed the local pull request template; the organization-wide template from `BehindTheMusicTree/.github` applies.
-
-### Removed
-
-- Removed the `content/` directory (social and article drafts) and its `.gitignore`, contributing and demo-doc references.
-- Removed `.agent-plans/.gitignore`; agent plans are now ignored through the global Git exclusion.
-
-### Documentation
-
-- Removed the "Changelog Best Practices" section from `CHANGELOG.md`; the conventions now live in the `create-pr` skill, and agents no longer write entries into its example block.
+Release Please generates release notes from conventional PR titles. See the
+[archived development notes](https://github.com/BehindTheMusicTree/audiometa/blob/b82d997c1c1c12b4ab0c106377de79f9d1bd6c47/CHANGELOG.md#unreleased)
+for changes recorded before the migration.
 
 ## [1.4.6] - 2026-11-01
 

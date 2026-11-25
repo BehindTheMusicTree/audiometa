@@ -19,7 +19,7 @@ Organization-wide Python tooling, CI patterns, and shared style (including [stri
     - [Ruff F823 False Positive](#ruff-f823-false-positive)
 - [Project Documentation](#project-documentation)
   - [Documentation Files](#documentation-files)
-  - [Changelog and `[Unreleased]`](#changelog-and-unreleased)
+  - [Changelog](#changelog)
 
 ## Code Quality
 
@@ -161,21 +161,15 @@ def some_function():
 When making changes to the codebase, ensure relevant documentation is updated:
 
 - **README.md**: Update when adding new features, changing behavior, or modifying installation/usage instructions
-- **CHANGELOG.md**: Always update `## [Unreleased]` in the **same PR** as the code ([Changelog and `[Unreleased]`](#changelog-and-unreleased); [Changelog Best Practices](CHANGELOG.md#changelog-best-practices); `.agents/rules/changelog.md`)
+- **CHANGELOG.md** contains the [generated release notes](#changelog).
 - **DEVELOPMENT.md**: Update when changing development standards or adding new guidelines
 - **CONTRIBUTING.md**: Update when changing development workflow (primarily for maintainers; contributors may update in exceptional cases, e.g., when adding hooks for new features in other languages)
 - **docs/**: Update relevant documentation files in the `docs/` directory when adding features or changing behavior that affects user-facing functionality
 
 **Note:** Documentation should be updated as part of the same PR that introduces the changes, not as a separate follow-up PR.
 
-### Changelog and `[Unreleased]`
+### Changelog
 
-Edit `CHANGELOG.md` under `## [Unreleased]` whenever your change affects **users, integrators, or the public surface** (library API exported from `audiometa`, CLI behavior or flags, default behavior, or response shapes). Use the usual categories (Added, Changed, Fixed, etc.); see [Changelog Best Practices](CHANGELOG.md#changelog-best-practices).
+Release Please generates `CHANGELOG.md` from conventional PR titles. Describe the user-visible effect in the title. Use `feat:` for new functionality and `fix:` for bug fixes. Mark breaking changes with `!` in the title and explain the migration in the PR description.
 
-- **Same PR as the code** — Do not merge user-visible changes with an empty or stale `[Unreleased]` section.
-- **What usually needs an entry** — New or changed public symbols, CLI changes, user-visible bug fixes, breaking changes (document clearly).
-- **What often does not** — Internal refactors with identical external behavior; test-only work that does not fix a user-visible bug (mention tests under the related feature or fix if there is one).
-- **Before you open or finalize a PR** — Re-read `## [Unreleased]` and confirm it matches the diff.
-- **After editing `CHANGELOG.md`** — Run `python scripts/verify_changelog.py` so section order matches `scripts/prepare_release.py` (see `.agents/rules/changelog.md`, **CHANGELOG.md structure and integrity**).
-
-Agents also follow `.agents/rules/changelog.md` and [AGENTS.md](AGENTS.md#changelog).
+After editing `CHANGELOG.md`, run `python scripts/verify_changelog.py`. The verifier accepts linked generated headings and legacy headings in descending version order.

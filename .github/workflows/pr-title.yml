@@ -1,0 +1,18 @@
+# A title edit reruns this check without restarting the test suite.
+name: PR title
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: read
+
+concurrency:
+  group: pr-title-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  pr-title:
+    uses: BehindTheMusicTree/github-workflows/.github/workflows/pr-title.yml@18b90bc9c64b9abab0a86e7ea74f65acac93aec1 # v6.6.0

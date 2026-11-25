@@ -1,13 +1,14 @@
 name: Publish docs bundle
 
 on:
-  push:
-    tags:
-      - "v*"
-    paths:
-      - "docs/**"
-      - "scripts/build_docs_bundle.py"
+  workflow_call:
+    secrets:
+      RELEASE_PR_APP_PRIVATE_KEY:
+        required: true
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: publish-docs-bundle-${{ github.ref }}
@@ -15,16 +16,26 @@ concurrency:
 
 jobs:
   build-and-commit:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
 
     steps:
+      - name: Create repository-scoped App token
+        id: app
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ vars.RELEASE_PR_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PR_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-pull-requests: write
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          token: ${{ secrets.DOCS_BUNDLE_PUSH_PAT || github.token }}
+          ref: main
+          token: ${{ steps.app.outputs.token }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -34,26 +45,24 @@ jobs:
       - name: Build docs bundle
         run: python3 scripts/build_docs_bundle.py
 
-      - name: Commit and push or open PR if changed
+      - name: Open or update a docs bundle PR
         env:
-          HAS_PUSH_PAT: ${{ secrets.DOCS_BUNDLE_PUSH_PAT != '' }}
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "${APP_SLUG}[bot]"
+          bot_id=$(gh api "users/${APP_SLUG}[bot]" --jq .id)
+          git config user.email "${bot_id}+${APP_SLUG}[bot]@users.noreply.github.com"
           git add publish/docs-bundle.json
           if git diff --staged --quiet; then
             echo "No changes to docs-bundle.json"
             exit 0
           fi
           git commit -m "chore: update docs bundle for frontend"
-          if [ "${HAS_PUSH_PAT}" = "true" ]; then
-            git push origin HEAD:main
-            exit 0
-          fi
           bundle_branch="chore/update-docs-bundle"
-          git push --force origin "HEAD:${bundle_branch}"
+          remote_head=$(git ls-remote origin "refs/heads/${bundle_branch}" | cut -f1)
+          git push --force-with-lease="refs/heads/${bundle_branch}:${remote_head}" origin "HEAD:${bundle_branch}"
           open_prs="$(gh pr list --head "${bundle_branch}" --base main --state open --json number --jq 'length')" || exit 1
           if [ "${open_prs}" = "0" ]; then
             gh pr create --base main --head "${bundle_branch}" \

@@ -1,4 +1,4 @@
-name: Release tag
+name: Release
 
 on:
   push:
@@ -15,8 +15,38 @@ concurrency:
 
 jobs:
   release-tag:
-    uses: BehindTheMusicTree/github-workflows/.github/workflows/release-tag.yml@79c136234b5d487bb99e0cd2050f38f6b3e06747
+    uses: BehindTheMusicTree/github-workflows/.github/workflows/release-tag.yml@18b90bc9c64b9abab0a86e7ea74f65acac93aec1 # v6.6.0
+    # The reusable workflow declares contents: write for its optional GitHub Release job.
+    permissions:
+      contents: write
     with:
-      app-id: "5524079"
+      app-id: ${{ vars.RELEASE_APP_ID }}
     secrets:
       release-app-private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
+  publish:
+    needs: release-tag
+    if: needs.release-tag.outputs.tag != ''
+    uses: ./.github/workflows/publish.yml
+    with:
+      tag: ${{ needs.release-tag.outputs.tag }}
+    secrets:
+      TEST_PYPI_API_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+
+  publish-docs-bundle:
+    needs: publish
+    uses: ./.github/workflows/publish-docs-bundle.yml
+    secrets:
+      RELEASE_PR_APP_PRIVATE_KEY: ${{ secrets.RELEASE_PR_APP_PRIVATE_KEY }}
+
+  release-please:
+    needs: [release-tag, publish]
+    if: ${{ !cancelled() && needs.release-tag.result == 'success' && (needs.release-tag.outputs.tag == '' || needs.publish.result == 'success') }}
+    uses: BehindTheMusicTree/github-workflows/.github/workflows/release-please.yml@18b90bc9c64b9abab0a86e7ea74f65acac93aec1 # v6.6.0
+    with:
+      app-id: ${{ vars.RELEASE_PR_APP_ID }}
+      auto-merge: true
+      release-policies: .github/release-policy.json
+    secrets:
+      release-pr-app-private-key: ${{ secrets.RELEASE_PR_APP_PRIVATE_KEY }}

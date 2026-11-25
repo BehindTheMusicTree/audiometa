@@ -80,7 +80,7 @@ When generating PR descriptions, create them as **standalone markdown documents*
 - [ ] Updated README if adding new features or changing behavior
 - [ ] Updated CONTRIBUTING.md if changing development workflow
 - [ ] Added/updated type hints where appropriate
-- [ ] Updated CHANGELOG.md with changes
+- [ ] PR title describes the user-visible change for the generated changelog
 
 ### Git Hygiene
 
@@ -280,7 +280,7 @@ new_code()
 
 - **Pre-commit hooks**: Always run, even for docs
 - **Git hygiene**: Always applies
-- **CHANGELOG.md**: Always update in the `[Unreleased]` section
+- **CHANGELOG.md**: Release Please generates notes from the conventional PR title
 - **Commit messages**: Always follow conventions
 
 ## Examples

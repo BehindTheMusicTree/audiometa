@@ -36,7 +36,7 @@ See `CONTRIBUTING.md` for full details. Quick reference:
 
 ### Changelog
 
-When you change production code under `audiometa/`, the CLI, or user-visible behavior, update `CHANGELOG.md` in the `## [Unreleased]` section in the same work. Before finishing, confirm `[Unreleased]` matches what you changed. After any substantive edit to `CHANGELOG.md`, run `python scripts/verify_changelog.py` (layout must match `prepare_release.py`; see `.agents/rules/changelog.md`). See [DEVELOPMENT.md — Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased).
+Release Please builds the changelog from conventional PR titles. Use `feat:` for new functionality and `fix:` for bug fixes, and describe user-visible effects in the title. See [DEVELOPMENT.md — Changelog](DEVELOPMENT.md#changelog). After a substantive edit to `CHANGELOG.md`, run `python scripts/verify_changelog.py`.
 
 ### Pull request descriptions
 

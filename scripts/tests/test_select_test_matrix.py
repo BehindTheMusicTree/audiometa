@@ -6,16 +6,6 @@ from select_test_matrix import changed_regular_files, main, select_mode
 UNIT_TEST = "audiometa/test/tests/unit/metadata_field/test_values.py"
 HELPER = "audiometa/utils/disc_number_read.py"
 DOC = "docs/TESTING.md"
-CHANGELOG = """# Changelog
-
-## [Unreleased]
-
-- New notes
-
-## [1.0.0] - 2026-01-01
-
-- Published notes
-"""
 
 
 @pytest.mark.unit
@@ -31,6 +21,7 @@ CHANGELOG = """# Changelog
         ([HELPER, "audiometa/test/tests/unit/conftest.py"], "full"),
         ([DOC, "docs/demos/tape.md"], "full"),
         ([DOC, "CHANGELOG.md"], "full"),
+        ([UNIT_TEST, "CHANGELOG.md"], "full"),
         ([], "full"),
     ],
 )
@@ -51,26 +42,6 @@ def test_select_mode(paths, mode):
 )
 def test_regular_file_edits(header, paths):
     assert changed_regular_files(header + b"\0" + DOC.encode() + b"\0") == paths
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    ("old", "new", "mode"),
-    [
-        ("New notes", "Different new notes", "reduced"),
-        ("Published notes", "Changed published notes", "full"),
-        ("## [Unreleased]", "## Notes", "full"),
-        ("## [1.0.0] - 2026-01-01", "## [1.0.1] - 2026-01-01", "full"),
-        ("# Changelog", "# Different title", "full"),
-    ],
-)
-def test_changelog_edit(monkeypatch, old, new, mode):
-    blobs = {
-        "HEAD^1:CHANGELOG.md": CHANGELOG,
-        "HEAD:CHANGELOG.md": CHANGELOG.replace(old, new),
-    }
-    monkeypatch.setattr("select_test_matrix.git", lambda _command, ref: blobs[ref].encode())
-    assert select_mode([UNIT_TEST, "CHANGELOG.md"]) == mode
 
 
 @pytest.mark.unit

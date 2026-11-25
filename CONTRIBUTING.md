@@ -47,7 +47,6 @@ The maintainer(s) are responsible for:
 - Responding to critical issues
 - Maintaining the project's infrastructure
 - Creating and managing `hotfix/` branches for urgent fixes to `main`
-- Moving "Unreleased" changelog entries to versioned sections during releases
 - Managing the TODO list (contributors should open issues for new tasks; maintainers update `TODO.md`)
 - Managing repository automation (stale issues/PRs, auto-labeling, auto-assignment, etc.)
 
@@ -314,7 +313,7 @@ Before submitting a Pull Request, ensure the following checks are completed:
 - ✅ Update docstrings for new functions/classes (only when needed - see [Docstrings](DEVELOPMENT.md#docstrings) section in DEVELOPMENT.md)
 - ✅ Update README or other more focused documentation if adding new features or changing behavior
 - ✅ Add/update type hints where appropriate
-- ✅ Update `CHANGELOG.md` with your changes in the `[Unreleased]` section in the same PR as the code (see [Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased), [Changelog Best Practices](CHANGELOG.md#changelog-best-practices), and `.agents/rules/changelog.md`)
+- ✅ Describe user-visible changes in the conventional PR title for the [generated changelog](DEVELOPMENT.md#changelog)
 - ⚠️ Update CONTRIBUTING.md only in exceptional cases (e.g., when adding hooks for new features in other languages)
 
 **4. Git Hygiene**
@@ -477,82 +476,13 @@ These automations help streamline the review process and ensure consistency acro
 
 ### 7. Releasing _(For Maintainers)_
 
-Releases go through a pull request like any other change. Merging the release PR tags `vX.Y.Z` and publishes to PyPI automatically; there is no manual tag and no direct push to `main`.
+Release Please reads conventional PR titles from squash commits on `main` and opens a PR updating `project.version`, the release manifest, and `CHANGELOG.md`. CI merges that PR once the required checks pass.
 
-Quick release process:
+1. The **Release** workflow checks the version and changelog and uses the tag App to create an annotated `vX.Y.Z` tag on the release PR's merge commit.
+2. The publisher verifies the tag, builds the wheel and source distribution from that commit, and runs all nine release test jobs against it. After the tests pass, it publishes and verifies both distributions on TestPyPI and then PyPI.
+3. The docs workflow builds the latest bundle from `main` and opens or updates a PR when the bundle changes. Merge that PR once its checks pass. Maintainers can also dispatch **Publish docs bundle** on `main`.
 
-1. **Ensure you're on an up-to-date `main`** - the script refuses to run from any other branch or from a dirty tree
-
-   ```bash
-   git checkout main
-   git pull origin main
-   ```
-
-2. Check `TODO.md` for any critical items that should be addressed before release
-
-   - Review high-priority tasks and ensure they're either completed or deferred to next release
-   - Update TODO items if needed to reflect current project status
-
-3. Review and consolidate the `[Unreleased]` section in `CHANGELOG.md`
-
-   - Review changes in the `[Unreleased]` section and decide on version number (following Semantic Versioning)
-   - Consolidate entries if needed (group similar changes, ensure clarity)
-   - Do not manually move or add the version header—the release script does that with today's date
-
-4. Verify changelog layout:
-
-   ```bash
-   python scripts/verify_changelog.py
-   ```
-
-   See `.agents/rules/changelog.md` (**CHANGELOG.md structure and integrity**). Fix any reported errors before the release script.
-
-5. Run the release script (cuts the CHANGELOG, bumps the version, commits on a release branch):
-
-   **Use the release script, not `bump-my-version` directly.** Running `bump-my-version bump patch` alone does not update `CHANGELOG.md`; the script does changelog + version + commit in one go.
-
-   ```bash
-   source .venv/bin/activate
-
-   python scripts/prepare_release.py patch
-   # Or: python scripts/prepare_release.py minor
-   # Or: python scripts/prepare_release.py major
-   # Or: python scripts/prepare_release.py --new-version 1.3.1
-   # Add --push to also push the branch and open the PR: python scripts/prepare_release.py patch --push
-   ```
-
-   **What the script does:**
-
-   - Validates everything before writing any file: the version must be `X.Y.Z` and greater than the current one, `CHANGELOG.md` must be valid, and `[Unreleased]` must not be empty
-   - Replaces `## [Unreleased]` in `CHANGELOG.md` with `## [X.Y.Z] - YYYY-MM-DD` (today) and adds a new empty `## [Unreleased]` section
-   - Runs `bump-my-version bump` to update `project.version` and `[tool.bumpversion].current_version` in `pyproject.toml`
-   - Commits `CHANGELOG.md` and `pyproject.toml` as `chore: prepare release X.Y.Z` on a new `chore/release-X.Y.Z` branch
-   - Does not tag and does not touch `main`
-   - With `--push`: pushes the branch and opens the PR against `main`
-
-6. If you did not use `--push`, push the branch and open the PR:
-
-   ```bash
-   git push -u origin chore/release-X.Y.Z
-   gh pr create --base main
-   ```
-
-7. Get the PR approved and merged (`main` requires one approval and the "Lint / Pre-commit" and "Tests success" checks). On merge, the shared `Release tag` workflow validates the version and changelog and creates an annotated `vX.Y.Z` tag using the release App. The tag starts the existing `Publish to PyPI` workflow, which:
-
-   - Verify tag version matches `pyproject.toml` version
-   - Verify the tagged commit is on `main`
-   - Run the full nine-job test matrix on the tagged commit
-   - Build the package (source distribution and wheel)
-   - Publish to TestPyPI (for testing)
-   - Verify TestPyPI installation works correctly
-   - Publish to PyPI using the `PYPI_API_TOKEN` secret
-   - Verify PyPI publication success
-
-   **Recovery:** if validation or publishing fails after the tag was created, fix the cause and re-run the failed run for the `vX.Y.Z` tag from the Actions tab. If tag creation fails, re-run the `Release tag` workflow for the merge commit.
-
-   **Setup:** the `Release tag` workflow needs the `RELEASE_APP_PRIVATE_KEY` repository secret of GitHub App 5524079 with `Contents: Read & write`, installed on this repository and listed as a bypass actor of the `vX.Y.Z` tag ruleset. `GITHUB_TOKEN` cannot be used: it is not a bypass actor and tags it pushes do not start workflows.
-
-   **Activation:** merge the release policy without a version bump before the first release; the first push introducing the policy cannot create a tag.
+For a transient failure, rerun the failed jobs in **Release** for the merge commit to reuse the original build artifact. The publisher compares SHA-256 hashes and uploads only missing files to each registry. A checksum mismatch requires investigation before retrying. The workflow uses separate organization-managed GitHub Apps for release PRs and release tags.
 
 ## 🪪 License & Attribution
 

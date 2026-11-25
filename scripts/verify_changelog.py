@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify CHANGELOG.md layout for prepare_release.py and Keep a Changelog ordering."""
+"""Verify CHANGELOG.md layout and descending release order."""
 
 from __future__ import annotations
 
