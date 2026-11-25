@@ -11,7 +11,7 @@ def _expected_value_shape(key: UnifiedMetadataKey) -> tuple[str, bool, bool]:
         return ("strings", True, False)
     if key == UnifiedMetadataKey.TRACK_NUMBER:
         return ("string_or_integer", False, False)
-    if key == UnifiedMetadataKey.DISC_TOTAL:
+    if key in (UnifiedMetadataKey.DISC_NUMBER, UnifiedMetadataKey.DISC_TOTAL):
         return ("integer", False, True)
     if key == UnifiedMetadataKey.RATING:
         return ("number", False, False)
@@ -69,6 +69,12 @@ class TestUnifiedMetadataFieldSchema:
         assert d["value_type"] == "string_or_integer"
         assert d["multiple"] is False
         assert d["optional_value"] is False
+
+    def test_describe_disc_number_integer_optional_value(self) -> None:
+        d = describe_unified_metadata_field(UnifiedMetadataKey.DISC_NUMBER)
+        assert d["value_type"] == "integer"
+        assert d["optional_value"] is True
+        assert d["multiple"] is False
 
     def test_describe_disc_total_integer_optional_value(self) -> None:
         d = describe_unified_metadata_field(UnifiedMetadataKey.DISC_TOTAL)

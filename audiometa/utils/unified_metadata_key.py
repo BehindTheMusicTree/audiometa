@@ -5,7 +5,6 @@ format.
 """
 
 from enum import StrEnum
-from typing import cast
 
 
 class UnifiedMetadataKey(StrEnum):
@@ -60,11 +59,12 @@ class UnifiedMetadataKey(StrEnum):
             raise ValueError(msg)
         return result
 
-    def get_optional_type(self) -> type[int | float | str | list[str]]:
+    def get_optional_type(self) -> object:
         """Get the optional type for the metadata key.
 
         Returns:
-            The type of the metadata value.
+            The expected type of the metadata value. This may be a concrete type (e.g. ``str``), a union
+            (e.g. ``int | None``), or a generic alias (e.g. ``list[str]``) rather than always a ``type`` instance.
         """
         app_metadata_keys_optional_types_map: dict[UnifiedMetadataKey, object] = {
             UnifiedMetadataKey.TITLE: str,
@@ -76,7 +76,7 @@ class UnifiedMetadataKey(StrEnum):
             UnifiedMetadataKey.LANGUAGE: str,
             UnifiedMetadataKey.RELEASE_DATE: str,
             UnifiedMetadataKey.TRACK_NUMBER: str,  # Can be int or str
-            UnifiedMetadataKey.DISC_NUMBER: int,
+            UnifiedMetadataKey.DISC_NUMBER: int | None,
             UnifiedMetadataKey.DISC_TOTAL: int | None,
             UnifiedMetadataKey.BPM: int,
             UnifiedMetadataKey.COMPOSERS: list[str],
@@ -96,4 +96,4 @@ class UnifiedMetadataKey(StrEnum):
         if not result_type:
             msg = f"No optional type defined for {self}"
             raise ValueError(msg)
-        return cast(type[int | float | str | list[str]], result_type)
+        return result_type
