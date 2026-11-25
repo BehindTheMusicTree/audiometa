@@ -32,6 +32,7 @@ jobs:
       contents: read
     outputs:
       mode: ${{ steps.select.outputs.mode }}
+      applicable: ${{ steps.select.outputs.applicable }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -45,20 +46,26 @@ jobs:
           trap 'rm -rf "$selector_dir"' EXIT
           if git archive HEAD^1 scripts/select_test_matrix.py scripts/changelog.py | tar -x -C "$selector_dir" &&
              mode=$(python3 "$selector_dir/scripts/select_test_matrix.py"); then
-            echo "mode=$mode" >> "$GITHUB_OUTPUT"
+            case "$mode" in
+              docs) applicable=false ;;
+              reduced|full) applicable=true ;;
+              *) exit 1 ;;
+            esac
           else
-            echo "mode=full" >> "$GITHUB_OUTPUT"
+            mode=full
+            applicable=true
           fi
+          printf 'mode=%s\napplicable=%s\n' "$mode" "$applicable" >> "$GITHUB_OUTPUT"
 
   test:
     name: Audio tests
     needs: classify
-    if: ${{ !cancelled() && (needs.classify.result != 'success' || needs.classify.outputs.mode != 'docs') }}
+    if: needs.classify.outputs.applicable == 'true'
     uses: ./.github/workflows/test-audio.yml
     permissions:
       contents: read
     with:
-      full_matrix: ${{ needs.classify.result != 'success' || needs.classify.outputs.mode != 'reduced' }}
+      full_matrix: ${{ needs.classify.outputs.mode != 'reduced' }}
 
   coverage:
     needs: test
@@ -74,12 +81,8 @@ jobs:
     steps:
       - name: Require the selected tests to succeed
         env:
-          CLASSIFIER_RESULT: ${{ needs.classify.result }}
-          TEST_MODE: ${{ needs.classify.outputs.mode }}
-          TEST_RESULT: ${{ needs.test.result }}
-        run: |
-          if [[ "$CLASSIFIER_RESULT" == success && "$TEST_MODE" == docs ]]; then
-            test "$TEST_RESULT" = skipped
-          else
-            test "$TEST_RESULT" = success
-          fi
+          NEEDS: ${{ toJSON(needs) }}
+        run: >-
+          jq -e --arg scope classify
+          '.[$scope] as $s | del(.[$scope]) as $rest | $s.result == "success" and ($rest | length) > 0 and (if $s.outputs.applicable == "true" then all($rest[]; .result == "success") elif $s.outputs.applicable == "false" then all($rest[]; .result == "skipped") else false end)'
+          <<<"$NEEDS"
