@@ -18,9 +18,10 @@ Pull Request titles must follow the same format as commit messages for consisten
 | docs     | Documentation-only changes                                                                |
 | chore    | Maintenance tasks (e.g. packaging, dependencies, tooling setup, repository configuration) |
 | perf     | Performance improvements                                                                  |
-| style    | Code style or formatting changes (no logic impact)                                        |
 | test     | Test-related changes                                                                      |
+| build    | Build system or external dependency changes                                               |
 | ci       | CI/CD pipeline changes (GitHub Actions workflows, CI configuration)                       |
+| revert   | Reverts of a previous change                                                              |
 
 ## Rules
 
@@ -59,7 +60,7 @@ Chore/auto approve maintainer prs
 - ✅ **Correct format**: `feat(ogg): add OGG support`
 
 - ❌ **GitHub suggestion**: `Chore/format code with ruff` (from branch `chore/format-code-with-ruff`)
-- ✅ **Correct format**: `style: format code with ruff`
+- ✅ **Correct format**: `chore: format code with ruff`
 
 - ❌ **GitHub suggestion**: `Chore/use PAT for auto approve workflow instead of GITHUB_TOKEN` (from branch `chore/use-pat-for-auto-approve-workflow`)
 - ✅ **Correct format**: `ci: use PAT for auto-approve workflow instead of GITHUB_TOKEN`
@@ -86,7 +87,7 @@ Chore/auto approve maintainer prs
 - `chore: auto-approve maintainer PRs`
 - `test(mp3): add roundtrip test for metadata write/read`
 - `refactor(core): move format detection to utils module`
-- `style: format code with ruff`
+- `chore: format code with ruff`
 - `ci: use PAT for auto-approve workflow instead of GITHUB_TOKEN`
 
 ## Common Scopes

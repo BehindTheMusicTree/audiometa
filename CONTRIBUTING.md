@@ -479,10 +479,10 @@ These automations help streamline the review process and ensure consistency acro
 Release Please reads conventional PR titles from squash commits on `main` and opens a PR updating `project.version`, the release manifest, and `CHANGELOG.md`. CI merges that PR once the required checks pass.
 
 1. The **Release** workflow checks the version and changelog and uses the tag App to create an annotated `vX.Y.Z` tag on the release PR's merge commit.
-2. The publisher verifies the tag, runs all nine release test jobs on that commit, builds the wheel and source distribution, and publishes and verifies them on TestPyPI and then PyPI.
+2. The publisher verifies the tag, builds the wheel and source distribution from that commit, and runs all nine release test jobs against it. After the tests pass, it publishes and verifies both distributions on TestPyPI and then PyPI.
 3. The docs workflow builds the latest bundle from `main` and opens or updates a PR when the bundle changes. Merge that PR once its checks pass. Maintainers can also dispatch **Publish docs bundle** on `main`.
 
-For a transient failure, rerun the failed jobs in **Release** for the merge commit. The upload skips files already accepted by each registry, then verifies the published version. The workflow uses separate organization-managed GitHub Apps for release PRs and release tags.
+For a transient failure, rerun the failed jobs in **Release** for the merge commit to reuse the original build artifact. The publisher compares SHA-256 hashes and uploads only missing files to each registry. A checksum mismatch requires investigation before retrying. The workflow uses separate organization-managed GitHub Apps for release PRs and release tags.
 
 ## 🪪 License & Attribution
 

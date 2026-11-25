@@ -16,6 +16,9 @@ concurrency:
 jobs:
   release-tag:
     uses: BehindTheMusicTree/github-workflows/.github/workflows/release-tag.yml@18b90bc9c64b9abab0a86e7ea74f65acac93aec1 # v6.6.0
+    # The reusable workflow declares contents: write for its optional GitHub Release job.
+    permissions:
+      contents: write
     with:
       app-id: ${{ vars.RELEASE_APP_ID }}
     secrets:
