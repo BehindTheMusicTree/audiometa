@@ -2,6 +2,8 @@
 # Pinned versions from system-dependencies-*.toml files (fails if not available, no fallback)
 # See system-dependencies-prod.toml, system-dependencies-test-only.toml, and system-dependencies-lint.toml for version configuration
 
+param([switch]$SkipLint)
+
 $ErrorActionPreference = "Stop"
 
 # Load pinned versions from system-dependencies-*.toml files
@@ -66,7 +68,7 @@ if ([string]::IsNullOrEmpty($PINNED_ID3V2)) {
     Write-Warning "WARNING: PINNED_ID3V2 not loaded (optional on Windows, requires WSL)"
 }
 # shellcheck is a lint dependency, should be loaded from "all" category
-if ([string]::IsNullOrEmpty($PINNED_SHELLCHECK)) {
+if (-not $SkipLint -and [string]::IsNullOrEmpty($PINNED_SHELLCHECK)) {
     Write-Warning "WARNING: PINNED_SHELLCHECK not loaded from 'all' category, will try loading lint category separately"
 }
 
@@ -813,6 +815,11 @@ if (-not $npmCheck) {
 
 $npmVersion = npm --version
 Write-Output "  npm is installed: $npmVersion"
+
+if ($SkipLint) {
+    Write-Output "Audio test system dependencies installed successfully"
+    return
+}
 
 # Install lint dependencies (shellcheck)
 # PowerShell is pre-installed on Windows CI runners, no installation needed

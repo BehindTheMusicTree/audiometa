@@ -160,7 +160,7 @@ init_spec.loader.exec_module(init_module)  # type: ignore[union-attr]
 get_dependencies_checker = init_module.get_dependencies_checker
 
 
-def verify_dependency_versions() -> int:
+def verify_dependency_versions(*, verify_lint: bool = True) -> int:
     """Verify PROD, TEST-ONLY, and LINT system dependency versions match pinned versions.
 
     Verifies dependencies from system-dependencies-prod.toml, system-dependencies-test-only.toml,
@@ -171,6 +171,9 @@ def verify_dependency_versions() -> int:
 
     Automatically skips verification in lint-only environments where test/prod dependencies
     aren't installed.
+
+    Args:
+        verify_lint: Whether to verify dependencies used only for linting.
 
     Returns:
         0 if all versions match or verification was skipped, 1 if there are mismatches
@@ -253,6 +256,8 @@ def verify_dependency_versions() -> int:
         # Skip shellcheck verification in local development if not installed (lint dependency is optional locally)
         # In CI, shellcheck should be installed and verified, but on Windows it may not be available
         if tool == "shellcheck":
+            if not verify_lint:
+                continue
             is_ci = os.environ.get("CI") == "true" or os.environ.get("GITHUB_ACTIONS") == "true"
             tool_command = "shellcheck"
             if not checker.check_tool_available(tool_command):

@@ -21,7 +21,7 @@ verify_dependency_versions = verify_module.verify_dependency_versions
 
 def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
     """Verify system dependency versions match pinned versions before running tests."""
-    exit_code = verify_dependency_versions()
+    exit_code = verify_dependency_versions(verify_lint=sys.platform != "win32")
     if exit_code != 0:
         pytest.exit("Dependency version verification failed. See errors above.", returncode=exit_code)
 
