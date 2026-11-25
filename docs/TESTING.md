@@ -185,11 +185,17 @@ open htmlcov/index.html  # macOS
 
 ### Coverage in CI
 
-Coverage is enforced in CI via **`coverage report --fail-under=80`** after marker runs (see [`.github/workflows/lint-and-test.yml`](../.github/workflows/lint-and-test.yml)), maintaining that threshold across pull requests and merges.
+Coverage is enforced in CI via **`coverage report --fail-under=80`** after marker runs in the [shared audio test workflow](../.github/workflows/test-audio.yml).
 
 **CI test execution:** CI runs tests separately by marker (`unit`, `integration`, `e2e`) with coverage. The **80%** threshold applies to the combined total on Linux and macOS (Windows runs **e2e** only in the matrix).
 
-**CI environment:** CI runs on pull requests only ([`.github/workflows/lint-and-test.yml`](../.github/workflows/lint-and-test.yml)): **lint** calls [python-project-standards](https://github.com/BehindTheMusicTree/python-project-standards) **`reusable-pre-commit.yml`** at **`@v5.1.0`**; **test** is an in-repo matrix. Tests run on pinned OS versions (e.g., Ubuntu 24.04, macOS 15) for consistency. OS versions are pinned in the workflow to ensure system package version availability and consistency with pinned versions in `system-dependencies-prod.toml`, `system-dependencies-test-only.toml`, and `system-dependencies-lint.toml`. Python package versions are pinned in `pyproject.toml`. This prevents breakages when GitHub Actions updates `-latest` runners. See the workflow file for the specific pinned OS versions.
+**PR test matrix:** The [Lint and Test workflow](../.github/workflows/lint-and-test.yml) always runs lint and reports the required `Tests success` check.
+
+- **Zero audio jobs** for edits confined to existing Markdown files directly in `docs/` or to `CONTRIBUTING.md`, `DEVELOPMENT.md`, or `SUPPORT.md`.
+- **Five audio jobs** for edits to existing `test_*.py` files in the unit suite or to `disc_number_read.py`, `id3v1_genre_code_map.py`, or `raw_metadata_sanitizer.py` in `audiometa/utils/`. These edits can include the docs above and changelog notes under `[Unreleased]`. CI runs Python 3.12–3.14 on Ubuntu, 3.13 on macOS, and 3.14 on Windows.
+- **Nine audio jobs** for other changes or when CI cannot classify the PR. The full matrix runs Python 3.12–3.14 on Ubuntu 24.04, macOS 15, and Windows Server 2022.
+
+The [publish workflow](../.github/workflows/publish.yml) also requires all nine jobs to pass on the tagged release commit before uploading to TestPyPI or PyPI.
 
 ## Test Logic Principles
 

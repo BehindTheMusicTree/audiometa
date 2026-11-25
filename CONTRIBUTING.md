@@ -336,7 +336,7 @@ Before submitting a Pull Request, ensure the following checks are completed:
 
 **2. Testing Verification**
 
-- ✅ CI tests pass on all platforms and Python versions (Lint and Test workflow on PRs via [`.github/workflows/lint-and-test.yml`](.github/workflows/lint-and-test.yml): **lint** delegates to [python-project-standards](https://github.com/BehindTheMusicTree/python-project-standards) **`reusable-pre-commit.yml`** at **`@v5.1.0`**; **test** is in-repo; branch protection should require the "Lint and Test" check before merging)
+- ✅ The required `Lint / Pre-commit` and `Tests success` checks pass. See the [test matrix policy](docs/TESTING.md#coverage-in-ci) for how CI selects jobs.
 - ✅ Test coverage meets threshold (CI automatically blocks merge if coverage is below 80%)
 - ✅ Edge cases are handled
 - ✅ Integration with existing features works correctly
@@ -540,7 +540,8 @@ Quick release process:
 7. Get the PR approved and merged (`main` requires one approval and the "Lint / Pre-commit" and "Tests success" checks). On merge, the shared `Release tag` workflow validates the version and changelog and creates an annotated `vX.Y.Z` tag using the release App. The tag starts the existing `Publish to PyPI` workflow, which:
 
    - Verify tag version matches `pyproject.toml` version
-   - Verify tag is on main branch
+   - Verify the tagged commit is on `main`
+   - Run the full nine-job test matrix on the tagged commit
    - Build the package (source distribution and wheel)
    - Publish to TestPyPI (for testing)
    - Verify TestPyPI installation works correctly
@@ -552,8 +553,6 @@ Quick release process:
    **Setup:** the `Release tag` workflow needs the `RELEASE_APP_PRIVATE_KEY` repository secret of GitHub App 5524079 with `Contents: Read & write`, installed on this repository and listed as a bypass actor of the `vX.Y.Z` tag ruleset. `GITHUB_TOKEN` cannot be used: it is not a bypass actor and tags it pushes do not start workflows.
 
    **Activation:** merge the release policy without a version bump before the first release; the first push introducing the policy cannot create a tag.
-
-   **Note:** Publish does not wait for CI. Branch protection requires the "Lint / Pre-commit" and "Tests success" checks before merging, so every release commit on `main` is already validated.
 
 ## 🪪 License & Attribution
 
