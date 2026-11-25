@@ -22,8 +22,6 @@ jobs:
         os: [ubuntu-24.04, macos-15, windows-2022]
         python-version: ["3.12", "3.13", "3.14"]
         exclude: ${{ fromJSON(inputs.full_matrix && '[]' || '[{"os":"macos-15","python-version":"3.12"},{"os":"macos-15","python-version":"3.14"},{"os":"windows-2022","python-version":"3.12"},{"os":"windows-2022","python-version":"3.13"}]') }}
-    env:
-      COVERAGE_FAIL_UNDER: "80"
     steps:
       - uses: actions/checkout@v6
         with:
@@ -68,15 +66,18 @@ jobs:
 
       - name: Run unit tests
         if: runner.os != 'Windows'
-        run: pytest -m unit --cov=audiometa --cov-report=xml --cov-report=term
+        run: pytest -m unit --cov=audiometa --cov-branch --cov-report=xml --cov-report=term
 
       - name: Run integration tests
         if: runner.os != 'Windows'
-        run: pytest -m integration --cov=audiometa --cov-report=xml --cov-report=term --cov-append
+        run: pytest -m integration --cov=audiometa --cov-branch --cov-report=xml --cov-report=term --cov-append
 
       - name: Run e2e tests
-        run: pytest -m e2e --cov=audiometa --cov-report=xml --cov-report=term --cov-append
+        run: pytest -m e2e --cov=audiometa --cov-branch --cov-report=xml --cov-report=term --cov-append
 
-      - name: Check coverage threshold (fail-under)
-        if: runner.os != 'Windows'
-        run: coverage report --fail-under=${{ env.COVERAGE_FAIL_UNDER }}
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v5
+        with:
+          name: coverage-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: coverage.xml
+          if-no-files-found: error

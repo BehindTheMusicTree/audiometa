@@ -148,6 +148,10 @@ ignore_missing_imports = true
 module = "mutagen.*"
 ignore_missing_imports = true
 
+[tool.coverage.run]
+relative_files = true
+omit = ["audiometa/test/*"]
+
 [tool.pytest.ini_options]
 testpaths = ["audiometa/test/tests", "scripts/tests"]
 python_files = ["test_*.py"]

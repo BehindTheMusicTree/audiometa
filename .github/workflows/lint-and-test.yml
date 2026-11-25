@@ -60,6 +60,12 @@ jobs:
     with:
       full_matrix: ${{ needs.classify.result != 'success' || needs.classify.outputs.mode != 'reduced' }}
 
+  coverage:
+    needs: test
+    permissions:
+      contents: read
+    uses: BehindTheMusicTree/github-workflows/.github/workflows/coverage.yml@18b90bc9c64b9abab0a86e7ea74f65acac93aec1 # v6.6.0
+
   tests-success:
     name: Tests success
     if: always()
