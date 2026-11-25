@@ -9,6 +9,19 @@ Release Please generates release notes from conventional PR titles. See the
 [archived development notes](https://github.com/BehindTheMusicTree/audiometa/blob/b82d997c1c1c12b4ab0c106377de79f9d1bd6c47/CHANGELOG.md#unreleased)
 for changes recorded before the migration.
 
+## [1.4.7](https://github.com/BehindTheMusicTree/audiometa/compare/v1.4.6...v1.4.7) (2026-11-25)
+
+
+### Bug Fixes
+
+* **pre-commit:** pin the Node version for prettier ([#112](https://github.com/BehindTheMusicTree/audiometa/issues/112)) ([5978521](https://github.com/BehindTheMusicTree/audiometa/commit/5978521100117012f158f8c5fd0618ca23540a45))
+* **test:** make sample-file fallback order deterministic ([#117](https://github.com/BehindTheMusicTree/audiometa/issues/117)) ([8290129](https://github.com/BehindTheMusicTree/audiometa/commit/8290129f76e6d3596dbbe1e4d9b1f2c6eaa4fcaa))
+
+
+### Documentation
+
+* remove changelog guidelines from CHANGELOG.md ([#110](https://github.com/BehindTheMusicTree/audiometa/issues/110)) ([8c9c2a9](https://github.com/BehindTheMusicTree/audiometa/commit/8c9c2a9e515fba7e9cab307913c215653dc91734))
+
 ## [1.4.6] - 2026-11-01
 
 ### Changed
