@@ -43,13 +43,10 @@ id3v2 = "0.1.12"  # Required for FLAC files with ID3v2 tags (writing ID3v2 metad
 
 [windows]
 # PROD dependencies (format-specific - only needed for certain formats)
-# Windows package versions (install via Chocolatey)
-# Format: Use --version flag: choco install package --version=1.2.3 (fails if not available, no fallback)
+# Local Chocolatey installs use --version to require the pinned package.
 # To check available versions: choco search <package> --exact
-# Note: Chocolatey version format example: "7.1.0" or "24.12"
-# IMPORTANT: Verify these versions match what's available in the pinned Windows CI version:
-#   Run in CI: choco search <package> --exact to see available versions
-#   Update these pinned versions to match what CI actually installs
+# GitHub Actions installs FFmpeg and FLAC from SHA-256-verified release archives.
+# When changing either pin, update its URL and checksum in scripts/install-system-dependencies-windows.ps1.
 ffmpeg = "7.1.0"  # Required for WAV files (technical info: duration, bitrate)
 flac = "1.3.4"  # Required for FLAC files (MD5 validation, metadata writing)
 # id3v2: Required for writing ID3v2 tags to FLAC files.

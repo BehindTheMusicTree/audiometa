@@ -2,6 +2,8 @@
 # Pinned versions from system-dependencies-*.toml files (fails if not available, no fallback)
 # See system-dependencies-prod.toml, system-dependencies-test-only.toml, and system-dependencies-lint.toml for version configuration
 
+param([switch]$SkipLint)
+
 $ErrorActionPreference = "Stop"
 
 # Load pinned versions from system-dependencies-*.toml files
@@ -66,7 +68,7 @@ if ([string]::IsNullOrEmpty($PINNED_ID3V2)) {
     Write-Warning "WARNING: PINNED_ID3V2 not loaded (optional on Windows, requires WSL)"
 }
 # shellcheck is a lint dependency, should be loaded from "all" category
-if ([string]::IsNullOrEmpty($PINNED_SHELLCHECK)) {
+if (-not $SkipLint -and [string]::IsNullOrEmpty($PINNED_SHELLCHECK)) {
     Write-Warning "WARNING: PINNED_SHELLCHECK not loaded from 'all' category, will try loading lint category separately"
 }
 
@@ -108,12 +110,59 @@ function Install-ChocoPackage {
     return $true
 }
 
-if (-not (Install-ChocoPackage "ffmpeg" $PINNED_FFMPEG)) {
-    $failedPackages += "ffmpeg"
+function Install-RunnerArchive {
+    param(
+        [string]$Name,
+        [string]$Url,
+        [string]$Sha256,
+        [string]$BinPath
+    )
+
+    $archive = Join-Path $env:RUNNER_TEMP "$Name.zip"
+    $installDir = Join-Path $env:RUNNER_TEMP "audiometa-$Name"
+    try {
+        Write-Information "Downloading pinned $Name archive from $Url" -InformationAction Continue
+        Invoke-WebRequest -Uri $Url -OutFile $archive -TimeoutSec 120
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ne $Sha256) {
+            throw "SHA256 mismatch for $Name"
+        }
+        Expand-Archive -LiteralPath $archive -DestinationPath $installDir -Force
+        return (Join-Path $installDir $BinPath)
+    }
+    finally {
+        if (Test-Path -LiteralPath $archive) {
+            Remove-Item -LiteralPath $archive
+        }
+    }
 }
 
-if (-not (Install-ChocoPackage "flac" $PINNED_FLAC)) {
-    $failedPackages += "flac"
+$runnerToolPaths = @()
+if ($env:GITHUB_ACTIONS -eq "true") {
+    if ([string]::IsNullOrWhiteSpace($env:RUNNER_TEMP)) {
+        throw "RUNNER_TEMP is required to install audio tools in GitHub Actions"
+    }
+    if ($PINNED_FFMPEG -ne "7.1.0" -or $PINNED_FLAC -ne "1.3.4") {
+        throw "Update the Windows runner archive URLs and SHA256 hashes to match the pinned FFmpeg and FLAC versions"
+    }
+
+    # Chocolatey's FFmpeg 7.1.0 package uses the upstream 7.1 essentials build.
+    $runnerToolPaths += Install-RunnerArchive -Name "ffmpeg" `
+        -Url "https://github.com/GyanD/codexffmpeg/releases/download/7.1/ffmpeg-7.1-essentials_build.zip" `
+        -Sha256 "fa7d4d7e795db0e2503f49f105f46ed5852386f0cfdd819899be3b65ebde24fc" `
+        -BinPath "ffmpeg-7.1-essentials_build/bin"
+    $runnerToolPaths += Install-RunnerArchive -Name "flac" `
+        -Url "https://github.com/xiph/flac/releases/download/1.3.4/flac-1.3.4-win.zip" `
+        -Sha256 "0476f66a58a2b8b411585bd61d0ae0c2a39708c325ab1c0ce92d46044676ffe1" `
+        -BinPath "flac-1.3.4-win/win64"
+}
+else {
+    if (-not (Install-ChocoPackage "ffmpeg" $PINNED_FFMPEG)) {
+        $failedPackages += "ffmpeg"
+    }
+
+    if (-not (Install-ChocoPackage "flac" $PINNED_FLAC)) {
+        $failedPackages += "flac"
+    }
 }
 
 # mediainfo: Only needed for integration tests (verification), not e2e tests
@@ -618,6 +667,9 @@ Write-Output "Verifying installed tools are available in PATH..."
 
 # Refresh PATH to include Chocolatey-installed tools
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
+if ($runnerToolPaths.Count -gt 0) {
+    $env:Path = ($runnerToolPaths + $env:Path) -join ";"
+}
 
 # Also add manually installed directories to PATH for this session
 $manualPaths = @(
@@ -634,6 +686,7 @@ foreach ($path in $manualPaths) {
 
 # Refresh PATH in GitHub Actions if available
 if ($env:GITHUB_PATH) {
+    $runnerToolPaths | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     foreach ($path in $manualPaths) {
         if (Test-Path $path) {
             Write-Output "$path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
@@ -762,6 +815,11 @@ if (-not $npmCheck) {
 
 $npmVersion = npm --version
 Write-Output "  npm is installed: $npmVersion"
+
+if ($SkipLint) {
+    Write-Output "Audio test system dependencies installed successfully"
+    return
+}
 
 # Install lint dependencies (shellcheck)
 # PowerShell is pre-installed on Windows CI runners, no installation needed

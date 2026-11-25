@@ -51,7 +51,7 @@ jobs:
       - name: Pre-install (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: .\scripts\install-system-dependencies-windows.ps1
+        run: .\scripts\install-system-dependencies-windows.ps1 -SkipLint
 
       - name: Install dependencies
         run: |
