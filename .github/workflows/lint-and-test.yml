@@ -73,10 +73,11 @@ jobs:
       contents: read
     uses: BehindTheMusicTree/github-workflows/.github/workflows/coverage.yml@18b90bc9c64b9abab0a86e7ea74f65acac93aec1 # v6.6.0
 
+  # Needing coverage gates it too: a failed or skipped coverage job fails the gate when tests are applicable.
   tests-success:
     name: Tests success
     if: always()
-    needs: [classify, test]
+    needs: [classify, test, coverage]
     runs-on: ubuntu-24.04
     steps:
       - name: Require the selected tests to succeed
