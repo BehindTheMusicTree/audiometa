@@ -1572,8 +1572,8 @@ Whether you're fixing bugs, adding features, improving documentation, or sharing
 
 **Ways to contribute:**
 
-- 🐛 **Report bugs** - Use the [bug report template](https://github.com/BehindTheMusicTree/audiometa/issues/new?template=bug_report.yml)
-- 💡 **Suggest features** - Use the [feature request template](https://github.com/BehindTheMusicTree/audiometa/issues/new?template=feature_request.yml)
+- 🐛 **Report bugs** - Use the [bug report template](https://github.com/BehindTheMusicTree/audiometa/issues/new?template=bug-report.yml)
+- 💡 **Suggest features** - Use the [feature request template](https://github.com/BehindTheMusicTree/audiometa/issues/new?template=feature-request.yml)
 - 🔧 **Submit pull requests** - See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
 - 📝 **Improve documentation** - Fix typos, clarify explanations, add examples
 - 💬 **Join discussions** - Share ideas and help others in [GitHub Discussions](https://github.com/BehindTheMusicTree/audiometa/discussions)
