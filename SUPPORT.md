@@ -12,7 +12,7 @@ Before asking for help, please check our documentation:
 
 ## 🐛 Reporting Bugs
 
-Found a bug? Please report it using our [bug report template](.github/ISSUE_TEMPLATE/bug_report.yml):
+Found a bug? Please report it using our [bug report form](https://github.com/BehindTheMusicTree/audiometa/issues/new?template=bug-report.yml):
 
 1. Go to [Issues](https://github.com/Andreas-Garcia/audiometa-python/issues)
 2. Click **New Issue**
